@@ -96,10 +96,18 @@ export function buildBasePrompt(
     prompt += styleProfile.vocabularyPatterns || 'No vocabulary patterns specified.\n';
     prompt += '\n';
     
-    // Add patterns to avoid
+    // Add patterns to avoid - UPDATED with additional instructions
     prompt += '# PATTERNS TO AVOID\n';
-    prompt += styleProfile.avoidPatterns || 'No patterns to avoid specified.\n';
-    prompt += '\n';
+    if (styleProfile.avoidPatterns) {
+      prompt += styleProfile.avoidPatterns + '\n\n';
+    }
+    
+    // Add the new instructions about avoiding formulaic writing
+    prompt += 'Additionally, avoid these common AI writing patterns:\n';
+    prompt += '- Avoid formulaic transitions and setups. Specifically, don\'t use short phrase + question mark/colon constructions (like \'The result?\' or \'Here\'s why:\' or \'My thoughts?\'). Instead, use more natural, varied sentence structures and transitions that flow organically without relying on these predictable patterns.\n';
+    prompt += '- Avoid rhetorical questions as transitions.\n';
+    prompt += '- Skip predictable setups and just state insights directly.\n';
+    prompt += '- Use a more conversational flow without manufactured \'turning points\' in the content.\n\n';
   } else {
     prompt += '# WRITING STYLE GUIDE\nNo writing style profile available.\n\n';
   }
