@@ -113,7 +113,11 @@ const IdeaDetailPage = () => {
             onFeedbackChange={setFeedback}
             onSaveFeedback={handleFeedbackSave}
           />
-          <IdeaActions id={idea.id} onDeleteIdea={handleDeleteIdea} />
+          <IdeaActions 
+            id={idea.id} 
+            status={idea.status}
+            onDeleteIdea={handleDeleteIdea} 
+          />
         </div>
       </div>
     </div>
