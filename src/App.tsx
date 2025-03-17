@@ -15,7 +15,7 @@ import ContentPillarsPage from "./pages/ContentPillarsPage";
 import TargetAudiencesPage from "./pages/TargetAudiencesPage";
 import LinkedinPostsPage from "./pages/LinkedinPostsPage";
 import DocumentsPage from "./pages/DocumentsPage";
-import SettingsPage from "./pages/SettingsPage";
+import SettingsPage from "./pages/Settings";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import NotFound from "./pages/NotFound";
