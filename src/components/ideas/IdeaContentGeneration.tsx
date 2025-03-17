@@ -28,6 +28,7 @@ const IdeaContentGeneration: React.FC<IdeaContentGenerationProps> = ({
     setGeneratingType(contentType);
     
     try {
+      console.log("Generating content of type:", contentType, "for idea with status:", idea.status);
       const generatedContent = await generateContent(idea, contentType);
       
       if (generatedContent) {

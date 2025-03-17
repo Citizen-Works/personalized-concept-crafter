@@ -56,7 +56,14 @@ const IdeaDetailPage = () => {
   const handleGenerateDraft = async (contentType: string, content: string) => {
     if (!idea) return;
     
+    if (!content) {
+      toast.error('No content was generated');
+      return;
+    }
+    
     try {
+      console.log("Creating draft with content type:", contentType);
+      
       // Create the draft with the generated content
       await createDraft({
         contentIdeaId: idea.id,

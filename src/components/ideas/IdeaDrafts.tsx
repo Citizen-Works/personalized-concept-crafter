@@ -22,6 +22,7 @@ const IdeaDrafts: React.FC<IdeaDraftsProps> = ({ idea, onGenerateDraft }) => {
     }
     
     try {
+      console.log("Generating draft for idea with status:", idea.status);
       const generatedContent = await generateContent(idea, idea.contentType as ContentType);
       
       if (generatedContent) {
