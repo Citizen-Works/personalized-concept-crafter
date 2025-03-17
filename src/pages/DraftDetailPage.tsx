@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
-import { ArrowLeft, ChevronLeft, ChevronRight, Copy, Edit, Share, ThumbsDown, ThumbsUp } from 'lucide-react';
+import { ArrowLeft, ChevronLeft, ChevronRight, Copy, Edit, Share, ThumbsDown, ThumbsUp, Trash } from 'lucide-react';
 import { useDrafts } from '@/hooks/useDrafts';
 import { toast } from "sonner";
 

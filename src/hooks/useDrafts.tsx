@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -78,7 +77,7 @@ export const useDrafts = () => {
     };
   };
 
-  const createDraft = async (draft: Omit<ContentDraft, "id" | "createdAt">) => {
+  const createDraft = async (draft: Omit<ContentDraft, "id" | "createdAt"> & { contentType?: ContentType }) => {
     if (!user) throw new Error("User not authenticated");
 
     const { data, error } = await supabase
@@ -89,7 +88,7 @@ export const useDrafts = () => {
           content: draft.content,
           version: draft.version,
           feedback: draft.feedback,
-          content_type: draft.contentType
+          ...(draft.contentType ? { content_type: draft.contentType } : {})
         }
       ])
       .select()
