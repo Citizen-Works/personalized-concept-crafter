@@ -24,6 +24,13 @@ const DraftDetailPage = () => {
     });
   };
 
+  const handleDeleteDraft = async (id: string): Promise<void> => {
+    return new Promise<void>((resolve, reject) => {
+      deleteDraft(id);
+      resolve();
+    });
+  };
+
   if (isLoading) {
     return <DraftLoading />;
   }
@@ -49,7 +56,7 @@ const DraftDetailPage = () => {
             draftId={draft.id}
             content={draft.content}
             contentIdeaId={draft.contentIdeaId}
-            onDelete={deleteDraft}
+            onDelete={handleDeleteDraft}
           />
           
           <DraftFeedback 
