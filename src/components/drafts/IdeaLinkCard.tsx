@@ -3,7 +3,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { useIdeas } from '@/hooks/useIdeas';
+import { useIdeas } from '@/hooks/ideas';
 import { ArrowRight } from 'lucide-react';
 
 type IdeaLinkCardProps = {
