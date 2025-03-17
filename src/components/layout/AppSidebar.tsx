@@ -54,12 +54,12 @@ export const AppSidebar = () => {
           <SidebarGroupContent>
             <SidebarMenu>
               <SidebarMenuItem>
-                <SidebarMenuButton asChild>
-                  <NavLink to="/dashboard" className={({ isActive }) => isActive ? "text-primary font-medium" : ""}>
-                    <Home className="h-4 w-4" />
-                    <span>Dashboard</span>
-                  </NavLink>
-                </SidebarMenuButton>
+                <NavLink to="/dashboard" className={({ isActive }) => 
+                  `flex items-center gap-2 px-3 py-2 rounded-md ${isActive ? "text-primary font-medium bg-primary/10" : "hover:bg-muted"}`
+                }>
+                  <Home className="h-4 w-4" />
+                  <span>Dashboard</span>
+                </NavLink>
               </SidebarMenuItem>
             </SidebarMenu>
           </SidebarGroupContent>
@@ -70,22 +70,22 @@ export const AppSidebar = () => {
           <SidebarGroupContent>
             <SidebarMenu>
               <SidebarMenuItem>
-                <SidebarMenuButton asChild>
-                  <NavLink to="/ideas" className={({ isActive }) => isActive ? "text-primary font-medium" : ""}>
-                    <Lightbulb className="h-4 w-4" />
-                    <span>Ideas</span>
-                    <Badge className="ml-auto bg-secondary text-secondary-foreground">12</Badge>
-                  </NavLink>
-                </SidebarMenuButton>
+                <NavLink to="/ideas" className={({ isActive }) => 
+                  `flex items-center gap-2 px-3 py-2 rounded-md ${isActive ? "text-primary font-medium bg-primary/10" : "hover:bg-muted"}`
+                }>
+                  <Lightbulb className="h-4 w-4" />
+                  <span>Ideas</span>
+                  <Badge className="ml-auto bg-secondary text-secondary-foreground">12</Badge>
+                </NavLink>
               </SidebarMenuItem>
               <SidebarMenuItem>
-                <SidebarMenuButton asChild>
-                  <NavLink to="/drafts" className={({ isActive }) => isActive ? "text-primary font-medium" : ""}>
-                    <FileText className="h-4 w-4" />
-                    <span>Drafts</span>
-                    <Badge className="ml-auto bg-secondary text-secondary-foreground">5</Badge>
-                  </NavLink>
-                </SidebarMenuButton>
+                <NavLink to="/drafts" className={({ isActive }) => 
+                  `flex items-center gap-2 px-3 py-2 rounded-md ${isActive ? "text-primary font-medium bg-primary/10" : "hover:bg-muted"}`
+                }>
+                  <FileText className="h-4 w-4" />
+                  <span>Drafts</span>
+                  <Badge className="ml-auto bg-secondary text-secondary-foreground">5</Badge>
+                </NavLink>
               </SidebarMenuItem>
             </SidebarMenu>
           </SidebarGroupContent>
@@ -96,20 +96,20 @@ export const AppSidebar = () => {
           <SidebarGroupContent>
             <SidebarMenu>
               <SidebarMenuItem>
-                <SidebarMenuButton asChild>
-                  <NavLink to="/pillars" className={({ isActive }) => isActive ? "text-primary font-medium" : ""}>
-                    <Target className="h-4 w-4" />
-                    <span>Content Pillars</span>
-                  </NavLink>
-                </SidebarMenuButton>
+                <NavLink to="/pillars" className={({ isActive }) => 
+                  `flex items-center gap-2 px-3 py-2 rounded-md ${isActive ? "text-primary font-medium bg-primary/10" : "hover:bg-muted"}`
+                }>
+                  <Target className="h-4 w-4" />
+                  <span>Content Pillars</span>
+                </NavLink>
               </SidebarMenuItem>
               <SidebarMenuItem>
-                <SidebarMenuButton asChild>
-                  <NavLink to="/audiences" className={({ isActive }) => isActive ? "text-primary font-medium" : ""}>
-                    <Users className="h-4 w-4" />
-                    <span>Target Audiences</span>
-                  </NavLink>
-                </SidebarMenuButton>
+                <NavLink to="/audiences" className={({ isActive }) => 
+                  `flex items-center gap-2 px-3 py-2 rounded-md ${isActive ? "text-primary font-medium bg-primary/10" : "hover:bg-muted"}`
+                }>
+                  <Users className="h-4 w-4" />
+                  <span>Target Audiences</span>
+                </NavLink>
               </SidebarMenuItem>
             </SidebarMenu>
           </SidebarGroupContent>
@@ -120,20 +120,20 @@ export const AppSidebar = () => {
           <SidebarGroupContent>
             <SidebarMenu>
               <SidebarMenuItem>
-                <SidebarMenuButton asChild>
-                  <NavLink to="/linkedin" className={({ isActive }) => isActive ? "text-primary font-medium" : ""}>
-                    <LinkedinIcon className="h-4 w-4" />
-                    <span>LinkedIn Posts</span>
-                  </NavLink>
-                </SidebarMenuButton>
+                <NavLink to="/linkedin" className={({ isActive }) => 
+                  `flex items-center gap-2 px-3 py-2 rounded-md ${isActive ? "text-primary font-medium bg-primary/10" : "hover:bg-muted"}`
+                }>
+                  <LinkedinIcon className="h-4 w-4" />
+                  <span>LinkedIn Posts</span>
+                </NavLink>
               </SidebarMenuItem>
               <SidebarMenuItem>
-                <SidebarMenuButton asChild>
-                  <NavLink to="/documents" className={({ isActive }) => isActive ? "text-primary font-medium" : ""}>
-                    <FileBox className="h-4 w-4" />
-                    <span>Documents</span>
-                  </NavLink>
-                </SidebarMenuButton>
+                <NavLink to="/documents" className={({ isActive }) => 
+                  `flex items-center gap-2 px-3 py-2 rounded-md ${isActive ? "text-primary font-medium bg-primary/10" : "hover:bg-muted"}`
+                }>
+                  <FileBox className="h-4 w-4" />
+                  <span>Documents</span>
+                </NavLink>
               </SidebarMenuItem>
             </SidebarMenu>
           </SidebarGroupContent>
@@ -143,18 +143,21 @@ export const AppSidebar = () => {
       <SidebarFooter className="px-4 py-2">
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton asChild>
-              <NavLink to="/settings" className={({ isActive }) => isActive ? "text-primary font-medium" : ""}>
-                <Settings className="h-4 w-4" />
-                <span>Settings</span>
-              </NavLink>
-            </SidebarMenuButton>
+            <NavLink to="/settings" className={({ isActive }) => 
+              `flex items-center gap-2 px-3 py-2 rounded-md ${isActive ? "text-primary font-medium bg-primary/10" : "hover:bg-muted"}`
+            }>
+              <Settings className="h-4 w-4" />
+              <span>Settings</span>
+            </NavLink>
           </SidebarMenuItem>
           <SidebarMenuItem>
-            <SidebarMenuButton onClick={handleLogout} className="w-full flex items-center text-left">
+            <button 
+              onClick={handleLogout} 
+              className="w-full flex items-center gap-2 px-3 py-2 rounded-md text-left hover:bg-muted"
+            >
               <LogOut className="h-4 w-4" />
               <span>Logout</span>
-            </SidebarMenuButton>
+            </button>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarFooter>

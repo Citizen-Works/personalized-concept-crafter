@@ -56,7 +56,7 @@ const Dashboard = () => {
               <CardTitle>Recent Ideas</CardTitle>
               <CardDescription>Your latest content ideas</CardDescription>
             </div>
-            <Button variant="outline" size="sm" asChild>
+            <Button variant="outline" size="sm">
               <Link to="/ideas" className="flex items-center gap-1">
                 View All <ArrowRight className="h-4 w-4 ml-1" />
               </Link>
@@ -81,7 +81,7 @@ const Dashboard = () => {
                       </div>
                     </div>
                   </div>
-                  <Button variant="ghost" size="sm" asChild>
+                  <Button variant="ghost" size="sm">
                     <Link to={`/ideas/${idea.id}`}>
                       <ArrowRight className="h-4 w-4" />
                     </Link>
@@ -98,7 +98,7 @@ const Dashboard = () => {
               <CardTitle>Recent Drafts</CardTitle>
               <CardDescription>Your latest content drafts</CardDescription>
             </div>
-            <Button variant="outline" size="sm" asChild>
+            <Button variant="outline" size="sm">
               <Link to="/drafts" className="flex items-center gap-1">
                 View All <ArrowRight className="h-4 w-4 ml-1" />
               </Link>
@@ -117,7 +117,7 @@ const Dashboard = () => {
                       </div>
                     </div>
                   </div>
-                  <Button variant="ghost" size="sm" asChild>
+                  <Button variant="ghost" size="sm">
                     <Link to={`/drafts/${draft.id}`}>
                       <ArrowRight className="h-4 w-4" />
                     </Link>
@@ -136,14 +136,14 @@ const Dashboard = () => {
             <CardDescription>Frequently used features</CardDescription>
           </CardHeader>
           <CardContent className="grid gap-3">
-            <Button asChild className="w-full justify-start">
-              <Link to="/ideas" className="flex items-center gap-2">
+            <Button className="w-full justify-start">
+              <Link to="/ideas" className="flex items-center gap-2 text-white w-full">
                 <Lightbulb className="h-4 w-4" />
                 Create New Content Idea
               </Link>
             </Button>
-            <Button asChild variant="outline" className="w-full justify-start">
-              <Link to="/drafts" className="flex items-center gap-2">
+            <Button variant="outline" className="w-full justify-start">
+              <Link to="/drafts" className="flex items-center gap-2 w-full">
                 <FileText className="h-4 w-4" />
                 Manage Drafts
               </Link>
