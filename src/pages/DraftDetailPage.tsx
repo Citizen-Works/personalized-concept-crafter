@@ -26,8 +26,12 @@ const DraftDetailPage = () => {
 
   const handleDeleteDraft = async (id: string): Promise<void> => {
     return new Promise<void>((resolve, reject) => {
-      deleteDraft(id);
-      resolve();
+      try {
+        deleteDraft(id);
+        resolve();
+      } catch (error) {
+        reject(error);
+      }
     });
   };
 
