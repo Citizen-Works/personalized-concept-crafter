@@ -1,10 +1,36 @@
 
-import React from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import React, { useState } from 'react';
+import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Plus, Users } from 'lucide-react';
+import { AddTargetAudienceDialog } from '@/components/TargetAudience/AddTargetAudienceDialog';
+import { TargetAudienceCard } from '@/components/TargetAudience/TargetAudienceCard';
+import { EmptyTargetAudiencesState } from '@/components/TargetAudience/EmptyTargetAudiencesState';
+import { useTargetAudiences } from '@/hooks/useTargetAudiences';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const TargetAudiencesPage = () => {
+  const [showAddDialog, setShowAddDialog] = useState(false);
+  const { 
+    targetAudiences, 
+    isLoading, 
+    isError, 
+    refetch, 
+    deleteTargetAudience
+  } = useTargetAudiences();
+
+  const handleAdd = () => {
+    setShowAddDialog(true);
+  };
+
+  const handleAudienceAdded = () => {
+    refetch();
+  };
+
+  const handleDeleteAudience = (id: string) => {
+    deleteTargetAudience.mutate(id);
+  };
+
   return (
     <div className="space-y-8">
       <div className="flex flex-col gap-2">
@@ -15,28 +41,46 @@ const TargetAudiencesPage = () => {
       </div>
 
       <div className="flex justify-end">
-        <Button className="gap-1">
-          <Plus className="h-4 w-4" />
-          Add Target Audience
-        </Button>
+        <AddTargetAudienceDialog onAudienceAdded={handleAudienceAdded} />
       </div>
       
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {/* This would be populated with actual target audiences */}
-        <Card className="border-dashed border-2">
-          <CardContent className="p-6 flex flex-col items-center justify-center min-h-[200px] text-center">
-            <Users className="h-8 w-8 text-muted-foreground mb-3" />
-            <h3 className="text-lg font-medium">Add Target Audience</h3>
-            <p className="text-sm text-muted-foreground mt-1 mb-4">
-              Define who your content is designed to reach
-            </p>
-            <Button className="gap-1">
-              <Plus className="h-4 w-4" />
-              Add Audience
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
+      {isLoading ? (
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {[...Array(3)].map((_, i) => (
+            <Card key={i} className="h-[240px]">
+              <div className="p-6 space-y-3">
+                <Skeleton className="h-6 w-3/4" />
+                <Skeleton className="h-24 w-full" />
+                <Skeleton className="h-4 w-1/2" />
+                <Skeleton className="h-4 w-2/3" />
+              </div>
+            </Card>
+          ))}
+        </div>
+      ) : isError ? (
+        <div className="text-center p-8 text-destructive">
+          <p>Failed to load target audiences. Please try again.</p>
+          <Button variant="outline" onClick={() => refetch()} className="mt-4">
+            Retry
+          </Button>
+        </div>
+      ) : targetAudiences.length > 0 ? (
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {targetAudiences.map((audience) => (
+            <TargetAudienceCard
+              key={audience.id}
+              audience={audience}
+              onEdit={handleAudienceAdded}
+              onDelete={() => handleDeleteAudience(audience.id)}
+            />
+          ))}
+          <EmptyTargetAudiencesState onClick={handleAdd} />
+        </div>
+      ) : (
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          <EmptyTargetAudiencesState onClick={handleAdd} />
+        </div>
+      )}
     </div>
   );
 };

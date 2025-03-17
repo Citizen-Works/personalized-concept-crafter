@@ -1,10 +1,36 @@
 
-import React from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import React, { useState } from 'react';
+import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Plus } from 'lucide-react';
+import { AddContentPillarDialog } from '@/components/ContentPillar/AddContentPillarDialog';
+import { ContentPillarCard } from '@/components/ContentPillar/ContentPillarCard';
+import { EmptyContentPillarsState } from '@/components/ContentPillar/EmptyContentPillarsState';
+import { useContentPillars } from '@/hooks/useContentPillars';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const ContentPillarsPage = () => {
+  const [showAddDialog, setShowAddDialog] = useState(false);
+  const { 
+    contentPillars, 
+    isLoading, 
+    isError, 
+    refetch, 
+    deleteContentPillar
+  } = useContentPillars();
+
+  const handleAdd = () => {
+    setShowAddDialog(true);
+  };
+
+  const handlePillarAdded = () => {
+    refetch();
+  };
+
+  const handleDeletePillar = (id: string) => {
+    deleteContentPillar.mutate(id);
+  };
+
   return (
     <div className="space-y-8">
       <div className="flex flex-col gap-2">
@@ -15,28 +41,44 @@ const ContentPillarsPage = () => {
       </div>
 
       <div className="flex justify-end">
-        <Button className="gap-1">
-          <Plus className="h-4 w-4" />
-          Add Content Pillar
-        </Button>
+        <AddContentPillarDialog onPillarAdded={handlePillarAdded} />
       </div>
       
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {/* This would be populated with actual content pillars */}
-        <Card className="border-dashed border-2">
-          <CardContent className="p-6 flex flex-col items-center justify-center min-h-[200px] text-center">
-            <Plus className="h-8 w-8 text-muted-foreground mb-3" />
-            <h3 className="text-lg font-medium">Add Content Pillar</h3>
-            <p className="text-sm text-muted-foreground mt-1 mb-4">
-              Define key topics for your content strategy
-            </p>
-            <Button className="gap-1">
-              <Plus className="h-4 w-4" />
-              Add Pillar
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
+      {isLoading ? (
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {[...Array(3)].map((_, i) => (
+            <Card key={i} className="h-[200px]">
+              <div className="p-6 space-y-3">
+                <Skeleton className="h-6 w-3/4" />
+                <Skeleton className="h-24 w-full" />
+              </div>
+            </Card>
+          ))}
+        </div>
+      ) : isError ? (
+        <div className="text-center p-8 text-destructive">
+          <p>Failed to load content pillars. Please try again.</p>
+          <Button variant="outline" onClick={() => refetch()} className="mt-4">
+            Retry
+          </Button>
+        </div>
+      ) : contentPillars.length > 0 ? (
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {contentPillars.map((pillar) => (
+            <ContentPillarCard
+              key={pillar.id}
+              pillar={pillar}
+              onEdit={handlePillarAdded}
+              onDelete={() => handleDeletePillar(pillar.id)}
+            />
+          ))}
+          <EmptyContentPillarsState onClick={handleAdd} />
+        </div>
+      ) : (
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          <EmptyContentPillarsState onClick={handleAdd} />
+        </div>
+      )}
     </div>
   );
 };
