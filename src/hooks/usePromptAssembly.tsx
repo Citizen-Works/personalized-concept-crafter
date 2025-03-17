@@ -15,7 +15,7 @@ import {
   addCustomInstructionsToPrompt, 
   addTaskToPrompt,
   addLinkedinPostsToPrompt
-} from '@/utils/promptBuilder';
+} from '@/utils/promptBuilder'; // Path updated but import names stay the same
 import { 
   getCachedPrompt, 
   cachePrompt, 
