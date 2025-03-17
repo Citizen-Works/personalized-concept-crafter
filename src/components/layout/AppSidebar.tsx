@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { NavLink } from 'react-router-dom';
 import { 
@@ -28,8 +27,15 @@ import {
   PenTool,
 } from 'lucide-react';
 import { Badge } from "@/components/ui/badge";
+import { useAuth } from '@/context/AuthContext';
 
 export const AppSidebar = () => {
+  const { signOut } = useAuth();
+
+  const handleLogout = async () => {
+    await signOut();
+  };
+
   return (
     <Sidebar>
       <SidebarHeader className="flex items-center gap-2 px-6">
@@ -48,7 +54,7 @@ export const AppSidebar = () => {
             <SidebarMenu>
               <SidebarMenuItem>
                 <SidebarMenuButton asChild>
-                  <NavLink to="/" className={({ isActive }) => isActive ? "text-primary font-medium" : ""}>
+                  <NavLink to="/dashboard" className={({ isActive }) => isActive ? "text-primary font-medium" : ""}>
                     <Home className="h-4 w-4" />
                     <span>Dashboard</span>
                   </NavLink>
@@ -144,11 +150,9 @@ export const AppSidebar = () => {
             </SidebarMenuButton>
           </SidebarMenuItem>
           <SidebarMenuItem>
-            <SidebarMenuButton asChild>
-              <button className="w-full flex items-center text-left">
-                <LogOut className="h-4 w-4" />
-                <span>Logout</span>
-              </button>
+            <SidebarMenuButton onClick={handleLogout} className="w-full flex items-center text-left">
+              <LogOut className="h-4 w-4" />
+              <span>Logout</span>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
