@@ -1,10 +1,42 @@
 
-import React from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
-import { Plus, FileText, Upload } from 'lucide-react';
+import { Plus, FileText, Upload, Search, Filter } from 'lucide-react';
+import { Input } from "@/components/ui/input";
+import { 
+  Select, 
+  SelectContent, 
+  SelectItem, 
+  SelectTrigger, 
+  SelectValue 
+} from "@/components/ui/select";
+import DocumentUploadModal from '@/components/documents/DocumentUploadModal';
+import DocumentCard from '@/components/documents/DocumentCard';
+import { useDocuments } from '@/hooks/useDocuments';
+import { Document } from '@/types';
 
 const DocumentsPage = () => {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [purposeFilter, setPurposeFilter] = useState<string>("all");
+  const [typeFilter, setTypeFilter] = useState<string>("all");
+  const [statusFilter, setStatusFilter] = useState<string>("active");
+  
+  const { documents, isLoading } = useDocuments();
+  
+  const filteredDocuments = documents.filter((doc: Document) => {
+    const matchesSearch = doc.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                          doc.content?.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesPurpose = purposeFilter === "all" || doc.purpose === purposeFilter;
+    const matchesType = typeFilter === "all" || doc.type === typeFilter;
+    const matchesStatus = statusFilter === "all" || doc.status === statusFilter;
+    
+    return matchesSearch && matchesPurpose && matchesType && matchesStatus;
+  });
+  
+  const noDocuments = documents.length === 0 && !isLoading;
+  const noFilteredResults = documents.length > 0 && filteredDocuments.length === 0;
+
   return (
     <div className="space-y-8">
       <div className="flex flex-col gap-2">
@@ -14,34 +46,121 @@ const DocumentsPage = () => {
         </p>
       </div>
 
-      <div className="flex justify-end gap-2">
-        <Button variant="outline" className="gap-1">
-          <Upload className="h-4 w-4" />
-          Upload Document
-        </Button>
-        <Button className="gap-1">
-          <Plus className="h-4 w-4" />
-          Create Document
-        </Button>
-      </div>
+      {!noDocuments && (
+        <>
+          <div className="flex flex-col md:flex-row gap-4">
+            <div className="relative flex-1">
+              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Search documents..."
+                className="pl-8"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </div>
+            
+            <div className="flex gap-2 flex-wrap md:flex-nowrap">
+              <Select value={purposeFilter} onValueChange={setPurposeFilter}>
+                <SelectTrigger className="w-[160px]">
+                  <Filter className="mr-2 h-4 w-4" />
+                  <SelectValue placeholder="Purpose" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Purposes</SelectItem>
+                  <SelectItem value="writing_sample">Writing Samples</SelectItem>
+                  <SelectItem value="business_context">Business Context</SelectItem>
+                </SelectContent>
+              </Select>
+              
+              <Select value={typeFilter} onValueChange={setTypeFilter}>
+                <SelectTrigger className="w-[160px]">
+                  <SelectValue placeholder="Document Type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Types</SelectItem>
+                  <SelectItem value="blog">Blog</SelectItem>
+                  <SelectItem value="newsletter">Newsletter</SelectItem>
+                  <SelectItem value="whitepaper">Whitepaper</SelectItem>
+                  <SelectItem value="case-study">Case Study</SelectItem>
+                  <SelectItem value="other">Other</SelectItem>
+                </SelectContent>
+              </Select>
+              
+              <Select value={statusFilter} onValueChange={setStatusFilter}>
+                <SelectTrigger className="w-[160px]">
+                  <SelectValue placeholder="Status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Status</SelectItem>
+                  <SelectItem value="active">Active</SelectItem>
+                  <SelectItem value="archived">Archived</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          
+          <div className="flex justify-end gap-2">
+            <Button variant="outline" className="gap-1" onClick={() => setIsModalOpen(true)}>
+              <Upload className="h-4 w-4" />
+              Upload Document
+            </Button>
+            <Button className="gap-1" onClick={() => setIsModalOpen(true)}>
+              <Plus className="h-4 w-4" />
+              Create Document
+            </Button>
+          </div>
+        </>
+      )}
       
-      <div className="flex flex-col items-center justify-center p-12 text-center border rounded-lg bg-muted/10">
-        <FileText className="h-12 w-12 text-muted-foreground mb-4" />
-        <h3 className="text-lg font-medium">No Documents Yet</h3>
-        <p className="text-sm text-muted-foreground mt-2 mb-6 max-w-md">
-          Upload writing samples, articles, or other documents to help the AI understand your writing style.
-        </p>
-        <div className="flex gap-2">
-          <Button variant="outline" className="gap-1">
-            <Upload className="h-4 w-4" />
-            Upload Document
-          </Button>
-          <Button className="gap-1">
-            <Plus className="h-4 w-4" />
-            Create Document
+      {isLoading ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {Array.from({ length: 6 }).map((_, index) => (
+            <div key={index} className="h-48 rounded-lg bg-muted animate-pulse"></div>
+          ))}
+        </div>
+      ) : noDocuments ? (
+        <div className="flex flex-col items-center justify-center p-12 text-center border rounded-lg bg-muted/10">
+          <FileText className="h-12 w-12 text-muted-foreground mb-4" />
+          <h3 className="text-lg font-medium">No Documents Yet</h3>
+          <p className="text-sm text-muted-foreground mt-2 mb-6 max-w-md">
+            Upload writing samples, articles, or other documents to help the AI understand your writing style.
+          </p>
+          <div className="flex gap-2">
+            <Button variant="outline" className="gap-1" onClick={() => setIsModalOpen(true)}>
+              <Upload className="h-4 w-4" />
+              Upload Document
+            </Button>
+            <Button className="gap-1" onClick={() => setIsModalOpen(true)}>
+              <Plus className="h-4 w-4" />
+              Create Document
+            </Button>
+          </div>
+        </div>
+      ) : noFilteredResults ? (
+        <div className="flex flex-col items-center justify-center p-12 text-center border rounded-lg bg-muted/10">
+          <Search className="h-12 w-12 text-muted-foreground mb-4" />
+          <h3 className="text-lg font-medium">No matching documents</h3>
+          <p className="text-sm text-muted-foreground mt-2 mb-6">
+            Try adjusting your search or filters to find what you're looking for.
+          </p>
+          <Button variant="outline" onClick={() => {
+            setSearchTerm("");
+            setPurposeFilter("all");
+            setTypeFilter("all");
+            setStatusFilter("active");
+          }}>
+            Reset Filters
           </Button>
         </div>
-      </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {filteredDocuments.map((document) => (
+            <DocumentCard key={document.id} document={document} />
+          ))}
+        </div>
+      )}
+
+      <DocumentUploadModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
     </div>
   );
 };

@@ -1,4 +1,3 @@
-
 export interface User {
   id: string;
   email: string;
@@ -42,6 +41,9 @@ export interface Document {
   title: string;
   content: string;
   type: 'blog' | 'newsletter' | 'whitepaper' | 'case-study' | 'other';
+  purpose: 'writing_sample' | 'business_context';
+  status: 'active' | 'archived';
+  content_type: 'linkedin' | 'newsletter' | 'marketing' | 'general' | null;
   createdAt: Date;
 }
 

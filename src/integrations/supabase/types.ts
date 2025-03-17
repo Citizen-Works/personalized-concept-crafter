@@ -9,6 +9,185 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      content_drafts: {
+        Row: {
+          content: string
+          content_idea_id: string
+          created_at: string
+          feedback: string | null
+          id: string
+          updated_at: string
+          version: number
+        }
+        Insert: {
+          content: string
+          content_idea_id: string
+          created_at?: string
+          feedback?: string | null
+          id?: string
+          updated_at?: string
+          version?: number
+        }
+        Update: {
+          content?: string
+          content_idea_id?: string
+          created_at?: string
+          feedback?: string | null
+          id?: string
+          updated_at?: string
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "content_drafts_content_idea_id_fkey"
+            columns: ["content_idea_id"]
+            isOneToOne: false
+            referencedRelation: "content_ideas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      content_ideas: {
+        Row: {
+          content_type: string
+          created_at: string
+          description: string | null
+          id: string
+          meeting_transcript_excerpt: string | null
+          notes: string | null
+          source: string
+          source_url: string | null
+          status: string
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          content_type: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          meeting_transcript_excerpt?: string | null
+          notes?: string | null
+          source: string
+          source_url?: string | null
+          status: string
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          content_type?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          meeting_transcript_excerpt?: string | null
+          notes?: string | null
+          source?: string
+          source_url?: string | null
+          status?: string
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      content_pillars: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          name: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          name: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          name?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      documents: {
+        Row: {
+          content: string | null
+          content_type: string | null
+          created_at: string
+          id: string
+          purpose: string
+          status: string
+          title: string
+          type: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          content?: string | null
+          content_type?: string | null
+          created_at?: string
+          id?: string
+          purpose?: string
+          status?: string
+          title: string
+          type: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          content?: string | null
+          content_type?: string | null
+          created_at?: string
+          id?: string
+          purpose?: string
+          status?: string
+          title?: string
+          type?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      linkedin_posts: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          published_at: string | null
+          updated_at: string
+          url: string | null
+          user_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          published_at?: string | null
+          updated_at?: string
+          url?: string | null
+          user_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          published_at?: string | null
+          updated_at?: string
+          url?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           business_description: string | null
@@ -36,6 +215,93 @@ export type Database = {
           linkedin_url?: string | null
           name?: string | null
           updated_at?: string
+        }
+        Relationships: []
+      }
+      target_audiences: {
+        Row: {
+          created_at: string
+          description: string | null
+          goals: string[] | null
+          id: string
+          name: string
+          pain_points: string[] | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          goals?: string[] | null
+          id?: string
+          name: string
+          pain_points?: string[] | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          goals?: string[] | null
+          id?: string
+          name?: string
+          pain_points?: string[] | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      writing_style_profiles: {
+        Row: {
+          avoid_patterns: string | null
+          created_at: string
+          example_quotes: string[] | null
+          general_style_guide: string | null
+          id: string
+          linkedin_examples: string[] | null
+          linkedin_style_guide: string | null
+          marketing_examples: string[] | null
+          marketing_style_guide: string | null
+          newsletter_examples: string[] | null
+          newsletter_style_guide: string | null
+          updated_at: string
+          user_id: string
+          vocabulary_patterns: string | null
+          voice_analysis: string | null
+        }
+        Insert: {
+          avoid_patterns?: string | null
+          created_at?: string
+          example_quotes?: string[] | null
+          general_style_guide?: string | null
+          id?: string
+          linkedin_examples?: string[] | null
+          linkedin_style_guide?: string | null
+          marketing_examples?: string[] | null
+          marketing_style_guide?: string | null
+          newsletter_examples?: string[] | null
+          newsletter_style_guide?: string | null
+          updated_at?: string
+          user_id: string
+          vocabulary_patterns?: string | null
+          voice_analysis?: string | null
+        }
+        Update: {
+          avoid_patterns?: string | null
+          created_at?: string
+          example_quotes?: string[] | null
+          general_style_guide?: string | null
+          id?: string
+          linkedin_examples?: string[] | null
+          linkedin_style_guide?: string | null
+          marketing_examples?: string[] | null
+          marketing_style_guide?: string | null
+          newsletter_examples?: string[] | null
+          newsletter_style_guide?: string | null
+          updated_at?: string
+          user_id?: string
+          vocabulary_patterns?: string | null
+          voice_analysis?: string | null
         }
         Relationships: []
       }
