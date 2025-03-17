@@ -1,16 +1,46 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Plus } from 'lucide-react';
-import { ContentIdea } from '@/types';
+import { Plus, Loader2 } from 'lucide-react';
+import { ContentIdea, ContentType } from '@/types';
+import { useClaudeAI } from '@/hooks/useClaudeAI';
+import { toast } from 'sonner';
 
 interface IdeaContentGenerationProps {
   idea: ContentIdea;
-  onGenerateDraft: (contentType: string) => Promise<void>;
+  onGenerateDraft: (contentType: string, content: string) => Promise<void>;
 }
 
-const IdeaContentGeneration: React.FC<IdeaContentGenerationProps> = ({ idea, onGenerateDraft }) => {
+const IdeaContentGeneration: React.FC<IdeaContentGenerationProps> = ({ 
+  idea, 
+  onGenerateDraft 
+}) => {
+  const [generatingType, setGeneratingType] = useState<ContentType | null>(null);
+  const { generateContent, isGenerating } = useClaudeAI();
+
+  const handleGenerateDraft = async (contentType: ContentType) => {
+    if (idea.status !== 'approved') {
+      toast.error('Only approved ideas can be used to generate drafts');
+      return;
+    }
+
+    setGeneratingType(contentType);
+    
+    try {
+      const generatedContent = await generateContent(idea, contentType);
+      
+      if (generatedContent) {
+        await onGenerateDraft(contentType, generatedContent);
+        toast.success(`${contentType.charAt(0).toUpperCase() + contentType.slice(1)} draft generated successfully`);
+      }
+    } catch (error) {
+      console.error('Error in handleGenerateDraft:', error);
+    } finally {
+      setGeneratingType(null);
+    }
+  };
+
   return (
     <Card>
       <CardHeader className="pb-3">
@@ -22,27 +52,54 @@ const IdeaContentGeneration: React.FC<IdeaContentGenerationProps> = ({ idea, onG
       <CardContent className="space-y-4">
         <Button 
           className="w-full gap-1" 
-          disabled={idea.status !== 'approved'} 
-          onClick={() => onGenerateDraft('linkedin')}
+          disabled={idea.status !== 'approved' || isGenerating}
+          onClick={() => handleGenerateDraft('linkedin')}
         >
-          <Plus className="h-4 w-4" />
-          Generate LinkedIn Post
+          {generatingType === 'linkedin' ? (
+            <>
+              <Loader2 className="h-4 w-4 animate-spin" />
+              Generating...
+            </>
+          ) : (
+            <>
+              <Plus className="h-4 w-4" />
+              Generate LinkedIn Post
+            </>
+          )}
         </Button>
         <Button 
           className="w-full gap-1" 
-          disabled={idea.status !== 'approved'}
-          onClick={() => onGenerateDraft('newsletter')}
+          disabled={idea.status !== 'approved' || isGenerating}
+          onClick={() => handleGenerateDraft('newsletter')}
         >
-          <Plus className="h-4 w-4" />
-          Generate Newsletter
+          {generatingType === 'newsletter' ? (
+            <>
+              <Loader2 className="h-4 w-4 animate-spin" />
+              Generating...
+            </>
+          ) : (
+            <>
+              <Plus className="h-4 w-4" />
+              Generate Newsletter
+            </>
+          )}
         </Button>
         <Button 
           className="w-full gap-1" 
-          disabled={idea.status !== 'approved'}
-          onClick={() => onGenerateDraft('marketing')}
+          disabled={idea.status !== 'approved' || isGenerating}
+          onClick={() => handleGenerateDraft('marketing')}
         >
-          <Plus className="h-4 w-4" />
-          Generate Marketing Copy
+          {generatingType === 'marketing' ? (
+            <>
+              <Loader2 className="h-4 w-4 animate-spin" />
+              Generating...
+            </>
+          ) : (
+            <>
+              <Plus className="h-4 w-4" />
+              Generate Marketing Copy
+            </>
+          )}
         </Button>
       </CardContent>
     </Card>
