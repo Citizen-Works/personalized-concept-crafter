@@ -9,7 +9,7 @@ import {
 } from '../index';
 import * as basePromptBuilderModule from '../basePromptBuilder';
 import * as contentSpecificSectionsModule from '../contentSpecificSections';
-import { ContentType } from '@/types';
+import { ContentType, ContentSource } from '@/types';
 
 describe('PromptBuilder Index', () => {
   it('should export buildBasePrompt function', () => {
@@ -77,11 +77,11 @@ describe('PromptBuilder Index', () => {
       title: 'Test Idea', 
       description: '',
       notes: '',
-      source: 'manual',
+      source: 'manual' as ContentSource,
       meetingTranscriptExcerpt: null,
       sourceUrl: null,
       status: 'unreviewed',
-      contentType: 'linkedin',
+      contentType: 'linkedin' as ContentType,
       createdAt: new Date()
     };
     const mockPosts = [{ 
