@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
 import { ArrowLeft, Edit, Plus, Trash } from 'lucide-react';
-import { useIdeas } from '@/hooks/useIdeas';
+import { useIdeas } from '@/hooks/ideas';
 import { useDrafts } from '@/hooks/useDrafts';
 import { toast } from 'sonner';
 

@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Card, CardContent } from "@/components/ui/card";
@@ -22,7 +23,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ArrowRight, ChevronDown, Edit, Filter, Lightbulb, MoreHorizontal, Plus, Trash } from 'lucide-react';
 import { Badge } from "@/components/ui/badge";
 import { ContentIdea, ContentStatus, ContentType } from '@/types';
-import { useIdeas } from '@/hooks/useIdeas';
+import { useIdeas } from '@/hooks/ideas';
 import { toast } from 'sonner';
 
 const IdeasPage = () => {

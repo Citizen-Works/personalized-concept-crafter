@@ -15,7 +15,7 @@ import {
 import { Label } from "@/components/ui/label";
 import { ArrowLeft } from 'lucide-react';
 import { ContentType, ContentSource } from '@/types';
-import { useIdeas } from '@/hooks/useIdeas';
+import { useIdeas } from '@/hooks/ideas';
 import { toast } from 'sonner';
 
 const NewIdeaPage = () => {
