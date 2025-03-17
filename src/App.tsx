@@ -23,41 +23,54 @@ import NotFound from "./pages/NotFound";
 import Index from "./pages/Index";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
 
+// Set up a script to handle initial theme
+const initializeThemeScript = `
+  (function() {
+    const theme = localStorage.getItem('theme') || 'system';
+    const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    const resolvedTheme = theme === 'system' ? systemTheme : theme;
+    document.documentElement.classList.toggle('dark', resolvedTheme === 'dark');
+  })();
+`;
+
 const queryClient = new QueryClient();
 
 const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <BrowserRouter>
-      <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-        <TooltipProvider>
-          <AuthProvider>
-            <Routes>
-              <Route path="/" element={<Index />} />
-              <Route path="/login" element={<LoginPage />} />
-              <Route path="/register" element={<RegisterPage />} />
-              
-              <Route element={<ProtectedRoute><MainLayout /></ProtectedRoute>}>
-                <Route path="/dashboard" element={<Dashboard />} />
-                <Route path="/ideas" element={<IdeasPage />} />
-                <Route path="/ideas/:id" element={<IdeaDetailPage />} />
-                <Route path="/drafts" element={<DraftsPage />} />
-                <Route path="/drafts/:id" element={<DraftDetailPage />} />
-                <Route path="/pillars" element={<ContentPillarsPage />} />
-                <Route path="/audiences" element={<TargetAudiencesPage />} />
-                <Route path="/linkedin" element={<LinkedinPostsPage />} />
-                <Route path="/documents" element={<DocumentsPage />} />
-                <Route path="/settings" element={<SettingsPage />} />
-              </Route>
-              
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-            <Toaster />
-            <Sonner />
-          </AuthProvider>
-        </TooltipProvider>
-      </ThemeProvider>
-    </BrowserRouter>
-  </QueryClientProvider>
+  <>
+    <script dangerouslySetInnerHTML={{ __html: initializeThemeScript }} />
+    <QueryClientProvider client={queryClient}>
+      <BrowserRouter>
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+          <TooltipProvider>
+            <AuthProvider>
+              <Routes>
+                <Route path="/" element={<Index />} />
+                <Route path="/login" element={<LoginPage />} />
+                <Route path="/register" element={<RegisterPage />} />
+                
+                <Route element={<ProtectedRoute><MainLayout /></ProtectedRoute>}>
+                  <Route path="/dashboard" element={<Dashboard />} />
+                  <Route path="/ideas" element={<IdeasPage />} />
+                  <Route path="/ideas/:id" element={<IdeaDetailPage />} />
+                  <Route path="/drafts" element={<DraftsPage />} />
+                  <Route path="/drafts/:id" element={<DraftDetailPage />} />
+                  <Route path="/pillars" element={<ContentPillarsPage />} />
+                  <Route path="/audiences" element={<TargetAudiencesPage />} />
+                  <Route path="/linkedin" element={<LinkedinPostsPage />} />
+                  <Route path="/documents" element={<DocumentsPage />} />
+                  <Route path="/settings" element={<SettingsPage />} />
+                </Route>
+                
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+              <Toaster />
+              <Sonner />
+            </AuthProvider>
+          </TooltipProvider>
+        </ThemeProvider>
+      </BrowserRouter>
+    </QueryClientProvider>
+  </>
 );
 
 export default App;

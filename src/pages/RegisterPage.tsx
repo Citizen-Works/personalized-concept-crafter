@@ -9,6 +9,7 @@ import { PenTool } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { toast } from 'sonner';
 import { Separator } from "@/components/ui/separator";
+import { ThemeToggle } from '@/components/ui/theme-toggle';
 
 const RegisterPage = () => {
   const [name, setName] = useState('');
@@ -50,7 +51,11 @@ const RegisterPage = () => {
   };
   
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-background to-secondary/30 p-4">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-background p-4 relative">
+      <div className="absolute top-4 right-4">
+        <ThemeToggle />
+      </div>
+      
       <div className="w-full max-w-md animate-scale-in">
         <div className="flex justify-center mb-8">
           <div className="flex items-center gap-2">
@@ -59,7 +64,7 @@ const RegisterPage = () => {
           </div>
         </div>
         
-        <Card className="backdrop-blur-sm bg-white/95 shadow-lg border-white/20">
+        <Card>
           <CardHeader className="space-y-1">
             <CardTitle className="text-2xl font-bold">Create an account</CardTitle>
             <CardDescription>Enter your information to create an account</CardDescription>
