@@ -16,13 +16,8 @@ const IdeaDrafts: React.FC<IdeaDraftsProps> = ({ idea, onGenerateDraft }) => {
   const { generateContent, isGenerating } = useClaudeAI();
   
   const handleGenerateDraft = async () => {
-    if (idea.status !== 'approved') {
-      toast.error('Only approved ideas can be used to generate drafts');
-      return;
-    }
-    
     try {
-      console.log("Generating draft for idea with status:", idea.status);
+      console.log("Generating draft for idea:", idea.id);
       const generatedContent = await generateContent(idea, idea.contentType as ContentType);
       
       if (generatedContent) {
@@ -44,7 +39,7 @@ const IdeaDrafts: React.FC<IdeaDraftsProps> = ({ idea, onGenerateDraft }) => {
           <CardTitle>Drafts</CardTitle>
           <Button 
             className="gap-1" 
-            disabled={idea.status !== 'approved' || isGenerating}
+            disabled={isGenerating}
             onClick={handleGenerateDraft}
           >
             {isGenerating ? (
@@ -85,7 +80,7 @@ const IdeaDrafts: React.FC<IdeaDraftsProps> = ({ idea, onGenerateDraft }) => {
             </p>
             <Button 
               className="mt-4 gap-1" 
-              disabled={idea.status !== 'approved' || isGenerating}
+              disabled={isGenerating}
               onClick={handleGenerateDraft}
             >
               {isGenerating ? (

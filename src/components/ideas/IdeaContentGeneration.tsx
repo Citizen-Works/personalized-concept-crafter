@@ -20,15 +20,10 @@ const IdeaContentGeneration: React.FC<IdeaContentGenerationProps> = ({
   const { generateContent, isGenerating } = useClaudeAI();
 
   const handleGenerateDraft = async (contentType: ContentType) => {
-    if (idea.status !== 'approved') {
-      toast.error('Only approved ideas can be used to generate drafts');
-      return;
-    }
-
     setGeneratingType(contentType);
     
     try {
-      console.log("Generating content of type:", contentType, "for idea with status:", idea.status);
+      console.log("Generating content of type:", contentType, "for idea:", idea.id);
       const generatedContent = await generateContent(idea, contentType);
       
       if (generatedContent) {
@@ -53,7 +48,7 @@ const IdeaContentGeneration: React.FC<IdeaContentGenerationProps> = ({
       <CardContent className="space-y-4">
         <Button 
           className="w-full gap-1" 
-          disabled={idea.status !== 'approved' || isGenerating || generatingType !== null}
+          disabled={isGenerating || generatingType !== null}
           onClick={() => handleGenerateDraft('linkedin')}
         >
           {generatingType === 'linkedin' ? (
@@ -70,7 +65,7 @@ const IdeaContentGeneration: React.FC<IdeaContentGenerationProps> = ({
         </Button>
         <Button 
           className="w-full gap-1" 
-          disabled={idea.status !== 'approved' || isGenerating || generatingType !== null}
+          disabled={isGenerating || generatingType !== null}
           onClick={() => handleGenerateDraft('newsletter')}
         >
           {generatingType === 'newsletter' ? (
@@ -87,7 +82,7 @@ const IdeaContentGeneration: React.FC<IdeaContentGenerationProps> = ({
         </Button>
         <Button 
           className="w-full gap-1" 
-          disabled={idea.status !== 'approved' || isGenerating || generatingType !== null}
+          disabled={isGenerating || generatingType !== null}
           onClick={() => handleGenerateDraft('marketing')}
         >
           {generatingType === 'marketing' ? (
