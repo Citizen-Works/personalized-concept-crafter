@@ -64,13 +64,12 @@ const IdeaDetailPage = () => {
     try {
       console.log("Creating draft with content type:", contentType);
       
-      // Create the draft with the generated content
+      // Create the draft with the generated content - WITHOUT content_type field
       await createDraft({
         contentIdeaId: idea.id,
         content: content,
         version: 1,
-        feedback: '',
-        contentType: contentType as ContentType
+        feedback: ''
       });
       
       // Update the idea status to 'drafted'

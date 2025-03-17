@@ -28,6 +28,8 @@ const IdeaDrafts: React.FC<IdeaDraftsProps> = ({ idea, onGenerateDraft }) => {
       if (generatedContent) {
         await onGenerateDraft(idea.contentType, generatedContent);
         toast.success(`Draft generated successfully`);
+      } else {
+        toast.error('No content was generated');
       }
     } catch (error) {
       console.error('Error generating draft:', error);

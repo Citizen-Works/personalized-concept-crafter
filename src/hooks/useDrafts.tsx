@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -77,18 +78,28 @@ export const useDrafts = () => {
     };
   };
 
-  const createDraft = async (draft: Omit<ContentDraft, "id" | "createdAt"> & { contentType?: ContentType }) => {
+  const createDraft = async (draft: Omit<ContentDraft, "id" | "createdAt">) => {
     if (!user) throw new Error("User not authenticated");
+
+    // Remove contentType if it's included in the draft object
+    // since it doesn't exist in the database table
+    const { contentType, ...draftData } = draft as any;
+
+    console.log("Creating draft with data:", {
+      content_idea_id: draftData.contentIdeaId,
+      content: draftData.content,
+      version: draftData.version,
+      feedback: draftData.feedback
+    });
 
     const { data, error } = await supabase
       .from("content_drafts")
       .insert([
         {
-          content_idea_id: draft.contentIdeaId,
-          content: draft.content,
-          version: draft.version,
-          feedback: draft.feedback,
-          ...(draft.contentType ? { content_type: draft.contentType } : {})
+          content_idea_id: draftData.contentIdeaId,
+          content: draftData.content,
+          version: draftData.version,
+          feedback: draftData.feedback
         }
       ])
       .select()
@@ -96,6 +107,7 @@ export const useDrafts = () => {
 
     if (error) {
       toast.error("Failed to create draft");
+      console.error("Database error:", error);
       throw error;
     }
 
