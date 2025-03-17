@@ -1,36 +1,107 @@
 
-import React from 'react';
-import { useParams, Link } from 'react-router-dom';
+import React, { useState } from 'react';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
 import { ArrowLeft, ChevronLeft, ChevronRight, Copy, Edit, Share, ThumbsDown, ThumbsUp } from 'lucide-react';
+import { useDrafts } from '@/hooks/useDrafts';
+import { toast } from "sonner";
 
 const DraftDetailPage = () => {
   const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
+  const { getDraft, updateDraft, deleteDraft } = useDrafts();
+  const { data: draft, isLoading, isError } = getDraft(id || '');
   
-  // Mock data for the draft
-  const draft = {
-    id: id,
-    ideaId: "1",
-    ideaTitle: "How to leverage AI for business growth",
-    content: `Artificial Intelligence is revolutionizing how businesses operate across every industry. From automating routine tasks to providing deeper customer insights, AI is no longer just a competitive advantage—it's becoming a necessity.
+  const [feedback, setFeedback] = useState<string>('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-Here are 3 practical ways your business can leverage AI today:
+  // Set initial feedback value when draft is loaded
+  React.useEffect(() => {
+    if (draft) {
+      setFeedback(draft.feedback || '');
+    }
+  }, [draft]);
 
-1. Enhance customer experience with AI-powered chatbots and personalization
-2. Optimize operations through predictive maintenance and inventory management
-3. Gain competitive intelligence through automated market analysis
-
-The businesses that thrive in the coming years won't be the ones with the biggest budgets, but those that strategically implement AI to solve real problems and create measurable value.
-
-Are you exploring AI solutions for your business? What challenges are you hoping to address?`,
-    version: 2,
-    feedback: "Make it more concise and add specific examples",
-    contentType: "linkedin" as const,
-    createdAt: new Date("2023-06-17")
+  const handleCopyContent = () => {
+    if (draft) {
+      navigator.clipboard.writeText(draft.content)
+        .then(() => toast.success('Content copied to clipboard'))
+        .catch(() => toast.error('Failed to copy content'));
+    }
   };
+
+  const handleSaveFeedback = async () => {
+    if (!draft) return;
+    
+    setIsSubmitting(true);
+    try {
+      await updateDraft({
+        id: draft.id,
+        feedback
+      });
+    } catch (error) {
+      console.error('Error saving feedback:', error);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleDeleteDraft = async () => {
+    if (!draft) return;
+    
+    if (window.confirm('Are you sure you want to delete this draft?')) {
+      try {
+        await deleteDraft(draft.id);
+        toast.success('Draft deleted successfully');
+        navigate('/drafts');
+      } catch (error) {
+        console.error('Error deleting draft:', error);
+      }
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <div className="space-y-8">
+        <div className="flex items-center gap-4">
+          <Button variant="ghost" size="sm" asChild className="gap-1">
+            <Link to="/drafts">
+              <ArrowLeft className="h-4 w-4" />
+              <span>Back to Drafts</span>
+            </Link>
+          </Button>
+        </div>
+        <div className="flex items-center justify-center h-64">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+        </div>
+      </div>
+    );
+  }
+
+  if (isError || !draft) {
+    return (
+      <div className="space-y-8">
+        <div className="flex items-center gap-4">
+          <Button variant="ghost" size="sm" asChild className="gap-1">
+            <Link to="/drafts">
+              <ArrowLeft className="h-4 w-4" />
+              <span>Back to Drafts</span>
+            </Link>
+          </Button>
+        </div>
+        <div className="text-center p-8">
+          <h2 className="text-2xl font-bold mb-2">Draft Not Found</h2>
+          <p className="text-muted-foreground mb-4">The draft you're looking for doesn't exist or you don't have permission to view it.</p>
+          <Button asChild>
+            <Link to="/drafts">Return to Drafts</Link>
+          </Button>
+        </div>
+      </div>
+    );
+  }
   
   return (
     <div className="space-y-8">
@@ -47,7 +118,11 @@ Are you exploring AI solutions for your business? What challenges are you hoping
         <div className="flex flex-wrap items-center gap-2">
           <h1 className="text-3xl font-bold tracking-tight">{draft.ideaTitle}</h1>
           <Badge 
-            className="bg-sky-50 text-sky-700 border-sky-200"
+            className={draft.contentType === 'linkedin' 
+              ? 'bg-sky-50 text-sky-700 border-sky-200' 
+              : draft.contentType === 'newsletter' 
+                ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                : 'bg-rose-50 text-rose-700 border-rose-200'}
           >
             {draft.contentType.charAt(0).toUpperCase() + draft.contentType.slice(1)}
           </Badge>
@@ -71,7 +146,12 @@ Are you exploring AI solutions for your business? What challenges are you hoping
                     <Edit className="h-4 w-4" />
                     Edit
                   </Button>
-                  <Button variant="outline" size="sm" className="gap-1">
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="gap-1"
+                    onClick={handleCopyContent}
+                  >
                     <Copy className="h-4 w-4" />
                     Copy
                   </Button>
@@ -87,11 +167,11 @@ Are you exploring AI solutions for your business? What challenges are you hoping
           </Card>
           
           <div className="flex items-center justify-between">
-            <Button variant="outline" size="sm" className="gap-1">
+            <Button variant="outline" size="sm" className="gap-1" disabled>
               <ChevronLeft className="h-4 w-4" />
               Previous Version
             </Button>
-            <Button variant="outline" size="sm" className="gap-1">
+            <Button variant="outline" size="sm" className="gap-1" disabled>
               Next Version
               <ChevronRight className="h-4 w-4" />
             </Button>
@@ -115,9 +195,21 @@ Are you exploring AI solutions for your business? What challenges are you hoping
                 <Edit className="h-4 w-4" />
                 Regenerate
               </Button>
-              <Button variant="outline" className="w-full gap-1">
+              <Button 
+                variant="outline" 
+                className="w-full gap-1"
+                onClick={handleCopyContent}
+              >
                 <Copy className="h-4 w-4" />
                 Copy to Clipboard
+              </Button>
+              <Button 
+                variant="destructive" 
+                className="w-full gap-1"
+                onClick={handleDeleteDraft}
+              >
+                <Trash className="h-4 w-4" />
+                Delete Draft
               </Button>
             </CardContent>
           </Card>
@@ -144,9 +236,16 @@ Are you exploring AI solutions for your business? What challenges are you hoping
               <Textarea 
                 placeholder="Add specific feedback here..."
                 className="min-h-24 resize-none"
-                defaultValue={draft.feedback}
+                value={feedback}
+                onChange={(e) => setFeedback(e.target.value)}
               />
-              <Button className="w-full">Save Feedback</Button>
+              <Button 
+                className="w-full"
+                onClick={handleSaveFeedback}
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? 'Saving...' : 'Save Feedback'}
+              </Button>
             </CardContent>
           </Card>
           
@@ -159,7 +258,7 @@ Are you exploring AI solutions for your business? What challenges are you hoping
             </CardHeader>
             <CardContent>
               <Button variant="outline" className="w-full" asChild>
-                <Link to={`/ideas/${draft.ideaId}`}>
+                <Link to={`/ideas/${draft.contentIdeaId}`}>
                   View Content Idea
                 </Link>
               </Button>

@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { 
@@ -19,70 +19,14 @@ import {
   SelectTrigger, 
   SelectValue 
 } from "@/components/ui/select";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ArrowRight, ChevronDown, Edit, FileText, Filter, MoreHorizontal, Trash } from 'lucide-react';
 import { Badge } from "@/components/ui/badge";
-import { ContentDraft, ContentType } from '@/types';
+import { ContentType } from '@/types';
+import { useDrafts, DraftWithIdea } from '@/hooks/useDrafts';
+import { toast } from 'sonner';
 
 const DraftsPage = () => {
-  // Mock data for content drafts
-  const mockDrafts: (ContentDraft & { 
-    ideaTitle: string; 
-    contentType: ContentType 
-  })[] = [
-    {
-      id: "1",
-      contentIdeaId: "1",
-      ideaTitle: "How to leverage AI for business growth",
-      content: "In today's rapidly evolving business landscape, AI isn't just a buzzword—it's a transformative force...",
-      version: 1,
-      feedback: "",
-      contentType: "linkedin",
-      createdAt: new Date("2023-06-16")
-    },
-    {
-      id: "2",
-      contentIdeaId: "1",
-      ideaTitle: "How to leverage AI for business growth",
-      content: "Artificial Intelligence is revolutionizing how businesses operate across every industry...",
-      version: 2,
-      feedback: "Make it more concise and add specific examples",
-      contentType: "linkedin",
-      createdAt: new Date("2023-06-17")
-    },
-    {
-      id: "3",
-      contentIdeaId: "2",
-      ideaTitle: "5 steps to improve customer retention",
-      content: "Customer retention is the cornerstone of sustainable business growth...",
-      version: 1,
-      feedback: "",
-      contentType: "newsletter",
-      createdAt: new Date("2023-06-14")
-    },
-    {
-      id: "4",
-      contentIdeaId: "4",
-      ideaTitle: "The future of remote work",
-      content: "Remote work has fundamentally changed how we think about productivity and collaboration...",
-      version: 1,
-      feedback: "",
-      contentType: "linkedin",
-      createdAt: new Date("2023-06-09")
-    },
-    {
-      id: "5",
-      contentIdeaId: "4",
-      ideaTitle: "The future of remote work",
-      content: "The traditional office paradigm has been permanently disrupted by remote work...",
-      version: 2,
-      feedback: "Focus more on hybrid models and less on fully remote",
-      contentType: "linkedin",
-      createdAt: new Date("2023-06-10")
-    },
-  ];
-  
-  const [drafts, setDrafts] = useState(mockDrafts);
+  const { drafts, isLoading, isError, deleteDraft } = useDrafts();
   const [searchQuery, setSearchQuery] = useState('');
   const [typeFilter, setTypeFilter] = useState<ContentType | 'all'>('all');
   
@@ -105,6 +49,41 @@ const DraftsPage = () => {
         return 'bg-rose-50 text-rose-700 border-rose-200';
     }
   };
+
+  const handleDeleteDraft = (id: string) => {
+    if (window.confirm('Are you sure you want to delete this draft?')) {
+      deleteDraft(id);
+    }
+  };
+  
+  if (isLoading) {
+    return (
+      <div className="space-y-8">
+        <div className="flex flex-col gap-2">
+          <h1 className="text-3xl font-bold tracking-tight">Content Drafts</h1>
+          <p className="text-muted-foreground">
+            Loading your drafts...
+          </p>
+        </div>
+        <div className="flex items-center justify-center h-64">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+        </div>
+      </div>
+    );
+  }
+
+  if (isError) {
+    return (
+      <div className="space-y-8">
+        <div className="flex flex-col gap-2">
+          <h1 className="text-3xl font-bold tracking-tight">Content Drafts</h1>
+          <p className="text-muted-foreground">
+            There was an error loading your drafts. Please try again.
+          </p>
+        </div>
+      </div>
+    );
+  }
   
   return (
     <div className="space-y-8">
@@ -210,7 +189,7 @@ const DraftsPage = () => {
                           <Edit className="h-4 w-4 mr-2" />
                           Edit
                         </DropdownMenuItem>
-                        <DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => handleDeleteDraft(draft.id)}>
                           <Trash className="h-4 w-4 mr-2 text-destructive" />
                           <span className="text-destructive">Delete</span>
                         </DropdownMenuItem>
