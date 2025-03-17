@@ -6,6 +6,7 @@ import { DraftListItem } from '@/components/drafts/DraftListItem';
 import { DraftsEmptyState } from '@/components/drafts/DraftsEmptyState';
 import { ContentType } from '@/types';
 import { useDrafts } from '@/hooks/useDrafts';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const DraftsPage = () => {
   const { drafts, isLoading, isError, deleteDraft } = useDrafts();
@@ -27,8 +28,22 @@ const DraftsPage = () => {
     return (
       <div className="space-y-8">
         <DraftsHeader />
-        <div className="flex items-center justify-center h-64">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+        <div className="space-y-4">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="border rounded-lg p-4">
+              <div className="flex items-start justify-between">
+                <div className="space-y-2 w-full">
+                  <Skeleton className="h-5 w-1/3" />
+                  <Skeleton className="h-4 w-3/4" />
+                  <div className="flex items-center gap-2 mt-2">
+                    <Skeleton className="h-3 w-20" />
+                    <Skeleton className="h-5 w-16 rounded-full" />
+                  </div>
+                </div>
+                <Skeleton className="h-8 w-8 rounded-full" />
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     );
@@ -38,9 +53,12 @@ const DraftsPage = () => {
     return (
       <div className="space-y-8">
         <DraftsHeader />
-        <p className="text-muted-foreground">
-          There was an error loading your drafts. Please try again.
-        </p>
+        <div className="p-6 border rounded-lg bg-destructive/10 text-destructive">
+          <p className="font-medium">Error loading drafts</p>
+          <p className="text-sm mt-1">
+            There was an error loading your drafts. Please try again or contact support if the problem persists.
+          </p>
+        </div>
       </div>
     );
   }

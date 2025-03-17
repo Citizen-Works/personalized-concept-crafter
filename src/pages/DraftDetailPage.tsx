@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { useDrafts } from '@/hooks/useDrafts';
 import { DraftHeader } from '@/components/drafts/DraftHeader';
 import { DraftContent } from '@/components/drafts/DraftContent';
@@ -9,27 +9,38 @@ import { DraftFeedback } from '@/components/drafts/DraftFeedback';
 import { IdeaLinkCard } from '@/components/drafts/IdeaLinkCard';
 import { DraftLoading } from '@/components/drafts/DraftLoading';
 import { DraftError } from '@/components/drafts/DraftError';
+import { toast } from 'sonner';
 
 const DraftDetailPage = () => {
   const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
   const { getDraft, updateDraft, deleteDraft } = useDrafts();
   const { data: draft, isLoading, isError } = getDraft(id || '');
   
   const handleSaveFeedback = async (feedback: string) => {
     if (!draft) return;
     
-    await updateDraft({
-      id: draft.id,
-      feedback
-    });
+    try {
+      await updateDraft({
+        id: draft.id,
+        feedback
+      });
+      toast.success("Feedback saved successfully");
+    } catch (error) {
+      toast.error("Failed to save feedback");
+      console.error(error);
+    }
   };
 
   const handleDeleteDraft = async (id: string): Promise<void> => {
     return new Promise<void>((resolve, reject) => {
       try {
         deleteDraft(id);
+        toast.success("Draft deleted successfully");
+        navigate('/drafts');
         resolve();
       } catch (error) {
+        toast.error("Failed to delete draft");
         reject(error);
       }
     });

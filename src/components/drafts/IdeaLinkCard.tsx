@@ -5,6 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { useIdeas } from '@/hooks/ideas';
 import { ArrowRight } from 'lucide-react';
+import { Skeleton } from '@/components/ui/skeleton';
 
 type IdeaLinkCardProps = {
   contentIdeaId: string;
@@ -21,7 +22,12 @@ export const IdeaLinkCard: React.FC<IdeaLinkCardProps> = ({ contentIdeaId }) => 
           <CardTitle>Related Content Idea</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="h-8 bg-muted/30 rounded animate-pulse"></div>
+          <div className="space-y-2">
+            <Skeleton className="h-5 w-2/3" />
+            <Skeleton className="h-4 w-full" />
+            <Skeleton className="h-4 w-3/4" />
+            <Skeleton className="h-9 w-full mt-4" />
+          </div>
         </CardContent>
       </Card>
     );

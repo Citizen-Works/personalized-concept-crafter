@@ -5,14 +5,19 @@ import { Button } from "@/components/ui/button";
 import { Link } from 'react-router-dom';
 import { ArrowRight, FileText, Lightbulb, Zap } from 'lucide-react';
 import { useIdeas } from '@/hooks/ideas';
+import { useDrafts } from '@/hooks/useDrafts';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const Dashboard = () => {
-  // Fetch real data using the useIdeas hook
-  const { ideas, isLoading } = useIdeas();
+  // Fetch real data using the hooks
+  const { ideas, isLoading: isIdeasLoading } = useIdeas();
+  const { drafts, isLoading: isDraftsLoading } = useDrafts();
+  
+  const isLoading = isIdeasLoading || isDraftsLoading;
   
   // Filter ideas by status to get counts
   const contentIdeasCount = ideas.length;
-  const contentDraftsCount = ideas.filter(idea => idea.status === 'drafted').length;
+  const contentDraftsCount = drafts.length;
   const publishedContentCount = ideas.filter(idea => idea.status === 'published').length;
 
   // Get most recent ideas (up to 3)
@@ -24,21 +29,20 @@ const Dashboard = () => {
   }));
 
   // Get recent drafted ideas (up to 2)
-  const recentDrafts = ideas
-    .filter(idea => idea.status === 'drafted')
+  const recentDrafts = drafts
     .slice(0, 2)
-    .map(idea => ({
-      id: idea.id, 
-      title: idea.title, 
-      version: 1, // We don't have version info in the data model yet
-      date: new Date(idea.createdAt).toLocaleDateString()
+    .map(draft => ({
+      id: draft.id, 
+      title: draft.ideaTitle, 
+      version: draft.version, 
+      date: new Date(draft.createdAt).toLocaleDateString()
     }));
   
   // Stats data from real counts
   const stats = [
-    { title: "Content Ideas", value: contentIdeasCount, icon: Lightbulb },
-    { title: "Content Drafts", value: contentDraftsCount, icon: FileText },
-    { title: "Published Content", value: publishedContentCount, icon: Zap },
+    { title: "Content Ideas", value: isLoading ? "-" : contentIdeasCount, icon: Lightbulb },
+    { title: "Content Drafts", value: isLoading ? "-" : contentDraftsCount, icon: FileText },
+    { title: "Published Content", value: isLoading ? "-" : publishedContentCount, icon: Zap },
   ];
   
   return (
@@ -59,7 +63,7 @@ const Dashboard = () => {
               </div>
               <div>
                 <p className="text-sm font-medium text-muted-foreground">{stat.title}</p>
-                <h3 className="text-3xl font-bold">{stat.value}</h3>
+                <h3 className="text-3xl font-bold">{isLoading ? <Skeleton className="h-8 w-8" /> : stat.value}</h3>
               </div>
             </CardContent>
           </Card>
@@ -80,9 +84,20 @@ const Dashboard = () => {
             </Button>
           </CardHeader>
           <CardContent>
-            {isLoading ? (
-              <div className="flex items-center justify-center py-6">
-                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
+            {isIdeasLoading ? (
+              <div className="space-y-4">
+                {[1, 2, 3].map((i) => (
+                  <div key={i} className="flex items-center justify-between border-b pb-3 last:border-0 last:pb-0">
+                    <div className="space-y-1 w-full">
+                      <Skeleton className="h-5 w-2/3" />
+                      <div className="flex items-center gap-2 mt-1">
+                        <Skeleton className="h-3 w-20" />
+                        <Skeleton className="h-5 w-16 rounded-full" />
+                      </div>
+                    </div>
+                    <Skeleton className="h-8 w-8 rounded-full" />
+                  </div>
+                ))}
               </div>
             ) : recentIdeas.length > 0 ? (
               <div className="space-y-4">
@@ -135,9 +150,20 @@ const Dashboard = () => {
             </Button>
           </CardHeader>
           <CardContent>
-            {isLoading ? (
-              <div className="flex items-center justify-center py-6">
-                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
+            {isDraftsLoading ? (
+              <div className="space-y-4">
+                {[1, 2].map((i) => (
+                  <div key={i} className="flex items-center justify-between border-b pb-3 last:border-0 last:pb-0">
+                    <div className="space-y-1 w-full">
+                      <Skeleton className="h-5 w-2/3" />
+                      <div className="flex items-center gap-2 mt-1">
+                        <Skeleton className="h-3 w-20" />
+                        <Skeleton className="h-5 w-16 rounded-full" />
+                      </div>
+                    </div>
+                    <Skeleton className="h-8 w-8 rounded-full" />
+                  </div>
+                ))}
               </div>
             ) : recentDrafts.length > 0 ? (
               <div className="space-y-4">
