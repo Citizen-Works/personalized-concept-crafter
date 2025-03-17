@@ -137,7 +137,7 @@ const Dashboard = () => {
           </CardHeader>
           <CardContent className="grid gap-3">
             <Button asChild className="w-full justify-start">
-              <Link to="/ideas/new" className="flex items-center gap-2">
+              <Link to="/ideas" className="flex items-center gap-2">
                 <Lightbulb className="h-4 w-4" />
                 Create New Content Idea
               </Link>
