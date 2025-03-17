@@ -1,104 +1,115 @@
 
 import { describe, it, expect } from 'vitest';
 import { 
-  addContentIdeaToPrompt, 
-  addTaskToPrompt, 
-  addCustomInstructionsToPrompt,
-  addLinkedinPostsToPrompt
+  buildContentIdeaSection, 
+  buildTaskSection, 
+  buildCustomInstructionsSection,
+  buildLinkedinPostsSection
 } from '../contentSpecificSections';
 import { ContentIdea, LinkedinPost } from '@/types';
 
 describe('Content Specific Sections', () => {
-  const basePrompt = 'This is the base prompt.';
-  
-  describe('addContentIdeaToPrompt', () => {
-    it('should add content idea to the prompt', () => {
+  describe('buildContentIdeaSection', () => {
+    it('should build content idea section', () => {
       const idea: ContentIdea = {
         id: '123',
+        userId: 'user123',
         title: 'Test Idea',
         description: 'This is a test idea',
-        target_keyword: 'testing',
-        status: 'active',
-        created_at: new Date().toISOString(),
-        user_id: 'user123',
-        content_type: 'linkedin'
+        notes: 'Some notes',
+        source: 'manual',
+        meetingTranscriptExcerpt: 'Transcript excerpt',
+        sourceUrl: null,
+        status: 'unreviewed',
+        contentType: 'linkedin',
+        createdAt: new Date()
       };
       
-      const result = addContentIdeaToPrompt(basePrompt, idea);
+      const result = buildContentIdeaSection(idea);
       
-      expect(result).toContain('This is the base prompt.');
-      expect(result).toContain('CONTENT IDEA');
-      expect(result).toContain('Test Idea');
-      expect(result).toContain('This is a test idea');
-      expect(result).toContain('testing');
+      expect(result.title).toBe('# CONTENT IDEA');
+      expect(result.content).toContain('Test Idea');
+      expect(result.content).toContain('This is a test idea');
+      expect(result.content).toContain('Some notes');
+      expect(result.content).toContain('Transcript excerpt');
     });
   });
   
-  describe('addTaskToPrompt', () => {
-    it('should add linkedin task to the prompt', () => {
-      const result = addTaskToPrompt(basePrompt, 'linkedin');
+  describe('buildTaskSection', () => {
+    it('should build LinkedIn task section', () => {
+      const promptText = 'You are an expert content creator helping John Doe of TechCorp create LinkedIn content';
+      const result = buildTaskSection('linkedin', promptText);
       
-      expect(result).toContain('This is the base prompt.');
-      expect(result).toContain('TASK');
-      expect(result).toContain('LinkedIn post');
+      expect(result.title).toBe('# TASK');
+      expect(result.content).toContain('Write a LinkedIn post');
+      expect(result.content).toContain('John Doe');
     });
     
-    it('should add newsletter task to the prompt', () => {
-      const result = addTaskToPrompt(basePrompt, 'newsletter');
+    it('should build newsletter task section', () => {
+      const result = buildTaskSection('newsletter', 'base prompt');
       
-      expect(result).toContain('This is the base prompt.');
-      expect(result).toContain('TASK');
-      expect(result).toContain('newsletter');
+      expect(result.title).toBe('# TASK');
+      expect(result.content).toContain('Create newsletter content');
+    });
+    
+    it('should build marketing task section', () => {
+      const result = buildTaskSection('marketing', 'base prompt');
+      
+      expect(result.title).toBe('# TASK');
+      expect(result.content).toContain('Create marketing copy');
     });
   });
   
-  describe('addCustomInstructionsToPrompt', () => {
-    it('should add custom instructions to the prompt', () => {
+  describe('buildCustomInstructionsSection', () => {
+    it('should build custom instructions section', () => {
       const customInstructions = 'These are custom instructions.';
       
-      const result = addCustomInstructionsToPrompt(basePrompt, customInstructions);
+      const result = buildCustomInstructionsSection(customInstructions);
       
-      expect(result).toContain('This is the base prompt.');
-      expect(result).toContain('CUSTOM INSTRUCTIONS');
-      expect(result).toContain('These are custom instructions.');
+      expect(result?.title).toBe('# CUSTOM INSTRUCTIONS');
+      expect(result?.content).toContain('These are custom instructions.');
     });
     
-    it('should handle empty custom instructions', () => {
-      const result = addCustomInstructionsToPrompt(basePrompt, '');
+    it('should return null for empty custom instructions', () => {
+      const result = buildCustomInstructionsSection(null);
       
-      expect(result).toBe(basePrompt);
+      expect(result).toBeNull();
     });
   });
   
-  describe('addLinkedinPostsToPrompt', () => {
-    it('should add linkedin posts to the prompt', () => {
+  describe('buildLinkedinPostsSection', () => {
+    it('should build linkedin posts section', () => {
       const posts: LinkedinPost[] = [
         {
           id: '1',
+          userId: 'user1',
           content: 'First post content',
-          published_at: new Date().toISOString(),
-          engagement: { likes: 10, comments: 5, shares: 2 }
+          publishedAt: new Date(),
+          url: 'https://linkedin.com/post/1',
+          createdAt: new Date()
         },
         {
           id: '2',
+          userId: 'user1',
           content: 'Second post content',
-          published_at: new Date().toISOString(),
-          engagement: { likes: 20, comments: 8, shares: 3 }
+          publishedAt: new Date(),
+          url: 'https://linkedin.com/post/2',
+          createdAt: new Date()
         }
       ];
       
-      const result = addLinkedinPostsToPrompt(basePrompt, posts);
+      const result = buildLinkedinPostsSection(posts);
       
-      expect(result).toContain('This is the base prompt.');
-      expect(result).toContain('RECENT LINKEDIN POSTS');
-      expect(result).toContain('First post content');
-      expect(result).toContain('Second post content');
+      expect(result.title).toBe('# EXAMPLES OF PREVIOUS LINKEDIN POSTS');
+      expect(result.content).toContain('First post content');
+      expect(result.content).toContain('Second post content');
     });
     
     it('should handle empty posts array', () => {
-      const result = addLinkedinPostsToPrompt(basePrompt, []);
+      const result = buildLinkedinPostsSection([]);
       
-      expect(result).toBe(basePrompt);
+      expect(result.title).toBe('# EXAMPLES OF PREVIOUS LINKEDIN POSTS');
+      expect(result.content).toContain('No previous LinkedIn posts available');
     });
   });
 });

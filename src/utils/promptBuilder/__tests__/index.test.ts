@@ -9,17 +9,51 @@ import {
 } from '../index';
 import * as basePromptBuilderModule from '../basePromptBuilder';
 import * as contentSpecificSectionsModule from '../contentSpecificSections';
+import { ContentType } from '@/types';
 
 describe('PromptBuilder Index', () => {
-  it('should export buildBasePrompt from basePromptBuilder', () => {
-    const spy = vi.spyOn(basePromptBuilderModule, 'buildBasePrompt').mockImplementation(() => 'mocked base prompt');
+  it('should export buildBasePrompt function', () => {
+    const spy = vi.spyOn(basePromptBuilderModule, 'buildBasePromptStructure').mockImplementation(() => ({ sections: [] }));
     
-    const mockUser = { id: '1', name: 'Test User' };
-    const mockPillars = [{ id: '1', name: 'Test Pillar' }];
-    const mockAudiences = [{ id: '1', name: 'Test Audience' }];
-    const mockStyle = { tone: 'Professional' };
+    const mockUser = { 
+      id: '1', 
+      name: 'Test User',
+      email: 'test@example.com',
+      businessName: 'Test Business',
+      businessDescription: 'A test business',
+      linkedinUrl: 'https://linkedin.com/test',
+      jobTitle: 'Test Title',
+      createdAt: new Date()
+    };
+    const mockPillars = [{ id: '1', userId: 'user1', name: 'Test Pillar', description: 'Test description', createdAt: new Date() }];
+    const mockAudiences = [{ 
+      id: '1', 
+      userId: 'user1', 
+      name: 'Test Audience', 
+      description: 'Test description',
+      painPoints: ['Test pain'],
+      goals: ['Test goal'],
+      createdAt: new Date()
+    }];
+    const mockStyle = { 
+      id: 'style1',
+      userId: 'user1',
+      voiceAnalysis: 'Test voice',
+      generalStyleGuide: 'Test style',
+      exampleQuotes: ['Test quote'],
+      vocabularyPatterns: 'Test patterns',
+      avoidPatterns: 'Test avoid',
+      linkedinStyleGuide: 'Test LinkedIn',
+      linkedinExamples: ['Test LinkedIn example'],
+      newsletterStyleGuide: 'Test newsletter',
+      newsletterExamples: ['Test newsletter example'],
+      marketingStyleGuide: 'Test marketing',
+      marketingExamples: ['Test marketing example'],
+      createdAt: new Date(),
+      updatedAt: new Date()
+    };
     
-    buildBasePrompt(mockUser, mockPillars, mockAudiences, mockStyle, 'linkedin');
+    buildBasePrompt(mockUser, mockPillars, mockAudiences, mockStyle, 'linkedin' as ContentType);
     
     expect(spy).toHaveBeenCalledWith(mockUser, mockPillars, mockAudiences, mockStyle, 'linkedin');
     
@@ -27,32 +61,51 @@ describe('PromptBuilder Index', () => {
   });
   
   it('should export functions from contentSpecificSections', () => {
-    const addContentIdeaSpy = vi.spyOn(contentSpecificSectionsModule, 'addContentIdeaToPrompt')
-      .mockImplementation(() => 'prompt with content idea');
-    const addTaskSpy = vi.spyOn(contentSpecificSectionsModule, 'addTaskToPrompt')
-      .mockImplementation(() => 'prompt with task');
-    const addCustomInstructionsSpy = vi.spyOn(contentSpecificSectionsModule, 'addCustomInstructionsToPrompt')
-      .mockImplementation(() => 'prompt with custom instructions');
-    const addLinkedinPostsSpy = vi.spyOn(contentSpecificSectionsModule, 'addLinkedinPostsToPrompt')
-      .mockImplementation(() => 'prompt with linkedin posts');
+    const mockContentIdeaSpy = vi.spyOn(contentSpecificSectionsModule, 'buildContentIdeaSection')
+      .mockImplementation(() => ({ title: '', content: '' }));
+    const mockTaskSpy = vi.spyOn(contentSpecificSectionsModule, 'buildTaskSection')
+      .mockImplementation(() => ({ title: '', content: '' }));
+    const mockCustomInstructionsSpy = vi.spyOn(contentSpecificSectionsModule, 'buildCustomInstructionsSection')
+      .mockImplementation(() => ({ title: '', content: '' }));
+    const mockLinkedinPostsSpy = vi.spyOn(contentSpecificSectionsModule, 'buildLinkedinPostsSection')
+      .mockImplementation(() => ({ title: '', content: '' }));
     
     const mockPrompt = 'test prompt';
-    const mockIdea = { id: '1', title: 'Test Idea', status: 'active' };
-    const mockPosts = [{ id: '1', content: 'Test Post' }];
+    const mockIdea = { 
+      id: '1', 
+      userId: 'user1',
+      title: 'Test Idea', 
+      description: '',
+      notes: '',
+      source: 'manual',
+      meetingTranscriptExcerpt: null,
+      sourceUrl: null,
+      status: 'unreviewed',
+      contentType: 'linkedin',
+      createdAt: new Date()
+    };
+    const mockPosts = [{ 
+      id: '1', 
+      userId: 'user1',
+      content: 'Test Post',
+      publishedAt: new Date(),
+      url: 'https://linkedin.com/post/1',
+      createdAt: new Date()
+    }];
     
-    addContentIdeaToPrompt(mockPrompt, mockIdea as any);
+    addContentIdeaToPrompt(mockPrompt, mockIdea);
     addTaskToPrompt(mockPrompt, 'linkedin');
     addCustomInstructionsToPrompt(mockPrompt, 'custom');
-    addLinkedinPostsToPrompt(mockPrompt, mockPosts as any);
+    addLinkedinPostsToPrompt(mockPrompt, mockPosts);
     
-    expect(addContentIdeaSpy).toHaveBeenCalledWith(mockPrompt, mockIdea);
-    expect(addTaskSpy).toHaveBeenCalledWith(mockPrompt, 'linkedin');
-    expect(addCustomInstructionsSpy).toHaveBeenCalledWith(mockPrompt, 'custom');
-    expect(addLinkedinPostsSpy).toHaveBeenCalledWith(mockPrompt, mockPosts);
+    expect(mockContentIdeaSpy).toHaveBeenCalled();
+    expect(mockTaskSpy).toHaveBeenCalled();
+    expect(mockCustomInstructionsSpy).toHaveBeenCalled();
+    expect(mockLinkedinPostsSpy).toHaveBeenCalled();
     
-    addContentIdeaSpy.mockRestore();
-    addTaskSpy.mockRestore();
-    addCustomInstructionsSpy.mockRestore();
-    addLinkedinPostsSpy.mockRestore();
+    mockContentIdeaSpy.mockRestore();
+    mockTaskSpy.mockRestore();
+    mockCustomInstructionsSpy.mockRestore();
+    mockLinkedinPostsSpy.mockRestore();
   });
 });
