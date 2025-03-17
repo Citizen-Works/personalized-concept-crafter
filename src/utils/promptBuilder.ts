@@ -1,5 +1,5 @@
 
-import { ContentType, ContentIdea, WritingStyleProfile, User, ContentPillar, TargetAudience } from '@/types';
+import { ContentType, ContentIdea, WritingStyleProfile, User, ContentPillar, TargetAudience, LinkedinPost } from '@/types';
 
 /**
  * Builds a base prompt with user context, content pillars, target audiences, and writing style
@@ -12,14 +12,30 @@ export function buildBasePrompt(
   contentType: ContentType
 ): string {
   // Start building the prompt
-  let prompt = '# USER CONTEXT\n';
+  let prompt = 'You are an expert content creator helping ';
   
   if (user) {
-    prompt += `- Name: ${user.name || 'Not specified'}\n`;
-    prompt += `- Business: ${user.businessName || 'Not specified'}\n`;
-    prompt += `- Business Description: ${user.businessDescription || 'Not specified'}\n\n`;
+    prompt += `${user.name} of ${user.businessName} `;
+    
+    if (contentType === 'linkedin') {
+      prompt += 'create a LinkedIn post that perfectly matches their authentic voice and style.\n\n';
+    } else if (contentType === 'newsletter') {
+      prompt += 'create newsletter content that perfectly matches their authentic voice and style.\n\n';
+    } else if (contentType === 'marketing') {
+      prompt += 'create marketing copy that perfectly matches their authentic voice and style.\n\n';
+    }
+
+    // Add business context
+    prompt += '# BUSINESS CONTEXT\n';
+    prompt += `${user.businessDescription || 'Not specified'}\n\n`;
+    
+    if (user.jobTitle) {
+      prompt += `Job Title: ${user.jobTitle}\n\n`;
+    }
   } else {
-    prompt += '- User information not available\n\n';
+    prompt += 'the user create content that perfectly matches their authentic voice and style.\n\n';
+    prompt += '# BUSINESS CONTEXT\n';
+    prompt += 'Not specified\n\n';
   }
   
   // Add content pillars
@@ -38,10 +54,10 @@ export function buildBasePrompt(
   if (targetAudiences.length > 0) {
     targetAudiences.forEach(audience => {
       prompt += `- ${audience.name}: ${audience.description}\n`;
-      if (audience.painPoints.length > 0) {
-        prompt += `  Pain Points: ${audience.painPoints.join(', ')}\n`;
+      if (audience.painPoints && audience.painPoints.length > 0) {
+        prompt += `  Pain points: ${audience.painPoints.join(', ')}\n`;
       }
-      if (audience.goals.length > 0) {
+      if (audience.goals && audience.goals.length > 0) {
         prompt += `  Goals: ${audience.goals.join(', ')}\n`;
       }
     });
@@ -52,23 +68,31 @@ export function buildBasePrompt(
   
   // Add writing style guide
   if (styleProfile) {
-    prompt += '# WRITING STYLE GUIDE\n';
+    prompt += '# WRITING STYLE ANALYSIS\n';
+    prompt += styleProfile.voiceAnalysis || 'No voice analysis available.\n';
+    prompt += '\n';
+    
+    prompt += '# GENERAL STYLE GUIDE\n';
     prompt += styleProfile.generalStyleGuide || 'No general style guide available.\n';
     prompt += '\n';
     
     // Add content type specific style
-    prompt += '# CONTENT TYPE SPECIFIC STYLE\n';
     if (contentType === 'linkedin') {
+      prompt += '# LINKEDIN-SPECIFIC STYLE\n';
       prompt += styleProfile.linkedinStyleGuide || 'No LinkedIn style guide available.\n';
+      prompt += '\n';
     } else if (contentType === 'newsletter') {
+      prompt += '# NEWSLETTER-SPECIFIC STYLE\n';
       prompt += styleProfile.newsletterStyleGuide || 'No Newsletter style guide available.\n';
+      prompt += '\n';
     } else if (contentType === 'marketing') {
+      prompt += '# MARKETING-SPECIFIC STYLE\n';
       prompt += styleProfile.marketingStyleGuide || 'No Marketing style guide available.\n';
+      prompt += '\n';
     }
-    prompt += '\n';
     
     // Add vocabulary patterns
-    prompt += '# VOCABULARY PATTERNS\n';
+    prompt += '# VOCABULARY PATTERNS TO USE\n';
     prompt += styleProfile.vocabularyPatterns || 'No vocabulary patterns specified.\n';
     prompt += '\n';
     
@@ -76,24 +100,6 @@ export function buildBasePrompt(
     prompt += '# PATTERNS TO AVOID\n';
     prompt += styleProfile.avoidPatterns || 'No patterns to avoid specified.\n';
     prompt += '\n';
-    
-    // Add examples
-    prompt += '# EXAMPLES\n';
-    if (contentType === 'linkedin' && styleProfile.linkedinExamples.length > 0) {
-      styleProfile.linkedinExamples.forEach((example, index) => {
-        prompt += `Example ${index + 1}:\n${example}\n\n`;
-      });
-    } else if (contentType === 'newsletter' && styleProfile.newsletterExamples.length > 0) {
-      styleProfile.newsletterExamples.forEach((example, index) => {
-        prompt += `Example ${index + 1}:\n${example}\n\n`;
-      });
-    } else if (contentType === 'marketing' && styleProfile.marketingExamples.length > 0) {
-      styleProfile.marketingExamples.forEach((example, index) => {
-        prompt += `Example ${index + 1}:\n${example}\n\n`;
-      });
-    } else {
-      prompt += 'No examples available for this content type.\n\n';
-    }
   } else {
     prompt += '# WRITING STYLE GUIDE\nNo writing style profile available.\n\n';
   }
@@ -101,13 +107,16 @@ export function buildBasePrompt(
   // Add best practices based on content type
   prompt += '# BEST PRACTICES\n';
   if (contentType === 'linkedin') {
-    prompt += `- Keep posts concise (under 1300 characters)
-- Use line breaks for readability
-- Include a hook in the first 1-3 lines to grab attention
-- End with a question or call to action to drive engagement
-- Include relevant hashtags if appropriate (no more than 3-5)
-- Format with emojis sparingly to highlight key points
-- Write in a conversational, authentic tone\n\n`;
+    prompt += `- Hook the reader in the first 3 lines with a compelling statement, question, or statistic
+- Use short paragraphs (1-3 lines) with plenty of white space
+- Write in a conversational tone that feels authentic and personal
+- Include a personal story, insight, or lesson learned when relevant
+- Create easily scannable content with bullet points, numbers, or emojis as separators
+- End with a clear call-to-action or thought-provoking question
+- Keep the total length between 1200-1400 characters for optimal engagement
+- Use 3-5 relevant hashtags that align with your content pillars
+- Avoid excessive formatting, links, or tagging that feels promotional
+- Ensure the content provides value before asking for anything in return\n\n`;
   } else if (contentType === 'newsletter') {
     prompt += `- Include a compelling subject line/headline
 - Start with an engaging introduction that connects with the reader
@@ -130,6 +139,26 @@ export function buildBasePrompt(
 }
 
 /**
+ * Adds LinkedIn posts to a prompt
+ */
+export function addLinkedinPostsToPrompt(prompt: string, posts: LinkedinPost[]): string {
+  let finalPrompt = prompt;
+  
+  finalPrompt += '# EXAMPLES OF PREVIOUS LINKEDIN POSTS\n';
+  if (posts.length > 0) {
+    posts.forEach(post => {
+      finalPrompt += '---BEGIN POST---\n';
+      finalPrompt += post.content + '\n';
+      finalPrompt += '---END POST---\n\n';
+    });
+  } else {
+    finalPrompt += 'No previous LinkedIn posts available.\n\n';
+  }
+  
+  return finalPrompt;
+}
+
+/**
  * Adds content idea details to a prompt
  */
 export function addContentIdeaToPrompt(basePrompt: string, idea: ContentIdea): string {
@@ -142,6 +171,9 @@ export function addContentIdeaToPrompt(basePrompt: string, idea: ContentIdea): s
   }
   if (idea.notes) {
     finalPrompt += `Notes: ${idea.notes}\n`;
+  }
+  if (idea.meetingTranscriptExcerpt) {
+    finalPrompt += `Meeting Transcript Excerpt: ${idea.meetingTranscriptExcerpt}\n`;
   }
   finalPrompt += '\n';
   
@@ -169,7 +201,14 @@ export function addTaskToPrompt(prompt: string, contentType: ContentType): strin
   
   finalPrompt += '# TASK\n';
   if (contentType === 'linkedin') {
-    finalPrompt += 'Create a LinkedIn post based on the content idea above. Make sure it follows the user\'s writing style and adheres to the best practices for LinkedIn content. The post should sound authentic and match the voice of the user.';
+    const userName = prompt.split('helping ')[1]?.split(' of ')[0] || 'the user';
+    finalPrompt += `Write a LinkedIn post that sounds exactly like ${userName} based on their authentic voice, writing style, and vocabulary patterns. The post should:\n\n`;
+    finalPrompt += `1. Address the specified target audience needs and pain points\n`;
+    finalPrompt += `2. Align with the relevant content pillars\n`;
+    finalPrompt += `3. Follow LinkedIn best practices for formatting and engagement\n`;
+    finalPrompt += `4. Maintain the authentic voice shown in the previous posts\n`;
+    finalPrompt += `5. Be ready for publishing with minimal editing\n\n`;
+    finalPrompt += `IMPORTANT: Provide ONLY the text of the LinkedIn post. Do not include any explanations, commentaries, or notes about the post - just the post itself as it would appear on LinkedIn. Include relevant hashtags at the end if appropriate.`;
   } else if (contentType === 'newsletter') {
     finalPrompt += 'Create newsletter content based on the content idea above. Make sure it follows the user\'s writing style and adheres to the best practices for newsletter content. The content should sound authentic and match the voice of the user.';
   } else if (contentType === 'marketing') {

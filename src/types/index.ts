@@ -1,4 +1,3 @@
-
 export interface User {
   id: string;
   email: string;
@@ -6,6 +5,7 @@ export interface User {
   businessName: string;
   businessDescription: string;
   linkedinUrl: string;
+  jobTitle: string;
   createdAt: Date;
 }
 

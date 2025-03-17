@@ -1,12 +1,70 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Save } from 'lucide-react';
+import { useAuth } from '@/context/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 
 const ProfileSettings = () => {
+  const { user } = useAuth();
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [jobTitle, setJobTitle] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    if (user) {
+      // Load user profile data
+      const fetchProfile = async () => {
+        const { data, error } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', user.id)
+          .single();
+          
+        if (error) {
+          console.error('Error fetching profile:', error);
+          return;
+        }
+        
+        setName(data.name || '');
+        setEmail(user.email || '');
+        setJobTitle(data.job_title || '');
+      };
+      
+      fetchProfile();
+    }
+  }, [user]);
+
+  const handleSaveProfile = async () => {
+    if (!user) return;
+    
+    setIsLoading(true);
+    
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({ 
+          name: name,
+          job_title: jobTitle,
+        })
+        .eq('id', user.id);
+        
+      if (error) throw error;
+      
+      toast.success('Profile updated successfully');
+    } catch (error) {
+      console.error('Error updating profile:', error);
+      toast.error('Failed to update profile');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <div className="space-y-6">
       <Card>
@@ -18,18 +76,40 @@ const ProfileSettings = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="name">Full Name</Label>
-              <Input id="name" defaultValue="John Doe" />
+              <Input 
+                id="name" 
+                value={name} 
+                onChange={(e) => setName(e.target.value)} 
+              />
             </div>
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
-              <Input id="email" type="email" defaultValue="john@example.com" />
+              <Input 
+                id="email" 
+                type="email" 
+                value={email} 
+                disabled 
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="jobTitle">Job Title</Label>
+              <Input 
+                id="jobTitle" 
+                value={jobTitle} 
+                onChange={(e) => setJobTitle(e.target.value)}
+                placeholder="e.g. Marketing Director, CEO, Consultant" 
+              />
             </div>
           </div>
           
           <div className="flex justify-end">
-            <Button className="gap-1">
+            <Button 
+              className="gap-1" 
+              onClick={handleSaveProfile}
+              disabled={isLoading}
+            >
               <Save className="h-4 w-4" />
-              Save Changes
+              {isLoading ? 'Saving...' : 'Save Changes'}
             </Button>
           </div>
         </CardContent>

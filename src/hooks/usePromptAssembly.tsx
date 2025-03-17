@@ -1,18 +1,20 @@
 
 import { useCallback } from 'react';
-import { ContentIdea, ContentType } from '@/types';
+import { ContentIdea, ContentType, LinkedinPost } from '@/types';
 import { 
   fetchUserProfile, 
   fetchContentPillars, 
   fetchTargetAudiences, 
   fetchWritingStyleProfile,
-  fetchCustomPromptInstructions
+  fetchCustomPromptInstructions,
+  fetchRecentLinkedinPosts
 } from '@/services/profileDataService';
 import { 
   buildBasePrompt, 
   addContentIdeaToPrompt, 
   addCustomInstructionsToPrompt, 
-  addTaskToPrompt 
+  addTaskToPrompt,
+  addLinkedinPostsToPrompt
 } from '@/utils/promptBuilder';
 import { 
   getCachedPrompt, 
@@ -54,6 +56,12 @@ export const usePromptAssembly = () => {
     
     // Add content idea details
     let finalPrompt = addContentIdeaToPrompt(basePrompt, idea);
+    
+    // Add LinkedIn posts if this is a LinkedIn content type
+    if (contentType === 'linkedin') {
+      const recentPosts = await fetchRecentLinkedinPosts(userId, 5);
+      finalPrompt = addLinkedinPostsToPrompt(finalPrompt, recentPosts);
+    }
     
     // Add custom instructions if available
     const customInstructions = await fetchCustomPromptInstructions(userId);

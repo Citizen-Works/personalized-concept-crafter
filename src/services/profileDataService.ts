@@ -1,5 +1,4 @@
-
-import { User, ContentPillar, TargetAudience, WritingStyleProfile } from '@/types';
+import { User, ContentPillar, TargetAudience, WritingStyleProfile, LinkedinPost } from '@/types';
 import { supabase } from '@/integrations/supabase/client';
 
 /**
@@ -24,6 +23,7 @@ export async function fetchUserProfile(userId: string): Promise<User | null> {
     businessName: data.business_name || '',
     businessDescription: data.business_description || '',
     linkedinUrl: data.linkedin_url || '',
+    jobTitle: data.job_title || '',
     createdAt: new Date(data.created_at),
   };
 }
@@ -129,4 +129,30 @@ export async function fetchCustomPromptInstructions(userId: string): Promise<str
   }
   
   return data.custom_prompt_instructions;
+}
+
+/**
+ * Fetches recent LinkedIn posts for a user
+ */
+export async function fetchRecentLinkedinPosts(userId: string, limit: number = 5): Promise<LinkedinPost[]> {
+  const { data, error } = await supabase
+    .from('linkedin_posts')
+    .select('*')
+    .eq('user_id', userId)
+    .order('created_at', { ascending: false })
+    .limit(limit);
+    
+  if (error) {
+    console.error('Error fetching LinkedIn posts:', error);
+    return [];
+  }
+  
+  return data.map(post => ({
+    id: post.id,
+    userId: post.user_id,
+    content: post.content,
+    publishedAt: post.published_at ? new Date(post.published_at) : undefined,
+    url: post.url || '',
+    createdAt: new Date(post.created_at),
+  }));
 }

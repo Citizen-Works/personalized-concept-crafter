@@ -197,6 +197,7 @@ export type Database = {
           business_name: string | null
           created_at: string
           id: string
+          job_title: string | null
           linkedin_url: string | null
           name: string | null
           updated_at: string
@@ -206,6 +207,7 @@ export type Database = {
           business_name?: string | null
           created_at?: string
           id: string
+          job_title?: string | null
           linkedin_url?: string | null
           name?: string | null
           updated_at?: string
@@ -215,6 +217,7 @@ export type Database = {
           business_name?: string | null
           created_at?: string
           id?: string
+          job_title?: string | null
           linkedin_url?: string | null
           name?: string | null
           updated_at?: string

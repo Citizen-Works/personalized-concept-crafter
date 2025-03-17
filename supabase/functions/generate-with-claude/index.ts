@@ -32,9 +32,9 @@ serve(async (req) => {
 
     console.log(`Generating ${contentType} content with Claude for idea: ${idea?.title || 'Untitled'}`);
     
-    // The prompt is now pre-assembled and optimized from the frontend
-    // We don't need to build a system prompt here anymore, as it's included in the assembled prompt
-
+    // Choose the appropriate Claude model based on content complexity
+    const model = "claude-3-sonnet-20240229"; // Using Sonnet for high quality content generation
+    
     // Make request to Claude API
     const response = await fetch(CLAUDE_API_URL, {
       method: 'POST',
@@ -44,8 +44,9 @@ serve(async (req) => {
         'anthropic-version': '2023-06-01'
       },
       body: JSON.stringify({
-        model: "claude-3-sonnet-20240229",
+        model: model,
         max_tokens: 4000,
+        temperature: 0.7, // Slightly more creative but still focused
         messages: [
           {
             role: "user",
