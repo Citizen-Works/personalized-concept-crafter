@@ -1,8 +1,7 @@
-
 import { createContext, useContext, useEffect, useState } from 'react';
 import { Session, User } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { toast } from "sonner";
 
 type AuthContextType = {
@@ -19,6 +18,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const navigate = useNavigate();
+  const location = useLocation();
   const [session, setSession] = useState<Session | null>(null);
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
@@ -30,8 +30,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setUser(session?.user ?? null);
       setLoading(false);
       
-      // If user is already logged in, redirect to dashboard
-      if (session) {
+      // Only redirect to dashboard if on login page or root path and already logged in
+      if (session && (location.pathname === '/login' || location.pathname === '/')) {
         navigate('/dashboard');
       }
     });
@@ -43,15 +43,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setUser(session?.user ?? null);
         setLoading(false);
         
-        // Redirect to dashboard when signed in
-        if (event === 'SIGNED_IN') {
+        // Only redirect to dashboard when signed in from auth pages
+        if (event === 'SIGNED_IN' && (location.pathname === '/login' || location.pathname === '/register' || location.pathname === '/')) {
           navigate('/dashboard');
         }
       }
     );
 
     return () => subscription.unsubscribe();
-  }, [navigate]);
+  }, [navigate, location.pathname]);
 
   const signIn = async (email: string, password: string) => {
     try {
