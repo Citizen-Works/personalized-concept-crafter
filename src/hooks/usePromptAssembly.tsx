@@ -1,3 +1,4 @@
+
 import { useCallback, useMemo } from 'react';
 import { ContentIdea, ContentType, WritingStyleProfile, User, ContentPillar, TargetAudience } from '@/types';
 import { supabase } from '@/integrations/supabase/client';
@@ -115,6 +116,7 @@ export const usePromptAssembly = () => {
       exampleQuotes: data.example_quotes || [],
       vocabularyPatterns: data.vocabulary_patterns || '',
       avoidPatterns: data.avoid_patterns || '',
+      customPromptInstructions: data.custom_prompt_instructions || '',
       linkedinStyleGuide: data.linkedin_style_guide || '',
       linkedinExamples: data.linkedin_examples || [],
       newsletterStyleGuide: data.newsletter_style_guide || '',

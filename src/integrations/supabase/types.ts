@@ -258,6 +258,7 @@ export type Database = {
         Row: {
           avoid_patterns: string | null
           created_at: string
+          custom_prompt_instructions: string | null
           example_quotes: string[] | null
           general_style_guide: string | null
           id: string
@@ -275,6 +276,7 @@ export type Database = {
         Insert: {
           avoid_patterns?: string | null
           created_at?: string
+          custom_prompt_instructions?: string | null
           example_quotes?: string[] | null
           general_style_guide?: string | null
           id?: string
@@ -292,6 +294,7 @@ export type Database = {
         Update: {
           avoid_patterns?: string | null
           created_at?: string
+          custom_prompt_instructions?: string | null
           example_quotes?: string[] | null
           general_style_guide?: string | null
           id?: string

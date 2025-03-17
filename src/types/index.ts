@@ -1,3 +1,4 @@
+
 export interface User {
   id: string;
   email: string;
@@ -67,6 +68,9 @@ export interface WritingStyleProfile {
   
   marketingStyleGuide: string;
   marketingExamples: string[];
+  
+  // Custom prompt instructions
+  customPromptInstructions?: string;
   
   createdAt: Date;
   updatedAt: Date;
