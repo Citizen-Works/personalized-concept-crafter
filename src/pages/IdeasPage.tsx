@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { 
@@ -23,86 +23,19 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ArrowRight, ChevronDown, Edit, Filter, Lightbulb, MoreHorizontal, Plus, Trash } from 'lucide-react';
 import { Badge } from "@/components/ui/badge";
 import { ContentIdea, ContentStatus, ContentType } from '@/types';
+import { useIdeas } from '@/hooks/useIdeas';
+import { toast } from 'sonner';
 
 const IdeasPage = () => {
-  // Mock data for content ideas
-  const mockIdeas: ContentIdea[] = [
-    {
-      id: "1",
-      userId: "user1",
-      title: "How to leverage AI for business growth",
-      description: "Explore practical ways businesses can implement AI solutions to drive growth and efficiency.",
-      notes: "Focus on small to medium-sized businesses. Include case studies.",
-      source: "manual",
-      meetingTranscriptExcerpt: null,
-      sourceUrl: null,
-      status: "approved",
-      contentType: "linkedin",
-      createdAt: new Date("2023-06-15")
-    },
-    {
-      id: "2",
-      userId: "user1",
-      title: "5 steps to improve customer retention",
-      description: "Outline actionable steps businesses can take to improve customer loyalty and retention.",
-      notes: "Reference loyalty programs and personalization strategies.",
-      source: "manual",
-      meetingTranscriptExcerpt: null,
-      sourceUrl: null,
-      status: "drafted",
-      contentType: "newsletter",
-      createdAt: new Date("2023-06-12")
-    },
-    {
-      id: "3",
-      userId: "user1",
-      title: "Building a sustainable marketing strategy",
-      description: "Discuss how to create marketing plans that provide consistent results over time.",
-      notes: "Emphasize data-driven decision making.",
-      source: "meeting",
-      meetingTranscriptExcerpt: "We need to talk about long-term strategy that isn't just focused on quick wins.",
-      sourceUrl: null,
-      status: "unreviewed",
-      contentType: "marketing",
-      createdAt: new Date("2023-06-10")
-    },
-    {
-      id: "4",
-      userId: "user1",
-      title: "The future of remote work",
-      description: "Analyze trends and predictions for how remote work will evolve in the coming years.",
-      notes: "Include insights on hybrid models and technology enablement.",
-      source: "manual",
-      meetingTranscriptExcerpt: null,
-      sourceUrl: null,
-      status: "ready",
-      contentType: "linkedin",
-      createdAt: new Date("2023-06-08")
-    },
-    {
-      id: "5",
-      userId: "user1",
-      title: "Content marketing ROI measurement",
-      description: "Explain effective methods to measure and demonstrate the return on investment for content marketing.",
-      notes: "Include specific metrics and KPIs.",
-      source: "other",
-      meetingTranscriptExcerpt: null,
-      sourceUrl: "https://example.com/marketing-roi",
-      status: "published",
-      contentType: "newsletter",
-      createdAt: new Date("2023-06-05")
-    },
-  ];
-  
-  const [ideas, setIdeas] = useState<ContentIdea[]>(mockIdeas);
+  const { ideas, isLoading, isError, deleteIdea } = useIdeas();
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<ContentStatus | 'all'>('all');
   const [typeFilter, setTypeFilter] = useState<ContentType | 'all'>('all');
   
   // Filter ideas based on search query and filters
   const filteredIdeas = ideas.filter((idea) => {
-    const matchesSearch = idea.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                          idea.description.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesSearch = (idea.title?.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                          (idea.description && idea.description.toLowerCase().includes(searchQuery.toLowerCase()))) || false;
     const matchesStatus = statusFilter === 'all' || idea.status === statusFilter;
     const matchesType = typeFilter === 'all' || idea.contentType === typeFilter;
     
@@ -134,6 +67,44 @@ const IdeasPage = () => {
         return 'bg-rose-50 text-rose-700 border-rose-200';
     }
   };
+
+  const handleDeleteIdea = (id: string) => {
+    if (window.confirm('Are you sure you want to delete this idea?')) {
+      deleteIdea(id);
+    }
+  };
+  
+  if (isLoading) {
+    return (
+      <div className="space-y-8">
+        <div className="flex flex-col gap-2">
+          <h1 className="text-3xl font-bold tracking-tight">Content Ideas</h1>
+          <p className="text-muted-foreground">
+            Browse and manage your content ideas
+          </p>
+        </div>
+        <div className="flex items-center justify-center h-64">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+        </div>
+      </div>
+    );
+  }
+
+  if (isError) {
+    return (
+      <div className="space-y-8">
+        <div className="flex flex-col gap-2">
+          <h1 className="text-3xl font-bold tracking-tight">Content Ideas</h1>
+          <p className="text-muted-foreground">
+            Browse and manage your content ideas
+          </p>
+        </div>
+        <p className="text-muted-foreground">
+          There was an error loading your ideas. Please try again.
+        </p>
+      </div>
+    );
+  }
   
   return (
     <div className="space-y-8">
@@ -294,11 +265,13 @@ const IdeasPage = () => {
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
-                            <DropdownMenuItem>
-                              <Edit className="h-4 w-4 mr-2" />
-                              Edit
+                            <DropdownMenuItem asChild>
+                              <Link to={`/ideas/${idea.id}/edit`}>
+                                <Edit className="h-4 w-4 mr-2" />
+                                Edit
+                              </Link>
                             </DropdownMenuItem>
-                            <DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleDeleteIdea(idea.id)}>
                               <Trash className="h-4 w-4 mr-2 text-destructive" />
                               <span className="text-destructive">Delete</span>
                             </DropdownMenuItem>
@@ -368,11 +341,13 @@ const IdeasPage = () => {
                                 </Button>
                               </DropdownMenuTrigger>
                               <DropdownMenuContent align="end">
-                                <DropdownMenuItem>
-                                  <Edit className="h-4 w-4 mr-2" />
-                                  Edit
+                                <DropdownMenuItem asChild>
+                                  <Link to={`/ideas/${idea.id}/edit`}>
+                                    <Edit className="h-4 w-4 mr-2" />
+                                    Edit
+                                  </Link>
                                 </DropdownMenuItem>
-                                <DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => handleDeleteIdea(idea.id)}>
                                   <Trash className="h-4 w-4 mr-2 text-destructive" />
                                   <span className="text-destructive">Delete</span>
                                 </DropdownMenuItem>

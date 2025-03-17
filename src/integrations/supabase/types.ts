@@ -72,9 +72,9 @@ export type Database = {
           id?: string
           meeting_transcript_excerpt?: string | null
           notes?: string | null
-          source: string
+          source?: string
           source_url?: string | null
-          status: string
+          status?: string
           title: string
           updated_at?: string
           user_id: string
