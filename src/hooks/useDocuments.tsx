@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -25,7 +24,17 @@ export const useDocuments = () => {
       throw error;
     }
 
-    return data as Document[];
+    return data.map(item => ({
+      id: item.id,
+      userId: item.user_id,
+      title: item.title,
+      content: item.content || "",
+      type: item.type as Document["type"],
+      purpose: item.purpose as Document["purpose"],
+      status: item.status as Document["status"],
+      content_type: item.content_type as Document["content_type"],
+      createdAt: new Date(item.created_at)
+    }));
   };
 
   const createDocument = async (document: Omit<Document, "id" | "userId" | "createdAt">) => {
@@ -35,7 +44,12 @@ export const useDocuments = () => {
       .from("documents")
       .insert([
         {
-          ...document,
+          title: document.title,
+          content: document.content,
+          type: document.type,
+          purpose: document.purpose,
+          status: document.status,
+          content_type: document.content_type,
           user_id: user.id,
         },
       ])
@@ -48,7 +62,18 @@ export const useDocuments = () => {
     }
 
     toast.success("Document created successfully");
-    return data;
+    
+    return {
+      id: data.id,
+      userId: data.user_id,
+      title: data.title,
+      content: data.content || "",
+      type: data.type as Document["type"],
+      purpose: data.purpose as Document["purpose"],
+      status: data.status as Document["status"],
+      content_type: data.content_type as Document["content_type"],
+      createdAt: new Date(data.created_at)
+    };
   };
 
   const parseDocumentContent = async (file: File) => {
@@ -75,11 +100,9 @@ export const useDocuments = () => {
     try {
       setUploadProgress(10);
       
-      // Parse document content
       const content = await parseDocumentContent(file);
       setUploadProgress(50);
       
-      // Create document in database
       const document = await createDocument({
         ...documentData,
         content
