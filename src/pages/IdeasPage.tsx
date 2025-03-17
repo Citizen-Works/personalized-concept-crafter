@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Card, CardContent } from "@/components/ui/card";
@@ -32,7 +31,6 @@ const IdeasPage = () => {
   const [statusFilter, setStatusFilter] = useState<ContentStatus | 'all'>('all');
   const [typeFilter, setTypeFilter] = useState<ContentType | 'all'>('all');
   
-  // Filter ideas based on search query and filters
   const filteredIdeas = ideas.filter((idea) => {
     const matchesSearch = (idea.title?.toLowerCase().includes(searchQuery.toLowerCase()) || 
                           (idea.description && idea.description.toLowerCase().includes(searchQuery.toLowerCase()))) || false;

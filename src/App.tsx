@@ -9,6 +9,7 @@ import { MainLayout } from "./components/layout/MainLayout";
 import { AuthProvider } from "./context/AuthContext";
 import Dashboard from "./pages/Dashboard";
 import IdeasPage from "./pages/IdeasPage";
+import NewIdeaPage from "./pages/NewIdeaPage";
 import IdeaDetailPage from "./pages/IdeaDetailPage";
 import DraftsPage from "./pages/DraftsPage";
 import DraftDetailPage from "./pages/DraftDetailPage";
@@ -51,6 +52,7 @@ const App = () => (
                 <Route element={<ProtectedRoute><MainLayout /></ProtectedRoute>}>
                   <Route path="/dashboard" element={<Dashboard />} />
                   <Route path="/ideas" element={<IdeasPage />} />
+                  <Route path="/ideas/new" element={<NewIdeaPage />} />
                   <Route path="/ideas/:id" element={<IdeaDetailPage />} />
                   <Route path="/drafts" element={<DraftsPage />} />
                   <Route path="/drafts/:id" element={<DraftDetailPage />} />

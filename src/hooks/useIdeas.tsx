@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -43,6 +42,10 @@ export const useIdeas = () => {
 
   const fetchIdeaById = async (id: string): Promise<ContentIdea> => {
     if (!user) throw new Error("User not authenticated");
+    
+    if (id === "new") {
+      throw new Error("Cannot fetch an idea with ID 'new'");
+    }
 
     const { data, error } = await supabase
       .from("content_ideas")
@@ -178,7 +181,7 @@ export const useIdeas = () => {
   const ideaByIdQuery = (id: string) => useQuery({
     queryKey: ["idea", id, user?.id],
     queryFn: () => fetchIdeaById(id),
-    enabled: !!user && !!id,
+    enabled: !!user && !!id && id !== "new",
   });
 
   const createIdeaMutation = useMutation({
