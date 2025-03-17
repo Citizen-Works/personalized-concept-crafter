@@ -3,16 +3,36 @@ import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Plus, Loader2 } from 'lucide-react';
-import { ContentIdea } from '@/types';
+import { ContentIdea, ContentType } from '@/types';
 import { useClaudeAI } from '@/hooks/useClaudeAI';
+import { toast } from 'sonner';
 
 interface IdeaDraftsProps {
   idea: ContentIdea;
-  onGenerateDraft: (contentType: string) => Promise<void>;
+  onGenerateDraft: (contentType: string, content: string) => Promise<void>;
 }
 
 const IdeaDrafts: React.FC<IdeaDraftsProps> = ({ idea, onGenerateDraft }) => {
-  const { isGenerating } = useClaudeAI();
+  const { generateContent, isGenerating } = useClaudeAI();
+  
+  const handleGenerateDraft = async () => {
+    if (idea.status !== 'approved') {
+      toast.error('Only approved ideas can be used to generate drafts');
+      return;
+    }
+    
+    try {
+      const generatedContent = await generateContent(idea, idea.contentType as ContentType);
+      
+      if (generatedContent) {
+        await onGenerateDraft(idea.contentType, generatedContent);
+        toast.success(`Draft generated successfully`);
+      }
+    } catch (error) {
+      console.error('Error generating draft:', error);
+      toast.error('Failed to generate draft');
+    }
+  };
   
   return (
     <Card>
@@ -22,7 +42,7 @@ const IdeaDrafts: React.FC<IdeaDraftsProps> = ({ idea, onGenerateDraft }) => {
           <Button 
             className="gap-1" 
             disabled={idea.status !== 'approved' || isGenerating}
-            onClick={() => onGenerateDraft(idea.contentType)}
+            onClick={handleGenerateDraft}
           >
             {isGenerating ? (
               <>
@@ -63,7 +83,7 @@ const IdeaDrafts: React.FC<IdeaDraftsProps> = ({ idea, onGenerateDraft }) => {
             <Button 
               className="mt-4 gap-1" 
               disabled={idea.status !== 'approved' || isGenerating}
-              onClick={() => onGenerateDraft(idea.contentType)}
+              onClick={handleGenerateDraft}
             >
               {isGenerating ? (
                 <>

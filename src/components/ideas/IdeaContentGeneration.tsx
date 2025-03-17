@@ -32,10 +32,10 @@ const IdeaContentGeneration: React.FC<IdeaContentGenerationProps> = ({
       
       if (generatedContent) {
         await onGenerateDraft(contentType, generatedContent);
-        toast.success(`${contentType.charAt(0).toUpperCase() + contentType.slice(1)} draft generated successfully`);
       }
     } catch (error) {
       console.error('Error in handleGenerateDraft:', error);
+      toast.error(`Failed to generate ${contentType} content`);
     } finally {
       setGeneratingType(null);
     }
@@ -52,7 +52,7 @@ const IdeaContentGeneration: React.FC<IdeaContentGenerationProps> = ({
       <CardContent className="space-y-4">
         <Button 
           className="w-full gap-1" 
-          disabled={idea.status !== 'approved' || isGenerating}
+          disabled={idea.status !== 'approved' || isGenerating || generatingType !== null}
           onClick={() => handleGenerateDraft('linkedin')}
         >
           {generatingType === 'linkedin' ? (
@@ -69,7 +69,7 @@ const IdeaContentGeneration: React.FC<IdeaContentGenerationProps> = ({
         </Button>
         <Button 
           className="w-full gap-1" 
-          disabled={idea.status !== 'approved' || isGenerating}
+          disabled={idea.status !== 'approved' || isGenerating || generatingType !== null}
           onClick={() => handleGenerateDraft('newsletter')}
         >
           {generatingType === 'newsletter' ? (
@@ -86,7 +86,7 @@ const IdeaContentGeneration: React.FC<IdeaContentGenerationProps> = ({
         </Button>
         <Button 
           className="w-full gap-1" 
-          disabled={idea.status !== 'approved' || isGenerating}
+          disabled={idea.status !== 'approved' || isGenerating || generatingType !== null}
           onClick={() => handleGenerateDraft('marketing')}
         >
           {generatingType === 'marketing' ? (

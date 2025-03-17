@@ -72,7 +72,7 @@ const IdeaDetailPage = () => {
         status: 'drafted'
       });
       
-      toast.success('Draft generated successfully');
+      toast.success(`${contentType.charAt(0).toUpperCase() + contentType.slice(1)} draft generated successfully`);
     } catch (error) {
       console.error('Error saving draft:', error);
       toast.error('Failed to save draft');
@@ -95,7 +95,7 @@ const IdeaDetailPage = () => {
         <div className="md:col-span-2 space-y-6">
           <IdeaDescription id={idea.id} description={idea.description} />
           <IdeaNotes id={idea.id} notes={idea.notes} />
-          <IdeaDrafts idea={idea} onGenerateDraft={(contentType) => handleGenerateDraft(contentType, "")} />
+          <IdeaDrafts idea={idea} onGenerateDraft={handleGenerateDraft} />
         </div>
         
         <div className="space-y-6">
