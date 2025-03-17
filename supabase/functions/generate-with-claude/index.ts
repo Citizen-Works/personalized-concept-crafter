@@ -31,19 +31,9 @@ serve(async (req) => {
     }
 
     console.log(`Generating ${contentType} content with Claude for idea: ${idea?.title || 'Untitled'}`);
-
-    // Build the system prompt
-    let systemPrompt = `You are a professional content writer specializing in ${contentType} content.`;
     
-    if (contentType === 'linkedin') {
-      systemPrompt += ` Create an engaging LinkedIn post that is concise, professional, and designed to generate engagement. Include relevant hashtags if appropriate.`;
-    } else if (contentType === 'newsletter') {
-      systemPrompt += ` Create a newsletter section that is informative, engaging, and adds value to readers. Use a conversational but professional tone.`;
-    } else if (contentType === 'marketing') {
-      systemPrompt += ` Create compelling marketing copy that highlights benefits, creates urgency, and includes a clear call to action.`;
-    }
-
-    systemPrompt += ` The content should match the user's voice and style.`;
+    // The prompt is now pre-assembled and optimized from the frontend
+    // We don't need to build a system prompt here anymore, as it's included in the assembled prompt
 
     // Make request to Claude API
     const response = await fetch(CLAUDE_API_URL, {
@@ -57,10 +47,6 @@ serve(async (req) => {
         model: "claude-3-sonnet-20240229",
         max_tokens: 4000,
         messages: [
-          {
-            role: "system",
-            content: systemPrompt
-          },
           {
             role: "user",
             content: prompt
