@@ -25,6 +25,7 @@ const LoginPage = () => {
     
     try {
       await signIn(email, password);
+      // No need to navigate here - AuthContext will handle it
     } catch (error) {
       console.error('Login failed:', error);
       // Error is already handled in the signIn function
@@ -34,6 +35,7 @@ const LoginPage = () => {
   const handleGoogleSignIn = async () => {
     try {
       await signInWithGoogle();
+      // No need to navigate here - OAuth redirect is handled in signInWithGoogle
     } catch (error) {
       console.error('Google login failed:', error);
       // Error is already handled in the signInWithGoogle function

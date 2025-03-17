@@ -32,6 +32,7 @@ const RegisterPage = () => {
     
     try {
       await signUp(email, password, name);
+      // The redirect to login is handled in the signUp function
     } catch (error) {
       console.error('Registration failed:', error);
       // Error is already handled in the signUp function
@@ -41,6 +42,7 @@ const RegisterPage = () => {
   const handleGoogleSignIn = async () => {
     try {
       await signInWithGoogle();
+      // OAuth redirect is handled in signInWithGoogle
     } catch (error) {
       console.error('Google login failed:', error);
       // Error is already handled in the signInWithGoogle function
