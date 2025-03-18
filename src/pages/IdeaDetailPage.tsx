@@ -10,36 +10,21 @@ import IdeaPageHeader from '@/components/ideas/IdeaPageHeader';
 import IdeaDescription from '@/components/ideas/IdeaDescription';
 import IdeaNotes from '@/components/ideas/IdeaNotes';
 import IdeaContentGeneration from '@/components/ideas/IdeaContentGeneration';
-import IdeaFeedback from '@/components/ideas/IdeaFeedback';
 import IdeaActions from '@/components/ideas/IdeaActions';
 import IdeaDetailLoading from '@/components/ideas/IdeaDetailLoading';
 import IdeaDetailError from '@/components/ideas/IdeaDetailError';
 import { IdeaDraftsList } from '@/components/ideas/IdeaDraftsList';
 import { ContentType } from '@/types';
+import IdeaEditor from '@/components/ideas/IdeaEditor';
 
 const IdeaDetailPage = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const [feedback, setFeedback] = useState('');
   const { getIdea, updateIdea, deleteIdea } = useIdeas();
   const { createDraft } = useDrafts();
   const { data: idea, isLoading, isError } = getIdea(id || '');
+  const [isEditorOpen, setIsEditorOpen] = useState(false);
   
-  const handleFeedbackSave = async () => {
-    if (!idea) return;
-    
-    try {
-      await updateIdea({
-        id: idea.id,
-        notes: feedback
-      });
-      toast.success('Feedback saved successfully');
-    } catch (error) {
-      console.error('Error saving feedback:', error);
-      toast.error('Failed to save feedback');
-    }
-  };
-
   const handleDeleteIdea = async () => {
     if (!idea) return;
     
@@ -95,23 +80,17 @@ const IdeaDetailPage = () => {
   
   return (
     <div className="space-y-8">
-      <IdeaPageHeader idea={idea} />
+      <IdeaPageHeader idea={idea} onEdit={() => setIsEditorOpen(true)} />
       
       <div className="grid gap-6 md:grid-cols-3">
         <div className="md:col-span-2 space-y-6">
           <IdeaDescription id={idea.id} description={idea.description} />
           <IdeaNotes id={idea.id} notes={idea.notes} />
-          <IdeaDraftsList ideaId={idea.id} />
+          <IdeaDraftsList ideaId={idea.id} ideaTitle={idea.title} />
         </div>
         
         <div className="space-y-6">
           <IdeaContentGeneration idea={idea} onGenerateDraft={handleGenerateDraft} />
-          <IdeaFeedback
-            feedback={feedback}
-            defaultNotes={idea.notes}
-            onFeedbackChange={setFeedback}
-            onSaveFeedback={handleFeedbackSave}
-          />
           <IdeaActions 
             id={idea.id} 
             status={idea.status}
@@ -119,6 +98,14 @@ const IdeaDetailPage = () => {
           />
         </div>
       </div>
+
+      {isEditorOpen && idea && (
+        <IdeaEditor 
+          idea={idea}
+          isOpen={isEditorOpen}
+          onClose={() => setIsEditorOpen(false)}
+        />
+      )}
     </div>
   );
 };

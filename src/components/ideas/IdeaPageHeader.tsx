@@ -1,46 +1,53 @@
 
 import React from 'react';
-import { Link } from 'react-router-dom';
-import { Button } from "@/components/ui/button";
+import { useNavigate } from 'react-router-dom';
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft } from 'lucide-react';
+import { Button } from "@/components/ui/button";
+import { ChevronLeft, Edit } from 'lucide-react';
 import { ContentIdea } from '@/types';
-import { getStatusBadgeClasses, getTypeBadgeClasses } from './BadgeUtils';
+import { getStatusBadgeProps, getContentTypeBadgeProps } from './BadgeUtils';
 
 interface IdeaPageHeaderProps {
   idea: ContentIdea;
+  onEdit: () => void;
 }
 
-const IdeaPageHeader: React.FC<IdeaPageHeaderProps> = ({ idea }) => {
+const IdeaPageHeader: React.FC<IdeaPageHeaderProps> = ({ idea, onEdit }) => {
+  const navigate = useNavigate();
+  const statusBadge = getStatusBadgeProps(idea.status);
+  const contentTypeBadge = getContentTypeBadgeProps(idea.contentType);
+  
   return (
-    <>
-      <div className="flex items-center gap-4">
-        <Button variant="ghost" size="sm" asChild className="gap-1">
-          <Link to="/ideas">
-            <ArrowLeft className="h-4 w-4" />
-            <span className="sm:inline hidden">Back to Ideas</span>
-            <span className="sm:hidden inline">Back</span>
-          </Link>
+    <div className="space-y-4">
+      <div className="flex items-center justify-between gap-2">
+        <Button
+          variant="outline"
+          size="sm"
+          className="gap-1"
+          onClick={() => navigate('/ideas')}
+        >
+          <ChevronLeft className="h-4 w-4" />
+          Back to Ideas
+        </Button>
+        <Button
+          variant="outline"
+          size="sm"
+          className="gap-1"
+          onClick={onEdit}
+        >
+          <Edit className="h-4 w-4" />
+          Edit Idea
         </Button>
       </div>
       
-      <div className="flex flex-col gap-2">
-        <div className="flex flex-wrap items-center gap-2">
-          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight break-words">{idea.title}</h1>
-          <div className="flex flex-wrap gap-2 mt-1">
-            <Badge className={getStatusBadgeClasses(idea.status)}>
-              {idea.status.charAt(0).toUpperCase() + idea.status.slice(1)}
-            </Badge>
-            <Badge className={getTypeBadgeClasses(idea.contentType)}>
-              {idea.contentType.charAt(0).toUpperCase() + idea.contentType.slice(1)}
-            </Badge>
-          </div>
+      <div className="space-y-2">
+        <div className="flex flex-wrap gap-2">
+          <Badge {...statusBadge} />
+          <Badge {...contentTypeBadge} />
         </div>
-        <p className="text-muted-foreground text-sm">
-          Created {new Date(idea.createdAt).toLocaleDateString()}
-        </p>
+        <h1 className="text-2xl font-semibold sm:text-3xl">{idea.title}</h1>
       </div>
-    </>
+    </div>
   );
 };
 

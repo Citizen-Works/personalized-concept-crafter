@@ -1,9 +1,6 @@
 
 import React from 'react';
-import { Link } from 'react-router-dom';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Edit } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 
 interface IdeaNotesProps {
   id: string;
@@ -14,18 +11,13 @@ const IdeaNotes: React.FC<IdeaNotesProps> = ({ id, notes }) => {
   return (
     <Card>
       <CardHeader className="pb-3">
-        <div className="flex items-center justify-between">
-          <CardTitle>Notes</CardTitle>
-          <Button variant="ghost" size="sm" className="gap-1" asChild>
-            <Link to={`/ideas/${id}/edit`}>
-              <Edit className="h-4 w-4" />
-              Edit
-            </Link>
-          </Button>
-        </div>
+        <CardTitle>Custom Instructions</CardTitle>
+        <CardDescription>
+          Specific instructions for content generation like "Keep it concise" or "Plug my Skool community"
+        </CardDescription>
       </CardHeader>
       <CardContent>
-        <p>{notes || '(No notes provided)'}</p>
+        <p>{notes || '(No custom instructions provided)'}</p>
       </CardContent>
     </Card>
   );

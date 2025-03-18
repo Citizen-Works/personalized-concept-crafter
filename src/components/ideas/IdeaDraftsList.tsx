@@ -10,9 +10,10 @@ import { formatDistanceToNow } from 'date-fns';
 
 interface IdeaDraftsListProps {
   ideaId: string;
+  ideaTitle?: string;
 }
 
-export const IdeaDraftsList: React.FC<IdeaDraftsListProps> = ({ ideaId }) => {
+export const IdeaDraftsList: React.FC<IdeaDraftsListProps> = ({ ideaId, ideaTitle }) => {
   const navigate = useNavigate();
   const { data: drafts, isLoading, isError } = useDraftsByIdeaId(ideaId);
   
@@ -64,7 +65,9 @@ export const IdeaDraftsList: React.FC<IdeaDraftsListProps> = ({ ideaId }) => {
   return (
     <Card>
       <CardHeader className="pb-3">
-        <CardTitle className="text-base sm:text-lg">Associated Drafts ({drafts.length})</CardTitle>
+        <CardTitle className="text-base sm:text-lg">
+          {ideaTitle ? `Drafts for "${ideaTitle}"` : `Associated Drafts`} ({drafts.length})
+        </CardTitle>
       </CardHeader>
       <CardContent>
         {drafts.length > 0 ? (
