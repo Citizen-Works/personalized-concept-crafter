@@ -32,4 +32,4 @@ export {
   SidebarMenuSub,
   SidebarMenuSubItem,
   SidebarMenuSubButton,
-} from "./SidebarMenu"
+} from "./menu"
