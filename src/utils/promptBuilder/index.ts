@@ -10,7 +10,8 @@ import {
   buildTaskSection,
   buildNewsletterExamplesSection,
   buildMarketingExamplesSection,
-  buildBusinessContextDocsSection
+  buildBusinessContextDocsSection,
+  buildAvoidPatternsSection
 } from './contentSpecificSections';
 
 /**
@@ -82,7 +83,15 @@ export function addBusinessContextDocsToPrompt(prompt: string, documents: Docume
 }
 
 /**
- * Adds content idea details to a prompt
+ * Adds patterns to avoid section to prompt (moved toward the end)
+ */
+export function addPatternsToAvoidToPrompt(prompt: string, styleProfile: WritingStyleProfile | null): string {
+  const patternsSection = buildAvoidPatternsSection(styleProfile);
+  return prompt + patternsSection.title + '\n' + patternsSection.content;
+}
+
+/**
+ * Adds content idea details to a prompt (moved toward the end)
  */
 export function addContentIdeaToPrompt(basePrompt: string, idea: ContentIdea): string {
   const ideaSection = buildContentIdeaSection(idea);
@@ -90,7 +99,7 @@ export function addContentIdeaToPrompt(basePrompt: string, idea: ContentIdea): s
 }
 
 /**
- * Adds custom instructions to a prompt
+ * Adds custom instructions to a prompt (moved toward the end)
  */
 export function addCustomInstructionsToPrompt(prompt: string, customInstructions: string | null): string {
   const instructionsSection = buildCustomInstructionsSection(customInstructions);
@@ -100,7 +109,7 @@ export function addCustomInstructionsToPrompt(prompt: string, customInstructions
 }
 
 /**
- * Adds the task description to a prompt based on content type
+ * Adds the task description to a prompt based on content type (final section)
  */
 export function addTaskToPrompt(prompt: string, contentType: ContentType): string {
   const taskSection = buildTaskSection(contentType, prompt);

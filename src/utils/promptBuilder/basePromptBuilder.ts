@@ -119,24 +119,6 @@ export function buildWritingStyleSections(
       title: '# VOCABULARY PATTERNS TO USE',
       content: styleProfile.vocabularyPatterns || 'No vocabulary patterns specified.\n'
     });
-    
-    // Patterns to Avoid Section
-    let avoidPatternsContent = '';
-    if (styleProfile.avoidPatterns) {
-      avoidPatternsContent += styleProfile.avoidPatterns + '\n\n';
-    }
-    
-    // Add the common AI writing patterns to avoid
-    avoidPatternsContent += 'Additionally, avoid these common AI writing patterns:\n';
-    avoidPatternsContent += '- Avoid formulaic transitions and setups. Specifically, don\'t use short phrase + question mark/colon constructions (like \'The result?\' or \'Here\'s why:\' or \'My thoughts?\'). Instead, use more natural, varied sentence structures and transitions that flow organically without relying on these predictable patterns.\n';
-    avoidPatternsContent += '- Avoid rhetorical questions as transitions.\n';
-    avoidPatternsContent += '- Skip predictable setups and just state insights directly.\n';
-    avoidPatternsContent += '- Use a more conversational flow without manufactured \'turning points\' in the content.\n\n';
-    
-    sections.push({
-      title: '# PATTERNS TO AVOID',
-      content: avoidPatternsContent
-    });
   } else {
     sections.push({
       title: '# WRITING STYLE GUIDE',
@@ -149,6 +131,7 @@ export function buildWritingStyleSections(
 
 /**
  * Builds the base prompt structure with all sections
+ * Reordered to put most important information towards the end
  */
 export function buildBasePromptStructure(
   user: User | null, 
@@ -177,18 +160,16 @@ export function buildBasePromptStructure(
   
   sections.push({ title: '', content: introContent });
   
-  // Add business context
+  // Add initial context (less important context first)
   sections.push(buildBusinessContextSection(user));
   
-  // Add content pillars
-  sections.push(buildContentPillarsSection(contentPillars));
-  
-  // Add target audiences
-  sections.push(buildTargetAudiencesSection(targetAudiences));
-  
-  // Add writing style sections
+  // Add writing style sections (moved up as they provide general guidance)
   const styleProfileSections = buildWritingStyleSections(styleProfile, contentType);
   sections.push(...styleProfileSections);
+  
+  // Add content pillars and target audiences (moved down as they're more relevant to specific content)
+  sections.push(buildContentPillarsSection(contentPillars));
+  sections.push(buildTargetAudiencesSection(targetAudiences));
   
   return { sections };
 }

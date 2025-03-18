@@ -20,7 +20,8 @@ import {
   addLinkedinPostsToPrompt,
   addNewsletterExamplesToPrompt,
   addMarketingExamplesToPrompt,
-  addBusinessContextDocsToPrompt
+  addBusinessContextDocsToPrompt,
+  addPatternsToAvoidToPrompt
 } from '@/utils/promptBuilder';
 import { 
   getCachedPrompt, 
@@ -48,7 +49,6 @@ export const usePromptAssembly = () => {
       fetchBusinessContextDocuments(userId)
     ]);
     
-    // Build the base prompt
     // Convert from WritingStyleProfile in writingStyle.ts to the format expected by buildBasePrompt
     const formattedStyleProfile = styleProfile ? {
       id: styleProfile.id || '', // Set a default empty string if id is undefined
@@ -69,9 +69,10 @@ export const usePromptAssembly = () => {
       updatedAt: styleProfile.updatedAt || new Date()
     } : null;
     
+    // Build the base prompt
     let prompt = buildBasePrompt(user, contentPillars, targetAudiences, formattedStyleProfile, contentType);
     
-    // Add business context documents
+    // Add business context documents (early in the prompt)
     prompt = addBusinessContextDocsToPrompt(prompt, businessDocuments);
     
     // Cache the base prompt
@@ -89,10 +90,12 @@ export const usePromptAssembly = () => {
     // Get the base prompt
     const basePrompt = await getOrCreateBasePrompt(userId, contentType);
     
-    // Add content idea details
-    let finalPrompt = addContentIdeaToPrompt(basePrompt, idea);
+    // Get the style profile (needed for patterns to avoid)
+    const styleProfile = await fetchWritingStyleProfile(userId);
     
-    // Add examples based on content type
+    let finalPrompt = basePrompt;
+    
+    // Add examples based on content type (early-mid in the prompt)
     if (contentType === 'linkedin') {
       const recentPosts = await fetchRecentLinkedinPosts(userId, 5);
       finalPrompt = addLinkedinPostsToPrompt(finalPrompt, recentPosts);
@@ -104,16 +107,41 @@ export const usePromptAssembly = () => {
       finalPrompt = addMarketingExamplesToPrompt(finalPrompt, marketingExamples);
     }
     
-    // Add custom instructions if available
+    // Add patterns to avoid (moved toward the end for emphasis)
+    const formattedStyleProfile = styleProfile ? {
+      id: styleProfile.id || '',
+      userId: styleProfile.userId || styleProfile.user_id,
+      voiceAnalysis: styleProfile.voiceAnalysis || styleProfile.voice_analysis,
+      generalStyleGuide: styleProfile.generalStyleGuide || styleProfile.general_style_guide,
+      exampleQuotes: styleProfile.exampleQuotes || [],
+      vocabularyPatterns: styleProfile.vocabularyPatterns || styleProfile.vocabulary_patterns,
+      avoidPatterns: styleProfile.avoidPatterns || styleProfile.avoid_patterns,
+      linkedinStyleGuide: styleProfile.linkedinStyleGuide || styleProfile.linkedin_style_guide,
+      linkedinExamples: styleProfile.linkedinExamples || [],
+      newsletterStyleGuide: styleProfile.newsletterStyleGuide || styleProfile.newsletter_style_guide,
+      newsletterExamples: styleProfile.newsletterExamples || [],
+      marketingStyleGuide: styleProfile.marketingStyleGuide || styleProfile.marketing_style_guide,
+      marketingExamples: styleProfile.marketingExamples || [],
+      customPromptInstructions: styleProfile.customPromptInstructions,
+      createdAt: styleProfile.createdAt || new Date(),
+      updatedAt: styleProfile.updatedAt || new Date()
+    } : null;
+    
+    finalPrompt = addPatternsToAvoidToPrompt(finalPrompt, formattedStyleProfile);
+    
+    // Add content idea details (toward the end)
+    finalPrompt = addContentIdeaToPrompt(finalPrompt, idea);
+    
+    // Add custom instructions (toward the end)
     const customInstructions = await fetchCustomPromptInstructions(userId);
     finalPrompt = addCustomInstructionsToPrompt(finalPrompt, customInstructions);
     
-    // Add regeneration instructions if provided
+    // Add regeneration instructions if provided (just before task)
     if (idea.regenerationInstructions) {
       finalPrompt += `\n# REGENERATION INSTRUCTIONS\n${idea.regenerationInstructions}\n\n`;
     }
     
-    // Add the task
+    // Add the task (last section, maximizes recency bias)
     finalPrompt = addTaskToPrompt(finalPrompt, contentType);
     
     return finalPrompt;

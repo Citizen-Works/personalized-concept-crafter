@@ -1,5 +1,5 @@
 
-import { ContentIdea, ContentType, LinkedinPost, Document } from '@/types';
+import { ContentIdea, ContentType, LinkedinPost, Document, WritingStyleProfile } from '@/types';
 import { PromptSection } from './types';
 
 /**
@@ -117,6 +117,33 @@ export function buildBusinessContextDocsSection(documents: Document[]): PromptSe
   
   return {
     title: '# ADDITIONAL BUSINESS CONTEXT',
+    content
+  };
+}
+
+/**
+ * Creates a section containing patterns to avoid
+ * This will be placed near the end of the prompt for emphasis
+ */
+export function buildAvoidPatternsSection(styleProfile: WritingStyleProfile | null): PromptSection {
+  let content = '';
+  
+  // Add user-specific patterns to avoid if available
+  if (styleProfile && styleProfile.avoidPatterns) {
+    content += styleProfile.avoidPatterns + '\n\n';
+  }
+  
+  // Add the common AI writing patterns to avoid
+  content += 'Critically important patterns to avoid:\n';
+  content += '- Avoid formulaic transitions and setups. Specifically, don\'t use short phrase + question mark/colon constructions (like \'The result?\' or \'Here\'s why:\' or \'My thoughts?\'). Instead, use more natural, varied sentence structures and transitions that flow organically without relying on these predictable patterns.\n';
+  content += '- Avoid rhetorical questions as transitions.\n';
+  content += '- Skip predictable setups and just state insights directly.\n';
+  content += '- Use a more conversational flow without manufactured \'turning points\' in the content.\n';
+  content += '- Avoid list-based structures unless specifically requested.\n';
+  content += '- Avoid explicitly stating "In conclusion" or similar phrases that signal the end of the content.\n\n';
+  
+  return {
+    title: '# PATTERNS TO AVOID',
     content
   };
 }
