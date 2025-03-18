@@ -141,7 +141,7 @@ const IdeaDrafts: React.FC<IdeaDraftsProps> = ({ idea, onGenerateDraft }) => {
               This is the exact prompt that will be sent to Claude AI
             </DialogDescription>
           </DialogHeader>
-          <div className="bg-slate-50 p-4 rounded border whitespace-pre-wrap font-mono text-sm">
+          <div className="bg-slate-800 p-4 rounded border border-slate-700 whitespace-pre-wrap font-mono text-sm text-slate-100">
             {debugPrompt}
           </div>
           <div className="flex justify-end gap-2">
