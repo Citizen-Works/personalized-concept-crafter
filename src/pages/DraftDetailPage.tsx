@@ -9,7 +9,7 @@ import { IdeaLinkCard } from '@/components/drafts/IdeaLinkCard';
 import { DraftLoading } from '@/components/drafts/DraftLoading';
 import { DraftError } from '@/components/drafts/DraftError';
 import { toast } from 'sonner';
-import { ContentIdea } from '@/types';
+import { ContentIdea, ContentType, ContentSource, ContentStatus } from '@/types';
 import { supabase } from '@/integrations/supabase/client';
 
 const DraftDetailPage = () => {
@@ -36,7 +36,23 @@ const DraftDetailPage = () => {
         .single();
       
       if (error) throw error;
-      setIdea(data as ContentIdea);
+      
+      // Map the Supabase snake_case properties to our camelCase ContentIdea type
+      const mappedIdea: ContentIdea = {
+        id: data.id,
+        userId: data.user_id,
+        title: data.title,
+        description: data.description || "",
+        notes: data.notes || "",
+        source: data.source as ContentSource,
+        meetingTranscriptExcerpt: data.meeting_transcript_excerpt,
+        sourceUrl: data.source_url,
+        status: data.status as ContentStatus,
+        contentType: data.content_type as ContentType,
+        createdAt: new Date(data.created_at)
+      };
+      
+      setIdea(mappedIdea);
     } catch (error) {
       console.error('Error fetching idea:', error);
     } finally {
