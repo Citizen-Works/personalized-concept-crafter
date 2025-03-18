@@ -12,6 +12,7 @@ import { generateContentWithClaude } from '../services/claudeAIService';
 export const useClaudeAI = () => {
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [debugPrompt, setDebugPrompt] = useState<string | null>(null);
   const { createFinalPrompt } = usePromptAssembly();
   const { user } = useAuth();
 
@@ -20,10 +21,12 @@ export const useClaudeAI = () => {
    */
   const generateContent = async (
     idea: ContentIdea,
-    contentType: ContentType
+    contentType: ContentType,
+    debug = false
   ): Promise<string | null> => {
     setIsGenerating(true);
     setError(null);
+    setDebugPrompt(null);
 
     try {
       if (!user) {
@@ -32,6 +35,13 @@ export const useClaudeAI = () => {
       
       // Build the enhanced prompt using our prompt assembly system
       const prompt = await createFinalPrompt(user.id, idea, contentType);
+      
+      // If in debug mode, save the prompt and return it instead
+      if (debug) {
+        setDebugPrompt(prompt);
+        setIsGenerating(false);
+        return prompt;
+      }
 
       // Generate content using Claude AI
       const content = await generateContentWithClaude(prompt, contentType, idea);
@@ -51,6 +61,7 @@ export const useClaudeAI = () => {
   return {
     generateContent,
     isGenerating,
-    error
+    error,
+    debugPrompt
   };
 };
