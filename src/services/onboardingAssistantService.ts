@@ -1,18 +1,44 @@
 
 import { supabase } from '@/integrations/supabase/client';
-import { User, ContentPillar, TargetAudience, WritingStyleProfile } from '@/types';
-import { WritingStyleProfile as StyleProfile } from '@/types/writingStyle';
 
 export type ChatMessage = {
   role: 'user' | 'assistant';
   content: string;
 };
 
+// For creating new pillars and audiences during onboarding
+export type NewContentPillar = {
+  name: string;
+  description: string;
+};
+
+export type NewTargetAudience = {
+  name: string;
+  description: string;
+  painPoints: string[];
+  goals: string[];
+};
+
 export type ProfileData = {
-  userProfile: Partial<User>;
-  contentPillars: ContentPillar[];
-  targetAudiences: TargetAudience[];
-  writingStyle: Partial<StyleProfile>;
+  userProfile: {
+    businessName?: string;
+    businessDescription?: string;
+    linkedinUrl?: string;
+    jobTitle?: string;
+    email?: string;
+    name?: string;
+  };
+  contentPillars: NewContentPillar[];
+  targetAudiences: NewTargetAudience[];
+  writingStyle: {
+    voiceAnalysis?: string;
+    generalStyleGuide?: string;
+    linkedinStyleGuide?: string;
+    newsletterStyleGuide?: string;
+    marketingStyleGuide?: string;
+    vocabularyPatterns?: string;
+    avoidPatterns?: string;
+  };
 };
 
 /**

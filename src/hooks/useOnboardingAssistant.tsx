@@ -1,7 +1,5 @@
 
 import { useState, useCallback, useEffect } from 'react';
-import { User, ContentPillar, TargetAudience } from '@/types';
-import { WritingStyleProfile } from '@/types/writingStyle';
 import { useAuth } from '@/context/AuthContext';
 import { 
   ChatMessage, 
@@ -89,10 +87,8 @@ export function useOnboardingAssistant() {
       setIsLoading(true);
       
       // Add user message to chat
-      const updatedMessages = [
-        ...messages,
-        { role: 'user', content }
-      ];
+      const userMsg: ChatMessage = { role: 'user', content };
+      const updatedMessages = [...messages, userMsg];
       setMessages(updatedMessages);
       
       // Get response from Claude
@@ -103,10 +99,8 @@ export function useOnboardingAssistant() {
       );
       
       // Add assistant response to chat
-      setMessages(prev => [
-        ...prev,
-        { role: 'assistant', content: response }
-      ]);
+      const assistantMsg: ChatMessage = { role: 'assistant', content: response };
+      setMessages(prev => [...prev, assistantMsg]);
     } catch (error) {
       console.error('Error sending message:', error);
       toast.error('Failed to get response from assistant');

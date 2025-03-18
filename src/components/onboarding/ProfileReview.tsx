@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
@@ -6,10 +5,8 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
-import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
-import { Check, PenLine, Plus, X } from 'lucide-react';
-import { ProfileData } from '@/services/onboardingAssistantService';
+import { Check, Plus, X } from 'lucide-react';
+import { ProfileData, NewContentPillar, NewTargetAudience } from '@/services/onboardingAssistantService';
 
 interface ProfileReviewProps {
   profileData: ProfileData;
@@ -110,24 +107,24 @@ const ProfileReview: React.FC<ProfileReviewProps> = ({
     });
   };
   
-  const handleArrayItemChange = (audienceIndex: number, field: string, itemIndex: number, value: string) => {
+  const handleArrayItemChange = (audienceIndex: number, field: keyof Pick<NewTargetAudience, 'painPoints' | 'goals'>, itemIndex: number, value: string) => {
     const audience = editedData.targetAudiences[audienceIndex];
-    const array = [...audience[field as keyof typeof audience] as string[]];
+    const array = [...audience[field]];
     array[itemIndex] = value;
     
     handleTargetAudienceChange(audienceIndex, field, array);
   };
   
-  const handleAddArrayItem = (audienceIndex: number, field: string) => {
+  const handleAddArrayItem = (audienceIndex: number, field: keyof Pick<NewTargetAudience, 'painPoints' | 'goals'>) => {
     const audience = editedData.targetAudiences[audienceIndex];
-    const array = [...audience[field as keyof typeof audience] as string[], ''];
+    const array = [...audience[field], ''];
     
     handleTargetAudienceChange(audienceIndex, field, array);
   };
   
-  const handleRemoveArrayItem = (audienceIndex: number, field: string, itemIndex: number) => {
+  const handleRemoveArrayItem = (audienceIndex: number, field: keyof Pick<NewTargetAudience, 'painPoints' | 'goals'>, itemIndex: number) => {
     const audience = editedData.targetAudiences[audienceIndex];
-    const array = [...audience[field as keyof typeof audience] as string[]];
+    const array = [...audience[field]];
     array.splice(itemIndex, 1);
     
     handleTargetAudienceChange(audienceIndex, field, array);

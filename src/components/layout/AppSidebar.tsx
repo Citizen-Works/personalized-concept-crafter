@@ -134,8 +134,8 @@ const AppSidebar = () => {
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className={cn("h-8 w-8 rounded-full", collapsed && "mx-auto")}>
                 <Avatar className="h-8 w-8">
-                  <AvatarImage src={user?.avatar_url || ""} alt={user?.full_name || "Avatar"} />
-                  <AvatarFallback>{user?.full_name?.charAt(0).toUpperCase() || "U"}</AvatarFallback>
+                  <AvatarImage src={user?.photoURL || ""} alt={user?.displayName || "Avatar"} />
+                  <AvatarFallback>{user?.email?.charAt(0).toUpperCase() || "U"}</AvatarFallback>
                 </Avatar>
               </Button>
             </DropdownMenuTrigger>
@@ -149,7 +149,7 @@ const AppSidebar = () => {
         
         {!collapsed && (
           <p className="text-xs text-muted-foreground">
-            {user?.full_name}
+            {user?.email ? user.email.split('@')[0] : ''}
             <br />
             {user?.email}
           </p>
