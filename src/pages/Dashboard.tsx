@@ -7,11 +7,13 @@ import { ArrowRight, FileText, Lightbulb, Zap } from 'lucide-react';
 import { useIdeas } from '@/hooks/ideas';
 import { useDrafts } from '@/hooks/useDrafts';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 const Dashboard = () => {
   // Fetch real data using the hooks
   const { ideas, isLoading: isIdeasLoading } = useIdeas();
   const { drafts, isLoading: isDraftsLoading } = useDrafts();
+  const isMobile = useIsMobile();
   
   const isLoading = isIdeasLoading || isDraftsLoading;
   
@@ -78,7 +80,7 @@ const Dashboard = () => {
               <CardDescription>Your latest content ideas</CardDescription>
             </div>
             <Button variant="outline" size="sm">
-              <Link to="/ideas" className="flex items-center gap-1">
+              <Link to="/ideas" className="flex items-center gap-1 w-full h-full">
                 View All <ArrowRight className="h-4 w-4 ml-1" />
               </Link>
             </Button>
@@ -118,8 +120,8 @@ const Dashboard = () => {
                         </div>
                       </div>
                     </div>
-                    <Button variant="ghost" size="sm">
-                      <Link to={`/ideas/${idea.id}`}>
+                    <Button variant="ghost" size="sm" className="p-2">
+                      <Link to={`/ideas/${idea.id}`} className="flex items-center">
                         <ArrowRight className="h-4 w-4" />
                       </Link>
                     </Button>
@@ -144,7 +146,7 @@ const Dashboard = () => {
               <CardDescription>Your latest content drafts</CardDescription>
             </div>
             <Button variant="outline" size="sm">
-              <Link to="/drafts" className="flex items-center gap-1">
+              <Link to="/drafts" className="flex items-center gap-1 w-full h-full">
                 View All <ArrowRight className="h-4 w-4 ml-1" />
               </Link>
             </Button>
@@ -178,8 +180,8 @@ const Dashboard = () => {
                         </div>
                       </div>
                     </div>
-                    <Button variant="ghost" size="sm">
-                      <Link to={`/drafts/${draft.id}`}>
+                    <Button variant="ghost" size="sm" className="p-2">
+                      <Link to={`/drafts/${draft.id}`} className="flex items-center">
                         <ArrowRight className="h-4 w-4" />
                       </Link>
                     </Button>
@@ -205,16 +207,16 @@ const Dashboard = () => {
             <CardDescription>Frequently used features</CardDescription>
           </CardHeader>
           <CardContent className="grid gap-3">
-            <Button className="w-full justify-start">
+            <Button className="w-full text-left flex justify-start" asChild>
               <Link to="/ideas/new" className="flex items-center gap-2 text-white w-full">
-                <Lightbulb className="h-4 w-4" />
-                Create New Content Idea
+                <Lightbulb className="h-4 w-4 shrink-0" />
+                <span className={isMobile ? "line-clamp-1" : ""}>Create New Content Idea</span>
               </Link>
             </Button>
-            <Button variant="outline" className="w-full justify-start">
+            <Button variant="outline" className="w-full text-left flex justify-start" asChild>
               <Link to="/drafts" className="flex items-center gap-2 w-full">
-                <FileText className="h-4 w-4" />
-                Manage Drafts
+                <FileText className="h-4 w-4 shrink-0" />
+                <span className={isMobile ? "line-clamp-1" : ""}>Manage Drafts</span>
               </Link>
             </Button>
           </CardContent>
