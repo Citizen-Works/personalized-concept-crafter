@@ -7,15 +7,21 @@ import {
   fetchTargetAudiences, 
   fetchWritingStyleProfile,
   fetchCustomPromptInstructions,
-  fetchRecentLinkedinPosts
+  fetchRecentLinkedinPosts,
+  fetchNewsletterExamples,
+  fetchMarketingExamples,
+  fetchBusinessContextDocuments
 } from '@/services/profileDataService';
 import { 
   buildBasePrompt, 
   addContentIdeaToPrompt, 
   addCustomInstructionsToPrompt, 
   addTaskToPrompt,
-  addLinkedinPostsToPrompt
-} from '@/utils/promptBuilder'; // Path updated but import names stay the same
+  addLinkedinPostsToPrompt,
+  addNewsletterExamplesToPrompt,
+  addMarketingExamplesToPrompt,
+  addBusinessContextDocsToPrompt
+} from '@/utils/promptBuilder';
 import { 
   getCachedPrompt, 
   cachePrompt, 
@@ -33,15 +39,19 @@ export const usePromptAssembly = () => {
     
     console.log('Building new base prompt');
     // Fetch all necessary data
-    const [user, contentPillars, targetAudiences, styleProfile] = await Promise.all([
+    const [user, contentPillars, targetAudiences, styleProfile, businessDocuments] = await Promise.all([
       fetchUserProfile(userId),
       fetchContentPillars(userId),
       fetchTargetAudiences(userId),
-      fetchWritingStyleProfile(userId)
+      fetchWritingStyleProfile(userId),
+      fetchBusinessContextDocuments(userId)
     ]);
     
     // Build the base prompt
-    const prompt = buildBasePrompt(user, contentPillars, targetAudiences, styleProfile, contentType);
+    let prompt = buildBasePrompt(user, contentPillars, targetAudiences, styleProfile, contentType);
+    
+    // Add business context documents
+    prompt = addBusinessContextDocsToPrompt(prompt, businessDocuments);
     
     // Cache the base prompt
     cachePrompt(userId, contentType, prompt);
@@ -61,15 +71,26 @@ export const usePromptAssembly = () => {
     // Add content idea details
     let finalPrompt = addContentIdeaToPrompt(basePrompt, idea);
     
-    // Add LinkedIn posts if this is a LinkedIn content type
+    // Add examples based on content type
     if (contentType === 'linkedin') {
       const recentPosts = await fetchRecentLinkedinPosts(userId, 5);
       finalPrompt = addLinkedinPostsToPrompt(finalPrompt, recentPosts);
+    } else if (contentType === 'newsletter') {
+      const newsletterExamples = await fetchNewsletterExamples(userId, 5);
+      finalPrompt = addNewsletterExamplesToPrompt(finalPrompt, newsletterExamples);
+    } else if (contentType === 'marketing') {
+      const marketingExamples = await fetchMarketingExamples(userId, 5);
+      finalPrompt = addMarketingExamplesToPrompt(finalPrompt, marketingExamples);
     }
     
     // Add custom instructions if available
     const customInstructions = await fetchCustomPromptInstructions(userId);
     finalPrompt = addCustomInstructionsToPrompt(finalPrompt, customInstructions);
+    
+    // Add regeneration instructions if provided
+    if (idea.regenerationInstructions) {
+      finalPrompt += `\n# REGENERATION INSTRUCTIONS\n${idea.regenerationInstructions}\n\n`;
+    }
     
     // Add the task
     finalPrompt = addTaskToPrompt(finalPrompt, contentType);

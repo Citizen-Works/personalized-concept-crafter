@@ -1,5 +1,5 @@
 
-import { ContentIdea, ContentType, LinkedinPost } from '@/types';
+import { ContentIdea, ContentType, LinkedinPost, Document } from '@/types';
 import { PromptSection } from './types';
 
 /**
@@ -49,6 +49,79 @@ export function buildLinkedinPostsSection(posts: LinkedinPost[]): PromptSection 
 }
 
 /**
+ * Creates a section containing newsletter examples
+ */
+export function buildNewsletterExamplesSection(examples: Document[]): PromptSection {
+  let content = '';
+  
+  if (examples.length > 0) {
+    examples.forEach(example => {
+      content += '---BEGIN NEWSLETTER---\n';
+      if (example.title) {
+        content += `Title: ${example.title}\n\n`;
+      }
+      content += example.content + '\n';
+      content += '---END NEWSLETTER---\n\n';
+    });
+  } else {
+    content += 'No newsletter examples available.\n\n';
+  }
+  
+  return {
+    title: '# EXAMPLES OF PREVIOUS NEWSLETTERS',
+    content
+  };
+}
+
+/**
+ * Creates a section containing marketing examples
+ */
+export function buildMarketingExamplesSection(examples: Document[]): PromptSection {
+  let content = '';
+  
+  if (examples.length > 0) {
+    examples.forEach(example => {
+      content += '---BEGIN MARKETING CONTENT---\n';
+      if (example.title) {
+        content += `Title: ${example.title}\n\n`;
+      }
+      content += example.content + '\n';
+      content += '---END MARKETING CONTENT---\n\n';
+    });
+  } else {
+    content += 'No marketing examples available.\n\n';
+  }
+  
+  return {
+    title: '# EXAMPLES OF PREVIOUS MARKETING CONTENT',
+    content
+  };
+}
+
+/**
+ * Creates a section containing business context from documents
+ */
+export function buildBusinessContextDocsSection(documents: Document[]): PromptSection {
+  let content = '';
+  
+  if (documents.length > 0) {
+    content += 'The following documents provide additional business context:\n\n';
+    
+    documents.forEach(doc => {
+      content += `--- ${doc.title} ---\n`;
+      content += doc.content + '\n\n';
+    });
+  } else {
+    content += 'No additional business context documents available.\n\n';
+  }
+  
+  return {
+    title: '# ADDITIONAL BUSINESS CONTEXT',
+    content
+  };
+}
+
+/**
  * Creates a section containing custom instructions
  */
 export function buildCustomInstructionsSection(customInstructions: string | null): PromptSection | null {
@@ -76,13 +149,13 @@ export function buildTaskSection(contentType: ContentType, promptText: string): 
     content += `5. Be ready for publishing with minimal editing\n\n`;
     content += `IMPORTANT: Provide ONLY the text of the LinkedIn post. Do not include any explanations, commentaries, or notes about the post - just the post itself as it would appear on LinkedIn. Do not address the user.`;
   } else if (contentType === 'newsletter') {
-    content += 'Create newsletter content based on the content idea above. Make sure it follows the user\'s writing style and adheres to the best practices for newsletter content. The content should sound authentic and match the voice of the user. Do not address the user in yourr output. Respond with ONLY the text of the newsletter without additional comments or notes.';
+    content += 'Create newsletter content based on the content idea above. Make sure it follows the user\'s writing style and adheres to the best practices for newsletter content. The content should sound authentic and match the voice of the user. Do not address the user in your output. Respond with ONLY the text of the newsletter without additional comments or notes.';
   } else if (contentType === 'marketing') {
-    content += 'Create marketing copy based on the content idea above. Make sure it follows the user\'s writing style and adheres to the best practices for marketing content. The copy should sound authentic and match the voice of the user.Do not address the user in yourr output. Respond with ONLY the text of the marketing copy without additional comments or notes.';
+    content += 'Create marketing copy based on the content idea above. Make sure it follows the user\'s writing style and adheres to the best practices for marketing content. The copy should sound authentic and match the voice of the user. Do not address the user in your output. Respond with ONLY the text of the marketing copy without additional comments or notes.';
   }
   
   return {
-    title: '### TASK',
+    title: '# TASK',
     content
   };
 }

@@ -1,5 +1,5 @@
 
-import { ContentType, ContentIdea, WritingStyleProfile, User, ContentPillar, TargetAudience, LinkedinPost } from '@/types';
+import { ContentType, ContentIdea, WritingStyleProfile, User, ContentPillar, TargetAudience, LinkedinPost, Document } from '@/types';
 import { PromptSection, PromptStructure } from './types';
 import { buildBasePromptStructure } from './basePromptBuilder';
 import { getBestPracticesSection } from './contentBestPractices';
@@ -7,7 +7,10 @@ import {
   buildContentIdeaSection,
   buildLinkedinPostsSection,
   buildCustomInstructionsSection,
-  buildTaskSection
+  buildTaskSection,
+  buildNewsletterExamplesSection,
+  buildMarketingExamplesSection,
+  buildBusinessContextDocsSection
 } from './contentSpecificSections';
 
 /**
@@ -52,6 +55,30 @@ export function buildBasePrompt(
 export function addLinkedinPostsToPrompt(prompt: string, posts: LinkedinPost[]): string {
   const postsSection = buildLinkedinPostsSection(posts);
   return prompt + postsSection.title + '\n' + postsSection.content;
+}
+
+/**
+ * Adds newsletter examples to a prompt
+ */
+export function addNewsletterExamplesToPrompt(prompt: string, examples: Document[]): string {
+  const examplesSection = buildNewsletterExamplesSection(examples);
+  return prompt + examplesSection.title + '\n' + examplesSection.content;
+}
+
+/**
+ * Adds marketing examples to a prompt
+ */
+export function addMarketingExamplesToPrompt(prompt: string, examples: Document[]): string {
+  const examplesSection = buildMarketingExamplesSection(examples);
+  return prompt + examplesSection.title + '\n' + examplesSection.content;
+}
+
+/**
+ * Adds business context documents to a prompt
+ */
+export function addBusinessContextDocsToPrompt(prompt: string, documents: Document[]): string {
+  const docsSection = buildBusinessContextDocsSection(documents);
+  return prompt + docsSection.title + '\n' + docsSection.content;
 }
 
 /**
