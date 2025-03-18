@@ -1,157 +1,188 @@
-import React, { useState, useEffect } from 'react';
-import {
-  Sidebar,
-  SidebarContent,
-  SidebarFooter,
-  SidebarHeader,
-  SidebarMenu,
-  SidebarMenuItem,
-  SidebarMenuButton,
-  SidebarRail,
-  useProSidebar,
-} from 'react-pro-sidebar';
+
+import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { PenTool, LayoutDashboard, LightbulbIcon, BookText, Users, Settings, FileText, ArrowLeft, ArrowRight } from 'lucide-react';
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import { 
+  PenTool, 
+  LayoutDashboard, 
+  LightbulbIcon, 
+  BookText, 
+  Users, 
+  Settings, 
+  FileText, 
+  Menu,
+  X
+} from 'lucide-react';
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Button } from "@/components/ui/button";
 import { useAuth } from '@/context/AuthContext';
 import { ThemeToggle } from '@/components/ui/theme-toggle';
 import AssistantSidebar from './AssistantSidebar';
+import { cn } from '@/lib/utils';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 const AppSidebar = () => {
-  const { collapseSidebar, toggled, broken, collapsed } = useProSidebar();
   const { pathname } = useLocation();
   const { user, signOut } = useAuth();
-  const [isMounted, setIsMounted] = useState(false);
+  const isMobile = useIsMobile();
+  const [collapsed, setCollapsed] = useState(isMobile);
 
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
+  const toggleSidebar = () => {
+    setCollapsed(!collapsed);
+  };
 
-  if (!isMounted) {
-    return null;
-  }
-  
   return (
-    <Sidebar
-      width="240px"
-      collapsedWidth="64px"
-      backgroundColor="hsl(var(--background))"
-      borderColor="hsl(var(--border))"
-      className="border-r border-muted"
-    >
-      <SidebarRail>
-        <div className="relative flex flex-col items-center h-full">
-          <Link to="/">
-            <div className="flex items-center justify-center h-12 w-12 rounded-md bg-secondary text-secondary-foreground shrink-0">
-              <PenTool className="h-6 w-6" />
-            </div>
-          </Link>
-          <div className="flex flex-col gap-2 w-full mt-4">
-            <SidebarMenuButton href="/dashboard" active={pathname === '/dashboard'}>
-              <LayoutDashboard className="h-4 w-4" />
-            </SidebarMenuButton>
-            <SidebarMenuButton href="/ideas" active={pathname.startsWith('/ideas')}>
-              <LightbulbIcon className="h-4 w-4" />
-            </SidebarMenuButton>
-            <SidebarMenuButton href="/documents" active={pathname.startsWith('/documents')}>
-              <BookText className="h-4 w-4" />
-            </SidebarMenuButton>
-            <SidebarMenuButton href="/linkedin-posts" active={pathname === '/linkedin-posts'}>
-              <FileText className="h-4 w-4" />
-            </SidebarMenuButton>
-            <SidebarMenuButton href="/profile" active={pathname === '/profile'}>
-              <Users className="h-4 w-4" />
-            </SidebarMenuButton>
+    <div className={cn(
+      "h-screen border-r border-border transition-all duration-300 flex flex-col bg-background",
+      collapsed ? "w-[70px]" : "w-[240px]"
+    )}>
+      {/* Sidebar Header */}
+      <div className="flex items-center justify-between p-4 h-16">
+        {!collapsed && (
+          <div className="flex items-center gap-2">
+            <PenTool className="h-5 w-5" />
+            <span className="font-semibold">Content Engine</span>
           </div>
+        )}
+        {collapsed && (
+          <div className="mx-auto">
+            <PenTool className="h-5 w-5" />
+          </div>
+        )}
+        <Button 
+          variant="ghost" 
+          size="icon" 
+          className={cn("h-8 w-8", collapsed && "mx-auto")}
+          onClick={toggleSidebar}
+        >
+          {collapsed ? <Menu className="h-4 w-4" /> : <X className="h-4 w-4" />}
+        </Button>
+      </div>
+
+      {/* Main Menu */}
+      <div className="flex-1 overflow-y-auto py-2">
+        <div className="space-y-1 px-3">
+          <NavItem 
+            to="/dashboard" 
+            icon={<LayoutDashboard className="h-4 w-4" />} 
+            label="Dashboard" 
+            active={pathname === '/dashboard'} 
+            collapsed={collapsed}
+          />
+          
+          {/* Assistant Sidebar */}
+          <div className={cn(
+            "flex items-center gap-2 text-sm py-2 px-3 rounded-md",
+            "hover:bg-accent hover:text-accent-foreground transition-colors"
+          )}>
+            {collapsed ? (
+              <div className="mx-auto">
+                <Bot className="h-4 w-4" />
+              </div>
+            ) : (
+              <AssistantSidebar />
+            )}
+          </div>
+          
+          <NavItem 
+            to="/ideas" 
+            icon={<LightbulbIcon className="h-4 w-4" />} 
+            label="Content Ideas" 
+            active={pathname.startsWith('/ideas')} 
+            collapsed={collapsed}
+          />
+          
+          <NavItem 
+            to="/documents" 
+            icon={<BookText className="h-4 w-4" />} 
+            label="Documents" 
+            active={pathname.startsWith('/documents')} 
+            collapsed={collapsed}
+          />
+          
+          <NavItem 
+            to="/linkedin" 
+            icon={<FileText className="h-4 w-4" />} 
+            label="LinkedIn Posts" 
+            active={pathname === '/linkedin'} 
+            collapsed={collapsed}
+          />
+          
+          <NavItem 
+            to="/profile" 
+            icon={<Users className="h-4 w-4" />} 
+            label="Profile" 
+            active={pathname === '/profile'} 
+            collapsed={collapsed}
+          />
+          
+          <NavItem 
+            to="/settings" 
+            icon={<Settings className="h-4 w-4" />} 
+            label="Settings" 
+            active={pathname === '/settings'} 
+            collapsed={collapsed}
+          />
         </div>
-      </SidebarRail>
-      
-      <SidebarContent className="p-0">
-        <SidebarHeader>
-          <div className="flex items-center gap-2 px-4 py-2 font-semibold text-lg">
-            <PenTool className="h-6 w-6" />
-            <span>Content Engine</span>
-          </div>
-        </SidebarHeader>
+      </div>
+
+      {/* Footer */}
+      <div className="border-t border-border p-4">
+        <div className="flex items-center justify-between mb-4">
+          {!collapsed && <ThemeToggle />}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" className={cn("h-8 w-8 rounded-full", collapsed && "mx-auto")}>
+                <Avatar className="h-8 w-8">
+                  <AvatarImage src={user?.avatar_url || ""} alt={user?.full_name || "Avatar"} />
+                  <AvatarFallback>{user?.full_name?.charAt(0).toUpperCase() || "U"}</AvatarFallback>
+                </Avatar>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-56" align="end" forceMount>
+              <DropdownMenuLabel>My Account</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={() => signOut()}>Logout</DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
         
-        <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton href="/dashboard" active={pathname === '/dashboard'}>
-              <LayoutDashboard className="h-4 w-4" />
-              <span>Dashboard</span>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-          
-          {/* Add the Assistant Sidebar menu item */}
-          <SidebarMenuItem>
-            <AssistantSidebar />
-          </SidebarMenuItem>
-          
-          <SidebarMenuItem>
-            <SidebarMenuButton href="/ideas" active={pathname.startsWith('/ideas')}>
-              <LightbulbIcon className="h-4 w-4" />
-              <span>Content Ideas</span>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-          
-          <SidebarMenuItem>
-            <SidebarMenuButton href="/documents" active={pathname.startsWith('/documents')}>
-              <BookText className="h-4 w-4" />
-              <span>Documents</span>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-          
-          <SidebarMenuItem>
-            <SidebarMenuButton href="/linkedin-posts" active={pathname === '/linkedin-posts'}>
-              <FileText className="h-4 w-4" />
-              <span>LinkedIn Posts</span>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-          
-          <SidebarMenuItem>
-            <SidebarMenuButton href="/profile" active={pathname === '/profile'}>
-              <Users className="h-4 w-4" />
-              <span>Profile</span>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-          
-          <SidebarMenuItem>
-            <SidebarMenuButton href="/settings" active={pathname === '/settings'}>
-              <Settings className="h-4 w-4" />
-              <span>Settings</span>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-        </SidebarMenu>
-        
-        <SidebarFooter className="p-4">
-          <div className="flex items-center justify-between mb-4">
-            <ThemeToggle />
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="relative h-8 w-8 rounded-full">
-                  <Avatar className="h-8 w-8">
-                    <AvatarImage src={user?.photoURL || ""} alt={user?.displayName || "Avatar"} />
-                    <AvatarFallback>{user?.displayName?.charAt(0).toUpperCase() || "U"}</AvatarFallback>
-                  </Avatar>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-56" align="end" forceMount>
-                <DropdownMenuLabel>My Account</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => signOut()}>Logout</DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
+        {!collapsed && (
           <p className="text-xs text-muted-foreground">
-            {user?.displayName}
+            {user?.full_name}
             <br />
             {user?.email}
           </p>
-        </SidebarFooter>
-      </SidebarContent>
-    </Sidebar>
+        )}
+      </div>
+    </div>
   );
 };
+
+// Helper component for navigation items
+const NavItem = ({ to, icon, label, active, collapsed }) => {
+  return (
+    <Link
+      to={to}
+      className={cn(
+        "flex items-center gap-2 text-sm py-2 px-3 rounded-md",
+        "hover:bg-accent hover:text-accent-foreground transition-colors",
+        active && "bg-accent text-accent-foreground font-medium"
+      )}
+    >
+      {collapsed ? (
+        <div className="mx-auto">{icon}</div>
+      ) : (
+        <>
+          {icon}
+          <span>{label}</span>
+        </>
+      )}
+    </Link>
+  );
+};
+
+// Import Bot icon
+import { Bot } from 'lucide-react';
 
 export default AppSidebar;
