@@ -17,6 +17,7 @@ import ContentPillarsPage from "./pages/ContentPillarsPage";
 import TargetAudiencesPage from "./pages/TargetAudiencesPage";
 import LinkedinPostsPage from "./pages/LinkedinPostsPage";
 import DocumentsPage from "./pages/DocumentsPage";
+import WritingStylePage from "./pages/WritingStylePage";
 import SettingsPage from "./pages/Settings";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
@@ -58,6 +59,7 @@ const App = () => (
                   <Route path="/drafts/:id" element={<DraftDetailPage />} />
                   <Route path="/pillars" element={<ContentPillarsPage />} />
                   <Route path="/audiences" element={<TargetAudiencesPage />} />
+                  <Route path="/writing-style" element={<WritingStylePage />} />
                   <Route path="/linkedin" element={<LinkedinPostsPage />} />
                   <Route path="/documents" element={<DocumentsPage />} />
                   <Route path="/settings" element={<SettingsPage />} />
