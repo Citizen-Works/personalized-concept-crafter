@@ -16,6 +16,7 @@ export type Database = {
           created_at: string
           feedback: string | null
           id: string
+          status: string
           updated_at: string
           user_id: string
           version: number
@@ -26,6 +27,7 @@ export type Database = {
           created_at?: string
           feedback?: string | null
           id?: string
+          status?: string
           updated_at?: string
           user_id?: string
           version?: number
@@ -36,6 +38,7 @@ export type Database = {
           created_at?: string
           feedback?: string | null
           id?: string
+          status?: string
           updated_at?: string
           user_id?: string
           version?: number

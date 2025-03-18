@@ -1,6 +1,6 @@
 
 import { useQuery } from "@tanstack/react-query";
-import { fetchDraftsByIdeaId } from "@/services/profile/draftService";
+import { fetchDraftsByIdeaId } from "@/services/draftService";
 import { useAuth } from "@/context/AuthContext";
 
 export const useDraftsByIdeaId = (ideaId: string) => {
