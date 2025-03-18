@@ -26,3 +26,20 @@ export const getTypeBadgeClasses = (type: ContentType): string => {
       return 'bg-rose-50 text-rose-700 border-rose-200';
   }
 };
+
+// Functions to generate the full badge props object
+export const getStatusBadgeProps = (status: ContentStatus) => {
+  return {
+    variant: 'outline' as const,
+    className: getStatusBadgeClasses(status),
+    children: status.charAt(0).toUpperCase() + status.slice(1)
+  };
+};
+
+export const getContentTypeBadgeProps = (contentType: ContentType) => {
+  return {
+    variant: 'outline' as const,
+    className: getTypeBadgeClasses(contentType),
+    children: contentType.charAt(0).toUpperCase() + contentType.slice(1)
+  };
+};
