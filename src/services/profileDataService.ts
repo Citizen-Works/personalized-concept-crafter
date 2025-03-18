@@ -234,7 +234,7 @@ export async function fetchNewsletterExamples(userId: string, limit: number = 5)
       type: doc.type as "blog" | "newsletter" | "whitepaper" | "case-study" | "other",
       purpose: doc.purpose as "writing_sample" | "business_context",
       status: doc.status as "active" | "archived",
-      content_type: doc.content_type,
+      content_type: doc.content_type as "linkedin" | "newsletter" | "marketing" | "general" | null,
       createdAt: new Date(doc.created_at)
     }));
   } catch (error) {
@@ -267,7 +267,7 @@ export async function fetchMarketingExamples(userId: string, limit: number = 5):
       type: doc.type as "blog" | "newsletter" | "whitepaper" | "case-study" | "other",
       purpose: doc.purpose as "writing_sample" | "business_context",
       status: doc.status as "active" | "archived",
-      content_type: doc.content_type,
+      content_type: doc.content_type as "linkedin" | "newsletter" | "marketing" | "general" | null,
       createdAt: new Date(doc.created_at)
     }));
   } catch (error) {
@@ -299,7 +299,7 @@ export async function fetchBusinessContextDocuments(userId: string): Promise<Doc
       type: doc.type as "blog" | "newsletter" | "whitepaper" | "case-study" | "other",
       purpose: doc.purpose as "writing_sample" | "business_context",
       status: doc.status as "active" | "archived",
-      content_type: doc.content_type,
+      content_type: doc.content_type as "linkedin" | "newsletter" | "marketing" | "general" | null,
       createdAt: new Date(doc.created_at)
     }));
   } catch (error) {
