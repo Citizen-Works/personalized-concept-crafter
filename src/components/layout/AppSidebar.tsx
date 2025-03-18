@@ -29,9 +29,16 @@ import {
 } from 'lucide-react';
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from '@/context/AuthContext';
+import { useIdeas } from '@/hooks/ideas';
+import { useDrafts } from '@/hooks/useDrafts';
 
 export const AppSidebar = () => {
   const { signOut } = useAuth();
+  const { ideas, isLoading: isIdeasLoading } = useIdeas();
+  const { drafts, isLoading: isDraftsLoading } = useDrafts();
+
+  const ideasCount = isIdeasLoading ? null : ideas.length;
+  const draftsCount = isDraftsLoading ? null : drafts.length;
 
   const handleLogout = async () => {
     await signOut();
@@ -75,7 +82,9 @@ export const AppSidebar = () => {
                 }>
                   <Lightbulb className="h-4 w-4" />
                   <span>Ideas</span>
-                  <Badge className="ml-auto bg-secondary text-secondary-foreground">12</Badge>
+                  {ideasCount !== null && ideasCount > 0 && (
+                    <Badge className="ml-auto bg-secondary text-secondary-foreground">{ideasCount}</Badge>
+                  )}
                 </NavLink>
               </SidebarMenuItem>
               <SidebarMenuItem>
@@ -84,7 +93,9 @@ export const AppSidebar = () => {
                 }>
                   <FileText className="h-4 w-4" />
                   <span>Drafts</span>
-                  <Badge className="ml-auto bg-secondary text-secondary-foreground">5</Badge>
+                  {draftsCount !== null && draftsCount > 0 && (
+                    <Badge className="ml-auto bg-secondary text-secondary-foreground">{draftsCount}</Badge>
+                  )}
                 </NavLink>
               </SidebarMenuItem>
             </SidebarMenu>
