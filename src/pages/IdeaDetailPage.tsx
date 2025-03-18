@@ -14,7 +14,6 @@ import IdeaActions from '@/components/ideas/IdeaActions';
 import IdeaDetailLoading from '@/components/ideas/IdeaDetailLoading';
 import IdeaDetailError from '@/components/ideas/IdeaDetailError';
 import { IdeaDraftsList } from '@/components/ideas/IdeaDraftsList';
-import { ContentType } from '@/types';
 import IdeaEditor from '@/components/ideas/IdeaEditor';
 
 const IdeaDetailPage = () => {
@@ -94,7 +93,8 @@ const IdeaDetailPage = () => {
           <IdeaActions 
             id={idea.id} 
             status={idea.status}
-            onDeleteIdea={handleDeleteIdea} 
+            onDeleteIdea={handleDeleteIdea}
+            onEdit={() => setIsEditorOpen(true)}
           />
         </div>
       </div>

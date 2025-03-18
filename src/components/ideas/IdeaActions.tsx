@@ -1,6 +1,5 @@
 
 import React from 'react';
-import { Link } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Edit, Trash, CheckCircle } from 'lucide-react';
@@ -12,9 +11,10 @@ interface IdeaActionsProps {
   id: string;
   status: ContentStatus;
   onDeleteIdea: () => void;
+  onEdit: () => void;
 }
 
-const IdeaActions: React.FC<IdeaActionsProps> = ({ id, status, onDeleteIdea }) => {
+const IdeaActions: React.FC<IdeaActionsProps> = ({ id, status, onDeleteIdea, onEdit }) => {
   const { updateIdea } = useIdeas();
   
   const handleApproveIdea = async () => {
@@ -50,12 +50,10 @@ const IdeaActions: React.FC<IdeaActionsProps> = ({ id, status, onDeleteIdea }) =
         <Button 
           variant="outline" 
           className="w-full gap-1" 
-          asChild
+          onClick={onEdit}
         >
-          <Link to={`/ideas/${id}/edit`}>
-            <Edit className="h-4 w-4" />
-            Edit Idea
-          </Link>
+          <Edit className="h-4 w-4" />
+          Edit Idea
         </Button>
         <Button 
           variant="destructive" 
