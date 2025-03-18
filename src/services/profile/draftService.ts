@@ -1,12 +1,12 @@
 
 import { supabase } from "@/integrations/supabase/client";
-import { ContentDraft, ContentType } from "@/types";
+import { ContentDraft, ContentType, DraftStatus } from "@/types";
 import { toast } from "sonner";
 
 export type DraftWithIdea = ContentDraft & {
   ideaTitle: string;
   contentType: ContentType;
-  status?: 'draft' | 'published' | 'archived';
+  status: DraftStatus;
 };
 
 export const fetchDrafts = async (userId: string): Promise<DraftWithIdea[]> => {
@@ -36,7 +36,7 @@ export const fetchDrafts = async (userId: string): Promise<DraftWithIdea[]> => {
     version: item.version,
     feedback: item.feedback || "",
     contentType: (item.content_ideas?.content_type as ContentType) || "linkedin",
-    status: item.status || "draft",
+    status: (item.status || "draft") as DraftStatus,
     createdAt: new Date(item.created_at)
   }));
 };
@@ -69,7 +69,7 @@ export const fetchDraftsByIdeaId = async (ideaId: string, userId: string): Promi
     version: item.version,
     feedback: item.feedback || "",
     contentType: (item.content_ideas?.content_type as ContentType) || "linkedin",
-    status: item.status || "draft",
+    status: (item.status || "draft") as DraftStatus,
     createdAt: new Date(item.created_at)
   }));
 };
@@ -102,7 +102,7 @@ export const fetchDraftById = async (id: string, userId: string): Promise<DraftW
     version: data.version,
     feedback: data.feedback || "",
     contentType: (data.content_ideas?.content_type as ContentType) || "linkedin",
-    status: data.status || "draft",
+    status: (data.status || "draft") as DraftStatus,
     createdAt: new Date(data.created_at)
   };
 };

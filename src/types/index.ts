@@ -80,6 +80,7 @@ export interface WritingStyleProfile {
 export type ContentStatus = 'unreviewed' | 'approved' | 'drafted' | 'ready' | 'published';
 export type ContentType = 'linkedin' | 'newsletter' | 'marketing';
 export type ContentSource = 'meeting' | 'manual' | 'other';
+export type DraftStatus = 'draft' | 'published' | 'archived';
 
 export interface ContentIdea {
   id: string;
@@ -102,5 +103,5 @@ export interface ContentDraft {
   version: number;
   feedback: string;
   createdAt: Date;
-  status?: 'draft' | 'published' | 'archived';
+  status?: DraftStatus;
 }
