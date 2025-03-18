@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -24,8 +23,8 @@ import RegisterPage from "./pages/RegisterPage";
 import NotFound from "./pages/NotFound";
 import Index from "./pages/Index";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
+import OnboardingPage from './pages/OnboardingPage';
 
-// Set up a script to handle initial theme
 const initializeThemeScript = `
   (function() {
     const theme = localStorage.getItem('theme') || 'system';
@@ -37,11 +36,11 @@ const initializeThemeScript = `
 
 const queryClient = new QueryClient();
 
-const App = () => (
-  <>
-    <script dangerouslySetInnerHTML={{ __html: initializeThemeScript }} />
-    <QueryClientProvider client={queryClient}>
-      <BrowserRouter>
+function App() {
+  return (
+    <>
+      <script dangerouslySetInnerHTML={{ __html: initializeThemeScript }} />
+      <QueryClientProvider client={queryClient}>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <TooltipProvider>
             <AuthProvider>
@@ -49,6 +48,15 @@ const App = () => (
                 <Route path="/" element={<Index />} />
                 <Route path="/login" element={<LoginPage />} />
                 <Route path="/register" element={<RegisterPage />} />
+                
+                <Route 
+                  path="/onboarding" 
+                  element={
+                    <ProtectedRoute>
+                      <OnboardingPage />
+                    </ProtectedRoute>
+                  } 
+                />
                 
                 <Route element={<ProtectedRoute><MainLayout /></ProtectedRoute>}>
                   <Route path="/dashboard" element={<Dashboard />} />
@@ -73,8 +81,8 @@ const App = () => (
           </TooltipProvider>
         </ThemeProvider>
       </BrowserRouter>
-    </QueryClientProvider>
-  </>
-);
+    </>
+  );
+}
 
 export default App;

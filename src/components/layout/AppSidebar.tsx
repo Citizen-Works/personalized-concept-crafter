@@ -1,186 +1,157 @@
-
-import React from 'react';
-import { NavLink } from 'react-router-dom';
-import { 
-  Sidebar, 
-  SidebarContent, 
-  SidebarGroup, 
-  SidebarGroupContent, 
-  SidebarGroupLabel, 
+import React, { useState, useEffect } from 'react';
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarFooter,
   SidebarHeader,
-  SidebarTrigger,
   SidebarMenu,
   SidebarMenuItem,
   SidebarMenuButton,
-  SidebarFooter
-} from "@/components/ui/sidebar";
-import { 
-  Home, 
-  Lightbulb, 
-  FileText, 
-  Users, 
-  Target, 
-  LinkedinIcon, 
-  FileBox, 
-  Settings, 
-  LogOut, 
-  ChevronsLeft,
-  PenTool,
-  Type
-} from 'lucide-react';
-import { Badge } from "@/components/ui/badge";
+  SidebarRail,
+  useProSidebar,
+} from 'react-pro-sidebar';
+import { Link, useLocation } from 'react-router-dom';
+import { PenTool, LayoutDashboard, LightbulbIcon, BookText, Users, Settings, FileText, ArrowLeft, ArrowRight } from 'lucide-react';
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { useAuth } from '@/context/AuthContext';
-import { useIdeas } from '@/hooks/ideas';
-import { useDrafts } from '@/hooks/useDrafts';
+import { ThemeToggle } from '@/components/ui/theme-toggle';
+import AssistantSidebar from './AssistantSidebar';
 
-export const AppSidebar = () => {
-  const { signOut } = useAuth();
-  const { ideas, isLoading: isIdeasLoading } = useIdeas();
-  const { drafts, isLoading: isDraftsLoading } = useDrafts();
+const AppSidebar = () => {
+  const { collapseSidebar, toggled, broken, collapsed } = useProSidebar();
+  const { pathname } = useLocation();
+  const { user, signOut } = useAuth();
+  const [isMounted, setIsMounted] = useState(false);
 
-  const ideasCount = isIdeasLoading ? null : ideas.length;
-  const draftsCount = isDraftsLoading ? null : drafts.length;
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
-  const handleLogout = async () => {
-    await signOut();
-  };
-
+  if (!isMounted) {
+    return null;
+  }
+  
   return (
-    <Sidebar>
-      <SidebarHeader className="flex items-center gap-2 px-6">
-        <div className="flex items-center gap-2">
-          <PenTool className="h-6 w-6" />
-          <span className="font-semibold text-lg">Content Engine</span>
+    <Sidebar
+      width="240px"
+      collapsedWidth="64px"
+      backgroundColor="hsl(var(--background))"
+      borderColor="hsl(var(--border))"
+      className="border-r border-muted"
+    >
+      <SidebarRail>
+        <div className="relative flex flex-col items-center h-full">
+          <Link to="/">
+            <div className="flex items-center justify-center h-12 w-12 rounded-md bg-secondary text-secondary-foreground shrink-0">
+              <PenTool className="h-6 w-6" />
+            </div>
+          </Link>
+          <div className="flex flex-col gap-2 w-full mt-4">
+            <SidebarMenuButton href="/dashboard" active={pathname === '/dashboard'}>
+              <LayoutDashboard className="h-4 w-4" />
+            </SidebarMenuButton>
+            <SidebarMenuButton href="/ideas" active={pathname.startsWith('/ideas')}>
+              <LightbulbIcon className="h-4 w-4" />
+            </SidebarMenuButton>
+            <SidebarMenuButton href="/documents" active={pathname.startsWith('/documents')}>
+              <BookText className="h-4 w-4" />
+            </SidebarMenuButton>
+            <SidebarMenuButton href="/linkedin-posts" active={pathname === '/linkedin-posts'}>
+              <FileText className="h-4 w-4" />
+            </SidebarMenuButton>
+            <SidebarMenuButton href="/profile" active={pathname === '/profile'}>
+              <Users className="h-4 w-4" />
+            </SidebarMenuButton>
+          </div>
         </div>
-        <SidebarTrigger className="ml-auto">
-          <ChevronsLeft className="h-4 w-4" />
-        </SidebarTrigger>
-      </SidebarHeader>
+      </SidebarRail>
       
-      <SidebarContent className="px-4">
-        <SidebarGroup>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              <SidebarMenuItem>
-                <NavLink to="/dashboard" className={({ isActive }) => 
-                  `flex items-center gap-2 px-3 py-2 rounded-md ${isActive ? "text-primary font-medium bg-primary/10" : "hover:bg-muted"}`
-                }>
-                  <Home className="h-4 w-4" />
-                  <span>Dashboard</span>
-                </NavLink>
-              </SidebarMenuItem>
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-
-        <SidebarGroup>
-          <SidebarGroupLabel>Content</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              <SidebarMenuItem>
-                <NavLink to="/ideas" className={({ isActive }) => 
-                  `flex items-center gap-2 px-3 py-2 rounded-md ${isActive ? "text-primary font-medium bg-primary/10" : "hover:bg-muted"}`
-                }>
-                  <Lightbulb className="h-4 w-4" />
-                  <span>Ideas</span>
-                  {ideasCount !== null && ideasCount > 0 && (
-                    <Badge className="ml-auto bg-secondary text-secondary-foreground">{ideasCount}</Badge>
-                  )}
-                </NavLink>
-              </SidebarMenuItem>
-              <SidebarMenuItem>
-                <NavLink to="/drafts" className={({ isActive }) => 
-                  `flex items-center gap-2 px-3 py-2 rounded-md ${isActive ? "text-primary font-medium bg-primary/10" : "hover:bg-muted"}`
-                }>
-                  <FileText className="h-4 w-4" />
-                  <span>Drafts</span>
-                  {draftsCount !== null && draftsCount > 0 && (
-                    <Badge className="ml-auto bg-secondary text-secondary-foreground">{draftsCount}</Badge>
-                  )}
-                </NavLink>
-              </SidebarMenuItem>
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-
-        <SidebarGroup>
-          <SidebarGroupLabel>Business Profile</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              <SidebarMenuItem>
-                <NavLink to="/pillars" className={({ isActive }) => 
-                  `flex items-center gap-2 px-3 py-2 rounded-md ${isActive ? "text-primary font-medium bg-primary/10" : "hover:bg-muted"}`
-                }>
-                  <Target className="h-4 w-4" />
-                  <span>Content Pillars</span>
-                </NavLink>
-              </SidebarMenuItem>
-              <SidebarMenuItem>
-                <NavLink to="/audiences" className={({ isActive }) => 
-                  `flex items-center gap-2 px-3 py-2 rounded-md ${isActive ? "text-primary font-medium bg-primary/10" : "hover:bg-muted"}`
-                }>
-                  <Users className="h-4 w-4" />
-                  <span>Target Audiences</span>
-                </NavLink>
-              </SidebarMenuItem>
-              <SidebarMenuItem>
-                <NavLink to="/writing-style" className={({ isActive }) => 
-                  `flex items-center gap-2 px-3 py-2 rounded-md ${isActive ? "text-primary font-medium bg-primary/10" : "hover:bg-muted"}`
-                }>
-                  <Type className="h-4 w-4" />
-                  <span>Writing Style</span>
-                </NavLink>
-              </SidebarMenuItem>
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-
-        <SidebarGroup>
-          <SidebarGroupLabel>Resources</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              <SidebarMenuItem>
-                <NavLink to="/linkedin" className={({ isActive }) => 
-                  `flex items-center gap-2 px-3 py-2 rounded-md ${isActive ? "text-primary font-medium bg-primary/10" : "hover:bg-muted"}`
-                }>
-                  <LinkedinIcon className="h-4 w-4" />
-                  <span>LinkedIn Posts</span>
-                </NavLink>
-              </SidebarMenuItem>
-              <SidebarMenuItem>
-                <NavLink to="/documents" className={({ isActive }) => 
-                  `flex items-center gap-2 px-3 py-2 rounded-md ${isActive ? "text-primary font-medium bg-primary/10" : "hover:bg-muted"}`
-                }>
-                  <FileBox className="h-4 w-4" />
-                  <span>Documents</span>
-                </NavLink>
-              </SidebarMenuItem>
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-      </SidebarContent>
-
-      <SidebarFooter className="px-4 py-2">
+      <SidebarContent className="p-0">
+        <SidebarHeader>
+          <div className="flex items-center gap-2 px-4 py-2 font-semibold text-lg">
+            <PenTool className="h-6 w-6" />
+            <span>Content Engine</span>
+          </div>
+        </SidebarHeader>
+        
         <SidebarMenu>
           <SidebarMenuItem>
-            <NavLink to="/settings" className={({ isActive }) => 
-              `flex items-center gap-2 px-3 py-2 rounded-md ${isActive ? "text-primary font-medium bg-primary/10" : "hover:bg-muted"}`
-            }>
+            <SidebarMenuButton href="/dashboard" active={pathname === '/dashboard'}>
+              <LayoutDashboard className="h-4 w-4" />
+              <span>Dashboard</span>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+          
+          {/* Add the Assistant Sidebar menu item */}
+          <SidebarMenuItem>
+            <AssistantSidebar />
+          </SidebarMenuItem>
+          
+          <SidebarMenuItem>
+            <SidebarMenuButton href="/ideas" active={pathname.startsWith('/ideas')}>
+              <LightbulbIcon className="h-4 w-4" />
+              <span>Content Ideas</span>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+          
+          <SidebarMenuItem>
+            <SidebarMenuButton href="/documents" active={pathname.startsWith('/documents')}>
+              <BookText className="h-4 w-4" />
+              <span>Documents</span>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+          
+          <SidebarMenuItem>
+            <SidebarMenuButton href="/linkedin-posts" active={pathname === '/linkedin-posts'}>
+              <FileText className="h-4 w-4" />
+              <span>LinkedIn Posts</span>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+          
+          <SidebarMenuItem>
+            <SidebarMenuButton href="/profile" active={pathname === '/profile'}>
+              <Users className="h-4 w-4" />
+              <span>Profile</span>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+          
+          <SidebarMenuItem>
+            <SidebarMenuButton href="/settings" active={pathname === '/settings'}>
               <Settings className="h-4 w-4" />
               <span>Settings</span>
-            </NavLink>
-          </SidebarMenuItem>
-          <SidebarMenuItem>
-            <button 
-              onClick={handleLogout} 
-              className="w-full flex items-center gap-2 px-3 py-2 rounded-md text-left hover:bg-muted"
-            >
-              <LogOut className="h-4 w-4" />
-              <span>Logout</span>
-            </button>
+            </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
-      </SidebarFooter>
+        
+        <SidebarFooter className="p-4">
+          <div className="flex items-center justify-between mb-4">
+            <ThemeToggle />
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+                  <Avatar className="h-8 w-8">
+                    <AvatarImage src={user?.photoURL || ""} alt={user?.displayName || "Avatar"} />
+                    <AvatarFallback>{user?.displayName?.charAt(0).toUpperCase() || "U"}</AvatarFallback>
+                  </Avatar>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-56" align="end" forceMount>
+                <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => signOut()}>Logout</DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+          <p className="text-xs text-muted-foreground">
+            {user?.displayName}
+            <br />
+            {user?.email}
+          </p>
+        </SidebarFooter>
+      </SidebarContent>
     </Sidebar>
   );
 };
+
+export default AppSidebar;

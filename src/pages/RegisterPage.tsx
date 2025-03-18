@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Link, Navigate } from 'react-router-dom';
+import { Link, Navigate, useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -17,10 +17,12 @@ const RegisterPage = () => {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const { signUp, signInWithGoogle, loading, user } = useAuth();
+  const navigate = useNavigate();
   
   // If user is already logged in, redirect to dashboard
   if (user) {
-    return <Navigate to="/dashboard" replace />;
+    // Redirect to onboarding instead of dashboard for new users
+    return <Navigate to="/onboarding" replace />;
   }
   
   const handleSubmit = async (e: React.FormEvent) => {
@@ -33,7 +35,8 @@ const RegisterPage = () => {
     
     try {
       await signUp(email, password, name);
-      // The redirect to login is handled in the signUp function
+      // After successful signup, navigate to onboarding
+      navigate('/onboarding');
     } catch (error) {
       console.error('Registration failed:', error);
       // Error is already handled in the signUp function
@@ -43,7 +46,8 @@ const RegisterPage = () => {
   const handleGoogleSignIn = async () => {
     try {
       await signInWithGoogle();
-      // OAuth redirect is handled in signInWithGoogle
+      // Navigate to onboarding after successful OAuth sign-in
+      navigate('/onboarding');
     } catch (error) {
       console.error('Google login failed:', error);
       // Error is already handled in the signInWithGoogle function
