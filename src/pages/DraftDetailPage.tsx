@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useDrafts } from '@/hooks/useDrafts';
@@ -25,6 +26,7 @@ const DraftDetailPage = () => {
   useEffect(() => {
     if (draft) {
       setContent(draft.content);
+      setDraftStatus(draft.status || 'draft');
       
       if (draft.contentIdeaId) {
         fetchIdea(draft.contentIdeaId);

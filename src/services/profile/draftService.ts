@@ -1,3 +1,4 @@
+
 import { supabase } from "@/integrations/supabase/client";
 import { ContentDraft, ContentType } from "@/types";
 import { toast } from "sonner";
@@ -24,6 +25,39 @@ export const fetchDrafts = async (userId: string): Promise<DraftWithIdea[]> => {
 
   if (error) {
     toast.error("Failed to fetch drafts");
+    throw error;
+  }
+
+  return data.map(item => ({
+    id: item.id,
+    contentIdeaId: item.content_idea_id,
+    ideaTitle: item.content_ideas?.title || "Untitled",
+    content: item.content,
+    version: item.version,
+    feedback: item.feedback || "",
+    contentType: (item.content_ideas?.content_type as ContentType) || "linkedin",
+    status: item.status || "draft",
+    createdAt: new Date(item.created_at)
+  }));
+};
+
+export const fetchDraftsByIdeaId = async (ideaId: string, userId: string): Promise<DraftWithIdea[]> => {
+  if (!userId) throw new Error("User not authenticated");
+
+  const { data, error } = await supabase
+    .from("content_drafts")
+    .select(`
+      *,
+      content_ideas:content_idea_id (
+        title,
+        content_type
+      )
+    `)
+    .eq("content_idea_id", ideaId)
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    toast.error("Failed to fetch drafts for this idea");
     throw error;
   }
 

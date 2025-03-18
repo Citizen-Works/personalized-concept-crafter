@@ -1,3 +1,4 @@
+
 export interface User {
   id: string;
   email: string;
@@ -101,4 +102,5 @@ export interface ContentDraft {
   version: number;
   feedback: string;
   createdAt: Date;
+  status?: 'draft' | 'published' | 'archived';
 }
