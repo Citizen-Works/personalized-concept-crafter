@@ -21,16 +21,26 @@ serve(async (req) => {
       throw new Error('CLAUDE_API_KEY is not set');
     }
 
-    const { prompt, contentType, idea } = await req.json();
+    const requestData = await req.json();
+    const { prompt, contentType, idea, task } = requestData;
 
-    if (!prompt || !contentType) {
+    if (!prompt) {
       return new Response(
-        JSON.stringify({ error: "Missing required fields: prompt and contentType are required" }),
+        JSON.stringify({ error: "Missing required field: prompt is required" }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    console.log(`Generating ${contentType} content with Claude for idea: ${idea?.title || 'Untitled'}`);
+    let logMessage = 'Generating content with Claude';
+    
+    // Log different message based on task type
+    if (task === 'writing_style_preview') {
+      logMessage = 'Generating writing style preview with Claude';
+    } else if (contentType && idea) {
+      logMessage = `Generating ${contentType} content with Claude for idea: ${idea?.title || 'Untitled'}`;
+    }
+    
+    console.log(logMessage);
     
     // Choose the appropriate Claude model based on content complexity
     const model = "claude-3-sonnet-20240229"; // Using Sonnet for high quality content generation
