@@ -9,7 +9,7 @@ import { Save } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import { fetchUserProfile } from '@/services/profileDataService';
+import { fetchUserProfile } from '@/services/profile/userProfileService';
 
 const BusinessSettings = () => {
   const { user } = useAuth();
