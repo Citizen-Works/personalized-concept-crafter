@@ -5,16 +5,16 @@ import { useIdeas } from '@/hooks/ideas';
 import { useDrafts } from '@/hooks/useDrafts';
 import { toast } from 'sonner';
 
-// Import newly created components
+// Import components
 import IdeaPageHeader from '@/components/ideas/IdeaPageHeader';
 import IdeaDescription from '@/components/ideas/IdeaDescription';
 import IdeaNotes from '@/components/ideas/IdeaNotes';
-import IdeaDrafts from '@/components/ideas/IdeaDrafts';
 import IdeaContentGeneration from '@/components/ideas/IdeaContentGeneration';
 import IdeaFeedback from '@/components/ideas/IdeaFeedback';
 import IdeaActions from '@/components/ideas/IdeaActions';
 import IdeaDetailLoading from '@/components/ideas/IdeaDetailLoading';
 import IdeaDetailError from '@/components/ideas/IdeaDetailError';
+import { IdeaDraftsList } from '@/components/ideas/IdeaDraftsList';
 import { ContentType } from '@/types';
 
 const IdeaDetailPage = () => {
@@ -64,7 +64,7 @@ const IdeaDetailPage = () => {
     try {
       console.log("Creating draft with content type:", contentType);
       
-      // Create the draft with the generated content - WITHOUT content_type field
+      // Create the draft with the generated content
       await createDraft({
         contentIdeaId: idea.id,
         content: content,
@@ -101,7 +101,7 @@ const IdeaDetailPage = () => {
         <div className="md:col-span-2 space-y-6">
           <IdeaDescription id={idea.id} description={idea.description} />
           <IdeaNotes id={idea.id} notes={idea.notes} />
-          <IdeaDrafts idea={idea} onGenerateDraft={handleGenerateDraft} />
+          <IdeaDraftsList ideaId={idea.id} />
         </div>
         
         <div className="space-y-6">

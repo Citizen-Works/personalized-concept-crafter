@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useDrafts } from '@/hooks/useDrafts';
@@ -8,6 +7,7 @@ import { DraftActions } from '@/components/drafts/DraftActions';
 import { IdeaLinkCard } from '@/components/drafts/IdeaLinkCard';
 import { DraftLoading } from '@/components/drafts/DraftLoading';
 import { DraftError } from '@/components/drafts/DraftError';
+import { DraftStatusToggle } from '@/components/drafts/DraftStatusToggle';
 import { toast } from 'sonner';
 import { ContentIdea, ContentType, ContentSource, ContentStatus } from '@/types';
 import { supabase } from '@/integrations/supabase/client';
@@ -20,6 +20,7 @@ const DraftDetailPage = () => {
   const [idea, setIdea] = useState<ContentIdea | null>(null);
   const [isLoadingIdea, setIsLoadingIdea] = useState(false);
   const [content, setContent] = useState<string>('');
+  const [draftStatus, setDraftStatus] = useState<'draft' | 'published' | 'archived'>('draft');
   
   useEffect(() => {
     if (draft) {
@@ -42,7 +43,6 @@ const DraftDetailPage = () => {
       
       if (error) throw error;
       
-      // Map the Supabase snake_case properties to our camelCase ContentIdea type
       const mappedIdea: ContentIdea = {
         id: data.id,
         userId: data.user_id,
@@ -74,10 +74,8 @@ const DraftDetailPage = () => {
         content: updatedContent
       });
       
-      // Update local state immediately to show changes
       setContent(updatedContent);
       
-      // Refetch to ensure we have the latest data
       refetch();
       
       toast.success("Content updated successfully");
@@ -100,6 +98,25 @@ const DraftDetailPage = () => {
       }
     });
   };
+  
+  const handleStatusChange = async (status: 'draft' | 'published' | 'archived'): Promise<void> => {
+    if (!draft) return;
+    
+    try {
+      await updateDraft({
+        id: draft.id,
+        status
+      });
+      
+      setDraftStatus(status);
+      refetch();
+      
+      toast.success(`Draft status updated to ${status}`);
+    } catch (error) {
+      toast.error("Failed to update draft status");
+      console.error(error);
+    }
+  };
 
   if (isLoading) {
     return <DraftLoading />;
@@ -111,13 +128,20 @@ const DraftDetailPage = () => {
   
   return (
     <div className="space-y-8">
-      <DraftHeader draft={draft} />
+      <div className="flex items-center justify-between">
+        <DraftHeader draft={draft} />
+        <DraftStatusToggle 
+          status={draftStatus} 
+          onStatusChange={handleStatusChange} 
+        />
+      </div>
       
       <div className="grid gap-6 md:grid-cols-3">
         <div className="md:col-span-2">
           <DraftContent 
             content={content} 
-            contentType={draft.contentType} 
+            contentType={draft.contentType}
+            onUpdateContent={handleUpdateContent}
           />
         </div>
         

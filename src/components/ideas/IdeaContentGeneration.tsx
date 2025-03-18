@@ -2,11 +2,12 @@
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Plus, Loader2, Bug } from 'lucide-react';
+import { Loader2, Bug, FileText, Mail, Megaphone } from 'lucide-react';
 import { ContentIdea, ContentType } from '@/types';
 import { useClaudeAI } from '@/hooks/useClaudeAI';
 import { toast } from 'sonner';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { MarketingDetailsDialog, MarketingDetails } from './MarketingDetailsDialog';
 
 interface IdeaContentGenerationProps {
   idea: ContentIdea;
@@ -19,6 +20,7 @@ const IdeaContentGeneration: React.FC<IdeaContentGenerationProps> = ({
 }) => {
   const [generatingType, setGeneratingType] = useState<ContentType | null>(null);
   const [showDebugDialog, setShowDebugDialog] = useState(false);
+  const [showMarketingDialog, setShowMarketingDialog] = useState(false);
   const [selectedType, setSelectedType] = useState<ContentType>('linkedin');
   const { generateContent, isGenerating, debugPrompt } = useClaudeAI();
 
@@ -35,6 +37,31 @@ const IdeaContentGeneration: React.FC<IdeaContentGenerationProps> = ({
     } catch (error) {
       console.error('Error in handleGenerateDraft:', error);
       toast.error(`Failed to generate ${contentType} content`);
+    } finally {
+      setGeneratingType(null);
+    }
+  };
+  
+  const handleGenerateMarketingContent = async (details: MarketingDetails) => {
+    setGeneratingType('marketing');
+    
+    try {
+      console.log("Generating marketing content for idea:", idea.id, "with details:", details);
+      
+      // Add the marketing details to the idea for the prompt
+      const ideaWithDetails = {
+        ...idea,
+        marketingDetails: details
+      };
+      
+      const generatedContent = await generateContent(ideaWithDetails, 'marketing');
+      
+      if (generatedContent) {
+        await onGenerateDraft('marketing', generatedContent);
+      }
+    } catch (error) {
+      console.error('Error generating marketing content:', error);
+      toast.error('Failed to generate marketing content');
     } finally {
       setGeneratingType(null);
     }
@@ -61,35 +88,89 @@ const IdeaContentGeneration: React.FC<IdeaContentGenerationProps> = ({
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          {['linkedin', 'newsletter', 'marketing'].map((type) => (
-            <div key={type} className="flex gap-2">
-              <Button 
-                className="w-full gap-1" 
-                disabled={isGenerating || generatingType !== null}
-                onClick={() => handleGenerateDraft(type as ContentType)}
-              >
-                {generatingType === type ? (
-                  <>
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                    Generating...
-                  </>
-                ) : (
-                  <>
-                    <Plus className="h-4 w-4" />
-                    Generate {type.charAt(0).toUpperCase() + type.slice(1)}
-                  </>
-                )}
-              </Button>
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={() => handleDebugPrompt(type as ContentType)}
-                title={`Debug ${type} prompt`}
-              >
-                <Bug className="h-4 w-4" />
-              </Button>
-            </div>
-          ))}
+          <div className="flex gap-2">
+            <Button 
+              className="w-full gap-1" 
+              disabled={isGenerating || generatingType !== null}
+              onClick={() => handleGenerateDraft('linkedin')}
+            >
+              {generatingType === 'linkedin' ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Generating...
+                </>
+              ) : (
+                <>
+                  <FileText className="h-4 w-4" />
+                  LinkedIn Post
+                </>
+              )}
+            </Button>
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={() => handleDebugPrompt('linkedin')}
+              title={`Debug LinkedIn prompt`}
+            >
+              <Bug className="h-4 w-4" />
+            </Button>
+          </div>
+          
+          <div className="flex gap-2">
+            <Button 
+              className="w-full gap-1" 
+              disabled={isGenerating || generatingType !== null}
+              onClick={() => handleGenerateDraft('newsletter')}
+            >
+              {generatingType === 'newsletter' ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Generating...
+                </>
+              ) : (
+                <>
+                  <Mail className="h-4 w-4" />
+                  Newsletter
+                </>
+              )}
+            </Button>
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={() => handleDebugPrompt('newsletter')}
+              title={`Debug newsletter prompt`}
+            >
+              <Bug className="h-4 w-4" />
+            </Button>
+          </div>
+          
+          <div className="flex gap-2">
+            <Button 
+              className="w-full gap-1" 
+              disabled={isGenerating || generatingType !== null}
+              onClick={() => setShowMarketingDialog(true)}
+            >
+              {generatingType === 'marketing' ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Generating...
+                </>
+              ) : (
+                <>
+                  <Megaphone className="h-4 w-4" />
+                  Marketing Copy
+                </>
+              )}
+            </Button>
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={() => handleDebugPrompt('marketing')}
+              title={`Debug marketing prompt`}
+            >
+              <Bug className="h-4 w-4" />
+            </Button>
+          </div>
         </CardContent>
       </Card>
 
@@ -121,6 +202,12 @@ const IdeaContentGeneration: React.FC<IdeaContentGenerationProps> = ({
           </div>
         </DialogContent>
       </Dialog>
+      
+      <MarketingDetailsDialog
+        open={showMarketingDialog}
+        onOpenChange={setShowMarketingDialog}
+        onGenerate={handleGenerateMarketingContent}
+      />
     </>
   );
 };
