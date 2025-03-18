@@ -17,10 +17,11 @@ FORMAT & STRUCTURE:
 - Include line breaks between all paragraphs for readability
 - Utilize strategic whitespace to improve engagement
 - Start with an attention-grabbing hook that appears in previews and is 8 words or less.
-- Do not use emojis
+- NEVER use emojis
 
 CONTENT APPROACH:
 - Begin with a hook that addresses a pain point or surprising insight and specifically would appeal to my target audience
+- Hook should be less than 8 words and appeal to the target audience in that short hook.
 - Focus on ONE clear message per post
 - Include specific, tangible metrics or results when possible
 - Share a personal story, lesson, or experience when relevant
