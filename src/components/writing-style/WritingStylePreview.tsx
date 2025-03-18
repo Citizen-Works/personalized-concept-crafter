@@ -6,6 +6,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { RefreshCw } from "lucide-react";
 import { WritingStyleProfile } from '@/types/writingStyle';
 import { generatePreviewWithClaude } from '@/services/claudeAIService';
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { ContentType } from '@/types';
 
 interface WritingStylePreviewProps {
   styleProfile: WritingStyleProfile;
@@ -15,6 +17,7 @@ export const WritingStylePreview: React.FC<WritingStylePreviewProps> = ({ styleP
   const [previewText, setPreviewText] = useState<string>('');
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+  const [contentType, setContentType] = useState<ContentType>('linkedin');
 
   const generatePreview = async () => {
     if (!styleProfile.user_id) return;
@@ -23,7 +26,7 @@ export const WritingStylePreview: React.FC<WritingStylePreviewProps> = ({ styleP
     setError(null);
     
     try {
-      const preview = await generatePreviewWithClaude(styleProfile);
+      const preview = await generatePreviewWithClaude(styleProfile, contentType);
       setPreviewText(preview);
     } catch (err) {
       console.error('Failed to generate preview:', err);
@@ -47,7 +50,8 @@ export const WritingStylePreview: React.FC<WritingStylePreviewProps> = ({ styleP
     styleProfile.user_id,
     styleProfile.general_style_guide,
     styleProfile.voice_analysis,
-    styleProfile.vocabulary_patterns
+    styleProfile.vocabulary_patterns,
+    contentType // Regenerate when content type changes
   ]);
 
   return (
@@ -69,7 +73,18 @@ export const WritingStylePreview: React.FC<WritingStylePreviewProps> = ({ styleP
           Refresh
         </Button>
       </CardHeader>
-      <CardContent>
+      <CardContent className="space-y-4">
+        <ToggleGroup 
+          type="single" 
+          value={contentType}
+          onValueChange={(value) => value && setContentType(value as ContentType)}
+          className="justify-start"
+        >
+          <ToggleGroupItem value="linkedin">LinkedIn</ToggleGroupItem>
+          <ToggleGroupItem value="newsletter">Newsletter</ToggleGroupItem>
+          <ToggleGroupItem value="marketing">Marketing</ToggleGroupItem>
+        </ToggleGroup>
+
         {isLoading ? (
           <div className="space-y-2">
             <Skeleton className="h-4 w-full" />

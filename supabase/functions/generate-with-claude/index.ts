@@ -35,7 +35,7 @@ serve(async (req) => {
     
     // Log different message based on task type
     if (task === 'writing_style_preview') {
-      logMessage = 'Generating writing style preview with Claude';
+      logMessage = `Generating ${contentType || 'writing style'} preview with Claude`;
     } else if (contentType && idea) {
       logMessage = `Generating ${contentType} content with Claude for idea: ${idea?.title || 'Untitled'}`;
     }

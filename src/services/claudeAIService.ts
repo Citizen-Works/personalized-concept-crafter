@@ -38,8 +38,19 @@ export async function generateContentWithClaude(
  * Generates a writing style preview based on the user's style profile
  */
 export async function generatePreviewWithClaude(
-  styleProfile: WritingStyleProfile
+  styleProfile: WritingStyleProfile,
+  contentType: ContentType = 'linkedin'
 ): Promise<string> {
+  // Get the content-specific style guide based on the content type
+  let contentSpecificGuide = '';
+  if (contentType === 'linkedin' && styleProfile.linkedin_style_guide) {
+    contentSpecificGuide = styleProfile.linkedin_style_guide;
+  } else if (contentType === 'newsletter' && styleProfile.newsletter_style_guide) {
+    contentSpecificGuide = styleProfile.newsletter_style_guide;
+  } else if (contentType === 'marketing' && styleProfile.marketing_style_guide) {
+    contentSpecificGuide = styleProfile.marketing_style_guide;
+  }
+
   // Build a prompt for Claude that explains the writing style
   const prompt = `
 You are an AI assistant that helps with writing content. Please generate a short sample paragraph 
@@ -51,6 +62,9 @@ ${styleProfile.voice_analysis || "Not specified"}
 General Style Guidelines:
 ${styleProfile.general_style_guide || "Not specified"}
 
+${contentType.charAt(0).toUpperCase() + contentType.slice(1)} Specific Guidelines:
+${contentSpecificGuide || "Not specified"}
+
 Vocabulary Patterns to Use:
 ${styleProfile.vocabulary_patterns || "Not specified"}
 
@@ -58,14 +72,16 @@ Patterns to Avoid:
 ${styleProfile.avoid_patterns || "Not specified"}
 
 The sample should be about a professional accomplishment or industry insight that 
-would make a good LinkedIn post or newsletter section. Make sure the writing style 
-perfectly matches the guidelines above. The content should be original and compelling.
+would make a good ${contentType} post or section. Make sure the writing style 
+perfectly matches the guidelines above, especially the ${contentType}-specific guidelines.
+The content should be original, compelling, and appropriate for the ${contentType} format.
 `;
 
   const { data, error } = await supabase.functions.invoke("generate-with-claude", {
     body: {
       prompt,
-      task: "writing_style_preview"
+      task: "writing_style_preview",
+      contentType
     }
   });
 
