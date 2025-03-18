@@ -165,7 +165,7 @@ export function buildBasePromptStructure(
     introContent += `${user.name} of ${user.businessName} `;
     
     if (contentType === 'linkedin') {
-      introContent += 'create a LinkedIn post that perfectly matches their authentic voice and style.\n\n';
+      introContent += 'create a LinkedIn post that perfectly matches their authentic voice and style and grabs the attention of their target audience.\n\n';
     } else if (contentType === 'newsletter') {
       introContent += 'create newsletter content that perfectly matches their authentic voice and style.\n\n';
     } else if (contentType === 'marketing') {

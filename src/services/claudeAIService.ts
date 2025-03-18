@@ -82,7 +82,7 @@ would make a good ${contentType} post or section. Make sure the writing style
 perfectly matches the guidelines above, especially the ${contentType}-specific guidelines.
 The content should be original, compelling, and appropriate for the ${contentType} format.
 If business information is provided, incorporate relevant elements into the sample.
-Do not include any additional commentary-- only the writing sample.
+ONLY include the writing sample. Do NOT include any extra comments or notes. Only the requested sample. Do not address the user.
 `;
 
   const { data, error } = await supabase.functions.invoke("generate-with-claude", {
