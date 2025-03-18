@@ -1,33 +1,60 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useDrafts } from '@/hooks/useDrafts';
 import { DraftHeader } from '@/components/drafts/DraftHeader';
 import { DraftContent } from '@/components/drafts/DraftContent';
 import { DraftActions } from '@/components/drafts/DraftActions';
-import { DraftFeedback } from '@/components/drafts/DraftFeedback';
 import { IdeaLinkCard } from '@/components/drafts/IdeaLinkCard';
 import { DraftLoading } from '@/components/drafts/DraftLoading';
 import { DraftError } from '@/components/drafts/DraftError';
 import { toast } from 'sonner';
+import { ContentIdea } from '@/types';
+import { supabase } from '@/integrations/supabase/client';
 
 const DraftDetailPage = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { getDraft, updateDraft, deleteDraft } = useDrafts();
   const { data: draft, isLoading, isError } = getDraft(id || '');
+  const [idea, setIdea] = useState<ContentIdea | null>(null);
+  const [isLoadingIdea, setIsLoadingIdea] = useState(false);
   
-  const handleSaveFeedback = async (feedback: string) => {
+  useEffect(() => {
+    if (draft && draft.contentIdeaId) {
+      fetchIdea(draft.contentIdeaId);
+    }
+  }, [draft]);
+  
+  const fetchIdea = async (ideaId: string) => {
+    setIsLoadingIdea(true);
+    try {
+      const { data, error } = await supabase
+        .from('content_ideas')
+        .select('*')
+        .eq('id', ideaId)
+        .single();
+      
+      if (error) throw error;
+      setIdea(data as ContentIdea);
+    } catch (error) {
+      console.error('Error fetching idea:', error);
+    } finally {
+      setIsLoadingIdea(false);
+    }
+  };
+
+  const handleUpdateContent = async (content: string) => {
     if (!draft) return;
     
     try {
       await updateDraft({
         id: draft.id,
-        feedback
+        content
       });
-      toast.success("Feedback saved successfully");
+      toast.success("Content updated successfully");
     } catch (error) {
-      toast.error("Failed to save feedback");
+      toast.error("Failed to update content");
       console.error(error);
     }
   };
@@ -71,12 +98,10 @@ const DraftDetailPage = () => {
             draftId={draft.id}
             content={draft.content}
             contentIdeaId={draft.contentIdeaId}
+            contentType={draft.contentType}
             onDelete={handleDeleteDraft}
-          />
-          
-          <DraftFeedback 
-            initialFeedback={draft.feedback} 
-            onSaveFeedback={handleSaveFeedback}
+            onUpdate={handleUpdateContent}
+            idea={idea || undefined}
           />
           
           <IdeaLinkCard contentIdeaId={draft.contentIdeaId} />

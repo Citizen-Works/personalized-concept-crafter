@@ -34,9 +34,6 @@ export const DraftHeader: React.FC<DraftHeaderProps> = ({ draft }) => {
           >
             {draft.contentType.charAt(0).toUpperCase() + draft.contentType.slice(1)}
           </Badge>
-          <Badge className="bg-blue-50 text-blue-700 border-blue-200">
-            Version {draft.version}
-          </Badge>
         </div>
         <p className="text-muted-foreground">
           Created {draft.createdAt.toLocaleDateString()}

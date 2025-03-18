@@ -26,6 +26,7 @@ import {
   LogOut, 
   ChevronsLeft,
   PenTool,
+  Type
 } from 'lucide-react';
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from '@/context/AuthContext';
@@ -120,6 +121,14 @@ export const AppSidebar = () => {
                 }>
                   <Users className="h-4 w-4" />
                   <span>Target Audiences</span>
+                </NavLink>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <NavLink to="/writing-style" className={({ isActive }) => 
+                  `flex items-center gap-2 px-3 py-2 rounded-md ${isActive ? "text-primary font-medium bg-primary/10" : "hover:bg-muted"}`
+                }>
+                  <Type className="h-4 w-4" />
+                  <span>Writing Style</span>
                 </NavLink>
               </SidebarMenuItem>
             </SidebarMenu>

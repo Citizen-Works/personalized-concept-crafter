@@ -50,7 +50,11 @@ export const usePromptAssembly = () => {
   }, []);
   
   // Function to create the final prompt by adding content idea
-  const createFinalPrompt = useCallback(async (userId: string, idea: ContentIdea, contentType: ContentType): Promise<string> => {
+  const createFinalPrompt = useCallback(async (
+    userId: string, 
+    idea: ContentIdea & { regenerationInstructions?: string }, 
+    contentType: ContentType
+  ): Promise<string> => {
     // Get the base prompt
     const basePrompt = await getOrCreateBasePrompt(userId, contentType);
     

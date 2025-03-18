@@ -20,7 +20,7 @@ export const useClaudeAI = () => {
    * Generates content using Claude AI
    */
   const generateContent = async (
-    idea: ContentIdea,
+    idea: ContentIdea & { regenerationInstructions?: string },
     contentType: ContentType,
     debug = false
   ): Promise<string | null> => {
@@ -34,7 +34,12 @@ export const useClaudeAI = () => {
       }
       
       // Build the enhanced prompt using our prompt assembly system
-      const prompt = await createFinalPrompt(user.id, idea, contentType);
+      let prompt = await createFinalPrompt(user.id, idea, contentType);
+      
+      // Add regeneration instructions if they exist
+      if (idea.regenerationInstructions) {
+        prompt += `\n\n# REGENERATION INSTRUCTIONS\nPlease improve the content based on the following feedback:\n${idea.regenerationInstructions}\n\n`;
+      }
       
       // If in debug mode, save the prompt and return it instead
       if (debug) {
