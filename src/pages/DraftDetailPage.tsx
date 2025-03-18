@@ -16,13 +16,18 @@ const DraftDetailPage = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { getDraft, updateDraft, deleteDraft } = useDrafts();
-  const { data: draft, isLoading, isError } = getDraft(id || '');
+  const { data: draft, isLoading, isError, refetch } = getDraft(id || '');
   const [idea, setIdea] = useState<ContentIdea | null>(null);
   const [isLoadingIdea, setIsLoadingIdea] = useState(false);
+  const [content, setContent] = useState<string>('');
   
   useEffect(() => {
-    if (draft && draft.contentIdeaId) {
-      fetchIdea(draft.contentIdeaId);
+    if (draft) {
+      setContent(draft.content);
+      
+      if (draft.contentIdeaId) {
+        fetchIdea(draft.contentIdeaId);
+      }
     }
   }, [draft]);
   
@@ -60,14 +65,21 @@ const DraftDetailPage = () => {
     }
   };
 
-  const handleUpdateContent = async (content: string) => {
+  const handleUpdateContent = async (updatedContent: string) => {
     if (!draft) return;
     
     try {
       await updateDraft({
         id: draft.id,
-        content
+        content: updatedContent
       });
+      
+      // Update local state immediately to show changes
+      setContent(updatedContent);
+      
+      // Refetch to ensure we have the latest data
+      refetch();
+      
       toast.success("Content updated successfully");
     } catch (error) {
       toast.error("Failed to update content");
@@ -104,7 +116,7 @@ const DraftDetailPage = () => {
       <div className="grid gap-6 md:grid-cols-3">
         <div className="md:col-span-2">
           <DraftContent 
-            content={draft.content} 
+            content={content} 
             contentType={draft.contentType} 
           />
         </div>
@@ -112,7 +124,7 @@ const DraftDetailPage = () => {
         <div className="space-y-6">
           <DraftActions 
             draftId={draft.id}
-            content={draft.content}
+            content={content}
             contentIdeaId={draft.contentIdeaId}
             contentType={draft.contentType}
             onDelete={handleDeleteDraft}
