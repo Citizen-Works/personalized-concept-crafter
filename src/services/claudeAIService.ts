@@ -35,11 +35,13 @@ export async function generateContentWithClaude(
 }
 
 /**
- * Generates a writing style preview based on the user's style profile
+ * Generates a writing style preview based on the user's style profile and business information
  */
 export async function generatePreviewWithClaude(
   styleProfile: WritingStyleProfile,
-  contentType: ContentType = 'linkedin'
+  contentType: ContentType = 'linkedin',
+  businessName: string = '',
+  businessDescription: string = ''
 ): Promise<string> {
   // Get the content-specific style guide based on the content type
   let contentSpecificGuide = '';
@@ -71,10 +73,15 @@ ${styleProfile.vocabulary_patterns || "Not specified"}
 Patterns to Avoid:
 ${styleProfile.avoid_patterns || "Not specified"}
 
+Business Context:
+${businessName ? `Business Name: ${businessName}` : "Not specified"}
+${businessDescription ? `Business Description: ${businessDescription}` : "Not specified"}
+
 The sample should be about a professional accomplishment or industry insight that 
 would make a good ${contentType} post or section. Make sure the writing style 
 perfectly matches the guidelines above, especially the ${contentType}-specific guidelines.
 The content should be original, compelling, and appropriate for the ${contentType} format.
+If business information is provided, incorporate relevant elements into the sample.
 Do not include any additional commentary-- only the writing sample.
 `;
 

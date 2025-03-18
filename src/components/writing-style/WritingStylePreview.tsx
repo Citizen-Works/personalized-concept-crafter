@@ -8,16 +8,40 @@ import { WritingStyleProfile } from '@/types/writingStyle';
 import { generatePreviewWithClaude } from '@/services/claudeAIService';
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { ContentType } from '@/types';
+import { fetchUserProfile } from '@/services/profileDataService';
+import { useAuth } from '@/context/AuthContext';
 
 interface WritingStylePreviewProps {
   styleProfile: WritingStyleProfile;
 }
 
 export const WritingStylePreview: React.FC<WritingStylePreviewProps> = ({ styleProfile }) => {
+  const { user } = useAuth();
   const [previewText, setPreviewText] = useState<string>('');
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [contentType, setContentType] = useState<ContentType>('linkedin');
+  const [businessName, setBusinessName] = useState<string>('');
+  const [businessDescription, setBusinessDescription] = useState<string>('');
+
+  // Fetch user's business profile information
+  useEffect(() => {
+    const loadBusinessInfo = async () => {
+      if (!user?.id) return;
+      
+      try {
+        const profile = await fetchUserProfile(user.id);
+        if (profile) {
+          setBusinessName(profile.businessName || '');
+          setBusinessDescription(profile.businessDescription || '');
+        }
+      } catch (err) {
+        console.error('Failed to load business information:', err);
+      }
+    };
+    
+    loadBusinessInfo();
+  }, [user?.id]);
 
   const generatePreview = async () => {
     if (!styleProfile.user_id) return;
@@ -26,7 +50,12 @@ export const WritingStylePreview: React.FC<WritingStylePreviewProps> = ({ styleP
     setError(null);
     
     try {
-      const preview = await generatePreviewWithClaude(styleProfile, contentType);
+      const preview = await generatePreviewWithClaude(
+        styleProfile, 
+        contentType,
+        businessName,
+        businessDescription
+      );
       setPreviewText(preview);
     } catch (err) {
       console.error('Failed to generate preview:', err);
@@ -51,7 +80,9 @@ export const WritingStylePreview: React.FC<WritingStylePreviewProps> = ({ styleP
     styleProfile.general_style_guide,
     styleProfile.voice_analysis,
     styleProfile.vocabulary_patterns,
-    contentType // Regenerate when content type changes
+    contentType, // Regenerate when content type changes
+    businessName, // Regenerate when business info changes
+    businessDescription
   ]);
 
   return (
@@ -84,6 +115,16 @@ export const WritingStylePreview: React.FC<WritingStylePreviewProps> = ({ styleP
           <ToggleGroupItem value="newsletter">Newsletter</ToggleGroupItem>
           <ToggleGroupItem value="marketing">Marketing</ToggleGroupItem>
         </ToggleGroup>
+
+        {businessName || businessDescription ? (
+          <div className="text-xs text-muted-foreground">
+            Using business context: {businessName ? businessName : "Unnamed business"}
+          </div>
+        ) : (
+          <div className="text-xs text-muted-foreground">
+            No business information found. <a href="/settings/business" className="underline">Add business details</a> for more personalized previews.
+          </div>
+        )}
 
         {isLoading ? (
           <div className="space-y-2">
