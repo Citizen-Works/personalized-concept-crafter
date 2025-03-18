@@ -74,7 +74,7 @@ export function buildTaskSection(contentType: ContentType, promptText: string): 
     content += `3. Follow LinkedIn best practices for formatting and engagement\n`;
     content += `4. Maintain the authentic voice shown in the previous posts\n`;
     content += `5. Be ready for publishing with minimal editing\n\n`;
-    content += `IMPORTANT: Provide ONLY the text of the LinkedIn post. Do not include any explanations, commentaries, or notes about the post - just the post itself as it would appear on LinkedIn. Include relevant hashtags at the end if appropriate.`;
+    content += `IMPORTANT: Provide ONLY the text of the LinkedIn post. Do not include any explanations, commentaries, or notes about the post - just the post itself as it would appear on LinkedIn.`;
   } else if (contentType === 'newsletter') {
     content += 'Create newsletter content based on the content idea above. Make sure it follows the user\'s writing style and adheres to the best practices for newsletter content. The content should sound authentic and match the voice of the user.';
   } else if (contentType === 'marketing') {
