@@ -95,7 +95,7 @@ export function TargetAudienceForm({
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 max-h-[60vh] overflow-y-auto pr-2">
         <FormField
           control={form.control}
           name="name"
@@ -119,7 +119,7 @@ export function TargetAudienceForm({
               <FormControl>
                 <Textarea
                   placeholder="Describe this audience segment in detail"
-                  className="resize-none min-h-[100px]"
+                  className="resize-none h-24"
                   {...field}
                 />
               </FormControl>
@@ -153,7 +153,7 @@ export function TargetAudienceForm({
                   Add
                 </Button>
               </div>
-              <div className="flex flex-wrap gap-2 mt-2">
+              <div className="flex flex-wrap gap-2 mt-2 max-h-24 overflow-y-auto">
                 {form.watch("painPoints")?.map((point, index) => (
                   <div
                     key={index}
@@ -202,7 +202,7 @@ export function TargetAudienceForm({
                   Add
                 </Button>
               </div>
-              <div className="flex flex-wrap gap-2 mt-2">
+              <div className="flex flex-wrap gap-2 mt-2 max-h-24 overflow-y-auto">
                 {form.watch("goals")?.map((goal, index) => (
                   <div
                     key={index}
@@ -226,7 +226,7 @@ export function TargetAudienceForm({
           )}
         />
 
-        <div className="flex justify-end">
+        <div className="flex justify-end sticky bottom-0 pt-4 bg-background">
           <Button type="submit" disabled={isSubmitting}>
             {initialData ? "Update" : "Create"} Audience
           </Button>

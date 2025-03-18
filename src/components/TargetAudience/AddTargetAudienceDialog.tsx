@@ -68,7 +68,7 @@ export function AddTargetAudienceDialog({ onAudienceAdded }: AddTargetAudienceDi
           Add Target Audience
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[600px]">
+      <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-hidden">
         <DialogHeader>
           <DialogTitle>Add Target Audience</DialogTitle>
           <DialogDescription>
