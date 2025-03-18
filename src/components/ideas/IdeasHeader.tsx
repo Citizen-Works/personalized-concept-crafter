@@ -26,16 +26,16 @@ const IdeasHeader: React.FC<IdeasHeaderProps> = ({
   return (
     <>
       <div className="flex flex-col gap-2">
-        <h1 className="text-3xl font-bold tracking-tight">Content Ideas</h1>
-        <p className="text-muted-foreground">
+        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Content Ideas</h1>
+        <p className="text-muted-foreground text-sm">
           Browse and manage your content ideas
         </p>
       </div>
       
-      <div className="flex flex-col sm:flex-row gap-4 items-end justify-between">
+      <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-end justify-between mt-4">
         <IdeasSearch searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
         
-        <div className="flex flex-col sm:flex-row gap-3">
+        <div className="flex flex-col w-full sm:w-auto sm:flex-row gap-3">
           <IdeasFilters
             statusFilter={statusFilter}
             typeFilter={typeFilter}
@@ -43,7 +43,7 @@ const IdeasHeader: React.FC<IdeasHeaderProps> = ({
             setTypeFilter={setTypeFilter}
           />
           
-          <Button asChild className="ml-auto">
+          <Button asChild className="w-full sm:w-auto sm:ml-auto">
             <Link to="/ideas/new" className="flex items-center gap-1">
               <Plus className="h-4 w-4" />
               New Idea

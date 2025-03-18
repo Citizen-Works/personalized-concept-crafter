@@ -18,22 +18,25 @@ const IdeaPageHeader: React.FC<IdeaPageHeaderProps> = ({ idea }) => {
         <Button variant="ghost" size="sm" asChild className="gap-1">
           <Link to="/ideas">
             <ArrowLeft className="h-4 w-4" />
-            <span>Back to Ideas</span>
+            <span className="sm:inline hidden">Back to Ideas</span>
+            <span className="sm:hidden inline">Back</span>
           </Link>
         </Button>
       </div>
       
       <div className="flex flex-col gap-2">
         <div className="flex flex-wrap items-center gap-2">
-          <h1 className="text-3xl font-bold tracking-tight">{idea.title}</h1>
-          <Badge className={getStatusBadgeClasses(idea.status)}>
-            {idea.status.charAt(0).toUpperCase() + idea.status.slice(1)}
-          </Badge>
-          <Badge className={getTypeBadgeClasses(idea.contentType)}>
-            {idea.contentType.charAt(0).toUpperCase() + idea.contentType.slice(1)}
-          </Badge>
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight break-words">{idea.title}</h1>
+          <div className="flex flex-wrap gap-2 mt-1">
+            <Badge className={getStatusBadgeClasses(idea.status)}>
+              {idea.status.charAt(0).toUpperCase() + idea.status.slice(1)}
+            </Badge>
+            <Badge className={getTypeBadgeClasses(idea.contentType)}>
+              {idea.contentType.charAt(0).toUpperCase() + idea.contentType.slice(1)}
+            </Badge>
+          </div>
         </div>
-        <p className="text-muted-foreground">
+        <p className="text-muted-foreground text-sm">
           Created {new Date(idea.createdAt).toLocaleDateString()}
         </p>
       </div>

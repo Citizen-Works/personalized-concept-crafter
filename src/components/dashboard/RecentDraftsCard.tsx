@@ -20,14 +20,14 @@ interface RecentDraftsCardProps {
 
 export const RecentDraftsCard = ({ drafts, isLoading }: RecentDraftsCardProps) => {
   return (
-    <Card className="overflow-hidden transition-all duration-300 hover:shadow-md">
-      <CardHeader className="pb-3 flex flex-row items-center justify-between">
+    <Card className="overflow-hidden transition-all duration-300 hover:shadow-md h-full">
+      <CardHeader className="pb-3 flex flex-col sm:flex-row items-start sm:items-center justify-between space-y-2 sm:space-y-0">
         <div>
-          <CardTitle>Recent Drafts</CardTitle>
+          <CardTitle className="text-base sm:text-lg">Recent Drafts</CardTitle>
           <CardDescription>Your latest content drafts</CardDescription>
         </div>
-        <Button variant="outline" size="sm">
-          <Link to="/drafts" className="flex items-center gap-1 w-full h-full">
+        <Button variant="outline" size="sm" className="w-full sm:w-auto">
+          <Link to="/drafts" className="flex items-center gap-1 w-full h-full justify-center sm:justify-start">
             View All <ArrowRight className="h-4 w-4 ml-1" />
           </Link>
         </Button>
@@ -51,9 +51,9 @@ export const RecentDraftsCard = ({ drafts, isLoading }: RecentDraftsCardProps) =
         ) : drafts.length > 0 ? (
           <div className="space-y-4">
             {drafts.map((draft) => (
-              <div key={draft.id} className="flex items-center justify-between border-b pb-3 last:border-0 last:pb-0">
+              <div key={draft.id} className="flex flex-col sm:flex-row sm:items-center justify-between border-b pb-3 last:border-0 last:pb-0">
                 <div>
-                  <h4 className="font-medium">{draft.title}</h4>
+                  <h4 className="font-medium text-sm sm:text-base line-clamp-1">{draft.title}</h4>
                   <div className="flex items-center gap-2 mt-1">
                     <span className="text-xs text-muted-foreground">{draft.date}</span>
                     <div className="inline-flex items-center rounded-full border border-blue-200 bg-blue-50 px-2 py-0.5 text-xs font-semibold text-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2">
@@ -61,7 +61,7 @@ export const RecentDraftsCard = ({ drafts, isLoading }: RecentDraftsCardProps) =
                     </div>
                   </div>
                 </div>
-                <Button variant="ghost" size="sm" className="p-2">
+                <Button variant="ghost" size="sm" className="p-2 hidden sm:flex mt-2 sm:mt-0">
                   <Link to={`/drafts/${draft.id}`} className="flex items-center">
                     <ArrowRight className="h-4 w-4" />
                   </Link>
@@ -71,7 +71,7 @@ export const RecentDraftsCard = ({ drafts, isLoading }: RecentDraftsCardProps) =
           </div>
         ) : (
           <div className="flex flex-col items-center justify-center py-6 text-center">
-            <p className="text-muted-foreground mb-4">No drafts created yet</p>
+            <p className="text-muted-foreground mb-4 text-sm">No drafts created yet</p>
             <Button asChild size="sm" variant="outline">
               <Link to="/ideas">Browse ideas to draft</Link>
             </Button>

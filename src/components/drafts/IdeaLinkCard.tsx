@@ -22,7 +22,7 @@ export const IdeaLinkCard: React.FC<IdeaLinkCardProps> = ({ contentIdeaId }) => 
     return (
       <Card>
         <CardHeader className="pb-3">
-          <CardTitle>Related Content Idea</CardTitle>
+          <CardTitle className="text-base sm:text-lg">Related Content Idea</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-2">
@@ -44,7 +44,7 @@ export const IdeaLinkCard: React.FC<IdeaLinkCardProps> = ({ contentIdeaId }) => 
     return (
       <Card>
         <CardHeader className="pb-3">
-          <CardTitle>Related Content Idea</CardTitle>
+          <CardTitle className="text-base sm:text-lg">Related Content Idea</CardTitle>
         </CardHeader>
         <CardContent>
           <p className="text-sm text-muted-foreground">
@@ -71,21 +71,17 @@ export const IdeaLinkCard: React.FC<IdeaLinkCardProps> = ({ contentIdeaId }) => 
 
   return (
     <Card>
-      <CardHeader className="pb-3">
-        <CardTitle>Related Content Idea</CardTitle>
-        <CardDescription>
+      <CardHeader className="pb-2 sm:pb-3">
+        <CardTitle className="text-base sm:text-lg">Related Content Idea</CardTitle>
+        <CardDescription className="text-xs sm:text-sm">
           This draft was generated from this idea
         </CardDescription>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-3 sm:space-y-4">
         <div>
-          <h3 className="font-medium">{idea.title}</h3>
-          <p className="text-sm text-muted-foreground mt-1">
-            {idea.description ? 
-              (idea.description.length > 100 ? 
-                `${idea.description.substring(0, 100)}...` : 
-                idea.description) : 
-              'No description'}
+          <h3 className="font-medium text-sm sm:text-base">{idea.title}</h3>
+          <p className="text-xs sm:text-sm text-muted-foreground mt-1 line-clamp-2">
+            {idea.description ? idea.description : 'No description'}
           </p>
         </div>
         
@@ -98,15 +94,15 @@ export const IdeaLinkCard: React.FC<IdeaLinkCardProps> = ({ contentIdeaId }) => 
           </Badge>
         </div>
         
-        <div className="flex items-center text-sm text-muted-foreground">
+        <div className="flex items-center text-xs sm:text-sm text-muted-foreground">
           <Calendar className="h-3.5 w-3.5 mr-1" />
           <span>Created {formatDate(idea.createdAt)}</span>
         </div>
         
-        <Button asChild variant="outline" className="w-full gap-1">
+        <Button asChild variant="outline" className="w-full gap-1 text-xs sm:text-sm">
           <Link to={`/ideas/${idea.id}`}>
             View Idea Details
-            <ArrowRight className="h-4 w-4 ml-1" />
+            <ArrowRight className="h-3.5 w-3.5 ml-1" />
           </Link>
         </Button>
       </CardContent>

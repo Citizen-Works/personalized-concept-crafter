@@ -13,8 +13,16 @@ export default {
 	theme: {
 		container: {
 			center: true,
-			padding: '2rem',
+			padding: {
+				DEFAULT: '1rem',
+				sm: '1.5rem',
+				lg: '2rem'
+			},
 			screens: {
+				sm: '640px',
+				md: '768px',
+				lg: '1024px',
+				xl: '1280px',
 				'2xl': '1400px'
 			}
 		},
@@ -73,6 +81,12 @@ export default {
 				md: 'calc(var(--radius) - 2px)',
 				sm: 'calc(var(--radius) - 4px)'
 			},
+			spacing: {
+				'safe-top': 'env(safe-area-inset-top)',
+				'safe-bottom': 'env(safe-area-inset-bottom)',
+				'safe-left': 'env(safe-area-inset-left)',
+				'safe-right': 'env(safe-area-inset-right)',
+			},
 			keyframes: {
 				'accordion-down': {
 					from: { height: '0' },
@@ -116,7 +130,11 @@ export default {
 				'slide-in-from-right': 'slide-in-from-right 0.3s ease-in-out',
 				'scale-in': 'scale-in 0.2s ease-in-out',
 				'pulse-subtle': 'pulse-subtle 2s infinite'
-			}
+			},
+			screens: {
+				'xs': '475px',
+				'3xl': '1600px',
+			},
 		}
 	},
 	plugins: [require("tailwindcss-animate")],

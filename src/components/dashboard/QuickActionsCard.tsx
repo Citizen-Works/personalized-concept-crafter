@@ -10,22 +10,28 @@ export const QuickActionsCard = () => {
   const isMobile = useIsMobile();
   
   return (
-    <Card className="overflow-hidden transition-all duration-300 hover:shadow-md">
+    <Card className="overflow-hidden transition-all duration-300 hover:shadow-md h-full">
       <CardHeader>
-        <CardTitle>Quick Actions</CardTitle>
+        <CardTitle className="text-base sm:text-lg">Quick Actions</CardTitle>
         <CardDescription>Frequently used features</CardDescription>
       </CardHeader>
       <CardContent className="grid gap-3">
-        <Button className="w-full text-left flex justify-start" asChild>
+        <Button className="w-full text-left flex justify-between items-center" asChild>
           <Link to="/ideas/new" className="flex items-center gap-2 text-white w-full">
-            <Lightbulb className="h-4 w-4 shrink-0" />
-            <span className={isMobile ? "line-clamp-1" : ""}>Create New Content Idea</span>
+            <div className="flex items-center gap-2">
+              <Lightbulb className="h-4 w-4 shrink-0" />
+              <span className="line-clamp-1">Create New Content Idea</span>
+            </div>
+            <span className="text-xs opacity-80">→</span>
           </Link>
         </Button>
-        <Button variant="outline" className="w-full text-left flex justify-start" asChild>
+        <Button variant="outline" className="w-full text-left flex justify-between items-center" asChild>
           <Link to="/drafts" className="flex items-center gap-2 w-full">
-            <FileText className="h-4 w-4 shrink-0" />
-            <span className={isMobile ? "line-clamp-1" : ""}>Manage Drafts</span>
+            <div className="flex items-center gap-2">
+              <FileText className="h-4 w-4 shrink-0" />
+              <span className="line-clamp-1">Manage Drafts</span>
+            </div>
+            <span className="text-xs opacity-80">→</span>
           </Link>
         </Button>
       </CardContent>

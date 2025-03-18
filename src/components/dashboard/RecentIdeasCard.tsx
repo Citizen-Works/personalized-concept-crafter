@@ -20,14 +20,14 @@ interface RecentIdeasCardProps {
 
 export const RecentIdeasCard = ({ ideas, isLoading }: RecentIdeasCardProps) => {
   return (
-    <Card className="overflow-hidden transition-all duration-300 hover:shadow-md">
-      <CardHeader className="pb-3 flex flex-row items-center justify-between">
+    <Card className="overflow-hidden transition-all duration-300 hover:shadow-md h-full">
+      <CardHeader className="pb-3 flex flex-col sm:flex-row items-start sm:items-center justify-between space-y-2 sm:space-y-0">
         <div>
-          <CardTitle>Recent Ideas</CardTitle>
+          <CardTitle className="text-base sm:text-lg">Recent Ideas</CardTitle>
           <CardDescription>Your latest content ideas</CardDescription>
         </div>
-        <Button variant="outline" size="sm">
-          <Link to="/ideas" className="flex items-center gap-1 w-full h-full">
+        <Button variant="outline" size="sm" className="w-full sm:w-auto">
+          <Link to="/ideas" className="flex items-center gap-1 w-full h-full justify-center sm:justify-start">
             View All <ArrowRight className="h-4 w-4 ml-1" />
           </Link>
         </Button>
@@ -51,9 +51,9 @@ export const RecentIdeasCard = ({ ideas, isLoading }: RecentIdeasCardProps) => {
         ) : ideas.length > 0 ? (
           <div className="space-y-4">
             {ideas.map((idea) => (
-              <div key={idea.id} className="flex items-center justify-between border-b pb-3 last:border-0 last:pb-0">
+              <div key={idea.id} className="flex flex-col sm:flex-row sm:items-center justify-between border-b pb-3 last:border-0 last:pb-0">
                 <div>
-                  <h4 className="font-medium">{idea.title}</h4>
+                  <h4 className="font-medium text-sm sm:text-base line-clamp-1">{idea.title}</h4>
                   <div className="flex items-center gap-2 mt-1">
                     <span className="text-xs text-muted-foreground">{idea.date}</span>
                     <div className={`inline-flex items-center rounded-full border px-2 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 ${
@@ -67,7 +67,7 @@ export const RecentIdeasCard = ({ ideas, isLoading }: RecentIdeasCardProps) => {
                     </div>
                   </div>
                 </div>
-                <Button variant="ghost" size="sm" className="p-2">
+                <Button variant="ghost" size="sm" className="p-2 hidden sm:flex mt-2 sm:mt-0">
                   <Link to={`/ideas/${idea.id}`} className="flex items-center">
                     <ArrowRight className="h-4 w-4" />
                   </Link>
@@ -77,7 +77,7 @@ export const RecentIdeasCard = ({ ideas, isLoading }: RecentIdeasCardProps) => {
           </div>
         ) : (
           <div className="flex flex-col items-center justify-center py-6 text-center">
-            <p className="text-muted-foreground mb-4">No content ideas yet</p>
+            <p className="text-muted-foreground mb-4 text-sm">No content ideas yet</p>
             <Button asChild size="sm">
               <Link to="/ideas/new">Create your first idea</Link>
             </Button>

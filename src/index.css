@@ -143,3 +143,45 @@ input:-webkit-autofill:focus {
 .focus-ring {
   @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:ring-offset-2;
 }
+
+/* Responsive utilities */
+@layer utilities {
+  .truncate-text {
+    @apply overflow-hidden text-ellipsis whitespace-nowrap;
+  }
+  
+  .responsive-padding {
+    @apply px-3 py-3 sm:px-4 sm:py-4 md:px-6 md:py-5 lg:px-8 lg:py-6;
+  }
+  
+  .responsive-container {
+    @apply w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+  }
+  
+  .flex-responsive {
+    @apply flex flex-col sm:flex-row;
+  }
+  
+  .grid-responsive {
+    @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4;
+  }
+}
+
+/* Make images responsive by default */
+img {
+  @apply max-w-full h-auto;
+}
+
+/* Prevent text overflow in small containers */
+.prevent-overflow {
+  @apply overflow-hidden text-ellipsis break-words;
+}
+
+/* Ensure form controls are accessible on mobile */
+input, select, textarea, button {
+  @apply text-base sm:text-sm;
+}
+
+button, a {
+  @apply touch-manipulation;
+}

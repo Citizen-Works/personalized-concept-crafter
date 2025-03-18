@@ -64,7 +64,7 @@ export const IdeaDraftsList: React.FC<IdeaDraftsListProps> = ({ ideaId }) => {
   return (
     <Card>
       <CardHeader className="pb-3">
-        <CardTitle>Associated Drafts ({drafts.length})</CardTitle>
+        <CardTitle className="text-base sm:text-lg">Associated Drafts ({drafts.length})</CardTitle>
       </CardHeader>
       <CardContent>
         {drafts.length > 0 ? (
@@ -72,28 +72,28 @@ export const IdeaDraftsList: React.FC<IdeaDraftsListProps> = ({ ideaId }) => {
             {drafts.map((draft) => (
               <div 
                 key={draft.id} 
-                className="flex items-center justify-between border-b pb-3 last:border-0 last:pb-0 hover:bg-muted/20 transition-colors rounded-md p-2 cursor-pointer"
+                className="flex flex-col sm:flex-row sm:items-center justify-between border-b pb-3 last:border-0 last:pb-0 hover:bg-muted/20 transition-colors rounded-md p-2 cursor-pointer"
                 onClick={() => navigateToDraft(draft.id)}
               >
                 <div className="flex items-center gap-3">
                   <div className="bg-primary/10 p-2 rounded">
-                    <FileText className="h-5 w-5 text-primary" />
+                    <FileText className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
                   </div>
                   <div>
-                    <h4 className="font-medium">{draft.contentType} Draft</h4>
+                    <h4 className="font-medium text-sm sm:text-base">{draft.contentType} Draft</h4>
                     <p className="text-xs text-muted-foreground">
                       Created {formatDistanceToNow(draft.createdAt, { addSuffix: true })}
                     </p>
                   </div>
                 </div>
-                <Button variant="ghost" size="icon">
+                <Button variant="ghost" size="icon" className="hidden sm:flex mt-2 sm:mt-0">
                   <ArrowRight className="h-4 w-4" />
                 </Button>
               </div>
             ))}
           </div>
         ) : (
-          <div className="p-8 text-center border rounded-lg bg-muted/10">
+          <div className="p-4 sm:p-8 text-center border rounded-lg bg-muted/10">
             <p className="text-sm text-muted-foreground">
               No drafts have been created for this idea yet
             </p>
