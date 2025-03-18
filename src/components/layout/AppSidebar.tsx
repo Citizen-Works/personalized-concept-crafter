@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { 
   PenTool, 
@@ -26,7 +26,12 @@ const AppSidebar = () => {
   const { pathname } = useLocation();
   const { user, signOut } = useAuth();
   const isMobile = useIsMobile();
-  const [collapsed, setCollapsed] = useState(isMobile);
+  const [collapsed, setCollapsed] = useState(false);
+
+  // Set sidebar to collapsed on mobile devices
+  useEffect(() => {
+    setCollapsed(isMobile);
+  }, [isMobile]);
 
   const toggleSidebar = () => {
     setCollapsed(!collapsed);

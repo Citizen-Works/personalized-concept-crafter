@@ -11,6 +11,7 @@ import OnboardingChat from './OnboardingChat';
 import ProfileReview from './ProfileReview';
 import { saveProfileData } from '@/services/profileDataService';
 import { useAuth } from '@/context/AuthContext';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface OnboardingAssistantProps {
   onClose?: () => void;
@@ -34,6 +35,7 @@ const OnboardingAssistant: React.FC<OnboardingAssistantProps> = ({
   const [currentStep, setCurrentStep] = useState<'chat' | 'review'>('chat');
   const { user } = useAuth();
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
   
   const handleFinishChat = async () => {
     try {
@@ -74,7 +76,7 @@ const OnboardingAssistant: React.FC<OnboardingAssistantProps> = ({
   };
   
   return (
-    <div className="relative w-full max-w-4xl mx-auto h-[calc(100vh-120px)]">
+    <div className="relative w-full max-w-4xl mx-auto h-[calc(100vh-130px)] sm:h-[calc(100vh-160px)]">
       {showCloseButton && onClose && (
         <Button
           variant="ghost"
