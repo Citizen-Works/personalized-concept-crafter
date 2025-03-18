@@ -232,8 +232,8 @@ export async function fetchNewsletterExamples(userId: string, limit: number = 5)
       title: doc.title,
       content: doc.content || '',
       type: doc.type as "blog" | "newsletter" | "whitepaper" | "case-study" | "other",
-      purpose: doc.purpose,
-      status: doc.status,
+      purpose: doc.purpose as "writing_sample" | "business_context",
+      status: doc.status as "active" | "archived",
       content_type: doc.content_type,
       createdAt: new Date(doc.created_at)
     }));
@@ -265,8 +265,8 @@ export async function fetchMarketingExamples(userId: string, limit: number = 5):
       title: doc.title,
       content: doc.content || '',
       type: doc.type as "blog" | "newsletter" | "whitepaper" | "case-study" | "other",
-      purpose: doc.purpose,
-      status: doc.status,
+      purpose: doc.purpose as "writing_sample" | "business_context",
+      status: doc.status as "active" | "archived",
       content_type: doc.content_type,
       createdAt: new Date(doc.created_at)
     }));
@@ -297,8 +297,8 @@ export async function fetchBusinessContextDocuments(userId: string): Promise<Doc
       title: doc.title,
       content: doc.content || '',
       type: doc.type as "blog" | "newsletter" | "whitepaper" | "case-study" | "other",
-      purpose: doc.purpose,
-      status: doc.status,
+      purpose: doc.purpose as "writing_sample" | "business_context",
+      status: doc.status as "active" | "archived",
       content_type: doc.content_type,
       createdAt: new Date(doc.created_at)
     }));
