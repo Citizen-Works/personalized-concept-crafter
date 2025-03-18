@@ -18,6 +18,13 @@ export const useWritingStyle = () => {
     marketing_style_guide: '',
     vocabulary_patterns: '',
     avoid_patterns: '',
+    voiceAnalysis: '',
+    generalStyleGuide: '',
+    linkedinStyleGuide: '',
+    newsletterStyleGuide: '',
+    marketingStyleGuide: '',
+    vocabularyPatterns: '',
+    avoidPatterns: '',
   });
 
   const loadProfile = async () => {

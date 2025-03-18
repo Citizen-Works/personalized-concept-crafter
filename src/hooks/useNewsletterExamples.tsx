@@ -55,7 +55,7 @@ export const useNewsletterExamples = () => {
         {
           title: example.title,
           content: example.content,
-          type: 'newsletter',
+          type: 'newsletter', // This matches the Document type constraints
           purpose: 'writing_sample',
           status: 'active',
           content_type: 'newsletter',

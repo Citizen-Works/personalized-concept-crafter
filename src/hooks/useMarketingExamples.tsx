@@ -55,7 +55,7 @@ export const useMarketingExamples = () => {
         {
           title: example.title,
           content: example.content,
-          type: 'marketing',
+          type: 'other', // Ensure this matches Document type constraints
           purpose: 'writing_sample',
           status: 'active',
           content_type: 'marketing',
