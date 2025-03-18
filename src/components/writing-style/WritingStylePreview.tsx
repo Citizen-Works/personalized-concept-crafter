@@ -8,7 +8,7 @@ import { WritingStyleProfile } from '@/types/writingStyle';
 import { generatePreviewWithClaude } from '@/services/claudeAIService';
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { ContentType } from '@/types';
-import { fetchUserProfile } from '@/services/profileDataService';
+import { fetchUserProfile } from '@/services/profile';
 import { useAuth } from '@/context/AuthContext';
 
 interface WritingStylePreviewProps {

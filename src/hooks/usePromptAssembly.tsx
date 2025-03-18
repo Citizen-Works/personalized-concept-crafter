@@ -11,7 +11,7 @@ import {
   fetchNewsletterExamples,
   fetchMarketingExamples,
   fetchBusinessContextDocuments
-} from '@/services/profileDataService';
+} from '@/services/profile';
 import { 
   buildBasePrompt, 
   addContentIdeaToPrompt, 
