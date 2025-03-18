@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -44,43 +45,45 @@ function App() {
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <TooltipProvider>
             <AuthProvider>
-              <Routes>
-                <Route path="/" element={<Index />} />
-                <Route path="/login" element={<LoginPage />} />
-                <Route path="/register" element={<RegisterPage />} />
-                
-                <Route 
-                  path="/onboarding" 
-                  element={
-                    <ProtectedRoute>
-                      <OnboardingPage />
-                    </ProtectedRoute>
-                  } 
-                />
-                
-                <Route element={<ProtectedRoute><MainLayout /></ProtectedRoute>}>
-                  <Route path="/dashboard" element={<Dashboard />} />
-                  <Route path="/ideas" element={<IdeasPage />} />
-                  <Route path="/ideas/new" element={<NewIdeaPage />} />
-                  <Route path="/ideas/:id" element={<IdeaDetailPage />} />
-                  <Route path="/drafts" element={<DraftsPage />} />
-                  <Route path="/drafts/:id" element={<DraftDetailPage />} />
-                  <Route path="/pillars" element={<ContentPillarsPage />} />
-                  <Route path="/audiences" element={<TargetAudiencesPage />} />
-                  <Route path="/writing-style" element={<WritingStylePage />} />
-                  <Route path="/linkedin" element={<LinkedinPostsPage />} />
-                  <Route path="/documents" element={<DocumentsPage />} />
-                  <Route path="/settings" element={<SettingsPage />} />
-                </Route>
-                
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-              <Toaster />
-              <Sonner />
+              <BrowserRouter>
+                <Routes>
+                  <Route path="/" element={<Index />} />
+                  <Route path="/login" element={<LoginPage />} />
+                  <Route path="/register" element={<RegisterPage />} />
+                  
+                  <Route 
+                    path="/onboarding" 
+                    element={
+                      <ProtectedRoute>
+                        <OnboardingPage />
+                      </ProtectedRoute>
+                    } 
+                  />
+                  
+                  <Route element={<ProtectedRoute><MainLayout /></ProtectedRoute>}>
+                    <Route path="/dashboard" element={<Dashboard />} />
+                    <Route path="/ideas" element={<IdeasPage />} />
+                    <Route path="/ideas/new" element={<NewIdeaPage />} />
+                    <Route path="/ideas/:id" element={<IdeaDetailPage />} />
+                    <Route path="/drafts" element={<DraftsPage />} />
+                    <Route path="/drafts/:id" element={<DraftDetailPage />} />
+                    <Route path="/pillars" element={<ContentPillarsPage />} />
+                    <Route path="/audiences" element={<TargetAudiencesPage />} />
+                    <Route path="/writing-style" element={<WritingStylePage />} />
+                    <Route path="/linkedin" element={<LinkedinPostsPage />} />
+                    <Route path="/documents" element={<DocumentsPage />} />
+                    <Route path="/settings" element={<SettingsPage />} />
+                  </Route>
+                  
+                  <Route path="*" element={<NotFound />} />
+                </Routes>
+                <Toaster />
+                <Sonner />
+              </BrowserRouter>
             </AuthProvider>
           </TooltipProvider>
         </ThemeProvider>
-      </BrowserRouter>
+      </QueryClientProvider>
     </>
   );
 }
