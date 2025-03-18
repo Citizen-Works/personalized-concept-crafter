@@ -10,7 +10,8 @@ import {
   Settings, 
   FileText, 
   Menu,
-  X
+  X,
+  Bot
 } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
@@ -29,6 +30,14 @@ const AppSidebar = () => {
 
   const toggleSidebar = () => {
     setCollapsed(!collapsed);
+  };
+
+  // Helper function to get user initials
+  const getUserInitial = () => {
+    if (user?.email) {
+      return user.email.charAt(0).toUpperCase();
+    }
+    return "U";
   };
 
   return (
@@ -134,8 +143,8 @@ const AppSidebar = () => {
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className={cn("h-8 w-8 rounded-full", collapsed && "mx-auto")}>
                 <Avatar className="h-8 w-8">
-                  <AvatarImage src={user?.photoURL || ""} alt={user?.displayName || "Avatar"} />
-                  <AvatarFallback>{user?.email?.charAt(0).toUpperCase() || "U"}</AvatarFallback>
+                  <AvatarImage src="" alt="User Avatar" />
+                  <AvatarFallback>{getUserInitial()}</AvatarFallback>
                 </Avatar>
               </Button>
             </DropdownMenuTrigger>
@@ -181,8 +190,5 @@ const NavItem = ({ to, icon, label, active, collapsed }) => {
     </Link>
   );
 };
-
-// Import Bot icon
-import { Bot } from 'lucide-react';
 
 export default AppSidebar;
