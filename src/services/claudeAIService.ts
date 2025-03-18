@@ -75,6 +75,7 @@ The sample should be about a professional accomplishment or industry insight tha
 would make a good ${contentType} post or section. Make sure the writing style 
 perfectly matches the guidelines above, especially the ${contentType}-specific guidelines.
 The content should be original, compelling, and appropriate for the ${contentType} format.
+Do not include any additional commentary-- only the writing sample.
 `;
 
   const { data, error } = await supabase.functions.invoke("generate-with-claude", {
