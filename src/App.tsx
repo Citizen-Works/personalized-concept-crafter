@@ -1,4 +1,3 @@
-
 import React from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { ThemeProvider } from "@/components/theme-provider";
@@ -30,7 +29,14 @@ import { ProtectedRoute } from "@/components/ProtectedRoute";
 import TranscriptsPage from "./pages/TranscriptsPage";
 import { MainLayout } from "./components/layout/MainLayout";
 
-// Create a client
+import ReviewQueuePage from "@/pages/ReviewQueuePage";
+import ReadyToPublishPage from "@/pages/ReadyToPublishPage";
+import PublishedPage from "@/pages/PublishedPage";
+import NewContentIdeaPage from "@/pages/NewContentIdeaPage";
+import GenerateDraftPage from "@/pages/GenerateDraftPage";
+import PersonalStoriesPage from "@/pages/PersonalStoriesPage";
+import CallToActionsPage from "@/pages/CallToActionsPage";
+
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -49,32 +55,42 @@ function App() {
             <ThemeProvider defaultTheme="system" storageKey="ui-theme">
               <Toaster position="top-right" richColors />
               <Routes>
-                {/* Root path directly renders WaitlistPage instead of redirecting */}
                 <Route path="/" element={<WaitlistPage />} />
                 <Route path="/waitlist" element={<WaitlistPage />} />
                 
-                {/* Auth routes - still accessible but not linked anywhere */}
                 <Route path="/register" element={<ProtectedRoute><RegisterPage /></ProtectedRoute>} />
                 <Route path="/login" element={<ProtectedRoute><LoginPage /></ProtectedRoute>} />
                 <Route path="/onboarding" element={<ProtectedRoute><OnboardingPage /></ProtectedRoute>} />
                 
-                {/* All other routes protected and wrapped in MainLayout */}
                 <Route element={<ProtectedRoute><MainLayout /></ProtectedRoute>}>
                   <Route path="/dashboard" element={<Dashboard />} />
+                  
+                  <Route path="/review-queue" element={<ReviewQueuePage />} />
                   <Route path="/ideas" element={<IdeasPage />} />
                   <Route path="/ideas/:id" element={<IdeaDetailPage />} />
                   <Route path="/ideas/new" element={<NewIdeaPage />} />
                   <Route path="/drafts" element={<DraftsPage />} />
                   <Route path="/drafts/:id" element={<DraftDetailPage />} />
-                  <Route path="/settings/*" element={<Settings />} />
+                  <Route path="/ready-to-publish" element={<ReadyToPublishPage />} />
+                  <Route path="/published" element={<PublishedPage />} />
+                  
+                  <Route path="/new-content-idea" element={<NewContentIdeaPage />} />
+                  <Route path="/generate-draft" element={<GenerateDraftPage />} />
+                  
+                  <Route path="/linkedin-posts" element={<LinkedinPostsPage />} />
+                  <Route path="/transcripts" element={<TranscriptsPage />} />
+                  <Route path="/documents" element={<DocumentsPage />} />
+                  <Route path="/personal-stories" element={<PersonalStoriesPage />} />
+                  
                   <Route path="/content-pillars" element={<ContentPillarsPage />} />
                   <Route path="/target-audiences" element={<TargetAudiencesPage />} />
                   <Route path="/writing-style" element={<WritingStylePage />} />
-                  <Route path="/linkedin-posts" element={<LinkedinPostsPage />} />
-                  <Route path="/documents" element={<DocumentsPage />} />
-                  <Route path="/transcripts" element={<TranscriptsPage />} />
+                  <Route path="/call-to-actions" element={<CallToActionsPage />} />
+                  
                   <Route path="/marketing-examples" element={<MarketingExamplesPage />} />
                   <Route path="/newsletter-examples" element={<NewsletterExamplesPage />} />
+                  
+                  <Route path="/settings/*" element={<Settings />} />
                   <Route path="*" element={<NotFound />} />
                 </Route>
               </Routes>

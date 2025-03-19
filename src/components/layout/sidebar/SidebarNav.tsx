@@ -12,14 +12,16 @@ import {
 import { 
   Home, FileText, PenSquare, Lightbulb, 
   Linkedin, BookText, FileImage, Settings,
-  ChevronRight
+  ChevronRight, ListTodo, CheckCircle, Upload,
+  Plus, MessageSquare, Users, Link as LinkIcon,
+  Layout, Target, Type
 } from 'lucide-react';
 import { useSidebarNavigation } from '@/hooks/useSidebarNavigation';
 
 const SidebarNav = () => {
   const { isRouteActive, currentPath } = useSidebarNavigation();
   
-  // Define main navigation items with clearer structure
+  // Define main navigation items with updated structure
   const navigationItems = [
     {
       to: "/dashboard",
@@ -28,52 +30,96 @@ const SidebarNav = () => {
       isActive: isRouteActive("/dashboard", true)
     },
     {
-      to: "/ideas",
-      label: "Content Ideas",
-      icon: Lightbulb,
-      isActive: isRouteActive("/ideas")
-    },
-    {
-      to: "/drafts",
-      label: "Content Drafts",
-      icon: PenSquare,
-      isActive: isRouteActive("/drafts")
-    },
-    {
-      label: "Documents",
-      icon: FileText,
-      isActive: isRouteActive("/documents") || isRouteActive("/transcripts"),
+      label: "Content Pipeline",
+      icon: Layout,
+      isActive: isRouteActive("/review-queue") || 
+               isRouteActive("/ideas") || 
+               isRouteActive("/drafts") ||
+               isRouteActive("/ready-to-publish") ||
+               isRouteActive("/published"),
       subItems: [
         {
-          to: "/documents",
-          label: "All Documents",
-          isActive: isRouteActive("/documents", true)
+          to: "/review-queue",
+          label: "Review Queue",
+          isActive: isRouteActive("/review-queue")
+        },
+        {
+          to: "/ideas",
+          label: "Ideas",
+          isActive: isRouteActive("/ideas")
+        },
+        {
+          to: "/drafts",
+          label: "Drafts",
+          isActive: isRouteActive("/drafts")
+        },
+        {
+          to: "/ready-to-publish",
+          label: "Ready to Publish",
+          isActive: isRouteActive("/ready-to-publish")
+        },
+        {
+          to: "/published",
+          label: "Published",
+          isActive: isRouteActive("/published")
+        }
+      ]
+    },
+    {
+      label: "Create",
+      icon: Plus,
+      isActive: isRouteActive("/new-content-idea") || 
+               isRouteActive("/generate-draft"),
+      subItems: [
+        {
+          to: "/new-content-idea",
+          label: "New Content Idea",
+          isActive: isRouteActive("/new-content-idea")
+        },
+        {
+          to: "/generate-draft",
+          label: "Generate Draft",
+          isActive: isRouteActive("/generate-draft")
+        }
+      ]
+    },
+    {
+      label: "Content Library",
+      icon: FileText,
+      isActive: isRouteActive("/linkedin-posts") || 
+               isRouteActive("/transcripts") ||
+               isRouteActive("/documents") ||
+               isRouteActive("/personal-stories"),
+      subItems: [
+        {
+          to: "/linkedin-posts",
+          label: "LinkedIn Posts",
+          isActive: isRouteActive("/linkedin-posts")
         },
         {
           to: "/transcripts",
           label: "Meeting Transcripts",
           isActive: isRouteActive("/transcripts")
-        }
-      ]
-    },
-    {
-      label: "LinkedIn",
-      icon: Linkedin,
-      isActive: isRouteActive("/linkedin-posts"),
-      subItems: [
+        },
         {
-          to: "/linkedin-posts",
-          label: "Posts",
-          isActive: isRouteActive("/linkedin-posts")
+          to: "/documents",
+          label: "Documents",
+          isActive: isRouteActive("/documents", true)
+        },
+        {
+          to: "/personal-stories",
+          label: "Personal Stories",
+          isActive: isRouteActive("/personal-stories")
         }
       ]
     },
     {
-      label: "Resources",
+      label: "Strategy",
       icon: BookText,
       isActive: isRouteActive("/content-pillars") || 
                isRouteActive("/target-audiences") || 
-               isRouteActive("/writing-style"),
+               isRouteActive("/writing-style") ||
+               isRouteActive("/call-to-actions"),
       subItems: [
         {
           to: "/content-pillars",
@@ -89,23 +135,11 @@ const SidebarNav = () => {
           to: "/writing-style",
           label: "Writing Style",
           isActive: isRouteActive("/writing-style")
-        }
-      ]
-    },
-    {
-      label: "Examples",
-      icon: FileImage,
-      isActive: isRouteActive("/marketing-examples") || isRouteActive("/newsletter-examples"),
-      subItems: [
-        {
-          to: "/marketing-examples",
-          label: "Marketing",
-          isActive: isRouteActive("/marketing-examples")
         },
         {
-          to: "/newsletter-examples",
-          label: "Newsletter",
-          isActive: isRouteActive("/newsletter-examples")
+          to: "/call-to-actions",
+          label: "Call-to-Actions",
+          isActive: isRouteActive("/call-to-actions")
         }
       ]
     },
