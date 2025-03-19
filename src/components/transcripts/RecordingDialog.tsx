@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -34,24 +34,33 @@ const RecordingDialog: React.FC<RecordingDialogProps> = ({
   const [isPaused, setIsPaused] = useState(false);
   const [recordingTime, setRecordingTime] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  // Change the type from number to NodeJS.Timeout | null to fix the TypeScript error
-  const [interval, setInterval] = useState<NodeJS.Timeout | null>(null);
+  
+  // Use useRef instead of useState for the interval to avoid type issues
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     if (isRecording && !isPaused) {
-      const timer = setInterval(() => {
+      // Clear any existing interval first
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+      }
+      
+      // Create a new interval
+      intervalRef.current = setInterval(() => {
         setRecordingTime(prev => prev + 1);
       }, 1000);
       
-      // Store the interval ID with the correct type
-      setInterval(timer);
-      
+      // Clean up function
       return () => {
-        if (timer) clearInterval(timer);
+        if (intervalRef.current) {
+          clearInterval(intervalRef.current);
+          intervalRef.current = null;
+        }
       };
-    } else if (interval) {
-      clearInterval(interval);
-      setInterval(null);
+    } else if (intervalRef.current) {
+      // If not recording or paused, clear the interval
+      clearInterval(intervalRef.current);
+      intervalRef.current = null;
     }
   }, [isRecording, isPaused]);
 
