@@ -55,68 +55,64 @@ const IdeasTabs: React.FC<IdeasTabsProps> = ({
             </TabsTrigger>
           </TabsList>
           
-          {({ selectedTab }) => (
-            <>
-              <div className="flex justify-end mb-4">
-                <div className="flex items-center space-x-2 border rounded-md p-1">
-                  <Button
-                    variant={viewMode === 'list' ? 'default' : 'ghost'}
-                    size="sm"
-                    className="h-8 px-2"
-                    onClick={() => setViewMode('list')}
-                  >
-                    <ListFilter className="h-4 w-4 mr-1" />
-                    List
-                  </Button>
-                  <Button
-                    variant={viewMode === 'kanban' ? 'default' : 'ghost'}
-                    size="sm"
-                    className="h-8 px-2"
-                    onClick={() => setViewMode('kanban')}
-                  >
-                    <KanbanSquare className="h-4 w-4 mr-1" />
-                    Kanban
-                  </Button>
-                </div>
-              </div>
+          <div className="flex justify-end mb-4">
+            <div className="flex items-center space-x-2 border rounded-md p-1">
+              <Button
+                variant={viewMode === 'list' ? 'default' : 'ghost'}
+                size="sm"
+                className="h-8 px-2"
+                onClick={() => setViewMode('list')}
+              >
+                <ListFilter className="h-4 w-4 mr-1" />
+                List
+              </Button>
+              <Button
+                variant={viewMode === 'kanban' ? 'default' : 'ghost'}
+                size="sm"
+                className="h-8 px-2"
+                onClick={() => setViewMode('kanban')}
+              >
+                <KanbanSquare className="h-4 w-4 mr-1" />
+                Kanban
+              </Button>
+            </div>
+          </div>
 
-              {viewMode === 'list' ? (
-                <>
-                  <TabsContent value="all" className="mt-0">
-                    <IdeasList 
-                      ideas={filteredIdeas}
-                      onDeleteIdea={onDeleteIdea}
-                      searchActive={searchActive}
-                      getStatusBadgeClasses={getStatusBadgeClasses}
-                      getTypeBadgeClasses={getTypeBadgeClasses}
-                    />
-                  </TabsContent>
-                  
-                  {['unreviewed', 'approved', 'drafted'].map((status) => (
-                    <TabsContent key={status} value={status} className="mt-0">
-                      <IdeasList 
-                        ideas={filteredIdeas}
-                        status={status as ContentStatus}
-                        onDeleteIdea={onDeleteIdea}
-                        searchActive={searchActive}
-                        getStatusBadgeClasses={getStatusBadgeClasses}
-                        getTypeBadgeClasses={getTypeBadgeClasses}
-                      />
-                    </TabsContent>
-                  ))}
-                </>
-              ) : (
-                <TabsContent value="all" className="mt-0">
-                  <KanbanView
+          {viewMode === 'list' ? (
+            <>
+              <TabsContent value="all" className="mt-0">
+                <IdeasList 
+                  ideas={filteredIdeas}
+                  onDeleteIdea={onDeleteIdea}
+                  searchActive={searchActive}
+                  getStatusBadgeClasses={getStatusBadgeClasses}
+                  getTypeBadgeClasses={getTypeBadgeClasses}
+                />
+              </TabsContent>
+              
+              {['unreviewed', 'approved', 'drafted'].map((status) => (
+                <TabsContent key={status} value={status} className="mt-0">
+                  <IdeasList 
                     ideas={filteredIdeas}
+                    status={status as ContentStatus}
                     onDeleteIdea={onDeleteIdea}
                     searchActive={searchActive}
                     getStatusBadgeClasses={getStatusBadgeClasses}
                     getTypeBadgeClasses={getTypeBadgeClasses}
                   />
                 </TabsContent>
-              )}
+              ))}
             </>
+          ) : (
+            <TabsContent value="all" className="mt-0">
+              <KanbanView
+                ideas={filteredIdeas}
+                onDeleteIdea={onDeleteIdea}
+                searchActive={searchActive}
+                getStatusBadgeClasses={getStatusBadgeClasses}
+                getTypeBadgeClasses={getTypeBadgeClasses}
+              />
+            </TabsContent>
           )}
         </Tabs>
       </div>
