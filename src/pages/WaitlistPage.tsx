@@ -25,10 +25,13 @@ const WaitlistPage = () => {
 
     setIsSubmitting(true);
     try {
-      // Store email in Supabase
+      // Store email in Supabase - use the .from().insert() method with correct options
       const { error } = await supabase
         .from('waitlist')
-        .insert({ email });
+        .insert({ email }, { 
+          returning: 'minimal', // Don't return the inserted row
+          count: 'none' // Don't count affected rows
+        });
       
       if (error) throw error;
       
