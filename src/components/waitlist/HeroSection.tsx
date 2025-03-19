@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
@@ -55,8 +56,6 @@ const HeroSection = ({ scrollToSection, painPointsRef }: HeroSectionProps) => {
         <h1 className="text-7xl sm:text-8xl md:text-9xl font-bold tracking-tighter mb-6 bg-clip-text text-transparent relative">
           <span className="absolute inset-0 bg-gradient-to-r from-purple-600 via-pink-500 to-orange-400 opacity-90 blur-2xl -z-10 rounded-3xl" />
           
-          <span className="block font-['Dancing_Script'] text-5xl sm:text-6xl italic text-gray-300 mb-[-0.5rem] tracking-wide transform -rotate-2">Your</span>
-          
           <span 
             className="bg-clip-text text-transparent bg-blend-screen"
             style={{
@@ -85,10 +84,10 @@ const HeroSection = ({ scrollToSection, painPointsRef }: HeroSectionProps) => {
         <div className="mb-8 text-2xl md:text-3xl text-gray-300 max-w-3xl mx-auto h-12 overflow-hidden">
           <div className="relative h-full flex items-center justify-center">
             <span className="font-bold mr-2">You are a</span>
-            <div className="relative h-12 overflow-hidden inline-flex items-center">
+            <div className="h-12 inline-flex items-center overflow-hidden">
               <span 
-                className={`font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-purple-500 to-pink-500 absolute transition-all duration-300 ${
-                  isAnimating ? "transform -translate-y-12 opacity-0" : "transform translate-y-0 opacity-100"
+                className={`font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-purple-500 to-pink-500 transition-all duration-300 ${
+                  isAnimating ? "opacity-0 transform -translate-y-full" : "opacity-100 transform translate-y-0"
                 }`}
               >
                 {ROLES[currentRoleIndex]}
