@@ -34,24 +34,28 @@ const WaitlistPage = () => {
             entry.target.classList.add('animate-fade-in');
             entry.target.classList.remove('opacity-0');
             
-            // Then animate child elements with slide/fade effects
+            // Then animate child elements with slide/fade effects with staggered timing
             const animatedElements = entry.target.querySelectorAll(
-              '.transform.transition-all'
+              '.transform.transition-all.opacity-0'
             );
             
-            animatedElements.forEach(element => {
-              element.classList.remove('opacity-0');
-              
-              // Remove transform classes that create the initial offset
-              if (element.classList.contains('-translate-x-8')) {
-                element.classList.remove('-translate-x-8');
-              }
-              if (element.classList.contains('translate-x-8')) {
-                element.classList.remove('translate-x-8');
-              }
-              if (element.classList.contains('translate-y-8')) {
-                element.classList.remove('translate-y-8');
-              }
+            // Apply staggered animations to each element
+            animatedElements.forEach((element, index) => {
+              // Apply a staggered delay based on the element's position
+              setTimeout(() => {
+                element.classList.remove('opacity-0');
+                
+                // Remove transform classes that create the initial offset
+                if (element.classList.contains('-translate-x-8')) {
+                  element.classList.remove('-translate-x-8');
+                }
+                if (element.classList.contains('translate-x-8')) {
+                  element.classList.remove('translate-x-8');
+                }
+                if (element.classList.contains('translate-y-8')) {
+                  element.classList.remove('translate-y-8');
+                }
+              }, 100 + (index * 150)); // 150ms staggered delay between elements
             });
           }
         });
