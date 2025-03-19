@@ -9,20 +9,29 @@ export const useTranscripts = () => {
     status: "active"
   });
   
+  // State management for transcript viewing and processing
   const [selectedTranscript, setSelectedTranscript] = useState<string | null>(null);
   const [transcriptContent, setTranscriptContent] = useState<string>("");
   const [isViewOpen, setIsViewOpen] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [ideas, setIdeas] = useState<string | null>(null);
   const [isIdeasDialogOpen, setIsIdeasDialogOpen] = useState(false);
+  
+  // Dialog state management
   const [isUploadDialogOpen, setIsUploadDialogOpen] = useState(false);
   const [isAddTextDialogOpen, setIsAddTextDialogOpen] = useState(false);
 
+  /**
+   * Opens the transcript viewer dialog with the specified content
+   */
   const handleViewTranscript = (content: string) => {
     setTranscriptContent(content);
     setIsViewOpen(true);
   };
 
+  /**
+   * Processes a transcript to extract ideas
+   */
   const handleProcessTranscript = async (id: string) => {
     setIsProcessing(true);
     setSelectedTranscript(id);
@@ -41,6 +50,9 @@ export const useTranscripts = () => {
     }
   };
   
+  /**
+   * Uploads a document file with metadata
+   */
   const handleUploadDocument = async (file: File, title: string) => {
     try {
       const documentData = {
@@ -60,6 +72,9 @@ export const useTranscripts = () => {
     }
   };
   
+  /**
+   * Adds text content as a document
+   */
   const handleAddText = async (text: string, title: string) => {
     try {
       await uploadDocument({ 
@@ -82,20 +97,27 @@ export const useTranscripts = () => {
   };
 
   return {
+    // Data
     documents,
     isLoading,
     isProcessing,
     selectedTranscript,
     transcriptContent,
     ideas,
+    
+    // Dialog states
     isViewOpen,
     isIdeasDialogOpen,
     isUploadDialogOpen,
     isAddTextDialogOpen,
+    
+    // Dialog actions
     setIsViewOpen,
     setIsIdeasDialogOpen,
     setIsUploadDialogOpen,
     setIsAddTextDialogOpen,
+    
+    // Handler methods
     handleViewTranscript,
     handleProcessTranscript,
     handleUploadDocument,

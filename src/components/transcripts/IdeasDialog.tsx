@@ -25,10 +25,10 @@ const IdeasDialog: React.FC<IdeasDialogProps> = ({
         <DialogHeader>
           <DialogTitle>Generated Content Ideas</DialogTitle>
           <DialogDescription>
-            Here are the content ideas extracted from your transcript
+            Content ideas extracted from your transcript
           </DialogDescription>
         </DialogHeader>
-        <div className="whitespace-pre-wrap text-sm">
+        <div className="whitespace-pre-wrap text-sm mt-4">
           {ideas}
         </div>
       </DialogContent>

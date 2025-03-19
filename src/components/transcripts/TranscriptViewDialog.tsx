@@ -25,10 +25,10 @@ const TranscriptViewDialog: React.FC<TranscriptViewDialogProps> = ({
         <DialogHeader>
           <DialogTitle>Transcript Content</DialogTitle>
           <DialogDescription>
-            View the full transcript content below
+            Review the full transcript content
           </DialogDescription>
         </DialogHeader>
-        <div className="whitespace-pre-wrap text-sm">
+        <div className="whitespace-pre-wrap text-sm mt-4">
           {content}
         </div>
       </DialogContent>

@@ -27,6 +27,7 @@ const AddTextDialog: React.FC<AddTextDialogProps> = ({
 }) => {
   const [manualText, setManualText] = useState("");
   const [manualTitle, setManualTitle] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleAddText = async () => {
     if (!manualText) {
@@ -35,17 +36,24 @@ const AddTextDialog: React.FC<AddTextDialogProps> = ({
     }
     
     try {
+      setIsSubmitting(true);
       await onAddText(manualText, manualTitle || "New Text");
       onOpenChange(false);
       setManualTitle("");
       setManualText("");
     } catch (error) {
       console.error("Error adding text:", error);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={onOpenChange}>
+    <Dialog open={isOpen} onOpenChange={(open) => {
+      if (!isSubmitting) {
+        onOpenChange(open);
+      }
+    }}>
       <DialogContent className="max-w-3xl">
         <DialogHeader>
           <DialogTitle>Add Text</DialogTitle>
@@ -75,8 +83,19 @@ const AddTextDialog: React.FC<AddTextDialogProps> = ({
           </div>
         </div>
         <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
-          <Button onClick={handleAddText}>Add Text</Button>
+          <Button 
+            variant="outline" 
+            onClick={() => onOpenChange(false)}
+            disabled={isSubmitting}
+          >
+            Cancel
+          </Button>
+          <Button 
+            onClick={handleAddText}
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? "Adding..." : "Add Text"}
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
