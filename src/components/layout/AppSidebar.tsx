@@ -1,11 +1,12 @@
 
-import React, { lazy, Suspense } from 'react';
+import React, { Suspense, memo } from 'react';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, useSidebar } from '@/components/ui/sidebar';
+import SidebarLogo from './sidebar/SidebarLogo';
+import SidebarNav from './sidebar/SidebarNav';
+import UserProfileMenu from './sidebar/UserProfileMenu';
 
-// Lazy load components
-const SidebarLogo = lazy(() => import('./sidebar/SidebarLogo'));
-const UserProfileMenu = lazy(() => import('./sidebar/UserProfileMenu'));
-const SidebarNav = lazy(() => import('./sidebar/SidebarNav'));
+// Using direct imports instead of lazy loading for critical UI components
+// This improves initial load performance for the navigation
 
 const AppSidebar = () => {
   const { isMobile } = useSidebar();
@@ -17,28 +18,18 @@ const AppSidebar = () => {
       variant={isMobile ? "floating" : "sidebar"}
     >
       <SidebarHeader className="border-b p-4">
-        <Suspense fallback={<div className="h-6 w-full animate-pulse bg-gray-200 rounded"></div>}>
-          <SidebarLogo />
-        </Suspense>
+        <SidebarLogo />
       </SidebarHeader>
       
-      <SidebarContent className="flex-1 overflow-y-auto">
-        <Suspense fallback={<div className="p-4 space-y-2">
-          {[...Array(5)].map((_, i) => (
-            <div key={i} className="h-8 w-full animate-pulse bg-gray-200 rounded"></div>
-          ))}
-        </div>}>
-          <SidebarNav />
-        </Suspense>
+      <SidebarContent className="flex-1 overflow-y-auto py-2">
+        <SidebarNav />
       </SidebarContent>
       
       <SidebarFooter className="border-t p-4 mt-auto">
-        <Suspense fallback={<div className="h-10 w-full animate-pulse bg-gray-200 rounded"></div>}>
-          <UserProfileMenu />
-        </Suspense>
+        <UserProfileMenu />
       </SidebarFooter>
     </Sidebar>
   );
 };
 
-export default AppSidebar;
+export default memo(AppSidebar);
