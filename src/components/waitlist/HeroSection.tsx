@@ -67,7 +67,7 @@ const HeroSection = ({ scrollToSection, painPointsRef }: HeroSectionProps) => {
               WebkitBackgroundClip: 'text',
             }}
           >
-            GENIUS
+            ENGINE
           </span>
         </h1>
         

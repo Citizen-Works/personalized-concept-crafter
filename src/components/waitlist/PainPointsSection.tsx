@@ -1,7 +1,7 @@
 
 import { useRef } from "react";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Clock, TrendingUp, XCircle } from "lucide-react";
+import { ArrowRight, Clock, TrendingUp, XCircle, FileText } from "lucide-react";
 
 interface PainPointsSectionProps {
   scrollToSection: (ref: React.RefObject<HTMLDivElement>) => void;
@@ -18,13 +18,13 @@ const PainPointsSection = ({ scrollToSection, solutionRef }: PainPointsSectionPr
     >
       <div className="max-w-7xl mx-auto">
         <h2 className="text-4xl md:text-5xl font-bold mb-12 text-center">
-          The Content Creation <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-500 to-orange-500">Struggle</span> Is Real
+          The Content Creation <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-600 via-pink-500 to-orange-400">Struggle</span> Is Real
         </h2>
         
         <div className="grid md:grid-cols-2 gap-16 items-center mb-20">
           <div className="space-y-8">
             <div className="flex items-start gap-4 p-6 rounded-xl bg-white dark:bg-gray-800 shadow-md transform transition-all hover:scale-105">
-              <Clock className="h-8 w-8 text-orange-500 flex-shrink-0 mt-1" />
+              <Clock className="h-8 w-8 text-purple-500 flex-shrink-0 mt-1" />
               <div>
                 <h3 className="text-xl font-semibold mb-2">No Time for Content</h3>
                 <p className="text-gray-600 dark:text-gray-400">
@@ -34,7 +34,7 @@ const PainPointsSection = ({ scrollToSection, solutionRef }: PainPointsSectionPr
             </div>
             
             <div className="flex items-start gap-4 p-6 rounded-xl bg-white dark:bg-gray-800 shadow-md transform transition-all hover:scale-105">
-              <TrendingUp className="h-8 w-8 text-orange-500 flex-shrink-0 mt-1" />
+              <TrendingUp className="h-8 w-8 text-purple-500 flex-shrink-0 mt-1" />
               <div>
                 <h3 className="text-xl font-semibold mb-2">The Competition Is Gaining Ground</h3>
                 <p className="text-gray-600 dark:text-gray-400">
@@ -44,11 +44,11 @@ const PainPointsSection = ({ scrollToSection, solutionRef }: PainPointsSectionPr
             </div>
             
             <div className="flex items-start gap-4 p-6 rounded-xl bg-white dark:bg-gray-800 shadow-md transform transition-all hover:scale-105">
-              <XCircle className="h-8 w-8 text-orange-500 flex-shrink-0 mt-1" />
+              <FileText className="h-8 w-8 text-purple-500 flex-shrink-0 mt-1" />
               <div>
-                <h3 className="text-xl font-semibold mb-2">Generic AI Content Isn't Working</h3>
+                <h3 className="text-xl font-semibold mb-2">Meeting Gold Stays Buried</h3>
                 <p className="text-gray-600 dark:text-gray-400">
-                  You've tried AI tools, but they produce generic content that doesn't capture your unique voice and expertise.
+                  Your meeting transcripts and notes are full of incredible insights and ideas, but they remain trapped in documents nobody sees.
                 </p>
               </div>
             </div>
@@ -62,7 +62,7 @@ const PainPointsSection = ({ scrollToSection, solutionRef }: PainPointsSectionPr
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent flex flex-col justify-end p-8">
               <p className="text-white text-xl font-semibold mb-2">
-                "I know I need to be creating content, but it always falls to the bottom of my to-do list."
+                "I know there's gold in my client meetings, but it always stays buried in my notes."
               </p>
               <p className="text-white/80">- Every Busy Professional</p>
             </div>
@@ -79,7 +79,7 @@ const PainPointsSection = ({ scrollToSection, solutionRef }: PainPointsSectionPr
           
           <Button 
             size="lg" 
-            className="mt-8 text-lg"
+            className="mt-8 text-lg bg-gradient-to-r from-purple-600 via-pink-500 to-orange-400 hover:from-purple-700 hover:via-pink-600 hover:to-orange-500"
             onClick={() => scrollToSection(solutionRef)}
           >
             See the Solution <ArrowRight className="ml-2 h-5 w-5" />

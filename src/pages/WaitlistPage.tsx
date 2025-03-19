@@ -12,6 +12,7 @@ const WaitlistPage = () => {
   // Refs for scrolling
   const painPointsRef = useRef<HTMLDivElement>(null);
   const solutionRef = useRef<HTMLDivElement>(null);
+  const ctaRef = useRef<HTMLDivElement>(null);
   
   // Used to track if the component has mounted
   const [mounted, setMounted] = useState(false);
@@ -30,7 +31,7 @@ const WaitlistPage = () => {
           }
         });
       },
-      { threshold: 0.1 }
+      { threshold: 0.1, rootMargin: "0px 0px -100px 0px" }
     );
 
     // Get all sections that should be animated on scroll
@@ -54,11 +55,15 @@ const WaitlistPage = () => {
 
   // Apply initial animation classes
   if (!mounted) {
-    return <Loading fullScreen size="lg" />;
+    return (
+      <div className="h-screen flex items-center justify-center">
+        <Loading fullScreen size="lg" />
+      </div>
+    );
   }
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col overflow-x-hidden">
       <HeroSection 
         scrollToSection={scrollToSection} 
         painPointsRef={painPointsRef} 
@@ -75,7 +80,9 @@ const WaitlistPage = () => {
         <SolutionSection />
       </div>
       
-      <CTASection />
+      <div ref={ctaRef}>
+        <CTASection />
+      </div>
     </div>
   );
 };
