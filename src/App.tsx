@@ -1,6 +1,6 @@
 
 import React from "react";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "sonner";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -47,11 +47,16 @@ function App() {
           <ThemeProvider defaultTheme="system" storageKey="ui-theme">
             <Toaster position="top-right" richColors />
             <Routes>
-              <Route path="/" element={<Index />} />
+              {/* Redirect root to waitlist */}
+              <Route path="/" element={<Navigate to="/waitlist" replace />} />
               <Route path="/waitlist" element={<WaitlistPage />} />
-              <Route path="/register" element={<RegisterPage />} />
-              <Route path="/login" element={<LoginPage />} />
-              <Route path="/onboarding" element={<OnboardingPage />} />
+              
+              {/* Auth routes - still accessible but not linked anywhere */}
+              <Route path="/register" element={<ProtectedRoute><RegisterPage /></ProtectedRoute>} />
+              <Route path="/login" element={<ProtectedRoute><LoginPage /></ProtectedRoute>} />
+              <Route path="/onboarding" element={<ProtectedRoute><OnboardingPage /></ProtectedRoute>} />
+              
+              {/* All other routes protected */}
               <Route element={<ProtectedRoute />}>
                 <Route path="/dashboard" element={<Dashboard />} />
                 <Route path="/ideas" element={<IdeasPage />} />
