@@ -1,198 +1,189 @@
-
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { 
-  PenTool, 
-  LayoutDashboard, 
-  LightbulbIcon, 
-  BookText, 
-  Users, 
-  Settings, 
-  FileText, 
-  Menu,
-  X,
-  Bot
-} from 'lucide-react';
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { Button } from "@/components/ui/button";
+import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuItem, SidebarMenuSub, SidebarMenuSubItem } from '@/components/ui/sidebar';
+import { Button } from '@/components/ui/button';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { useAuth } from '@/context/AuthContext';
-import { ThemeToggle } from '@/components/ui/theme-toggle';
-import AssistantSidebar from './AssistantSidebar';
-import { cn } from '@/lib/utils';
-import { useIsMobile } from '@/hooks/use-mobile';
+import { useMediaQuery } from '@/hooks/useMediaQuery';
+import { Home, FileText, PenSquare, Lightbulb, Settings, LogOut, ChevronDown, Users, Palette, Linkedin, BookText, FileImage, Mail } from 'lucide-react';
+import { toast } from 'sonner';
 
 const AppSidebar = () => {
+  const { user, logout } = useAuth();
   const { pathname } = useLocation();
-  const { user, signOut } = useAuth();
-  const isMobile = useIsMobile();
-  const [collapsed, setCollapsed] = useState(false);
+  const isMobile = useMediaQuery('(max-width: 768px)');
 
-  // Set sidebar to collapsed on mobile devices
-  useEffect(() => {
-    setCollapsed(isMobile);
-  }, [isMobile]);
-
-  const toggleSidebar = () => {
-    setCollapsed(!collapsed);
-  };
-
-  // Helper function to get user initials
-  const getUserInitial = () => {
-    if (user?.email) {
-      return user.email.charAt(0).toUpperCase();
+  const handleLogout = async () => {
+    try {
+      await logout();
+    } catch (error) {
+      toast.error('Failed to log out');
     }
-    return "U";
+  };
+
+  const getInitials = (name: string) => {
+    return name
+      .split(' ')
+      .map((n) => n[0])
+      .join('')
+      .toUpperCase();
   };
 
   return (
-    <div className={cn(
-      "h-screen border-r border-border transition-all duration-300 flex flex-col bg-background",
-      collapsed ? "w-[70px]" : "w-[240px]"
-    )}>
-      {/* Sidebar Header */}
-      <div className="flex items-center justify-between p-4 h-16">
-        {!collapsed && (
-          <div className="flex items-center gap-2">
-            <PenTool className="h-5 w-5" />
-            <span className="font-semibold">Content Engine</span>
-          </div>
-        )}
-        {collapsed && (
-          <div className="mx-auto">
-            <PenTool className="h-5 w-5" />
-          </div>
-        )}
-        <Button 
-          variant="ghost" 
-          size="icon" 
-          className={cn("h-8 w-8", collapsed && "mx-auto")}
-          onClick={toggleSidebar}
-        >
-          {collapsed ? <Menu className="h-4 w-4" /> : <X className="h-4 w-4" />}
-        </Button>
-      </div>
-
-      {/* Main Menu */}
-      <div className="flex-1 overflow-y-auto py-2">
-        <div className="space-y-1 px-3">
-          <NavItem 
-            to="/dashboard" 
-            icon={<LayoutDashboard className="h-4 w-4" />} 
-            label="Dashboard" 
+    <Sidebar defaultCollapsed={isMobile} collapsible={true}>
+      <SidebarHeader className="border-b p-4">
+        <div className="flex items-center space-x-2">
+          <img src="/logo.svg" alt="Logo" className="h-6 w-6" />
+          <span className="text-xl font-bold">ContentCraft</span>
+        </div>
+      </SidebarHeader>
+      
+      <SidebarContent className="h-full">
+        <SidebarMenu>
+          <SidebarMenuItem 
+            icon={<Home />} 
             active={pathname === '/dashboard'} 
-            collapsed={collapsed}
-          />
+            component={<Link to="/dashboard" />}
+          >
+            Dashboard
+          </SidebarMenuItem>
           
-          {/* Assistant Sidebar */}
-          <div className={cn(
-            "flex items-center gap-2 text-sm py-2 px-3 rounded-md",
-            "hover:bg-accent hover:text-accent-foreground transition-colors"
-          )}>
-            {collapsed ? (
-              <div className="mx-auto">
-                <Bot className="h-4 w-4" />
-              </div>
-            ) : (
-              <AssistantSidebar />
-            )}
-          </div>
+          <SidebarMenuItem 
+            icon={<Lightbulb />} 
+            active={pathname.includes('/ideas')} 
+            component={<Link to="/ideas" />}
+          >
+            Content Ideas
+          </SidebarMenuItem>
           
-          <NavItem 
-            to="/ideas" 
-            icon={<LightbulbIcon className="h-4 w-4" />} 
-            label="Content Ideas" 
-            active={pathname.startsWith('/ideas')} 
-            collapsed={collapsed}
-          />
+          <SidebarMenuItem 
+            icon={<PenSquare />} 
+            active={pathname.includes('/drafts')} 
+            component={<Link to="/drafts" />}
+          >
+            Content Drafts
+          </SidebarMenuItem>
           
-          <NavItem 
-            to="/documents" 
-            icon={<BookText className="h-4 w-4" />} 
-            label="Documents" 
-            active={pathname.startsWith('/documents')} 
-            collapsed={collapsed}
-          />
+          <SidebarMenuSub 
+            icon={<FileText />}
+            title="Documents"
+            defaultOpen={pathname.includes('/documents') || pathname.includes('/transcripts')}
+          >
+            <SidebarMenuSubItem 
+              active={pathname === '/documents'} 
+              component={<Link to="/documents" />}
+            >
+              All Documents
+            </SidebarMenuSubItem>
+            <SidebarMenuSubItem 
+              active={pathname === '/transcripts'} 
+              component={<Link to="/transcripts" />}
+            >
+              Meeting Transcripts
+            </SidebarMenuSubItem>
+          </SidebarMenuSub>
           
-          <NavItem 
-            to="/linkedin" 
-            icon={<FileText className="h-4 w-4" />} 
-            label="LinkedIn Posts" 
-            active={pathname === '/linkedin'} 
-            collapsed={collapsed}
-          />
+          <SidebarMenuSub 
+            icon={<Linkedin />}
+            title="LinkedIn"
+            defaultOpen={pathname.includes('/linkedin')}
+          >
+            <SidebarMenuSubItem 
+              active={pathname === '/linkedin-posts'} 
+              component={<Link to="/linkedin-posts" />}
+            >
+              Posts
+            </SidebarMenuSubItem>
+          </SidebarMenuSub>
           
-          <NavItem 
-            to="/profile" 
-            icon={<Users className="h-4 w-4" />} 
-            label="Profile" 
-            active={pathname === '/profile'} 
-            collapsed={collapsed}
-          />
+          <SidebarMenuSub 
+            icon={<BookText />}
+            title="Resources"
+            defaultOpen={pathname.includes('/content-pillars') || pathname.includes('/target-audiences') || pathname.includes('/writing-style')}
+          >
+            <SidebarMenuSubItem 
+              active={pathname === '/content-pillars'} 
+              component={<Link to="/content-pillars" />}
+            >
+              Content Pillars
+            </SidebarMenuSubItem>
+            <SidebarMenuSubItem 
+              active={pathname === '/target-audiences'} 
+              component={<Link to="/target-audiences" />}
+            >
+              Target Audiences
+            </SidebarMenuSubItem>
+            <SidebarMenuSubItem 
+              active={pathname === '/writing-style'} 
+              component={<Link to="/writing-style" />}
+            >
+              Writing Style
+            </SidebarMenuSubItem>
+          </SidebarMenuSub>
           
-          <NavItem 
-            to="/settings" 
-            icon={<Settings className="h-4 w-4" />} 
-            label="Settings" 
-            active={pathname === '/settings'} 
-            collapsed={collapsed}
-          />
-        </div>
-      </div>
-
-      {/* Footer */}
-      <div className="border-t border-border p-4">
-        <div className="flex items-center justify-between mb-4">
-          {!collapsed && <ThemeToggle />}
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className={cn("h-8 w-8 rounded-full", collapsed && "mx-auto")}>
-                <Avatar className="h-8 w-8">
-                  <AvatarImage src="" alt="User Avatar" />
-                  <AvatarFallback>{getUserInitial()}</AvatarFallback>
+          <SidebarMenuSub 
+            icon={<FileImage />}
+            title="Examples"
+            defaultOpen={pathname.includes('/marketing-examples') || pathname.includes('/newsletter-examples')}
+          >
+            <SidebarMenuSubItem 
+              active={pathname === '/marketing-examples'} 
+              component={<Link to="/marketing-examples" />}
+            >
+              Marketing
+            </SidebarMenuSubItem>
+            <SidebarMenuSubItem 
+              active={pathname === '/newsletter-examples'} 
+              component={<Link to="/newsletter-examples" />}
+            >
+              Newsletter
+            </SidebarMenuSubItem>
+          </SidebarMenuSub>
+          
+          <SidebarMenuItem 
+            icon={<Settings />} 
+            active={pathname.includes('/settings')} 
+            component={<Link to="/settings" />}
+          >
+            Settings
+          </SidebarMenuItem>
+        </SidebarMenu>
+      </SidebarContent>
+      
+      <SidebarFooter className="border-t p-4">
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" className="w-full justify-start px-2">
+              <div className="flex items-center">
+                <Avatar className="h-6 w-6 mr-2">
+                  <AvatarImage src={user?.user_metadata?.avatar_url} />
+                  <AvatarFallback>{user?.user_metadata?.name ? getInitials(user.user_metadata.name) : 'U'}</AvatarFallback>
                 </Avatar>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-56" align="end" forceMount>
-              <DropdownMenuLabel>My Account</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={() => signOut()}>Logout</DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
-        
-        {!collapsed && (
-          <p className="text-xs text-muted-foreground">
-            {user?.email ? user.email.split('@')[0] : ''}
-            <br />
-            {user?.email}
-          </p>
-        )}
-      </div>
-    </div>
-  );
-};
-
-// Helper component for navigation items
-const NavItem = ({ to, icon, label, active, collapsed }) => {
-  return (
-    <Link
-      to={to}
-      className={cn(
-        "flex items-center gap-2 text-sm py-2 px-3 rounded-md",
-        "hover:bg-accent hover:text-accent-foreground transition-colors",
-        active && "bg-accent text-accent-foreground font-medium"
-      )}
-    >
-      {collapsed ? (
-        <div className="mx-auto">{icon}</div>
-      ) : (
-        <>
-          {icon}
-          <span>{label}</span>
-        </>
-      )}
-    </Link>
+                <div className="flex flex-col items-start text-sm">
+                  <span className="font-medium">{user?.user_metadata?.name || user?.email}</span>
+                </div>
+                <ChevronDown className="ml-auto h-4 w-4" />
+              </div>
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="start" className="w-56">
+            <DropdownMenuLabel>My Account</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem asChild>
+              <Link to="/settings">
+                <Settings className="mr-2 h-4 w-4" />
+                <span>Settings</span>
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={handleLogout}>
+              <LogOut className="mr-2 h-4 w-4" />
+              <span>Log out</span>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </SidebarFooter>
+    </Sidebar>
   );
 };
 
