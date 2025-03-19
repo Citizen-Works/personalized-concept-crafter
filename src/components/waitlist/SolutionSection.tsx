@@ -26,14 +26,17 @@ const SolutionSection = () => {
   return (
     <div 
       ref={solutionRef}
-      className="py-20 px-4 opacity-0"
+      className="py-20 px-4 opacity-0 relative bg-black/95"
     >
-      <div className="max-w-7xl mx-auto">
-        <h2 className="text-4xl md:text-5xl font-bold mb-4 text-center">
+      {/* Background overlay */}
+      <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/80 to-black/70 z-0"></div>
+      
+      <div className="max-w-7xl mx-auto relative z-10">
+        <h2 className="text-4xl md:text-5xl font-bold mb-4 text-center text-white">
           Introducing <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-600 via-pink-500 to-orange-400">Content Engine</span>
         </h2>
         
-        <p className="text-xl text-center text-gray-700 dark:text-gray-300 max-w-3xl mx-auto mb-16">
+        <p className="text-xl text-center text-gray-300 max-w-3xl mx-auto mb-16">
           AI-powered content creation that captures YOUR unique voice and expertise
         </p>
         
@@ -48,36 +51,36 @@ const SolutionSection = () => {
           
           <div className="space-y-8">
             <div className="flex gap-4">
-              <div className="w-10 h-10 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center flex-shrink-0">
-                <Sparkles className="h-5 w-5 text-purple-600 dark:text-purple-400" />
+              <div className="w-10 h-10 rounded-full bg-purple-900/30 flex items-center justify-center flex-shrink-0">
+                <Sparkles className="h-5 w-5 text-purple-400" />
               </div>
               <div>
-                <h3 className="text-xl font-semibold mb-2">Your Voice, Enhanced</h3>
-                <p className="text-gray-600 dark:text-gray-400">
+                <h3 className="text-xl font-semibold mb-2 text-white">Your Voice, Enhanced</h3>
+                <p className="text-gray-300">
                   Our AI learns your unique communication style, tone, and expertise to create content that sounds authentically like you.
                 </p>
               </div>
             </div>
             
             <div className="flex gap-4">
-              <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center flex-shrink-0">
-                <Linkedin className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+              <div className="w-10 h-10 rounded-full bg-blue-900/30 flex items-center justify-center flex-shrink-0">
+                <Linkedin className="h-5 w-5 text-blue-400" />
               </div>
               <div>
-                <h3 className="text-xl font-semibold mb-2">Platform-Optimized Content</h3>
-                <p className="text-gray-600 dark:text-gray-400">
+                <h3 className="text-xl font-semibold mb-2 text-white">Platform-Optimized Content</h3>
+                <p className="text-gray-300">
                   Generate content specifically formatted for <span className="font-medium">{CONTENT_TYPES[currentContentIndex]}</span> that performs well on each platform.
                 </p>
               </div>
             </div>
             
             <div className="flex gap-4">
-              <div className="w-10 h-10 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center flex-shrink-0">
-                <Clock className="h-5 w-5 text-green-600 dark:text-green-400" />
+              <div className="w-10 h-10 rounded-full bg-green-900/30 flex items-center justify-center flex-shrink-0">
+                <Clock className="h-5 w-5 text-green-400" />
               </div>
               <div>
-                <h3 className="text-xl font-semibold mb-2">Hours Saved Every Week</h3>
-                <p className="text-gray-600 dark:text-gray-400">
+                <h3 className="text-xl font-semibold mb-2 text-white">Hours Saved Every Week</h3>
+                <p className="text-gray-300">
                   Turn a single idea into multiple pieces of content in minutes, not hours, while maintaining your authentic voice.
                 </p>
               </div>
@@ -86,8 +89,8 @@ const SolutionSection = () => {
         </div>
         
         {/* Meeting Notes Feature Section */}
-        <div className="bg-gradient-to-br from-purple-100 to-pink-100 dark:from-purple-900/30 dark:to-pink-900/30 p-10 rounded-2xl shadow-xl mb-20">
-          <h3 className="text-2xl md:text-3xl font-bold mb-8 text-center">
+        <div className="bg-gradient-to-br from-purple-900/30 to-pink-900/30 p-10 rounded-2xl shadow-xl mb-20 border border-white/10 backdrop-blur-sm">
+          <h3 className="text-2xl md:text-3xl font-bold mb-8 text-center text-white">
             Transform Meeting Transcripts into Content Gold
           </h3>
           
@@ -103,36 +106,36 @@ const SolutionSection = () => {
             
             <div className="space-y-6">
               <div className="flex gap-4">
-                <div className="w-10 h-10 rounded-full bg-purple-100 dark:bg-purple-900/50 flex items-center justify-center flex-shrink-0">
-                  <FileText className="h-5 w-5 text-purple-600 dark:text-purple-400" />
+                <div className="w-10 h-10 rounded-full bg-purple-900/50 flex items-center justify-center flex-shrink-0">
+                  <FileText className="h-5 w-5 text-purple-400" />
                 </div>
                 <div>
-                  <h4 className="text-xl font-semibold mb-2">Mine Your Meeting Gold</h4>
-                  <p className="text-gray-600 dark:text-gray-400">
+                  <h4 className="text-xl font-semibold mb-2 text-white">Mine Your Meeting Gold</h4>
+                  <p className="text-gray-300">
                     Upload your meeting transcripts and our AI will identify key insights, stories, and expertise that can be transformed into high-value content.
                   </p>
                 </div>
               </div>
               
               <div className="flex gap-4">
-                <div className="w-10 h-10 rounded-full bg-purple-100 dark:bg-purple-900/50 flex items-center justify-center flex-shrink-0">
-                  <Brain className="h-5 w-5 text-purple-600 dark:text-purple-400" />
+                <div className="w-10 h-10 rounded-full bg-purple-900/50 flex items-center justify-center flex-shrink-0">
+                  <Brain className="h-5 w-5 text-purple-400" />
                 </div>
                 <div>
-                  <h4 className="text-xl font-semibold mb-2">Your Expertise, Leveraged</h4>
-                  <p className="text-gray-600 dark:text-gray-400">
+                  <h4 className="text-xl font-semibold mb-2 text-white">Your Expertise, Leveraged</h4>
+                  <p className="text-gray-300">
                     The world wants to know what you know. Content Engine extracts the valuable insights you're already sharing in meetings and packages them for your audience.
                   </p>
                 </div>
               </div>
               
               <div className="flex gap-4">
-                <div className="w-10 h-10 rounded-full bg-purple-100 dark:bg-purple-900/50 flex items-center justify-center flex-shrink-0">
-                  <Sparkles className="h-5 w-5 text-purple-600 dark:text-purple-400" />
+                <div className="w-10 h-10 rounded-full bg-purple-900/50 flex items-center justify-center flex-shrink-0">
+                  <Sparkles className="h-5 w-5 text-purple-400" />
                 </div>
                 <div>
-                  <h4 className="text-xl font-semibold mb-2">From Notes to Content in Minutes</h4>
-                  <p className="text-gray-600 dark:text-gray-400">
+                  <h4 className="text-xl font-semibold mb-2 text-white">From Notes to Content in Minutes</h4>
+                  <p className="text-gray-300">
                     What used to take hours of planning, writing, and editing now happens automatically. Turn your buried insights into content that helps you grow.
                   </p>
                 </div>
@@ -141,38 +144,38 @@ const SolutionSection = () => {
           </div>
         </div>
         
-        <div className="bg-gradient-to-br from-purple-100 to-pink-100 dark:from-purple-900/30 dark:to-pink-900/30 p-10 rounded-2xl shadow-xl mb-20">
-          <h3 className="text-2xl md:text-3xl font-bold mb-6 text-center">
+        <div className="bg-gradient-to-br from-purple-900/30 to-pink-900/30 p-10 rounded-2xl shadow-xl mb-20 border border-white/10 backdrop-blur-sm">
+          <h3 className="text-2xl md:text-3xl font-bold mb-6 text-center text-white">
             How Content Engine Works
           </h3>
           
           <div className="grid sm:grid-cols-3 gap-8">
-            <Card className="p-6 bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm border-0 shadow hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1">
-              <div className="bg-purple-100 dark:bg-purple-900/50 w-12 h-12 rounded-full flex items-center justify-center mb-4">
-                <span className="text-purple-600 dark:text-purple-400 font-bold text-xl">1</span>
+            <Card className="p-6 bg-black/50 backdrop-blur-sm border border-white/10 shadow hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1">
+              <div className="bg-purple-900/50 w-12 h-12 rounded-full flex items-center justify-center mb-4">
+                <span className="text-purple-400 font-bold text-xl">1</span>
               </div>
-              <h4 className="text-xl font-semibold mb-2">Analyze Your Style</h4>
-              <p className="text-gray-600 dark:text-gray-400">
+              <h4 className="text-xl font-semibold mb-2 text-white">Analyze Your Style</h4>
+              <p className="text-gray-300">
                 Our AI studies your existing content and meeting transcripts to learn your unique voice, terminology, and style.
               </p>
             </Card>
             
-            <Card className="p-6 bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm border-0 shadow hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1">
-              <div className="bg-purple-100 dark:bg-purple-900/50 w-12 h-12 rounded-full flex items-center justify-center mb-4">
-                <span className="text-purple-600 dark:text-purple-400 font-bold text-xl">2</span>
+            <Card className="p-6 bg-black/50 backdrop-blur-sm border border-white/10 shadow hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1">
+              <div className="bg-purple-900/50 w-12 h-12 rounded-full flex items-center justify-center mb-4">
+                <span className="text-purple-400 font-bold text-xl">2</span>
               </div>
-              <h4 className="text-xl font-semibold mb-2">Extract Key Ideas</h4>
-              <p className="text-gray-600 dark:text-gray-400">
+              <h4 className="text-xl font-semibold mb-2 text-white">Extract Key Ideas</h4>
+              <p className="text-gray-300">
                 Content Engine identifies the most valuable insights from your meetings and organizes them into potential content pieces.
               </p>
             </Card>
             
-            <Card className="p-6 bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm border-0 shadow hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1">
-              <div className="bg-purple-100 dark:bg-purple-900/50 w-12 h-12 rounded-full flex items-center justify-center mb-4">
-                <span className="text-purple-600 dark:text-purple-400 font-bold text-xl">3</span>
+            <Card className="p-6 bg-black/50 backdrop-blur-sm border border-white/10 shadow hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1">
+              <div className="bg-purple-900/50 w-12 h-12 rounded-full flex items-center justify-center mb-4">
+                <span className="text-purple-400 font-bold text-xl">3</span>
               </div>
-              <h4 className="text-xl font-semibold mb-2">Generate & Refine</h4>
-              <p className="text-gray-600 dark:text-gray-400">
+              <h4 className="text-xl font-semibold mb-2 text-white">Generate & Refine</h4>
+              <p className="text-gray-300">
                 Generate platform-specific content that sounds like you, then easily refine and publish to grow your audience.
               </p>
             </Card>

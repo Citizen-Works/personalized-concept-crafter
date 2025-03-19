@@ -14,40 +14,43 @@ const PainPointsSection = ({ scrollToSection, solutionRef }: PainPointsSectionPr
   return (
     <div 
       ref={painPointsRef}
-      className="bg-gray-50 dark:bg-gray-900 py-20 px-4 opacity-0 min-h-screen flex items-center"
+      className="bg-black/95 py-20 px-4 opacity-0 min-h-screen flex items-center relative"
     >
-      <div className="max-w-7xl mx-auto">
-        <h2 className="text-4xl md:text-5xl font-bold mb-12 text-center">
+      {/* Background overlay */}
+      <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/90 to-black/80 z-0"></div>
+      
+      <div className="max-w-7xl mx-auto z-10 relative">
+        <h2 className="text-4xl md:text-5xl font-bold mb-12 text-center text-white">
           The Content Creation <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-600 via-pink-500 to-orange-400">Struggle</span> Is Real
         </h2>
         
         <div className="grid md:grid-cols-2 gap-16 items-center mb-20">
           <div className="space-y-8">
-            <div className="flex items-start gap-4 p-6 rounded-xl bg-white dark:bg-gray-800 shadow-md transform transition-all hover:scale-105">
+            <div className="flex items-start gap-4 p-6 rounded-xl bg-white/5 backdrop-blur-sm border border-white/10 shadow-md transform transition-all hover:scale-105">
               <Clock className="h-8 w-8 text-purple-500 flex-shrink-0 mt-1" />
               <div>
-                <h3 className="text-xl font-semibold mb-2">No Time for Content</h3>
-                <p className="text-gray-600 dark:text-gray-400">
+                <h3 className="text-xl font-semibold mb-2 text-white">No Time for Content</h3>
+                <p className="text-gray-300">
                   You're busy working with clients and running your business. Finding time to consistently create content feels impossible.
                 </p>
               </div>
             </div>
             
-            <div className="flex items-start gap-4 p-6 rounded-xl bg-white dark:bg-gray-800 shadow-md transform transition-all hover:scale-105">
+            <div className="flex items-start gap-4 p-6 rounded-xl bg-white/5 backdrop-blur-sm border border-white/10 shadow-md transform transition-all hover:scale-105">
               <TrendingUp className="h-8 w-8 text-purple-500 flex-shrink-0 mt-1" />
               <div>
-                <h3 className="text-xl font-semibold mb-2">The Competition Is Gaining Ground</h3>
-                <p className="text-gray-600 dark:text-gray-400">
+                <h3 className="text-xl font-semibold mb-2 text-white">The Competition Is Gaining Ground</h3>
+                <p className="text-gray-300">
                   Your competitors are posting every day and building their audiences. Their visibility is growing while yours stagnates.
                 </p>
               </div>
             </div>
             
-            <div className="flex items-start gap-4 p-6 rounded-xl bg-white dark:bg-gray-800 shadow-md transform transition-all hover:scale-105">
+            <div className="flex items-start gap-4 p-6 rounded-xl bg-white/5 backdrop-blur-sm border border-white/10 shadow-md transform transition-all hover:scale-105">
               <FileText className="h-8 w-8 text-purple-500 flex-shrink-0 mt-1" />
               <div>
-                <h3 className="text-xl font-semibold mb-2">Meeting Gold Stays Buried</h3>
-                <p className="text-gray-600 dark:text-gray-400">
+                <h3 className="text-xl font-semibold mb-2 text-white">Meeting Gold Stays Buried</h3>
+                <p className="text-gray-300">
                   Your meeting transcripts and notes are full of incredible insights and ideas, but they remain trapped in documents nobody sees.
                 </p>
               </div>
@@ -70,10 +73,10 @@ const PainPointsSection = ({ scrollToSection, solutionRef }: PainPointsSectionPr
         </div>
         
         <div className="text-center mt-12 mb-8">
-          <h3 className="text-3xl font-bold mb-6">
+          <h3 className="text-3xl font-bold mb-6 text-white">
             You have the <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-pink-600">ideas and expertise</span>...
           </h3>
-          <p className="text-xl text-gray-700 dark:text-gray-300 max-w-3xl mx-auto">
+          <p className="text-xl text-gray-300 max-w-3xl mx-auto">
             You just need a way to efficiently transform them into content that resonates with your audience.
           </p>
           
