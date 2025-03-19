@@ -1,18 +1,9 @@
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ArrowRight, Zap, Check } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
-
-const ROLES = [
-  "Consultant",
-  "Advisor",
-  "Executive",
-  "Entrepreneur",
-  "Innovator",
-  "Thought Leader"
-];
 
 interface HeroSectionProps {
   scrollToSection: (ref: React.RefObject<HTMLDivElement>) => void;
@@ -20,30 +11,10 @@ interface HeroSectionProps {
 }
 
 const HeroSection = ({ scrollToSection, painPointsRef }: HeroSectionProps) => {
-  const [currentRoleIndex, setCurrentRoleIndex] = useState(0);
-  const [isAnimating, setIsAnimating] = useState(false);
   const [email, setEmail] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const heroRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
-
-  // Helper function to determine if we should use "an" instead of "a"
-  const getArticle = (word: string) => {
-    return /^[aeiou]/i.test(word) ? "an" : "a";
-  };
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setIsAnimating(true);
-      
-      setTimeout(() => {
-        setCurrentRoleIndex(prevIndex => (prevIndex + 1) % ROLES.length);
-        setIsAnimating(false);
-      }, 300);
-    }, 1500);
-    
-    return () => clearInterval(interval);
-  }, []);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -124,26 +95,9 @@ const HeroSection = ({ scrollToSection, painPointsRef }: HeroSectionProps) => {
           </span>
         </h1>
         
-        <h2 className="text-3xl md:text-4xl font-bold mb-6 text-white max-w-4xl mx-auto text-balance">
+        <h2 className="text-3xl md:text-4xl font-bold mb-10 text-white max-w-4xl mx-auto text-balance">
           Transform Your <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-500">Meeting Gold</span> Into Content That Grows Your Business
         </h2>
-        
-        <div className="mb-8 text-2xl md:text-3xl text-gray-300 max-w-3xl mx-auto h-12 overflow-hidden">
-          <div className="h-12 flex items-center justify-center">
-            <div className="h-full overflow-hidden">
-              <div 
-                className={`flex items-center transition-all duration-300 ${
-                  isAnimating ? "opacity-0 transform -translate-y-full" : "opacity-100 transform translate-y-0"
-                }`}
-              >
-                <span className="font-bold mr-2">You are {getArticle(ROLES[currentRoleIndex])}</span>
-                <span className="font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-purple-500 to-pink-500">
-                  {ROLES[currentRoleIndex]}
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
         
         <p className="text-xl md:text-2xl text-gray-300 max-w-3xl mx-auto mb-8">
           Our AI learns <span className="font-semibold">your unique voice</span> and extracts the best insights from your meeting transcripts, turning your expertise into LinkedIn posts and newsletters that grow your audience.
