@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { useDocuments } from '@/hooks/useDocuments';
 import { toast } from 'sonner';
@@ -44,9 +45,10 @@ export const useTranscripts = () => {
   
   const handleUploadDocument = async (file: File, title: string) => {
     try {
+      // Using "meeting_transcript" type instead of "transcript" to match database constraints
       const documentData = {
         title: title,
-        type: "transcript" as const,
+        type: "meeting_transcript" as const,
         purpose: "business_context" as const,
         content_type: null,
         status: "active" as const
@@ -72,7 +74,7 @@ export const useTranscripts = () => {
         file: new File([text], `${title}.txt`, { type: "text/plain" }),
         documentData: {
           title: title,
-          type: "transcript" as const,
+          type: "meeting_transcript" as const,
           purpose: "business_context" as const,
           content_type: null,
           status: "active" as const
