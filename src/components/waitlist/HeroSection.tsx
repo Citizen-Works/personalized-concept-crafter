@@ -19,7 +19,7 @@ const HeroSection = ({ scrollToSection, painPointsRef }: HeroSectionProps) => {
   return (
     <div 
       ref={heroRef}
-      className="relative flex-1 flex flex-col items-center justify-center px-4 py-20 overflow-hidden min-h-screen bg-black/95"
+      className="relative flex-1 flex flex-col items-center justify-center px-4 py-10 sm:py-20 overflow-hidden min-h-screen bg-black/95"
     >
       <HeroBackground />
       
@@ -31,7 +31,7 @@ const HeroSection = ({ scrollToSection, painPointsRef }: HeroSectionProps) => {
         
         <HeroHeading />
         
-        <p className="text-xl md:text-2xl text-gray-300 max-w-3xl mx-auto mb-8">
+        <p className="text-lg sm:text-xl md:text-2xl text-gray-300 max-w-3xl mx-auto mb-8 px-4">
           Our AI learns <span className="font-semibold">your unique voice</span> and extracts the best insights from your meeting transcripts, turning your expertise into LinkedIn posts and newsletters that grow your audience.
         </p>
         
@@ -43,7 +43,7 @@ const HeroSection = ({ scrollToSection, painPointsRef }: HeroSectionProps) => {
           <Button 
             variant="outline" 
             size="lg"
-            className="text-lg px-8 py-6 border-white/20 bg-white/5 backdrop-blur-sm hover:bg-white/10 text-white"
+            className="text-base sm:text-lg px-6 sm:px-8 py-5 sm:py-6 border-white/20 bg-white/5 backdrop-blur-sm hover:bg-white/10 text-white"
             onClick={() => scrollToSection(painPointsRef)}
           >
             See How It Works <ArrowRight className="ml-2 h-5 w-5" />
