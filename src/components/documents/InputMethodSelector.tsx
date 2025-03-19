@@ -1,6 +1,6 @@
 
 import React from "react";
-import { Button } from "@/components/ui/button";
+import MethodToggleButton from "./MethodToggleButton";
 
 interface InputMethodSelectorProps {
   inputMethod: "upload" | "manual";
@@ -13,22 +13,18 @@ const InputMethodSelector: React.FC<InputMethodSelectorProps> = ({
 }) => {
   return (
     <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4 w-full">
-      <Button
-        type="button"
-        variant={inputMethod === "manual" ? "default" : "outline"}
+      <MethodToggleButton
+        isActive={inputMethod === "manual"}
         onClick={() => setInputMethod("manual")}
-        className="flex-1"
       >
         Manual Input
-      </Button>
-      <Button
-        type="button"
-        variant={inputMethod === "upload" ? "default" : "outline"}
+      </MethodToggleButton>
+      <MethodToggleButton
+        isActive={inputMethod === "upload"}
         onClick={() => setInputMethod("upload")}
-        className="flex-1"
       >
         Upload File
-      </Button>
+      </MethodToggleButton>
     </div>
   );
 };

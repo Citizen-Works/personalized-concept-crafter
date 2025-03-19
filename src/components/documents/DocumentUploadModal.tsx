@@ -1,10 +1,7 @@
 
 import React from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import InputMethodSelector from "./InputMethodSelector";
-import DocumentFormFields from "./DocumentFormFields";
-import FileUploadField from "./FileUploadField";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import DocumentUploadForm from "./DocumentUploadForm";
 import { useDocumentForm } from "@/hooks/documents/useDocumentForm";
 
 interface DocumentUploadModalProps {
@@ -44,43 +41,25 @@ const DocumentUploadModal: React.FC<DocumentUploadModalProps> = ({ isOpen, onClo
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <InputMethodSelector 
-            inputMethod={inputMethod} 
-            setInputMethod={setInputMethod} 
-          />
-
-          <DocumentFormFields
-            title={title}
-            setTitle={setTitle}
-            content={content}
-            setContent={setContent}
-            type={type}
-            setType={setType}
-            purpose={purpose}
-            setPurpose={setPurpose}
-            contentType={contentType}
-            setContentType={setContentType}
-            inputMethod={inputMethod}
-          />
-
-          {inputMethod === "upload" && (
-            <FileUploadField
-              file={file}
-              uploadProgress={uploadProgress}
-              onFileChange={handleFileChange}
-            />
-          )}
-
-          <DialogFooter className="flex flex-col sm:flex-row gap-2 sm:gap-0">
-            <Button type="button" variant="outline" onClick={onClose} className="w-full sm:w-auto">
-              Cancel
-            </Button>
-            <Button type="submit" className="w-full sm:w-auto">
-              {inputMethod === "upload" ? "Upload" : "Save"} Document
-            </Button>
-          </DialogFooter>
-        </form>
+        <DocumentUploadForm
+          title={title}
+          setTitle={setTitle}
+          content={content}
+          setContent={setContent}
+          type={type}
+          setType={setType}
+          purpose={purpose}
+          setPurpose={setPurpose}
+          contentType={contentType}
+          setContentType={setContentType}
+          file={file}
+          inputMethod={inputMethod}
+          setInputMethod={setInputMethod}
+          uploadProgress={uploadProgress}
+          handleFileChange={handleFileChange}
+          handleSubmit={handleSubmit}
+          onCancel={onClose}
+        />
       </DialogContent>
     </Dialog>
   );
