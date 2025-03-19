@@ -28,6 +28,7 @@ import NotFound from "@/pages/NotFound";
 import { AuthProvider } from "./context/AuthContext";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import TranscriptsPage from "./pages/TranscriptsPage";
+import { MainLayout } from "./components/layout/MainLayout";
 
 // Create a client
 const queryClient = new QueryClient({
@@ -57,8 +58,8 @@ function App() {
                 <Route path="/login" element={<ProtectedRoute><LoginPage /></ProtectedRoute>} />
                 <Route path="/onboarding" element={<ProtectedRoute><OnboardingPage /></ProtectedRoute>} />
                 
-                {/* All other routes protected */}
-                <Route element={<ProtectedRoute />}>
+                {/* All other routes protected and wrapped in MainLayout */}
+                <Route element={<ProtectedRoute><MainLayout /></ProtectedRoute>}>
                   <Route path="/dashboard" element={<Dashboard />} />
                   <Route path="/ideas" element={<IdeasPage />} />
                   <Route path="/ideas/:id" element={<IdeaDetailPage />} />

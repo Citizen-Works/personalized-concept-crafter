@@ -1,6 +1,6 @@
 
 import React, { lazy, Suspense } from 'react';
-import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader } from '@/components/ui/sidebar';
+import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, useSidebar } from '@/components/ui/sidebar';
 
 // Lazy load components
 const SidebarLogo = lazy(() => import('./sidebar/SidebarLogo'));
@@ -8,8 +8,14 @@ const UserProfileMenu = lazy(() => import('./sidebar/UserProfileMenu'));
 const SidebarNav = lazy(() => import('./sidebar/SidebarNav'));
 
 const AppSidebar = () => {
+  const { isMobile } = useSidebar();
+  
   return (
-    <Sidebar collapsible="offcanvas">
+    <Sidebar 
+      collapsible="offcanvas"
+      side="left"
+      variant={isMobile ? "floating" : "sidebar"}
+    >
       <SidebarHeader className="border-b p-4">
         <Suspense fallback={<div className="h-6 w-full animate-pulse bg-gray-200 rounded"></div>}>
           <SidebarLogo />

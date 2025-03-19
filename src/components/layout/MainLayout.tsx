@@ -15,6 +15,7 @@ export const MainLayout = () => {
   return (
     <SidebarProvider defaultOpen={!isMobile}>
       <div className="flex w-full h-screen overflow-hidden bg-background">
+        {/* Force Suspense to render immediately for desktop */}
         <Suspense fallback={<div className="w-0 md:w-64 bg-sidebar animate-pulse"></div>}>
           <AppSidebar />
         </Suspense>

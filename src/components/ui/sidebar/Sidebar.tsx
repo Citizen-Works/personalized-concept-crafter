@@ -67,7 +67,7 @@ export const Sidebar = React.forwardRef<
       <div
         ref={ref}
         className={cn(
-          "group peer block md:block text-sidebar-foreground", // Changed from 'hidden md:block' to ensure visibility
+          "group peer block md:block text-sidebar-foreground", // Using 'block' instead of 'hidden' to ensure visibility
           state === "collapsed" ? "sidebar-collapsed" : "sidebar-expanded"
         )}
         data-state={state}
@@ -88,7 +88,7 @@ export const Sidebar = React.forwardRef<
         />
         <div
           className={cn(
-            "duration-200 fixed inset-y-0 z-20 block h-screen w-[--sidebar-width] transition-[left,right,width] ease-linear md:flex", // Changed from 'hidden md:flex' to 'block md:flex'
+            "duration-200 fixed inset-y-0 z-20 block h-screen w-[--sidebar-width] transition-[left,right,width] ease-linear md:flex", // Using 'block' instead of 'hidden' for better visibility
             side === "left"
               ? "left-0 group-data-[collapsible=offcanvas]:left-[calc(var(--sidebar-width)*-1)]"
               : "right-0 group-data-[collapsible=offcanvas]:right-[calc(var(--sidebar-width)*-1)]",
