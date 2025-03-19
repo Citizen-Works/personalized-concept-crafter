@@ -56,10 +56,10 @@ const IdeaDetailPage = () => {
         feedback: ''
       });
       
-      // Update the idea status to 'drafted'
+      // Update the idea status to 'approved' (was 'drafted')
       await updateIdea({
         id: idea.id,
-        status: 'drafted'
+        status: 'approved'
       });
       
       toast.success(`${contentType.charAt(0).toUpperCase() + contentType.slice(1)} draft generated successfully`);

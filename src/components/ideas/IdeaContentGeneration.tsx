@@ -64,13 +64,13 @@ const IdeaContentGeneration: React.FC<IdeaContentGenerationProps> = ({
     try {
       await onGenerateDraft(selectedContentType, generatedContent);
       
-      // Update the idea status to 'drafted'
+      // Update the idea status to 'drafted' and 'approved'
       if (idea.status !== 'drafted') {
         await updateIdea({
           id: idea.id,
-          status: 'drafted'
+          status: 'approved' // Update to approved status when drafted
         });
-        toast.success('Idea status updated to drafted');
+        toast.success('Idea status updated to approved');
       }
       
       // Optionally clear the content after saving

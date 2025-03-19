@@ -123,10 +123,10 @@ export const useNewIdeaForm = () => {
             feedback: '',
           });
           
-          // 4. Update the idea status to drafted
+          // 4. Update the idea status to approved instead of drafted
           await updateIdea({
             id: savedIdea.id,
-            status: 'drafted'
+            status: 'approved'
           });
           
           toast.success(`Draft generated successfully for ${contentType} content`);

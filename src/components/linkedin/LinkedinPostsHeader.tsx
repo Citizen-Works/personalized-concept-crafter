@@ -25,12 +25,12 @@ const LinkedinPostsHeader: React.FC<LinkedinPostsHeaderProps> = ({
       
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mt-4">
         <div className="w-full sm:w-auto max-w-xs">
-          <Select value={tagFilter || ''} onValueChange={(value) => setTagFilter(value || null)}>
+          <Select value={tagFilter || ''} onValueChange={(value) => setTagFilter(value === 'all' ? null : value)}>
             <SelectTrigger className="w-full">
               <SelectValue placeholder="Filter by tag" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">All posts</SelectItem>
+              <SelectItem value="all">All posts</SelectItem>
               <SelectItem value="My post">My posts</SelectItem>
               <SelectItem value="Competitor's post">Competitor's posts</SelectItem>
             </SelectContent>
