@@ -32,16 +32,20 @@ const HeroSection = ({ scrollToSection, painPointsRef }: HeroSectionProps) => {
   return (
     <div 
       ref={heroRef}
-      className="relative flex-1 flex flex-col items-center justify-center px-4 py-20 overflow-hidden min-h-screen"
+      className="relative flex-1 flex flex-col items-center justify-center px-4 py-20 overflow-hidden min-h-screen bg-black/95"
     >
       <div 
-        className="absolute inset-0 z-0 opacity-10"
+        className="absolute inset-0 z-0 opacity-5"
         style={{
           backgroundImage: `url('https://images.unsplash.com/photo-1488590528505-98d2b5aba04b?auto=format&fit=crop&w=2000&q=80')`,
           backgroundSize: 'cover',
           backgroundPosition: 'center',
+          backgroundBlendMode: 'luminosity',
         }}
       />
+      
+      {/* Gradient overlay */}
+      <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 to-black/80 z-1"></div>
       
       <div className="max-w-6xl mx-auto z-10 text-center">
         <h1 className="text-7xl sm:text-8xl md:text-9xl font-bold tracking-tighter mb-6 bg-clip-text text-transparent relative">
@@ -71,7 +75,7 @@ const HeroSection = ({ scrollToSection, painPointsRef }: HeroSectionProps) => {
           </span>
         </h1>
         
-        <div className="mb-8 text-2xl md:text-3xl text-gray-700 dark:text-gray-300 max-w-3xl mx-auto overflow-hidden h-12">
+        <div className="mb-8 text-2xl md:text-3xl text-gray-300 max-w-3xl mx-auto overflow-hidden h-12">
           <div className="animate-fade-in">
             <span className="font-bold">You are a </span>
             <span className="font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-purple-500 to-pink-500">
@@ -80,14 +84,14 @@ const HeroSection = ({ scrollToSection, painPointsRef }: HeroSectionProps) => {
           </div>
         </div>
         
-        <p className="text-xl md:text-2xl text-gray-700 dark:text-gray-300 max-w-3xl mx-auto mb-8">
+        <p className="text-xl md:text-2xl text-gray-300 max-w-3xl mx-auto mb-8">
           Turn your expertise into compelling content that grows your audience and business.
         </p>
         
         <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
           <Button 
             size="lg" 
-            className="text-lg px-8 py-6"
+            className="text-lg px-8 py-6 bg-gradient-to-r from-purple-600 via-pink-500 to-orange-400 hover:from-purple-700 hover:via-pink-600 hover:to-orange-500"
             onClick={() => scrollToSection(painPointsRef)}
           >
             Learn More <ArrowRight className="ml-2 h-5 w-5" />
@@ -96,7 +100,7 @@ const HeroSection = ({ scrollToSection, painPointsRef }: HeroSectionProps) => {
           <Button 
             variant="outline" 
             size="lg"
-            className="text-lg px-8 py-6"
+            className="text-lg px-8 py-6 border-white/20 bg-white/5 backdrop-blur-sm hover:bg-white/10 text-white"
             onClick={() => {
               const formElement = document.getElementById('waitlist-form');
               formElement?.scrollIntoView({ behavior: 'smooth' });
@@ -108,7 +112,7 @@ const HeroSection = ({ scrollToSection, painPointsRef }: HeroSectionProps) => {
       </div>
 
       <div className="absolute bottom-10 left-1/2 transform -translate-x-1/2 animate-bounce">
-        <ArrowRight className="h-8 w-8 rotate-90 text-gray-500" />
+        <ArrowRight className="h-8 w-8 rotate-90 text-gray-300" />
       </div>
     </div>
   );
