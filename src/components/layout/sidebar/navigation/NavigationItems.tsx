@@ -15,10 +15,13 @@ export const NavigationItems: React.FC<NavigationItemsProps> = memo(({ isActive 
   return (
     <>
       {navigation.map((item, index) => {
+        // Create a stable, unique key for each navigation item
+        const key = `nav-item-${index}-${item.title.replace(/\s+/g, '-').toLowerCase()}`;
+        
         if (item.subItems) {
           return (
             <NavigationItemWithSub 
-              key={`nav-item-sub-${index}-${item.title.replace(/\s+/g, '-')}`}
+              key={`${key}-with-sub`}
               item={item} 
               isActive={isActive} 
             />
@@ -27,7 +30,7 @@ export const NavigationItems: React.FC<NavigationItemsProps> = memo(({ isActive 
 
         return (
           <NavigationItem 
-            key={`nav-item-${index}-${item.title.replace(/\s+/g, '-')}`}
+            key={key}
             item={item} 
             isActive={isActive} 
           />

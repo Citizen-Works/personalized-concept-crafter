@@ -26,7 +26,7 @@ export function useSidebarNavigation() {
         return pathData.fullPath === path;
       }
       
-      // For paths with query parameters like /pipeline?tab=review
+      // For pipeline tab routes which use query parameters like /pipeline?tab=review
       if (path.includes('?')) {
         const [basePath, queryString] = path.split('?');
         
@@ -38,8 +38,17 @@ export function useSidebarNavigation() {
         // Parse the query parameters from the path
         const pathParams = new URLSearchParams(queryString);
         
-        // Check if the specific tab parameter matches
-        // This is important for pipeline tabs like review, ideas, etc.
+        // Get the tab parameter value from both the current URL and requested path
+        const currentTab = pathData.params.get('tab');
+        const requestedTab = pathParams.get('tab');
+        
+        // Compare the specific tab parameter exactly
+        // This is important for differentiating between pipeline tabs
+        if (requestedTab && currentTab) {
+          return requestedTab === currentTab;
+        }
+        
+        // For other query params, check if they match
         for (const [key, value] of pathParams.entries()) {
           const currentValue = pathData.params.get(key);
           if (currentValue !== value) {
@@ -50,8 +59,17 @@ export function useSidebarNavigation() {
         return true;
       }
       
-      // For pipeline without query params
+      // For pipeline without query params, ensure it's an exact match
+      // This prevents /pipeline?tab=X from matching just /pipeline
       if (path === '/pipeline' && pathData.pathname === '/pipeline') {
+        // If we're on /pipeline with no query params, it's active
+        if (pathData.search === '') {
+          return true;
+        }
+        // If there's a tab param, the base /pipeline shouldn't be considered active
+        if (pathData.params.has('tab')) {
+          return false;
+        }
         return true;
       }
       
