@@ -2,6 +2,7 @@
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import { Mic, MicOff, StopCircle, Loader2 } from "lucide-react";
+import { Progress } from "@/components/ui/progress";
 
 interface RecordingControlsProps {
   isRecording: boolean;
@@ -12,6 +13,8 @@ interface RecordingControlsProps {
   onStartRecording: () => void;
   onPauseRecording: () => void;
   onStopRecording: () => void;
+  processingProgress?: number;
+  processingStage?: 'idle' | 'preparing' | 'uploading' | 'transcribing' | 'complete';
 }
 
 const RecordingControls: React.FC<RecordingControlsProps> = ({
@@ -22,8 +25,21 @@ const RecordingControls: React.FC<RecordingControlsProps> = ({
   formatTime,
   onStartRecording,
   onPauseRecording,
-  onStopRecording
+  onStopRecording,
+  processingProgress = 0,
+  processingStage = 'idle'
 }) => {
+  // Helper function to get stage description
+  const getStageDescription = (stage: string) => {
+    switch(stage) {
+      case 'preparing': return 'Preparing audio...';
+      case 'uploading': return 'Uploading audio...';
+      case 'transcribing': return 'Transcribing audio...';
+      case 'complete': return 'Transcription complete!';
+      default: return 'Processing...';
+    }
+  };
+  
   return (
     <div className="flex flex-col items-center justify-center space-y-4">
       {isRecording && (
@@ -78,9 +94,17 @@ const RecordingControls: React.FC<RecordingControlsProps> = ({
         )}
         
         {isTranscribing && (
-          <div className="flex items-center justify-center w-full">
-            <Loader2 className="h-5 w-5 mr-2 animate-spin" />
-            <span>Transcribing audio...</span>
+          <div className="flex flex-col items-center justify-center w-full space-y-3">
+            <div className="flex items-center justify-center w-full">
+              <Loader2 className="h-5 w-5 mr-2 animate-spin" />
+              <span>{getStageDescription(processingStage)}</span>
+            </div>
+            <div className="w-full">
+              <Progress value={processingProgress} className="h-2" />
+              <div className="text-xs text-muted-foreground text-center mt-1">
+                {processingProgress}%
+              </div>
+            </div>
           </div>
         )}
       </div>

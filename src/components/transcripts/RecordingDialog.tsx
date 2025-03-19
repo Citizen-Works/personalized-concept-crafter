@@ -39,7 +39,9 @@ const RecordingDialog: React.FC<RecordingDialogProps> = ({
     pauseRecording,
     stopRecording,
     resetRecording,
-    setTranscribedText
+    setTranscribedText,
+    processingProgress,
+    processingStage
   } = useAudioRecorder({
     onTranscriptionComplete: (text) => {
       if (!recordingTitle && text) {
@@ -120,6 +122,8 @@ const RecordingDialog: React.FC<RecordingDialogProps> = ({
               onStartRecording={startRecording}
               onPauseRecording={pauseRecording}
               onStopRecording={stopRecording}
+              processingProgress={processingProgress}
+              processingStage={processingStage}
             />
           )}
           

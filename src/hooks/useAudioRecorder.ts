@@ -14,6 +14,9 @@ export function useAudioRecorder({ onTranscriptionComplete }: UseAudioRecorderPr
   const [audioChunks, setAudioChunks] = useState<Blob[]>([]);
   const [isTranscribing, setIsTranscribing] = useState(false);
   const [transcribedText, setTranscribedText] = useState("");
+  // Add progress tracking states
+  const [processingProgress, setProcessingProgress] = useState(0);
+  const [processingStage, setProcessingStage] = useState<'idle' | 'preparing' | 'uploading' | 'transcribing' | 'complete'>('idle');
   
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -56,6 +59,9 @@ export function useAudioRecorder({ onTranscriptionComplete }: UseAudioRecorderPr
       setIsRecording(true);
       setIsPaused(false);
       setRecordingTime(0);
+      // Reset progress states
+      setProcessingProgress(0);
+      setProcessingStage('idle');
       
       recorder.ondataavailable = (e) => {
         if (e.data.size > 0) {
@@ -108,12 +114,25 @@ export function useAudioRecorder({ onTranscriptionComplete }: UseAudioRecorderPr
     if (audioChunks.length === 0) {
       toast.error("No audio recorded");
       setIsTranscribing(false);
+      setProcessingStage('idle');
       return;
     }
     
     try {
+      // Update stage to preparing
+      setProcessingStage('preparing');
+      setProcessingProgress(10);
+      
       const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
       const reader = new FileReader();
+      
+      reader.onprogress = (event) => {
+        if (event.lengthComputable) {
+          // Calculate progress from 10% to 40%
+          const progress = 10 + (event.loaded / event.total) * 30;
+          setProcessingProgress(Math.round(progress));
+        }
+      };
       
       reader.readAsDataURL(audioBlob);
       reader.onloadend = async () => {
@@ -121,7 +140,15 @@ export function useAudioRecorder({ onTranscriptionComplete }: UseAudioRecorderPr
         // Remove the data URL prefix to get just the base64 string
         const base64Audio = base64data.split(',')[1];
         
+        // Update stage to uploading
+        setProcessingStage('uploading');
+        setProcessingProgress(50);
+        
         try {
+          // Update stage to transcribing
+          setProcessingStage('transcribing');
+          setProcessingProgress(70);
+          
           const response = await fetch(`${window.location.origin}/api/functions/transcribe-audio`, {
             method: 'POST',
             headers: {
@@ -136,6 +163,11 @@ export function useAudioRecorder({ onTranscriptionComplete }: UseAudioRecorderPr
           }
           
           const result = await response.json();
+          
+          // Update stage to complete
+          setProcessingStage('complete');
+          setProcessingProgress(100);
+          
           setTranscribedText(result.text);
           
           if (onTranscriptionComplete) {
@@ -144,6 +176,8 @@ export function useAudioRecorder({ onTranscriptionComplete }: UseAudioRecorderPr
         } catch (error) {
           console.error("Transcription error:", error);
           toast.error("Failed to transcribe audio");
+          setProcessingStage('idle');
+          setProcessingProgress(0);
         } finally {
           setIsTranscribing(false);
         }
@@ -152,6 +186,8 @@ export function useAudioRecorder({ onTranscriptionComplete }: UseAudioRecorderPr
       console.error("Error processing audio:", error);
       toast.error("Failed to process audio");
       setIsTranscribing(false);
+      setProcessingStage('idle');
+      setProcessingProgress(0);
     }
   };
 
@@ -167,6 +203,8 @@ export function useAudioRecorder({ onTranscriptionComplete }: UseAudioRecorderPr
     setAudioChunks([]);
     setTranscribedText("");
     setRecordingTime(0);
+    setProcessingProgress(0);
+    setProcessingStage('idle');
   };
 
   return {
@@ -180,6 +218,9 @@ export function useAudioRecorder({ onTranscriptionComplete }: UseAudioRecorderPr
     pauseRecording,
     stopRecording,
     resetRecording,
-    setTranscribedText
+    setTranscribedText,
+    // Return new progress states
+    processingProgress,
+    processingStage
   };
 }
