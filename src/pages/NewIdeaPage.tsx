@@ -13,7 +13,7 @@ import {
   SelectValue 
 } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Lightbulb, Loader2 } from 'lucide-react';
 import { ContentType, ContentSource } from '@/types';
 import { useIdeas } from '@/hooks/ideas';
 import { toast } from 'sonner';
@@ -28,6 +28,8 @@ import {
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
+import { useClaudeAI } from '@/hooks/useClaudeAI';
+import { useDrafts } from '@/hooks/useDrafts';
 
 // Content goal types
 type ContentGoal = 'audience_building' | 'lead_generation' | 'nurturing' | 'conversion' | 'retention' | 'other';
@@ -48,8 +50,11 @@ type FormValues = z.infer<typeof formSchema>;
 
 const NewIdeaPage = () => {
   const navigate = useNavigate();
-  const { createIdea } = useIdeas();
+  const { createIdea, updateIdea } = useIdeas();
+  const { generateContent, isGenerating } = useClaudeAI();
+  const { createDraft } = useDrafts();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [generatingType, setGeneratingType] = useState<ContentType | null>(null);
   
   // Initialize form with react-hook-form and zod validation
   const form = useForm<FormValues>({
@@ -78,7 +83,7 @@ const NewIdeaPage = () => {
       // Format description to include content goal
       const formattedDescription = `Content Goal: ${values.contentGoal.replace('_', ' ')}\n\n${values.description || ""}`;
       
-      await createIdea({
+      const savedIdea = await createIdea({
         title: values.title,
         description: formattedDescription,
         notes: formattedNotes,
@@ -96,6 +101,77 @@ const NewIdeaPage = () => {
       toast.error('Failed to create content idea');
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  const onSaveAndGenerate = async (contentType: ContentType) => {
+    setGeneratingType(contentType);
+    
+    try {
+      // Get form values
+      const values = form.getValues();
+      
+      if (!form.formState.isValid) {
+        await form.trigger();
+        if (!form.formState.isValid) {
+          toast.error('Please fix form errors before saving');
+          setGeneratingType(null);
+          return;
+        }
+      }
+      
+      // Format notes to include CTA if provided
+      const formattedNotes = values.callToAction 
+        ? `${values.notes || ""}\n\nCall to Action: ${values.callToAction}` 
+        : values.notes;
+      
+      // Format description to include content goal
+      const formattedDescription = `Content Goal: ${values.contentGoal.replace('_', ' ')}\n\n${values.description || ""}`;
+      
+      // 1. Create the idea
+      const savedIdea = await createIdea({
+        title: values.title,
+        description: formattedDescription,
+        notes: formattedNotes,
+        contentType: contentType, // Use the selected content type
+        source: values.source,
+        sourceUrl: values.sourceUrl || null,
+        status: 'unreviewed',
+        meetingTranscriptExcerpt: null
+      });
+      
+      toast.success('Content idea created successfully');
+      
+      // 2. Generate content for the idea
+      if (savedIdea && savedIdea.id) {
+        const generatedContent = await generateContent(savedIdea, contentType);
+        
+        if (generatedContent) {
+          // 3. Create a draft with the generated content
+          await createDraft({
+            contentIdeaId: savedIdea.id,
+            content: generatedContent,
+            version: 1,
+            feedback: '',
+          });
+          
+          // 4. Update the idea status to drafted
+          await updateIdea({
+            id: savedIdea.id,
+            status: 'drafted'
+          });
+          
+          toast.success(`Draft generated successfully for ${contentType} content`);
+        }
+      }
+      
+      // Navigate to ideas page
+      navigate('/ideas');
+    } catch (error) {
+      console.error('Error in save and generate:', error);
+      toast.error('Failed to save idea and generate draft');
+    } finally {
+      setGeneratingType(null);
     }
   };
 
@@ -312,18 +388,89 @@ const NewIdeaPage = () => {
                 )}
               </div>
             </CardContent>
-            <CardFooter className="flex justify-end gap-2">
-              <Button 
-                type="button" 
-                variant="outline" 
-                onClick={() => navigate('/ideas')}
-                disabled={isSubmitting}
-              >
-                Cancel
-              </Button>
-              <Button type="submit" disabled={isSubmitting}>
-                {isSubmitting ? 'Creating...' : 'Create Idea'}
-              </Button>
+            <CardFooter className="flex flex-col space-y-4">
+              <div className="flex justify-between items-center w-full">
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  onClick={() => navigate('/ideas')}
+                  disabled={isSubmitting || !!generatingType}
+                >
+                  Cancel
+                </Button>
+                <Button 
+                  type="submit" 
+                  disabled={isSubmitting || !!generatingType}
+                >
+                  {isSubmitting ? 'Creating...' : 'Save Idea'}
+                </Button>
+              </div>
+              
+              <div className="w-full border-t pt-4">
+                <h3 className="text-sm font-medium mb-2">Save & Generate Content</h3>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+                  <Button 
+                    type="button"
+                    variant="secondary"
+                    onClick={() => onSaveAndGenerate('linkedin')}
+                    disabled={isSubmitting || !!generatingType}
+                    className="w-full"
+                  >
+                    {generatingType === 'linkedin' ? (
+                      <>
+                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                        Generating LinkedIn...
+                      </>
+                    ) : (
+                      <>
+                        <Lightbulb className="h-4 w-4 mr-2" />
+                        LinkedIn
+                      </>
+                    )}
+                  </Button>
+                  <Button 
+                    type="button"
+                    variant="secondary"
+                    onClick={() => onSaveAndGenerate('newsletter')}
+                    disabled={isSubmitting || !!generatingType}
+                    className="w-full"
+                  >
+                    {generatingType === 'newsletter' ? (
+                      <>
+                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                        Generating Newsletter...
+                      </>
+                    ) : (
+                      <>
+                        <Lightbulb className="h-4 w-4 mr-2" />
+                        Newsletter
+                      </>
+                    )}
+                  </Button>
+                  <Button 
+                    type="button"
+                    variant="secondary"
+                    onClick={() => onSaveAndGenerate('marketing')}
+                    disabled={isSubmitting || !!generatingType}
+                    className="w-full"
+                  >
+                    {generatingType === 'marketing' ? (
+                      <>
+                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                        Generating Marketing...
+                      </>
+                    ) : (
+                      <>
+                        <Lightbulb className="h-4 w-4 mr-2" />
+                        Marketing
+                      </>
+                    )}
+                  </Button>
+                </div>
+                <p className="text-xs text-muted-foreground mt-2">
+                  Save your idea and immediately generate a draft for the selected content type
+                </p>
+              </div>
             </CardFooter>
           </form>
         </Form>
