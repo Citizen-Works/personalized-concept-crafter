@@ -27,6 +27,7 @@ const RecordingDialog: React.FC<RecordingDialogProps> = ({
 }) => {
   const [recordingTitle, setRecordingTitle] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isRetrying, setIsRetrying] = useState(false);
   
   const {
     isRecording,
@@ -59,6 +60,7 @@ const RecordingDialog: React.FC<RecordingDialogProps> = ({
       resetRecording();
       setRecordingTitle("");
       setIsSubmitting(false);
+      setIsRetrying(false);
     }
   }, [isOpen, resetRecording]);
 
@@ -68,6 +70,7 @@ const RecordingDialog: React.FC<RecordingDialogProps> = ({
       resetRecording();
       setRecordingTitle("");
       setIsSubmitting(false);
+      setIsRetrying(false);
     }
   }, [isOpen, resetRecording]);
 
@@ -96,6 +99,19 @@ const RecordingDialog: React.FC<RecordingDialogProps> = ({
     resetRecording();
     setRecordingTitle("");
     onOpenChange(false);
+  };
+  
+  const handleRetry = () => {
+    setIsRetrying(true);
+    resetRecording();
+    // Add a small delay before starting again
+    setTimeout(() => {
+      startRecording().then(() => {
+        setIsRetrying(false);
+      }).catch(() => {
+        setIsRetrying(false);
+      });
+    }, 500);
   };
 
   return (
@@ -140,11 +156,11 @@ const RecordingDialog: React.FC<RecordingDialogProps> = ({
           {hasError && !isRecording && !isTranscribing && !transcribedText && (
             <div className="flex flex-col items-center py-4">
               <p className="text-destructive mb-4">Recording failed. Please check your microphone and try again.</p>
-              <Button onClick={() => {
-                resetRecording();
-                setTimeout(() => startRecording(), 500);
-              }}>
-                Try Again
+              <Button 
+                onClick={handleRetry}
+                disabled={isRetrying}
+              >
+                {isRetrying ? "Starting..." : "Try Again"}
               </Button>
             </div>
           )}
