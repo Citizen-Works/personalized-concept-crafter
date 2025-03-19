@@ -1,25 +1,8 @@
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
-
-const CLAUDE_API_KEY = Deno.env.get('CLAUDE_API_KEY');
-const CLAUDE_API_URL = "https://api.anthropic.com/v1/messages";
-
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-};
-
-// Function to sanitize input to prevent JSON parsing issues
-function sanitizeInput(text: string): string {
-  if (!text) return "";
-  
-  // Replace HTML-like content and problematic characters
-  return text
-    .replace(/<[^>]*>/g, "") // Remove HTML tags
-    .replace(/[^\x20-\x7E\x0A\x0D\x09]/g, "") // Keep only printable ASCII, newlines, returns, and tabs
-    .trim();
-}
+import { corsHeaders, validateConfig } from "./config.ts";
+import { processContentRequest, handleError } from "./handler.ts";
 
 serve(async (req) => {
   console.log("Function generate-with-claude received a request");
@@ -33,10 +16,8 @@ serve(async (req) => {
   }
 
   try {
-    if (!CLAUDE_API_KEY) {
-      console.error("CLAUDE_API_KEY is not set");
-      throw new Error('CLAUDE_API_KEY is not set');
-    }
+    // Validate that required environment variables are set
+    validateConfig();
 
     // Parse request body
     let requestData;
@@ -54,177 +35,15 @@ serve(async (req) => {
       );
     }
 
-    const { prompt, contentType, idea, task } = requestData;
-
-    if (!prompt) {
-      console.error("Missing required field: prompt");
-      return new Response(
-        JSON.stringify({ error: "Missing required field: prompt is required" }),
-        { 
-          status: 400, 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-        }
-      );
-    }
-
-    // Sanitize the prompt to prevent JSON parsing issues
-    const sanitizedPrompt = sanitizeInput(prompt);
+    // Process the request and generate content
+    const result = await processContentRequest(requestData);
     
-    let logMessage = 'Generating content with Claude';
-    
-    // Log different message based on task type
-    if (task === 'writing_style_preview') {
-      logMessage = `Generating ${contentType || 'writing style'} preview with Claude`;
-    } else if (task === 'transcript_analysis') {
-      logMessage = `Analyzing transcript for content ideas: ${idea?.title || 'Untitled'}`;
-    } else if (contentType && idea) {
-      logMessage = `Generating ${contentType} content with Claude for idea: ${idea?.title || 'Untitled'}`;
-    }
-    
-    console.log(logMessage);
-    
-    // Choose the appropriate Claude model based on content complexity
-    const model = "claude-3-sonnet-20240229"; // Using Sonnet for high quality content generation
-    
-    // Set system prompt based on content type
-    let systemPrompt = 'You are a helpful assistant that generates content based on user prompts.';
-    
-    if (contentType === 'structured_content_ideas') {
-      systemPrompt = 'You are an expert content strategist who analyzes information and extracts valuable content ideas. Format all responses as valid, parseable JSON.';
-    }
-    
-    console.log("Making request to Claude API");
-    
-    // Make request to Claude API
-    const response = await fetch(CLAUDE_API_URL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': CLAUDE_API_KEY,
-        'anthropic-version': '2023-06-01'
-      },
-      body: JSON.stringify({
-        model: model,
-        max_tokens: 4000,
-        temperature: 0.7, // Slightly more creative but still focused
-        system: systemPrompt,
-        messages: [
-          {
-            role: "user",
-            content: sanitizedPrompt
-          }
-        ]
-      })
-    });
-
-    // Check for successful response from Claude API
-    if (!response.ok) {
-      console.error(`Claude API error: ${response.status} ${response.statusText}`);
-      let errorMessage = "Claude API error";
-      try {
-        const errorData = await response.json();
-        console.error('Claude API error details:', errorData);
-        errorMessage = errorData.error?.message || errorMessage;
-      } catch (jsonError) {
-        try {
-          errorMessage = `${errorMessage}: ${response.status} ${response.statusText}`;
-          console.error('Failed to parse error JSON, raw response:', await response.text());
-        } catch (textError) {
-          console.error('Failed to read error response text');
-        }
-      }
-      
-      return new Response(
-        JSON.stringify({ error: errorMessage }),
-        { 
-          status: 500, 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-        }
-      );
-    }
-
-    // Parse Claude API response
-    try {
-      const data = await response.json();
-      console.log("Successfully received and parsed Claude API response");
-      
-      let generatedContent = data.content && data.content[0]?.text;
-
-      if (!generatedContent) {
-        console.error('No content generated by Claude');
-        throw new Error('No content generated by Claude');
-      }
-      
-      // For structured content, ensure we have valid JSON
-      if (contentType === 'structured_content_ideas') {
-        // Try to parse the response as JSON to validate it
-        try {
-          // Remove any markdown code block formatting if present
-          generatedContent = generatedContent.replace(/```json\s+/g, '').replace(/```\s*$/g, '');
-          
-          // Parse and stringify to ensure it's valid JSON
-          const parsedJson = JSON.parse(generatedContent);
-          // Re-stringify to ensure clean JSON formatting
-          generatedContent = JSON.stringify(parsedJson);
-          
-          console.log("Successfully validated and reformatted JSON content");
-        } catch (jsonError) {
-          console.error('Failed to parse structured content as JSON:', jsonError);
-          console.error('Raw content:', generatedContent.substring(0, 500));
-          
-          // Return error with details
-          return new Response(
-            JSON.stringify({ 
-              error: 'Failed to parse structured content as JSON', 
-              details: jsonError.message,
-              rawContent: generatedContent.substring(0, 1000) // Include part of the content for debugging
-            }),
-            { 
-              status: 500, 
-              headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-            }
-          );
-        }
-      }
-
-      console.log("Returning successful response with generated content");
-      
-      // Return successful response with the generated content
-      return new Response(
-        JSON.stringify({ content: generatedContent }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    } catch (jsonError) {
-      console.error('Failed to parse Claude API response as JSON:', jsonError);
-      try {
-        const responseText = await response.text();
-        console.error('Raw Claude API response:', responseText.substring(0, 500));
-        return new Response(
-          JSON.stringify({ error: 'Failed to parse Claude API response', details: responseText.substring(0, 200) }),
-          { 
-            status: 500, 
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-          }
-        );
-      } catch (textError) {
-        console.error('Failed to read Claude API response text:', textError);
-        return new Response(
-          JSON.stringify({ error: 'Failed to read Claude API response' }),
-          { 
-            status: 500, 
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-          }
-        );
-      }
-    }
-  } catch (error) {
-    console.error('Unhandled error in generate-with-claude function:', error);
+    // Return successful response
     return new Response(
-      JSON.stringify({ error: error.message || 'Unknown error' }),
-      { 
-        status: 500, 
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-      }
+      JSON.stringify(result),
+      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
+  } catch (error) {
+    return handleError(error);
   }
 });
