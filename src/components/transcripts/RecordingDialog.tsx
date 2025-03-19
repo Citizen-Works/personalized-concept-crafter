@@ -34,19 +34,25 @@ const RecordingDialog: React.FC<RecordingDialogProps> = ({
   const [isPaused, setIsPaused] = useState(false);
   const [recordingTime, setRecordingTime] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  // Change the type from number to NodeJS.Timeout | null to fix the TypeScript error
+  const [interval, setInterval] = useState<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
-    let interval: number | undefined;
-    
     if (isRecording && !isPaused) {
-      interval = setInterval(() => {
+      const timer = setInterval(() => {
         setRecordingTime(prev => prev + 1);
       }, 1000);
+      
+      // Store the interval ID with the correct type
+      setInterval(timer);
+      
+      return () => {
+        if (timer) clearInterval(timer);
+      };
+    } else if (interval) {
+      clearInterval(interval);
+      setInterval(null);
     }
-
-    return () => {
-      if (interval) clearInterval(interval);
-    };
   }, [isRecording, isPaused]);
 
   const formatTime = (seconds: number) => {
