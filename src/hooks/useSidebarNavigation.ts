@@ -26,25 +26,36 @@ export function useSidebarNavigation() {
         return pathData.fullPath === path;
       }
       
-      // Special handling for pipeline routes with query parameters
-      if (path.startsWith('/pipeline?tab=')) {
-        // Quick path for performance: if not on pipeline page, return false
-        if (!pathData.pathname.startsWith('/pipeline')) {
+      // For paths with query parameters like /pipeline?tab=review
+      if (path.includes('?')) {
+        const [basePath, queryString] = path.split('?');
+        
+        // If not on the base path, return false immediately (performance optimization)
+        if (!pathData.pathname.startsWith(basePath)) {
           return false;
         }
         
-        const pathTabParam = new URLSearchParams(path.split('?')[1]).get('tab');
-        const currentTabParam = pathData.params.get('tab');
+        // Parse the query parameters from the path
+        const pathParams = new URLSearchParams(queryString);
         
-        return pathTabParam === currentTabParam;
-      }
-      
-      // For pipeline without query params
-      if (path === '/pipeline' && pathData.pathname.startsWith('/pipeline')) {
+        // Check if the specific tab parameter matches
+        // This is important for pipeline tabs like review, ideas, etc.
+        for (const [key, value] of pathParams.entries()) {
+          const currentValue = pathData.params.get(key);
+          if (currentValue !== value) {
+            return false;
+          }
+        }
+        
         return true;
       }
       
-      // Default path-based matching
+      // For pipeline without query params
+      if (path === '/pipeline' && pathData.pathname === '/pipeline') {
+        return true;
+      }
+      
+      // Default path-based matching for regular routes
       return pathData.pathname.startsWith(path);
     },
     [pathData]

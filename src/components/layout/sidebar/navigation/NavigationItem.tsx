@@ -31,6 +31,7 @@ export const NavigationItem: React.FC<NavigationItemProps> = memo(({
       <SidebarMenuButton
         asChild
         className={buttonClassName}
+        isActive={active} // Pass the active state directly to SidebarMenuButton
       >
         <Link to={item.href}>
           <item.icon className="h-4 w-4" />
