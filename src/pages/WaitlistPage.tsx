@@ -28,7 +28,7 @@ const WaitlistPage = () => {
       // Store email in Supabase
       const { error } = await supabase
         .from('waitlist')
-        .insert([{ email }]);
+        .insert({ email });
       
       if (error) throw error;
       
