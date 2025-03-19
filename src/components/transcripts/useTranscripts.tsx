@@ -3,6 +3,19 @@ import { useDocuments } from '@/hooks/useDocuments';
 import { toast } from 'sonner';
 import { DocumentType } from '@/types';
 
+// Interface for idea items returned from the API
+interface IdeaItem {
+  id: string;
+  title: string;
+  description: string;
+}
+
+// Interface for the structured ideas response
+interface IdeasResponse {
+  message: string;
+  ideas: IdeaItem[];
+}
+
 export const useTranscripts = () => {
   // Use the correct document type for the query
   const { documents, isLoading, processTranscript, uploadDocument } = useDocuments({ 
@@ -14,7 +27,7 @@ export const useTranscripts = () => {
   const [transcriptContent, setTranscriptContent] = useState<string>("");
   const [isViewOpen, setIsViewOpen] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
-  const [ideas, setIdeas] = useState<string | null>(null);
+  const [ideas, setIdeas] = useState<IdeasResponse | string | null>(null);
   const [isIdeasDialogOpen, setIsIdeasDialogOpen] = useState(false);
   
   const [isUploadDialogOpen, setIsUploadDialogOpen] = useState(false);

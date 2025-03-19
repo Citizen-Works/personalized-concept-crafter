@@ -28,7 +28,14 @@ interface ContentIdea {
 export const processTranscriptForIdeas = async (
   userId: string, 
   documentId: string
-): Promise<string> => {
+): Promise<{
+  message: string;
+  ideas: Array<{
+    id: string;
+    title: string;
+    description: string;
+  }>;
+}> => {
   if (!userId) throw new Error("User not authenticated");
 
   const { data: document, error: docError } = await supabase
@@ -132,12 +139,18 @@ export const processTranscriptForIdeas = async (
     } catch (parseError) {
       console.error("Failed to parse content ideas:", parseError);
       console.error("Raw content:", data.content);
-      return `Failed to parse ideas from AI response. Raw response: ${data.content.substring(0, 500)}...`;
+      return {
+        message: `Failed to parse ideas from AI response. Raw response: ${data.content.substring(0, 500)}...`,
+        ideas: []
+      };
     }
 
     // If no ideas were generated, return a message
     if (contentIdeas.length === 0) {
-      return "No valuable content ideas were identified in this transcript.";
+      return {
+        message: "No valuable content ideas were identified in this transcript.",
+        ideas: []
+      };
     }
 
     // Save each idea to the database
@@ -175,14 +188,15 @@ export const processTranscriptForIdeas = async (
       }
     }));
 
-    // Build a summary of the ideas that were created
-    const ideasSummary = `${savedIdeas.length} content ideas were created from this transcript:
-    
-${savedIdeas.map(idea => `- ${idea.title}`).join('\n')}
-
-The ideas have been saved to your content ideas library. You can view and edit them in the Ideas section.`;
-
-    return ideasSummary;
+    // Return both a summary message and the structured idea data
+    return {
+      message: `${savedIdeas.length} content ideas were created from this transcript.`,
+      ideas: savedIdeas.map(idea => ({
+        id: idea.id,
+        title: idea.title,
+        description: idea.description
+      }))
+    };
   } catch (error) {
     console.error("Error processing transcript:", error);
     toast.error("Failed to process transcript for ideas");
