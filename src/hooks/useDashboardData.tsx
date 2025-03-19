@@ -15,7 +15,7 @@ export function useDashboardData() {
   // Calculate status counts
   const needsReviewCount = ideas.filter(idea => idea.status === 'unreviewed').length;
   const inProgressCount = ideas.filter(idea => idea.status === 'approved' || idea.status === 'drafted').length;
-  const readyToPublishCount = ideas.filter(idea => idea.status === 'ready_to_publish').length;
+  const readyToPublishCount = ideas.filter(idea => idea.status === 'ready').length;
   const publishedCount = ideas.filter(idea => idea.status === 'published').length;
   
   // Calculate weekly stats
