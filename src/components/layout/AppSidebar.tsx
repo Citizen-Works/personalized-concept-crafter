@@ -2,7 +2,6 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
-import { useMediaQuery } from '@/hooks/useMediaQuery';
 import { 
   Sidebar, SidebarContent, SidebarFooter, SidebarHeader, 
   SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarMenuSub, SidebarMenuSubItem, SidebarMenuSubButton
@@ -19,11 +18,12 @@ import {
   BookText, FileImage, Mail 
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 const AppSidebar = () => {
   const { user, logout } = useAuth();
   const { pathname } = useLocation();
-  const isMobile = useMediaQuery('(max-width: 768px)');
+  const isMobile = useIsMobile();
 
   const handleLogout = async () => {
     try {

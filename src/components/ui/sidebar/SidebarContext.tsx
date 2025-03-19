@@ -1,3 +1,4 @@
+
 import * as React from "react"
 import { TooltipProvider } from "@/components/ui/tooltip"
 import { useIsMobile } from "@/hooks/use-mobile"
@@ -76,10 +77,12 @@ const SidebarProvider = React.forwardRef<
 
     // Helper to toggle the sidebar.
     const toggleSidebar = React.useCallback(() => {
-      return isMobile
-        ? setOpenMobile((open) => !open)
-        : setOpen((open) => !open)
-    }, [isMobile, setOpen, setOpenMobile])
+      if (isMobile) {
+        setOpenMobile((open) => !open)
+      } else {
+        setOpen((open) => !open)
+      }
+    }, [isMobile, setOpen])
 
     // Adds a keyboard shortcut to toggle the sidebar.
     React.useEffect(() => {

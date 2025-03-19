@@ -40,16 +40,18 @@ export const Sidebar = React.forwardRef<
       )
     }
 
+    // Enhanced mobile rendering - using Sheet for a slide-out nav
     if (isMobile) {
       return (
-        <Sheet open={openMobile} onOpenChange={setOpenMobile} {...props}>
+        <Sheet open={openMobile} onOpenChange={setOpenMobile}>
           <SheetContent
             data-sidebar="sidebar"
             data-mobile="true"
             className="w-[--sidebar-width] bg-sidebar p-0 text-sidebar-foreground [&>button]:hidden"
             style={
               {
-                "--sidebar-width": "18rem",
+                "--sidebar-width": "85vw", // Use viewport width for better mobile experience
+                "maxWidth": "320px"
               } as React.CSSProperties
             }
             side={side}
