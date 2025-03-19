@@ -20,6 +20,7 @@ export const useTranscripts = () => {
   // Dialog state management
   const [isUploadDialogOpen, setIsUploadDialogOpen] = useState(false);
   const [isAddTextDialogOpen, setIsAddTextDialogOpen] = useState(false);
+  const [isRecordingDialogOpen, setIsRecordingDialogOpen] = useState(false);
 
   /**
    * Opens the transcript viewer dialog with the specified content
@@ -96,6 +97,50 @@ export const useTranscripts = () => {
     }
   };
 
+  /**
+   * Handles adding a recording transcript
+   */
+  const handleAddRecording = async (text: string, title: string) => {
+    return handleAddText(text, title);
+  };
+  
+  /**
+   * Exports transcripts to a downloadable file
+   */
+  const handleExportTranscripts = () => {
+    if (!documents || documents.length === 0) {
+      toast.error("No transcripts available to export");
+      return;
+    }
+    
+    try {
+      // Create a formatted text with all transcripts
+      const formattedData = documents.map(doc => {
+        return `# ${doc.title}\nDate: ${doc.createdAt.toLocaleString()}\n\n${doc.content}\n\n---\n\n`;
+      }).join('');
+      
+      // Create a blob and download link
+      const blob = new Blob([formattedData], { type: 'text/plain' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      
+      // Set up download attributes
+      link.href = url;
+      link.download = `transcripts-export-${new Date().toISOString().split('T')[0]}.txt`;
+      
+      // Add to DOM, trigger download, and clean up
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+      
+      toast.success("Transcripts exported successfully");
+    } catch (error) {
+      console.error("Error exporting transcripts:", error);
+      toast.error("Failed to export transcripts");
+    }
+  };
+
   return {
     // Data
     documents,
@@ -110,17 +155,21 @@ export const useTranscripts = () => {
     isIdeasDialogOpen,
     isUploadDialogOpen,
     isAddTextDialogOpen,
+    isRecordingDialogOpen,
     
     // Dialog actions
     setIsViewOpen,
     setIsIdeasDialogOpen,
     setIsUploadDialogOpen,
     setIsAddTextDialogOpen,
+    setIsRecordingDialogOpen,
     
     // Handler methods
     handleViewTranscript,
     handleProcessTranscript,
     handleUploadDocument,
-    handleAddText
+    handleAddText,
+    handleAddRecording,
+    handleExportTranscripts
   };
 };

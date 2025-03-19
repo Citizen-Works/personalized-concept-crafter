@@ -1,16 +1,22 @@
 
 import React from 'react';
 import { Button } from "@/components/ui/button";
-import { Upload, PlusCircle, FileText } from "lucide-react";
+import { Upload, PlusCircle, FileText, Download, Mic } from "lucide-react";
 
 interface TranscriptActionsProps {
   onOpenUpload: () => void;
   onOpenAddText: () => void;
+  onOpenRecording: () => void;
+  onExport: () => void;
+  hasTranscripts: boolean;
 }
 
 const TranscriptActions: React.FC<TranscriptActionsProps> = ({ 
   onOpenUpload, 
-  onOpenAddText 
+  onOpenAddText,
+  onOpenRecording,
+  onExport,
+  hasTranscripts
 }) => {
   return (
     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
@@ -18,7 +24,7 @@ const TranscriptActions: React.FC<TranscriptActionsProps> = ({
         <FileText className="h-6 w-6 text-primary" />
         <h1 className="text-2xl sm:text-3xl font-bold">Meeting Transcripts</h1>
       </div>
-      <div className="flex gap-2 w-full sm:w-auto">
+      <div className="flex flex-wrap gap-2 w-full sm:w-auto">
         <Button 
           onClick={onOpenAddText} 
           variant="outline" 
@@ -29,6 +35,15 @@ const TranscriptActions: React.FC<TranscriptActionsProps> = ({
           Add Text
         </Button>
         <Button 
+          onClick={onOpenRecording}
+          variant="outline"
+          className="flex-1 sm:flex-initial"
+          aria-label="Record audio"
+        >
+          <Mic className="h-4 w-4 mr-2" />
+          Record
+        </Button>
+        <Button 
           onClick={onOpenUpload} 
           className="flex-1 sm:flex-initial"
           aria-label="Upload transcript document"
@@ -36,6 +51,17 @@ const TranscriptActions: React.FC<TranscriptActionsProps> = ({
           <Upload className="h-4 w-4 mr-2" />
           Upload
         </Button>
+        {hasTranscripts && (
+          <Button
+            onClick={onExport}
+            variant="secondary"
+            className="flex-1 sm:flex-initial"
+            aria-label="Export transcripts"
+          >
+            <Download className="h-4 w-4 mr-2" />
+            Export
+          </Button>
+        )}
       </div>
     </div>
   );

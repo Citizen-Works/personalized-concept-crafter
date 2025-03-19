@@ -8,6 +8,7 @@ import TranscriptViewDialog from '@/components/transcripts/TranscriptViewDialog'
 import IdeasDialog from '@/components/transcripts/IdeasDialog';
 import UploadDialog from '@/components/transcripts/UploadDialog';
 import AddTextDialog from '@/components/transcripts/AddTextDialog';
+import RecordingDialog from '@/components/transcripts/RecordingDialog';
 import { useTranscripts } from '@/components/transcripts/useTranscripts';
 
 const TranscriptsPage = () => {
@@ -22,35 +23,47 @@ const TranscriptsPage = () => {
     isIdeasDialogOpen,
     isUploadDialogOpen,
     isAddTextDialogOpen,
+    isRecordingDialogOpen,
     setIsViewOpen,
     setIsIdeasDialogOpen,
     setIsUploadDialogOpen,
     setIsAddTextDialogOpen,
+    setIsRecordingDialogOpen,
     handleViewTranscript,
     handleProcessTranscript,
     handleUploadDocument,
-    handleAddText
+    handleAddText,
+    handleAddRecording,
+    handleExportTranscripts
   } = useTranscripts();
 
   // Handle custom events for empty state buttons
   useEffect(() => {
     const handleOpenUploadDialog = () => setIsUploadDialogOpen(true);
     const handleOpenAddTextDialog = () => setIsAddTextDialogOpen(true);
+    const handleOpenRecordingDialog = () => setIsRecordingDialogOpen(true);
     
     window.addEventListener('open-upload-dialog', handleOpenUploadDialog);
     window.addEventListener('open-add-text-dialog', handleOpenAddTextDialog);
+    window.addEventListener('open-recording-dialog', handleOpenRecordingDialog);
     
     return () => {
       window.removeEventListener('open-upload-dialog', handleOpenUploadDialog);
       window.removeEventListener('open-add-text-dialog', handleOpenAddTextDialog);
+      window.removeEventListener('open-recording-dialog', handleOpenRecordingDialog);
     };
-  }, [setIsUploadDialogOpen, setIsAddTextDialogOpen]);
+  }, [setIsUploadDialogOpen, setIsAddTextDialogOpen, setIsRecordingDialogOpen]);
+
+  const hasTranscripts = documents && documents.length > 0;
 
   const pageContent = (
     <div className="container mx-auto py-6">
       <TranscriptActions 
         onOpenUpload={() => setIsUploadDialogOpen(true)}
         onOpenAddText={() => setIsAddTextDialogOpen(true)}
+        onOpenRecording={() => setIsRecordingDialogOpen(true)}
+        onExport={handleExportTranscripts}
+        hasTranscripts={hasTranscripts}
       />
 
       <TranscriptList 
@@ -84,6 +97,12 @@ const TranscriptsPage = () => {
         isOpen={isAddTextDialogOpen}
         onOpenChange={setIsAddTextDialogOpen}
         onAddText={handleAddText}
+      />
+      
+      <RecordingDialog
+        isOpen={isRecordingDialogOpen}
+        onOpenChange={setIsRecordingDialogOpen}
+        onSaveRecording={handleAddRecording}
       />
     </div>
   );

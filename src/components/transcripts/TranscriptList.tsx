@@ -2,7 +2,7 @@
 import React from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { FileText, Calendar, AlignLeft, BrainCircuit, PlusCircle, Upload } from "lucide-react";
+import { FileText, Calendar, AlignLeft, BrainCircuit, PlusCircle, Upload, Mic } from "lucide-react";
 import { format } from "date-fns";
 import { Document } from "@/types";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -91,15 +91,22 @@ const TranscriptEmptyState: React.FC = () => (
       <FileText className="h-16 w-16 text-muted-foreground mb-4" />
       <h3 className="text-xl font-semibold text-center">No Documents Yet</h3>
       <p className="text-muted-foreground text-center mt-2 max-w-md">
-        Upload transcripts or add text to extract content ideas.
+        Upload transcripts, add text, or record your voice to extract content ideas.
       </p>
-      <div className="flex gap-2 mt-4">
+      <div className="flex flex-wrap gap-2 mt-4 justify-center">
         <Button 
           variant="outline" 
           onClick={() => window.dispatchEvent(new CustomEvent('open-add-text-dialog'))}
         >
           <PlusCircle className="h-4 w-4 mr-2" />
           Add Text
+        </Button>
+        <Button 
+          variant="outline"
+          onClick={() => window.dispatchEvent(new CustomEvent('open-recording-dialog'))}
+        >
+          <Mic className="h-4 w-4 mr-2" />
+          Record Voice
         </Button>
         <Button 
           onClick={() => window.dispatchEvent(new CustomEvent('open-upload-dialog'))}
