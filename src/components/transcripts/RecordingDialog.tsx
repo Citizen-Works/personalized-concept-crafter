@@ -13,6 +13,8 @@ import { useAudioRecorder } from '@/hooks/useAudioRecorder';
 import RecordingControls from './recording/RecordingControls';
 import TranscriptionResult from './recording/TranscriptionResult';
 import { toast } from 'sonner';
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { AlertCircle } from "lucide-react";
 
 interface RecordingDialogProps {
   isOpen: boolean;
@@ -28,6 +30,7 @@ const RecordingDialog: React.FC<RecordingDialogProps> = ({
   const [recordingTitle, setRecordingTitle] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isRetrying, setIsRetrying] = useState(false);
+  const [permissionError, setPermissionError] = useState(false);
   
   const {
     isRecording,
@@ -66,6 +69,7 @@ const RecordingDialog: React.FC<RecordingDialogProps> = ({
       setRecordingTitle("");
       setIsSubmitting(false);
       setIsRetrying(false);
+      setPermissionError(false);
     }
   }, [isOpen, resetRecording]);
 
@@ -76,6 +80,7 @@ const RecordingDialog: React.FC<RecordingDialogProps> = ({
       setRecordingTitle("");
       setIsSubmitting(false);
       setIsRetrying(false);
+      setPermissionError(false);
     }
   }, [isOpen, resetRecording]);
 
@@ -109,14 +114,32 @@ const RecordingDialog: React.FC<RecordingDialogProps> = ({
   const handleRetry = () => {
     setIsRetrying(true);
     resetRecording();
+    setPermissionError(false);
+    
     // Add a small delay before starting again
     setTimeout(() => {
-      startRecording().then(() => {
-        setIsRetrying(false);
-      }).catch(() => {
-        setIsRetrying(false);
-      });
+      startRecording()
+        .then(() => {
+          setIsRetrying(false);
+        })
+        .catch((error) => {
+          setIsRetrying(false);
+          if (error.name === 'NotAllowedError' || error.name === 'PermissionDeniedError') {
+            setPermissionError(true);
+          }
+        });
     }, 500);
+  };
+
+  const handleStartRecording = async () => {
+    try {
+      await startRecording();
+    } catch (error) {
+      console.error("Error starting recording:", error);
+      if (error.name === 'NotAllowedError' || error.name === 'PermissionDeniedError') {
+        setPermissionError(true);
+      }
+    }
   };
 
   return (
@@ -141,6 +164,15 @@ const RecordingDialog: React.FC<RecordingDialogProps> = ({
         </DialogHeader>
         
         <div className="space-y-4 py-4">
+          {permissionError && (
+            <Alert variant="destructive">
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>
+                Microphone access denied. Please allow microphone access in your browser settings and try again.
+              </AlertDescription>
+            </Alert>
+          )}
+          
           {/* Recording Controls */}
           {!transcribedText && !hasError && (
             <RecordingControls
@@ -149,7 +181,7 @@ const RecordingDialog: React.FC<RecordingDialogProps> = ({
               isTranscribing={isTranscribing}
               recordingTime={recordingTime}
               formatTime={formatTime}
-              onStartRecording={startRecording}
+              onStartRecording={handleStartRecording}
               onPauseRecording={pauseRecording}
               onStopRecording={stopRecording}
               processingProgress={processingProgress}
@@ -158,9 +190,13 @@ const RecordingDialog: React.FC<RecordingDialogProps> = ({
           )}
           
           {/* Show a retry button if there was an error */}
-          {hasError && !isRecording && !isTranscribing && !transcribedText && (
+          {(hasError || permissionError) && !isRecording && !isTranscribing && !transcribedText && (
             <div className="flex flex-col items-center py-4">
-              <p className="text-destructive mb-4">Recording failed. Please check your microphone and try again.</p>
+              <p className="text-destructive mb-4">
+                {permissionError 
+                  ? "Microphone access denied. Please check your browser settings."
+                  : "Recording failed. Please check your microphone and try again."}
+              </p>
               <Button 
                 onClick={handleRetry}
                 disabled={isRetrying}

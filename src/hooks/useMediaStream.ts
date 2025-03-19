@@ -51,6 +51,7 @@ export function useMediaStream(): UseMediaStreamReturn {
       }
       
       console.log("Audio track obtained:", audioTracks[0].label);
+      console.log("Audio track settings:", audioTracks[0].getSettings());
       
       streamRef.current = audioStream;
       setStream(audioStream);
@@ -67,7 +68,10 @@ export function useMediaStream(): UseMediaStreamReturn {
   const stopMediaStream = useCallback(() => {
     if (streamRef.current) {
       console.log("Stopping media stream");
-      streamRef.current.getTracks().forEach(track => track.stop());
+      streamRef.current.getTracks().forEach(track => {
+        console.log(`Stopping track: ${track.label}`);
+        track.stop();
+      });
       streamRef.current = null;
       setStream(null);
     }

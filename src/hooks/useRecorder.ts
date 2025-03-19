@@ -35,10 +35,6 @@ export function useRecorder() {
       resetTimer();
       setRecorderInitialized(false);
       
-      // First set recording state to true to update UI immediately
-      setIsRecording(true);
-      setIsPaused(false);
-      
       // Request media stream access
       const mediaStreamData = await requestMediaStream();
       if (!mediaStreamData) {
@@ -47,6 +43,8 @@ export function useRecorder() {
       }
       
       const { stream, mimeType } = mediaStreamData;
+      
+      console.log("Starting recording with stream:", stream);
       
       // Create recorder options with optimal settings for speech
       const recorderOptions: MediaRecorderOptions = {
@@ -57,57 +55,52 @@ export function useRecorder() {
       if (mimeType) {
         recorderOptions.mimeType = mimeType;
       }
-      
+
       // Create and configure the media recorder
       const recorder = new MediaRecorder(stream, recorderOptions);
+      console.log("MediaRecorder created with options:", recorderOptions);
+
+      // Store audio chunks when data is available
+      const chunks: Blob[] = [];
       
-      // This is critical - set up event handlers BEFORE starting recording
-      recorder.ondataavailable = (e) => {
-        console.log("Data available event triggered, data size:", e.data.size);
-        if (e.data && e.data.size > 0) {
-          setAudioChunks(prev => [...prev, e.data]);
+      recorder.ondataavailable = (event) => {
+        console.log("Data available event triggered, data size:", event.data.size);
+        if (event.data && event.data.size > 0) {
+          chunks.push(event.data);
+          setAudioChunks(prevChunks => [...prevChunks, event.data]);
         }
       };
       
       recorder.onstop = () => {
         console.log("Recorder stopped, processing chunks...");
-        setRecorderInitialized(false);
+        console.log("Chunks collected:", chunks.length);
         
-        // Make sure we're working with the latest state by using a function
-        setAudioChunks(currentChunks => {
-          console.log("Chunks available:", currentChunks.length);
-          
-          if (currentChunks.length > 0) {
-            // Use the same mime type as we recorded with
-            const blob = new Blob(currentChunks, { type: mimeType || 'audio/webm' });
-            console.log("Created audio blob:", {
-              size: blob.size,
-              type: blob.type,
-              chunkCount: currentChunks.length
-            });
-            setAudioBlob(blob);
-          } else {
-            console.error("No audio chunks collected during recording");
-            toast.error("No audio recorded. Please try again.");
-            setIsRecording(false);
-          }
-          
-          return currentChunks;
-        });
+        if (chunks.length > 0) {
+          // Create a blob from all chunks
+          const blob = new Blob(chunks, { type: mimeType || 'audio/webm' });
+          console.log("Created audio blob:", {
+            size: blob.size,
+            type: blob.type
+          });
+          setAudioBlob(blob);
+        } else {
+          console.error("No audio chunks collected during recording");
+          toast.error("No audio recorded. Please try again.");
+        }
+        
+        setIsRecording(false);
+        setIsPaused(false);
       };
       
-      // Now it's safe to set state values
+      // Set recorder state before starting
       setMediaRecorder(recorder);
       
-      // Force a data event at the start to ensure we get some data
-      recorder.start(100); // Use a shorter time slice initially
+      // Start the recorder with a shorter timeSlice to collect data more frequently
+      recorder.start(100);
+      console.log("Recorder started");
       
-      // Force a data request after a short delay to ensure some data is collected
-      setTimeout(() => {
-        if (recorder.state === 'recording') {
-          recorder.requestData();
-        }
-      }, 500);
+      // Mark as recording
+      setIsRecording(true);
       
       // Start the timer immediately
       startTimer();
@@ -142,46 +135,42 @@ export function useRecorder() {
 
   const stopRecording = useCallback(() => {
     if (mediaRecorder && (isRecording || isPaused)) {
-      console.log("Stopping recorder...");
+      console.log("Stopping recorder...", mediaRecorder.state);
       
-      // Only proceed if we've successfully initialized the recorder
-      if (!recorderInitialized) {
-        console.log("Recorder not fully initialized, aborting stop");
-        toast.error("Recording not properly initialized. Please try again.");
-        resetRecording();
-        return;
-      }
-      
-      // Force data collection before stopping
+      // Only stop if recorder is not already inactive
       if (mediaRecorder.state !== 'inactive') {
+        // Request data explicitly before stopping
         mediaRecorder.requestData();
         
-        // Give it a moment to collect the data before stopping
+        // Add a small delay to ensure data is collected
         setTimeout(() => {
           if (mediaRecorder.state !== 'inactive') {
             mediaRecorder.stop();
-            processRecordingEnd();
+            console.log("Recorder stopped");
           }
+          
+          // Cleanup after stopping
+          stopMediaStream();
+          stopTimer();
+          setIsRecording(false);
+          setIsPaused(false);
+          
+          toast.success("Recording stopped");
         }, 300);
       } else {
-        processRecordingEnd();
+        // Already stopped, just clean up
+        stopMediaStream();
+        stopTimer();
+        setIsRecording(false);
+        setIsPaused(false);
       }
     }
-  }, [mediaRecorder, isRecording, isPaused, recorderInitialized]);
-  
-  // Helper function to handle common stop recording logic
-  const processRecordingEnd = useCallback(() => {
-    stopMediaStream();
-    stopTimer();
-    setIsRecording(false);
-    setIsPaused(false);
-    toast.success("Recording stopped");
-  }, [stopMediaStream, stopTimer]);
+  }, [mediaRecorder, isRecording, isPaused, stopMediaStream, stopTimer]);
 
   const resetRecording = useCallback(() => {
     if (isRecording || isPaused) {
-      if (mediaRecorder) {
-        mediaRecorder.stream.getTracks().forEach(track => track.stop());
+      if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+        mediaRecorder.stop();
       }
       stopMediaStream();
     }
