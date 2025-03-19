@@ -1,37 +1,34 @@
 
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Lightbulb, FileText } from 'lucide-react';
+import { Lightbulb, FileText, ClipboardList } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { useIsMobile } from '@/hooks/use-mobile';
 
 export const QuickActionsCard = () => {
-  const isMobile = useIsMobile();
-  
   return (
-    <Card className="overflow-hidden transition-all duration-300 hover:shadow-md h-full">
-      <CardHeader>
+    <Card className="overflow-hidden transition-all duration-300 hover:shadow-md">
+      <CardHeader className="pb-3">
         <CardTitle className="text-base sm:text-lg">Quick Actions</CardTitle>
-        <CardDescription>Frequently used features</CardDescription>
+        <CardDescription>Start creating content</CardDescription>
       </CardHeader>
       <CardContent className="grid gap-3">
-        <Button className="w-full text-left flex justify-between items-center" asChild>
-          <Link to="/ideas/new" className="flex items-center gap-2 text-white w-full">
-            <div className="flex items-center gap-2">
-              <Lightbulb className="h-4 w-4 shrink-0" />
-              <span className="line-clamp-1">Create New Content Idea</span>
-            </div>
-            <span className="text-xs opacity-80">→</span>
+        <Button className="w-full justify-start" asChild>
+          <Link to="/ideas/new" className="flex items-center gap-2">
+            <Lightbulb className="h-4 w-4" />
+            <span>New Content Idea</span>
           </Link>
         </Button>
-        <Button variant="outline" className="w-full text-left flex justify-between items-center" asChild>
-          <Link to="/drafts" className="flex items-center gap-2 w-full">
-            <div className="flex items-center gap-2">
-              <FileText className="h-4 w-4 shrink-0" />
-              <span className="line-clamp-1">Manage Drafts</span>
-            </div>
-            <span className="text-xs opacity-80">→</span>
+        <Button variant="outline" className="w-full justify-start" asChild>
+          <Link to="/generate-draft" className="flex items-center gap-2">
+            <FileText className="h-4 w-4" />
+            <span>Generate Draft</span>
+          </Link>
+        </Button>
+        <Button variant="secondary" className="w-full justify-start" asChild>
+          <Link to="/review-queue" className="flex items-center gap-2">
+            <ClipboardList className="h-4 w-4" />
+            <span>Review Queue</span>
           </Link>
         </Button>
       </CardContent>
