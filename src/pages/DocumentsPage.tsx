@@ -38,18 +38,18 @@ const DocumentsPage = () => {
   const noFilteredResults = documents.length > 0 && filteredDocuments.length === 0;
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6 sm:space-y-8">
       <div className="flex flex-col gap-2">
-        <h1 className="text-3xl font-bold tracking-tight">Documents</h1>
-        <p className="text-muted-foreground">
+        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Documents</h1>
+        <p className="text-sm sm:text-base text-muted-foreground">
           Manage your content documents and writing samples
         </p>
       </div>
 
       {!noDocuments && (
         <>
-          <div className="flex flex-col md:flex-row gap-4">
-            <div className="relative flex-1">
+          <div className="flex flex-col gap-4">
+            <div className="relative w-full">
               <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
               <Input
                 placeholder="Search documents..."
@@ -59,9 +59,9 @@ const DocumentsPage = () => {
               />
             </div>
             
-            <div className="flex gap-2 flex-wrap md:flex-nowrap">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
               <Select value={purposeFilter} onValueChange={setPurposeFilter}>
-                <SelectTrigger className="w-[160px]">
+                <SelectTrigger>
                   <Filter className="mr-2 h-4 w-4" />
                   <SelectValue placeholder="Purpose" />
                 </SelectTrigger>
@@ -73,7 +73,7 @@ const DocumentsPage = () => {
               </Select>
               
               <Select value={typeFilter} onValueChange={setTypeFilter}>
-                <SelectTrigger className="w-[160px]">
+                <SelectTrigger>
                   <SelectValue placeholder="Document Type" />
                 </SelectTrigger>
                 <SelectContent>
@@ -87,7 +87,7 @@ const DocumentsPage = () => {
               </Select>
               
               <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger className="w-[160px]">
+                <SelectTrigger>
                   <SelectValue placeholder="Status" />
                 </SelectTrigger>
                 <SelectContent>
@@ -99,12 +99,12 @@ const DocumentsPage = () => {
             </div>
           </div>
           
-          <div className="flex justify-end gap-2">
-            <Button variant="outline" className="gap-1" onClick={() => setIsModalOpen(true)}>
+          <div className="flex flex-col sm:flex-row sm:justify-end gap-2">
+            <Button variant="outline" className="gap-1 w-full sm:w-auto" onClick={() => setIsModalOpen(true)}>
               <Upload className="h-4 w-4" />
               Upload Document
             </Button>
-            <Button className="gap-1" onClick={() => setIsModalOpen(true)}>
+            <Button className="gap-1 w-full sm:w-auto" onClick={() => setIsModalOpen(true)}>
               <Plus className="h-4 w-4" />
               Create Document
             </Button>
@@ -119,26 +119,26 @@ const DocumentsPage = () => {
           ))}
         </div>
       ) : noDocuments ? (
-        <div className="flex flex-col items-center justify-center p-12 text-center border rounded-lg bg-muted/10">
-          <FileText className="h-12 w-12 text-muted-foreground mb-4" />
+        <div className="flex flex-col items-center justify-center p-4 sm:p-12 text-center border rounded-lg bg-muted/10">
+          <FileText className="h-8 w-8 sm:h-12 sm:w-12 text-muted-foreground mb-4" />
           <h3 className="text-lg font-medium">No Documents Yet</h3>
           <p className="text-sm text-muted-foreground mt-2 mb-6 max-w-md">
             Upload writing samples, articles, or other documents to help the AI understand your writing style.
           </p>
-          <div className="flex gap-2">
-            <Button variant="outline" className="gap-1" onClick={() => setIsModalOpen(true)}>
+          <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+            <Button variant="outline" className="gap-1 w-full" onClick={() => setIsModalOpen(true)}>
               <Upload className="h-4 w-4" />
               Upload Document
             </Button>
-            <Button className="gap-1" onClick={() => setIsModalOpen(true)}>
+            <Button className="gap-1 w-full" onClick={() => setIsModalOpen(true)}>
               <Plus className="h-4 w-4" />
               Create Document
             </Button>
           </div>
         </div>
       ) : noFilteredResults ? (
-        <div className="flex flex-col items-center justify-center p-12 text-center border rounded-lg bg-muted/10">
-          <Search className="h-12 w-12 text-muted-foreground mb-4" />
+        <div className="flex flex-col items-center justify-center p-4 sm:p-12 text-center border rounded-lg bg-muted/10">
+          <Search className="h-8 w-8 sm:h-12 sm:w-12 text-muted-foreground mb-4" />
           <h3 className="text-lg font-medium">No matching documents</h3>
           <p className="text-sm text-muted-foreground mt-2 mb-6">
             Try adjusting your search or filters to find what you're looking for.
@@ -153,7 +153,7 @@ const DocumentsPage = () => {
           </Button>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {filteredDocuments.map((document) => (
             <DocumentCard key={document.id} document={document} />
           ))}

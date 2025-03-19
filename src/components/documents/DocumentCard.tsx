@@ -22,12 +22,12 @@ const DocumentCard: React.FC<DocumentCardProps> = ({ document }) => {
   };
 
   return (
-    <Card className="overflow-hidden">
+    <Card className="overflow-hidden h-full flex flex-col">
       <CardHeader className="pb-3">
         <div className="flex justify-between items-start">
           <div className="flex-1 mr-4">
-            <CardTitle className="text-lg truncate">{document.title}</CardTitle>
-            <CardDescription className="text-sm mt-1">
+            <CardTitle className="text-base sm:text-lg truncate">{document.title}</CardTitle>
+            <CardDescription className="text-xs sm:text-sm mt-1">
               {formatDistanceToNow(new Date(document.createdAt), { addSuffix: true })}
             </CardDescription>
           </div>
@@ -45,27 +45,27 @@ const DocumentCard: React.FC<DocumentCardProps> = ({ document }) => {
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
-        <div className="flex flex-wrap gap-2 mt-2">
-          <Badge variant="outline">{document.type}</Badge>
-          <Badge variant={document.purpose === "writing_sample" ? "secondary" : "outline"}>
+        <div className="flex flex-wrap gap-1 sm:gap-2 mt-2">
+          <Badge variant="outline" className="text-xs">{document.type}</Badge>
+          <Badge variant={document.purpose === "writing_sample" ? "secondary" : "outline"} className="text-xs">
             {document.purpose === "writing_sample" ? "Writing Sample" : "Business Context"}
           </Badge>
           {document.content_type && (
-            <Badge>{document.content_type}</Badge>
+            <Badge className="text-xs">{document.content_type}</Badge>
           )}
-          <Badge variant={document.status === "active" ? "default" : "destructive"}>
+          <Badge variant={document.status === "active" ? "default" : "destructive"} className="text-xs">
             {document.status === "active" ? "Active" : "Archived"}
           </Badge>
         </div>
       </CardHeader>
-      <CardContent className="pb-0">
-        <p className="text-sm text-muted-foreground line-clamp-3">
+      <CardContent className="pb-0 flex-grow">
+        <p className="text-xs sm:text-sm text-muted-foreground line-clamp-3">
           {document.content || "No content"}
         </p>
       </CardContent>
       <CardFooter className="pt-4 pb-4">
-        <Button variant="outline" size="sm" className="w-full">
-          <FileText className="mr-2 h-4 w-4" />
+        <Button variant="outline" size="sm" className="w-full text-xs sm:text-sm">
+          <FileText className="mr-2 h-3 w-3 sm:h-4 sm:w-4" />
           View Document
         </Button>
       </CardFooter>
