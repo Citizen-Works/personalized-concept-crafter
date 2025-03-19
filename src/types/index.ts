@@ -1,3 +1,4 @@
+
 export interface User {
   id: string;
   email: string;
@@ -111,7 +112,7 @@ export interface ContentIdea {
   title: string;
   description: string;
   notes: string;
-  source: ContentSource;
+  source: ContentSource | null;
   meetingTranscriptExcerpt: string | null;
   sourceUrl: string | null;
   status: ContentStatus;

@@ -1,5 +1,5 @@
 
-import { ContentStatus, ContentType } from '@/types';
+import { ContentStatus, ContentType, ContentSource } from '@/types';
 
 export const getStatusBadgeClasses = (status: ContentStatus): string => {
   switch (status) {
@@ -29,6 +29,21 @@ export const getTypeBadgeClasses = (type: ContentType | null): string => {
   }
 };
 
+export const getSourceBadgeClasses = (source: ContentSource | null): string => {
+  if (!source) return 'bg-gray-50 text-gray-700 border-gray-200';
+  
+  switch (source) {
+    case 'meeting':
+      return 'bg-indigo-50 text-indigo-700 border-indigo-200';
+    case 'transcript':
+      return 'bg-amber-50 text-amber-700 border-amber-200';
+    case 'manual':
+      return 'bg-teal-50 text-teal-700 border-teal-200';
+    case 'other':
+      return 'bg-gray-50 text-gray-700 border-gray-200';
+  }
+};
+
 // Functions to generate the full badge props object
 export const getStatusBadgeProps = (status: ContentStatus) => {
   return {
@@ -43,5 +58,13 @@ export const getContentTypeBadgeProps = (contentType: ContentType | null) => {
     variant: 'outline' as const,
     className: getTypeBadgeClasses(contentType),
     children: contentType ? (contentType.charAt(0).toUpperCase() + contentType.slice(1)) : 'None'
+  };
+};
+
+export const getSourceBadgeProps = (source: ContentSource | null) => {
+  return {
+    variant: 'outline' as const,
+    className: getSourceBadgeClasses(source),
+    children: source ? (source.charAt(0).toUpperCase() + source.slice(1)) : 'None'
   };
 };
