@@ -19,13 +19,22 @@ interface HeroSectionProps {
 
 const HeroSection = ({ scrollToSection, painPointsRef }: HeroSectionProps) => {
   const [currentRoleIndex, setCurrentRoleIndex] = useState(0);
+  const [isAnimating, setIsAnimating] = useState(false);
   const heroRef = useRef<HTMLDivElement>(null);
 
-  // Role animation
+  // Role animation - improved with faster transition
   useEffect(() => {
     const interval = setInterval(() => {
-      setCurrentRoleIndex(prevIndex => (prevIndex + 1) % ROLES.length);
-    }, 2000);
+      setIsAnimating(true);
+      
+      // Wait for exit animation to complete before changing the role
+      setTimeout(() => {
+        setCurrentRoleIndex(prevIndex => (prevIndex + 1) % ROLES.length);
+        setIsAnimating(false);
+      }, 300); // Short delay for flip animation
+      
+    }, 1500); // Faster total cycle time
+    
     return () => clearInterval(interval);
   }, []);
 
@@ -50,6 +59,10 @@ const HeroSection = ({ scrollToSection, painPointsRef }: HeroSectionProps) => {
       <div className="max-w-6xl mx-auto z-10 text-center">
         <h1 className="text-7xl sm:text-8xl md:text-9xl font-bold tracking-tighter mb-6 bg-clip-text text-transparent relative">
           <span className="absolute inset-0 bg-gradient-to-r from-purple-600 via-pink-500 to-orange-400 opacity-90 blur-2xl -z-10 rounded-3xl" />
+          
+          {/* Added "YOUR" text above */}
+          <span className="block text-4xl sm:text-5xl text-gray-400 font-light mb-[-0.5rem] tracking-wide">YOUR</span>
+          
           <span 
             className="bg-clip-text text-transparent bg-blend-screen"
             style={{
@@ -75,12 +88,18 @@ const HeroSection = ({ scrollToSection, painPointsRef }: HeroSectionProps) => {
           </span>
         </h1>
         
-        <div className="mb-8 text-2xl md:text-3xl text-gray-300 max-w-3xl mx-auto overflow-hidden h-12">
-          <div className="animate-fade-in">
-            <span className="font-bold">You are a </span>
-            <span className="font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-purple-500 to-pink-500">
-              {ROLES[currentRoleIndex]}
-            </span>
+        <div className="mb-8 text-2xl md:text-3xl text-gray-300 max-w-3xl mx-auto h-12 overflow-hidden">
+          <div className="relative h-full flex items-center justify-center">
+            <span className="font-bold mr-2">You are a</span>
+            <div className="relative h-12 overflow-hidden inline-flex items-center">
+              <span 
+                className={`font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-purple-500 to-pink-500 absolute transition-all duration-300 ${
+                  isAnimating ? "transform -translate-y-12 opacity-0" : "transform translate-y-0 opacity-100"
+                }`}
+              >
+                {ROLES[currentRoleIndex]}
+              </span>
+            </div>
           </div>
         </div>
         
