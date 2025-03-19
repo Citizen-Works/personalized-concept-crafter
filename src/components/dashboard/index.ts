@@ -1,6 +1,7 @@
 
 export * from './DashboardHeader';
 export * from './StatsCard';
+export * from './StatusCard';
 export * from './RecentIdeasCard';
 export * from './RecentDraftsCard';
 export * from './QuickActionsCard';
