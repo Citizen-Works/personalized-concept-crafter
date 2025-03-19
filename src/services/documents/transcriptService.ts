@@ -46,11 +46,18 @@ export const processTranscriptForIdeas = async (
       ? document.content.replace(/<[^>]*>/g, '') // Remove any HTML-like tags
       : '';
 
+    // Get the Supabase anon key from the window environment
+    const supabaseAnonKey = window.location.hostname.includes('localhost') 
+      ? 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml2YmpvZmpzbWhuYXRteml4cWNvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDIxNjgwNDIsImV4cCI6MjA1Nzc0NDA0Mn0.vW7uUXyXRIRLB6HAm_lKcV-ACx7OWiGObiHgktb9fYs'
+      : 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml2YmpvZmpzbWhuYXRteml4cWNvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDIxNjgwNDIsImV4cCI6MjA1Nzc0NDA0Mn0.vW7uUXyXRIRLB6HAm_lKcV-ACx7OWiGObiHgktb9fYs';
+
+    console.log(`Making request to ${window.location.origin}/api/functions/generate-with-claude`);
+    
     const response = await fetch(`${window.location.origin}/api/functions/generate-with-claude`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY}`
+        'Authorization': `Bearer ${supabaseAnonKey}`
       },
       body: JSON.stringify({
         prompt: `You are an expert content strategist tasked with identifying potential content ideas from meeting transcripts. 
