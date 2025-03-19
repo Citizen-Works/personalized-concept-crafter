@@ -25,6 +25,18 @@ export const transcribeAudio = async (
   onProgress: TranscriptionProgressCallback
 ): Promise<string> => {
   try {
+    // Validate audio data
+    if (!audioBlob || audioBlob.size === 0) {
+      throw new Error("No audio detected. Please check your microphone and try again.");
+    }
+    
+    // Log audio metadata for debugging
+    console.log("Audio metadata:", {
+      type: audioBlob.type,
+      size: audioBlob.size,
+      lastModified: new Date().toISOString()
+    });
+    
     // Update stage to preparing
     onProgress(10, 'preparing');
     
@@ -34,6 +46,11 @@ export const transcribeAudio = async (
       const calculatedProgress = 10 + (progress * 30);
       onProgress(Math.round(calculatedProgress), 'preparing');
     });
+    
+    // Validate base64 data
+    if (!base64Audio || base64Audio.length === 0) {
+      throw new Error("Failed to encode audio. Please try again.");
+    }
     
     // Update stage to uploading
     onProgress(50, 'uploading');
@@ -49,13 +66,20 @@ export const transcribeAudio = async (
     });
     
     if (!response.ok) {
-      throw new Error(`Transcription failed: ${response.statusText}`);
+      const errorData = await response.text();
+      console.error("Transcription API error:", errorData);
+      throw new Error(`Transcription failed: ${response.statusText || 'Error communicating with transcription service'}`);
     }
     
     // Update stage to transcribing
     onProgress(70, 'transcribing');
     
     const result = await response.json();
+    
+    // Check if result contains text
+    if (!result.text || result.text.trim() === '') {
+      throw new Error("No speech detected in the audio. Please speak clearly and try again.");
+    }
     
     // Update stage to complete
     onProgress(100, 'complete');

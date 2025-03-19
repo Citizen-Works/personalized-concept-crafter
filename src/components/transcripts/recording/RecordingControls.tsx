@@ -1,8 +1,9 @@
 
 import React from 'react';
 import { Button } from "@/components/ui/button";
-import { Mic, MicOff, StopCircle, Loader2 } from "lucide-react";
+import { Mic, MicOff, StopCircle, Loader2, AlertCircle } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 interface RecordingControlsProps {
   isRecording: boolean;
@@ -42,6 +43,15 @@ const RecordingControls: React.FC<RecordingControlsProps> = ({
   
   return (
     <div className="flex flex-col items-center justify-center space-y-4">
+      {!isRecording && !isTranscribing && (
+        <Alert variant="default" className="bg-muted/50 border-muted">
+          <AlertCircle className="h-4 w-4 mr-2" />
+          <AlertDescription>
+            Make sure your microphone is working and speak clearly for best results.
+          </AlertDescription>
+        </Alert>
+      )}
+      
       {isRecording && (
         <div className="text-center">
           <div className="text-2xl font-semibold mb-2">{formatTime(recordingTime)}</div>
@@ -86,9 +96,10 @@ const RecordingControls: React.FC<RecordingControlsProps> = ({
             <Button 
               onClick={onStopRecording} 
               variant="default"
+              disabled={recordingTime < 1}
             >
               <StopCircle className="h-4 w-4 mr-2" />
-              Stop
+              {recordingTime < 1 ? "Recording..." : "Stop"}
             </Button>
           </>
         )}

@@ -11,6 +11,7 @@ export function useRecorder() {
   const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
   
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const streamRef = useRef<MediaStream | null>(null);
 
   // Handle recording timer
   useEffect(() => {
@@ -42,10 +43,37 @@ export function useRecorder() {
     return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   }, []);
 
+  // Clean up resources when component unmounts
+  useEffect(() => {
+    return () => {
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach(track => track.stop());
+      }
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+      }
+    };
+  }, []);
+
   const startRecording = useCallback(async () => {
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      const recorder = new MediaRecorder(stream);
+      // Request audio with high quality settings
+      const stream = await navigator.mediaDevices.getUserMedia({ 
+        audio: {
+          echoCancellation: true,
+          noiseSuppression: true,
+          autoGainControl: true,
+          sampleRate: 48000
+        } 
+      });
+      
+      streamRef.current = stream;
+      
+      // Create media recorder with optimal settings for speech
+      const recorder = new MediaRecorder(stream, {
+        mimeType: 'audio/webm;codecs=opus',
+        audioBitsPerSecond: 128000
+      });
       
       setAudioChunks([]);
       setMediaRecorder(recorder);
@@ -54,6 +82,7 @@ export function useRecorder() {
       setRecordingTime(0);
       setAudioBlob(null);
       
+      // Collect data as it becomes available
       recorder.ondataavailable = (e) => {
         if (e.data.size > 0) {
           setAudioChunks(prev => [...prev, e.data]);
@@ -63,15 +92,26 @@ export function useRecorder() {
       recorder.onstop = () => {
         // Create blob from accumulated chunks
         const chunks = audioChunks;
-        const blob = new Blob(chunks, { type: 'audio/webm' });
-        setAudioBlob(blob);
+        if (chunks.length > 0) {
+          const blob = new Blob(chunks, { type: 'audio/webm' });
+          console.log("Created audio blob:", {
+            size: blob.size,
+            type: blob.type,
+            chunkCount: chunks.length
+          });
+          setAudioBlob(blob);
+        } else {
+          console.error("No audio chunks collected during recording");
+          toast.error("No audio recorded. Please try again.");
+        }
       };
       
-      recorder.start(1000);
+      // Start recording with smaller time slices for more accurate data
+      recorder.start(500);
       toast.success("Recording started");
     } catch (error) {
       console.error("Error starting recording:", error);
-      toast.error("Could not access microphone");
+      toast.error("Could not access microphone. Please check permissions and try again.");
     }
   }, [audioChunks]);
 
@@ -94,7 +134,10 @@ export function useRecorder() {
       mediaRecorder.stop();
       
       // Stop all audio tracks
-      mediaRecorder.stream.getTracks().forEach(track => track.stop());
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach(track => track.stop());
+        streamRef.current = null;
+      }
       
       setIsRecording(false);
       setIsPaused(false);
@@ -108,6 +151,10 @@ export function useRecorder() {
     if (isRecording || isPaused) {
       if (mediaRecorder) {
         mediaRecorder.stream.getTracks().forEach(track => track.stop());
+      }
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach(track => track.stop());
+        streamRef.current = null;
       }
     }
     
