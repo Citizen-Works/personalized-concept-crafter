@@ -1,6 +1,7 @@
+
 import React from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { ThemeProvider } from "@/components/theme-provider"
+import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "sonner";
 
 import Index from "@/pages/Index";
@@ -23,7 +24,7 @@ import MarketingExamplesPage from "@/pages/MarketingExamplesPage";
 import NewsletterExamplesPage from "@/pages/NewsletterExamplesPage";
 import NotFound from "@/pages/NotFound";
 import { AuthProvider } from "./context/AuthContext";
-import { ProtectedRoute } from "./components/ProtectedRoute";
+import { ProtectedRoute } from "@/components/ProtectedRoute";
 import TranscriptsPage from "./pages/TranscriptsPage";
 
 function App() {

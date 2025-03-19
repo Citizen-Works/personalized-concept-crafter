@@ -34,9 +34,11 @@ const TranscriptsPage = () => {
     
     try {
       const result = await processTranscript(id);
-      setIdeas(result);
-      setIsIdeasDialogOpen(true);
-      toast.success("Transcript processed successfully");
+      if (result) {
+        setIdeas(result);
+        setIsIdeasDialogOpen(true);
+        toast.success("Transcript processed successfully");
+      }
     } catch (error) {
       console.error("Failed to process transcript:", error);
       toast.error("Failed to process transcript");

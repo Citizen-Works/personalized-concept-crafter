@@ -1,12 +1,23 @@
+
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuItem, SidebarMenuSub, SidebarMenuSubItem } from '@/components/ui/sidebar';
-import { Button } from '@/components/ui/button';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { useAuth } from '@/context/AuthContext';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
-import { Home, FileText, PenSquare, Lightbulb, Settings, LogOut, ChevronDown, Users, Palette, Linkedin, BookText, FileImage, Mail } from 'lucide-react';
+import { 
+  Sidebar, SidebarContent, SidebarFooter, SidebarHeader, 
+  SidebarMenu, SidebarMenuItem, SidebarMenuSub, SidebarMenuSubItem 
+} from '@/components/ui/sidebar';
+import { Button } from '@/components/ui/button';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { 
+  DropdownMenu, DropdownMenuContent, DropdownMenuItem, 
+  DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger 
+} from '@/components/ui/dropdown-menu';
+import { 
+  Home, FileText, PenSquare, Lightbulb, Settings, 
+  LogOut, ChevronDown, Users, Palette, Linkedin, 
+  BookText, FileImage, Mail 
+} from 'lucide-react';
 import { toast } from 'sonner';
 
 const AppSidebar = () => {
@@ -31,7 +42,7 @@ const AppSidebar = () => {
   };
 
   return (
-    <Sidebar defaultCollapsed={isMobile} collapsible={true}>
+    <Sidebar defaultCollapsed={isMobile} collapsible="true">
       <SidebarHeader className="border-b p-4">
         <div className="flex items-center space-x-2">
           <img src="/logo.svg" alt="Logo" className="h-6 w-6" />
@@ -43,26 +54,23 @@ const AppSidebar = () => {
         <SidebarMenu>
           <SidebarMenuItem 
             icon={<Home />} 
-            active={pathname === '/dashboard'} 
-            component={<Link to="/dashboard" />}
+            active={pathname === '/dashboard'}
           >
-            Dashboard
+            <Link to="/dashboard">Dashboard</Link>
           </SidebarMenuItem>
           
           <SidebarMenuItem 
             icon={<Lightbulb />} 
-            active={pathname.includes('/ideas')} 
-            component={<Link to="/ideas" />}
+            active={pathname.includes('/ideas')}
           >
-            Content Ideas
+            <Link to="/ideas">Content Ideas</Link>
           </SidebarMenuItem>
           
           <SidebarMenuItem 
             icon={<PenSquare />} 
-            active={pathname.includes('/drafts')} 
-            component={<Link to="/drafts" />}
+            active={pathname.includes('/drafts')}
           >
-            Content Drafts
+            <Link to="/drafts">Content Drafts</Link>
           </SidebarMenuItem>
           
           <SidebarMenuSub 
@@ -71,16 +79,14 @@ const AppSidebar = () => {
             defaultOpen={pathname.includes('/documents') || pathname.includes('/transcripts')}
           >
             <SidebarMenuSubItem 
-              active={pathname === '/documents'} 
-              component={<Link to="/documents" />}
+              active={pathname === '/documents'}
             >
-              All Documents
+              <Link to="/documents">All Documents</Link>
             </SidebarMenuSubItem>
             <SidebarMenuSubItem 
-              active={pathname === '/transcripts'} 
-              component={<Link to="/transcripts" />}
+              active={pathname === '/transcripts'}
             >
-              Meeting Transcripts
+              <Link to="/transcripts">Meeting Transcripts</Link>
             </SidebarMenuSubItem>
           </SidebarMenuSub>
           
@@ -90,10 +96,9 @@ const AppSidebar = () => {
             defaultOpen={pathname.includes('/linkedin')}
           >
             <SidebarMenuSubItem 
-              active={pathname === '/linkedin-posts'} 
-              component={<Link to="/linkedin-posts" />}
+              active={pathname === '/linkedin-posts'}
             >
-              Posts
+              <Link to="/linkedin-posts">Posts</Link>
             </SidebarMenuSubItem>
           </SidebarMenuSub>
           
@@ -103,22 +108,19 @@ const AppSidebar = () => {
             defaultOpen={pathname.includes('/content-pillars') || pathname.includes('/target-audiences') || pathname.includes('/writing-style')}
           >
             <SidebarMenuSubItem 
-              active={pathname === '/content-pillars'} 
-              component={<Link to="/content-pillars" />}
+              active={pathname === '/content-pillars'}
             >
-              Content Pillars
+              <Link to="/content-pillars">Content Pillars</Link>
             </SidebarMenuSubItem>
             <SidebarMenuSubItem 
-              active={pathname === '/target-audiences'} 
-              component={<Link to="/target-audiences" />}
+              active={pathname === '/target-audiences'}
             >
-              Target Audiences
+              <Link to="/target-audiences">Target Audiences</Link>
             </SidebarMenuSubItem>
             <SidebarMenuSubItem 
-              active={pathname === '/writing-style'} 
-              component={<Link to="/writing-style" />}
+              active={pathname === '/writing-style'}
             >
-              Writing Style
+              <Link to="/writing-style">Writing Style</Link>
             </SidebarMenuSubItem>
           </SidebarMenuSub>
           
@@ -128,25 +130,22 @@ const AppSidebar = () => {
             defaultOpen={pathname.includes('/marketing-examples') || pathname.includes('/newsletter-examples')}
           >
             <SidebarMenuSubItem 
-              active={pathname === '/marketing-examples'} 
-              component={<Link to="/marketing-examples" />}
+              active={pathname === '/marketing-examples'}
             >
-              Marketing
+              <Link to="/marketing-examples">Marketing</Link>
             </SidebarMenuSubItem>
             <SidebarMenuSubItem 
-              active={pathname === '/newsletter-examples'} 
-              component={<Link to="/newsletter-examples" />}
+              active={pathname === '/newsletter-examples'}
             >
-              Newsletter
+              <Link to="/newsletter-examples">Newsletter</Link>
             </SidebarMenuSubItem>
           </SidebarMenuSub>
           
           <SidebarMenuItem 
             icon={<Settings />} 
-            active={pathname.includes('/settings')} 
-            component={<Link to="/settings" />}
+            active={pathname.includes('/settings')}
           >
-            Settings
+            <Link to="/settings">Settings</Link>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarContent>

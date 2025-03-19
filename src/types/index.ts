@@ -42,7 +42,7 @@ export interface Document {
   userId: string;
   title: string;
   content: string;
-  type: 'blog' | 'newsletter' | 'whitepaper' | 'case-study' | 'other';
+  type: 'blog' | 'newsletter' | 'whitepaper' | 'case-study' | 'transcript' | 'other';
   purpose: 'writing_sample' | 'business_context';
   status: 'active' | 'archived';
   content_type: 'linkedin' | 'newsletter' | 'marketing' | 'general' | null;

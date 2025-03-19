@@ -13,6 +13,7 @@ type AuthContextType = {
   signInWithGoogle: () => Promise<void>;
   signUp: (email: string, password: string, name: string) => Promise<void>;
   signOut: () => Promise<void>;
+  logout: () => Promise<void>; // Alias for signOut for backward compatibility
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -155,7 +156,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       signIn, 
       signInWithGoogle,
       signUp, 
-      signOut 
+      signOut,
+      logout: signOut // Alias for backward compatibility
     }}>
       {children}
     </AuthContext.Provider>
