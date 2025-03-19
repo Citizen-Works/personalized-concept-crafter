@@ -26,14 +26,14 @@ const SolutionSection = () => {
   return (
     <div 
       ref={solutionRef}
-      className="py-20 px-4 opacity-0 relative bg-black/95"
+      className="py-20 px-4 opacity-0 relative bg-black"
     >
       {/* Background overlay */}
       <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/80 to-black/70 z-0"></div>
       
       <div className="max-w-7xl mx-auto relative z-10">
         <h2 className="text-4xl md:text-5xl font-bold mb-4 text-center text-white">
-          Introducing <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-600 via-pink-500 to-orange-400">Content Engine</span>
+          Introducing <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-600 via-pink-500 to-orange-400">Your Content Engine</span>
         </h2>
         
         <p className="text-xl text-center text-gray-300 max-w-3xl mx-auto mb-16">
@@ -57,7 +57,7 @@ const SolutionSection = () => {
               <div>
                 <h3 className="text-xl font-semibold mb-2 text-white">Your Voice, Enhanced</h3>
                 <p className="text-gray-300">
-                  Our AI learns your unique communication style, tone, and expertise to create content that sounds authentically like you.
+                  Your Content Engine learns your unique communication style, tone, and expertise to create content that sounds authentically like you.
                 </p>
               </div>
             </div>
@@ -81,7 +81,7 @@ const SolutionSection = () => {
               <div>
                 <h3 className="text-xl font-semibold mb-2 text-white">Hours Saved Every Week</h3>
                 <p className="text-gray-300">
-                  Turn a single idea into multiple pieces of content in minutes, not hours, while maintaining your authentic voice.
+                  Your Content Engine turns a single idea into multiple pieces of content in minutes, not hours, while maintaining your authentic voice.
                 </p>
               </div>
             </div>
@@ -91,7 +91,7 @@ const SolutionSection = () => {
         {/* Meeting Notes Feature Section */}
         <div className="bg-gradient-to-br from-purple-900/30 to-pink-900/30 p-10 rounded-2xl shadow-xl mb-20 border border-white/10 backdrop-blur-sm">
           <h3 className="text-2xl md:text-3xl font-bold mb-8 text-center text-white">
-            Transform Meeting Transcripts into Content Gold
+            Transform Your Meeting Transcripts into Content Gold
           </h3>
           
           <div className="grid md:grid-cols-2 gap-12 items-center">
@@ -112,7 +112,7 @@ const SolutionSection = () => {
                 <div>
                   <h4 className="text-xl font-semibold mb-2 text-white">Mine Your Meeting Gold</h4>
                   <p className="text-gray-300">
-                    Upload your meeting transcripts and our AI will identify key insights, stories, and expertise that can be transformed into high-value content.
+                    Upload your meeting transcripts and your Content Engine will identify key insights, stories, and expertise that can be transformed into high-value content.
                   </p>
                 </div>
               </div>
@@ -124,7 +124,7 @@ const SolutionSection = () => {
                 <div>
                   <h4 className="text-xl font-semibold mb-2 text-white">Your Expertise, Leveraged</h4>
                   <p className="text-gray-300">
-                    The world wants to know what you know. Content Engine extracts the valuable insights you're already sharing in meetings and packages them for your audience.
+                    The world wants to know what you know. Your Content Engine extracts the valuable insights you're already sharing in meetings and packages them for your audience.
                   </p>
                 </div>
               </div>
@@ -136,7 +136,7 @@ const SolutionSection = () => {
                 <div>
                   <h4 className="text-xl font-semibold mb-2 text-white">From Notes to Content in Minutes</h4>
                   <p className="text-gray-300">
-                    What used to take hours of planning, writing, and editing now happens automatically. Turn your buried insights into content that helps you grow.
+                    What used to take hours of planning, writing, and editing now happens automatically. Your Content Engine turns your buried insights into content that helps you grow.
                   </p>
                 </div>
               </div>
@@ -146,7 +146,7 @@ const SolutionSection = () => {
         
         <div className="bg-gradient-to-br from-purple-900/30 to-pink-900/30 p-10 rounded-2xl shadow-xl mb-20 border border-white/10 backdrop-blur-sm">
           <h3 className="text-2xl md:text-3xl font-bold mb-6 text-center text-white">
-            How Content Engine Works
+            How Your Content Engine Works
           </h3>
           
           <div className="grid sm:grid-cols-3 gap-8">
@@ -156,7 +156,7 @@ const SolutionSection = () => {
               </div>
               <h4 className="text-xl font-semibold mb-2 text-white">Analyze Your Style</h4>
               <p className="text-gray-300">
-                Our AI studies your existing content and meeting transcripts to learn your unique voice, terminology, and style.
+                Your Content Engine studies your existing content and meeting transcripts to learn your unique voice, terminology, and style.
               </p>
             </Card>
             
@@ -166,7 +166,7 @@ const SolutionSection = () => {
               </div>
               <h4 className="text-xl font-semibold mb-2 text-white">Extract Key Ideas</h4>
               <p className="text-gray-300">
-                Content Engine identifies the most valuable insights from your meetings and organizes them into potential content pieces.
+                Your Content Engine identifies the most valuable insights from your meetings and organizes them into potential content pieces.
               </p>
             </Card>
             
@@ -176,7 +176,7 @@ const SolutionSection = () => {
               </div>
               <h4 className="text-xl font-semibold mb-2 text-white">Generate & Refine</h4>
               <p className="text-gray-300">
-                Generate platform-specific content that sounds like you, then easily refine and publish to grow your audience.
+                Your Content Engine generates platform-specific content that sounds like you, then easily refine and publish to grow your audience.
               </p>
             </Card>
           </div>
