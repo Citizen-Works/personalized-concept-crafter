@@ -1,41 +1,15 @@
 
 import React, { useState, useMemo } from 'react';
-import { Link } from 'react-router-dom';
 import { useDrafts } from '@/hooks/useDrafts';
-import { formatDistanceToNow } from 'date-fns';
 import { toast } from 'sonner';
-import { Check, ChevronDown, Eye, MoreHorizontal, Trash } from 'lucide-react';
 import { ContentType } from '@/types';
-import { getTypeBadgeClasses } from '@/components/ideas/BadgeUtils';
-
 import { 
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableHead, 
-  TableHeader, 
-  TableRow 
-} from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Checkbox } from "@/components/ui/checkbox";
-import { 
-  DropdownMenu, 
-  DropdownMenuContent, 
-  DropdownMenuItem, 
-  DropdownMenuTrigger 
-} from "@/components/ui/dropdown-menu";
-import { 
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-import { Skeleton } from "@/components/ui/skeleton";
+  DeleteConfirmDialog,
+  EmptyDraftsState,
+  DraftsLoadingState,
+  DraftsTable,
+  DraftsTableControls
+} from './ready-to-publish';
 
 interface DraftsTabProps {
   searchQuery: string;
@@ -167,261 +141,59 @@ export const DraftsTab: React.FC<DraftsTabProps> = ({
     }
   };
   
+  // Request delete
+  const handleRequestDelete = (id: string) => {
+    setItemToDelete(id);
+    setDeleteConfirmOpen(true);
+  };
+  
   if (isLoading) {
-    return (
-      <div className="border rounded-md overflow-hidden">
-        <div className="p-4">
-          <Skeleton className="h-8 w-32" />
-        </div>
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead className="w-12">
-                <Skeleton className="h-4 w-4" />
-              </TableHead>
-              <TableHead>
-                <Skeleton className="h-4 w-24" />
-              </TableHead>
-              <TableHead>
-                <Skeleton className="h-4 w-16" />
-              </TableHead>
-              <TableHead>
-                <Skeleton className="h-4 w-16" />
-              </TableHead>
-              <TableHead>
-                <Skeleton className="h-4 w-20" />
-              </TableHead>
-              <TableHead className="text-right">
-                <Skeleton className="h-4 w-16 ml-auto" />
-              </TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {[1, 2, 3].map((i) => (
-              <TableRow key={i}>
-                <TableCell>
-                  <Skeleton className="h-4 w-4" />
-                </TableCell>
-                <TableCell>
-                  <Skeleton className="h-6 w-full max-w-xs" />
-                </TableCell>
-                <TableCell>
-                  <Skeleton className="h-6 w-16" />
-                </TableCell>
-                <TableCell>
-                  <Skeleton className="h-6 w-16" />
-                </TableCell>
-                <TableCell>
-                  <Skeleton className="h-6 w-24" />
-                </TableCell>
-                <TableCell>
-                  <div className="flex justify-end gap-2">
-                    <Skeleton className="h-8 w-8" />
-                    <Skeleton className="h-8 w-8" />
-                  </div>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </div>
-    );
+    return <DraftsLoadingState />;
   }
   
   if (sortedDrafts.length === 0) {
-    return (
-      <div className="flex flex-col items-center justify-center p-12 border rounded-lg bg-muted/10">
-        <h3 className="text-xl font-medium mb-2">No drafts found</h3>
-        <p className="text-muted-foreground text-center max-w-md mb-6">
-          Draft content that has been generated from content ideas will appear here.
-        </p>
-        <Button asChild>
-          <Link to="/ideas">
-            Go to Content Ideas
-          </Link>
-        </Button>
-      </div>
-    );
+    return <EmptyDraftsState />;
   }
   
   return (
     <div className="space-y-4">
       {/* Top controls */}
-      <div className="flex justify-between items-center mb-4">
-        <div className="flex items-center">
-          <Checkbox 
-            id="select-all-drafts" 
-            checked={sortedDrafts.length > 0 && selectedItems.length === sortedDrafts.length}
-            onCheckedChange={handleSelectAll}
-          />
-          <label htmlFor="select-all-drafts" className="text-sm font-medium ml-2 cursor-pointer">
-            Select All
-          </label>
-        </div>
-        
-        <div className="flex gap-2">
-          {selectedItems.length > 0 && (
-            <>
-              <Button 
-                variant="default" 
-                size="sm"
-                onClick={handleBatchMarkAsReady}
-              >
-                <Check className="h-4 w-4 mr-1" />
-                Mark Selected as Ready
-              </Button>
-              <Button 
-                variant="destructive" 
-                size="sm"
-                onClick={() => setDeleteConfirmOpen(true)}
-              >
-                <Trash className="h-4 w-4 mr-1" />
-                Delete Selected
-              </Button>
-            </>
-          )}
-          
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="sm">
-                Sort by: {sortOrder.charAt(0).toUpperCase() + sortOrder.slice(1)}
-                <ChevronDown className="h-4 w-4 ml-1" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => setSortOrder('newest')}>
-                Newest
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setSortOrder('oldest')}>
-                Oldest
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setSortOrder('alphabetical')}>
-                Alphabetical
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
-      </div>
+      <DraftsTableControls 
+        selectedItemsCount={selectedItems.length}
+        totalItemsCount={sortedDrafts.length}
+        onSelectAll={handleSelectAll}
+        onBatchMarkAsReady={handleBatchMarkAsReady}
+        onBatchDeleteRequest={() => setDeleteConfirmOpen(true)}
+        sortOrder={sortOrder}
+        onSortChange={setSortOrder}
+      />
       
       {/* Drafts table */}
-      <div className="border rounded-md overflow-hidden">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead className="w-12">
-                <Checkbox 
-                  checked={sortedDrafts.length > 0 && selectedItems.length === sortedDrafts.length}
-                  onCheckedChange={handleSelectAll}
-                  aria-label="Select all drafts"
-                />
-              </TableHead>
-              <TableHead>Title</TableHead>
-              <TableHead>Type</TableHead>
-              <TableHead>Version</TableHead>
-              <TableHead>Created</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {sortedDrafts.map((draft) => (
-              <TableRow key={draft.id}>
-                <TableCell>
-                  <Checkbox 
-                    checked={selectedItems.includes(draft.id)} 
-                    onCheckedChange={() => handleToggleSelect(draft.id)}
-                    aria-label={`Select draft ${draft.ideaTitle}`}
-                  />
-                </TableCell>
-                <TableCell>
-                  <div className="space-y-1">
-                    <div className="font-medium">{draft.ideaTitle}</div>
-                    <div className="text-sm text-muted-foreground truncate max-w-xs">
-                      {draft.content.substring(0, 60)}...
-                    </div>
-                  </div>
-                </TableCell>
-                <TableCell>
-                  <Badge className={getTypeBadgeClasses(draft.contentType)}>
-                    {draft.contentType.charAt(0).toUpperCase() + draft.contentType.slice(1)}
-                  </Badge>
-                </TableCell>
-                <TableCell>
-                  <Badge variant="outline">v{draft.version}</Badge>
-                </TableCell>
-                <TableCell>
-                  {formatDistanceToNow(new Date(draft.createdAt), { addSuffix: true })}
-                </TableCell>
-                <TableCell>
-                  <div className="flex justify-end gap-2">
-                    <Button 
-                      variant="default" 
-                      size="sm"
-                      onClick={() => handleMarkAsReady(draft.id)}
-                    >
-                      <Check className="h-4 w-4 mr-1" />
-                      Mark as Ready
-                    </Button>
-                    
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon">
-                          <MoreHorizontal className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem asChild>
-                          <Link to={`/drafts/${draft.id}`}>
-                            <Eye className="h-4 w-4 mr-2" />
-                            View Draft
-                          </Link>
-                        </DropdownMenuItem>
-                        <DropdownMenuItem 
-                          onClick={() => {
-                            setItemToDelete(draft.id);
-                            setDeleteConfirmOpen(true);
-                          }}
-                          className="text-destructive"
-                        >
-                          <Trash className="h-4 w-4 mr-2" />
-                          Delete
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </div>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </div>
+      <DraftsTable 
+        drafts={sortedDrafts}
+        selectedItems={selectedItems}
+        onToggleSelect={handleToggleSelect}
+        onToggleSelectAll={handleSelectAll}
+        onMarkAsReady={handleMarkAsReady}
+        onRequestDelete={handleRequestDelete}
+      />
       
       {/* Delete confirmation */}
-      <AlertDialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-            <AlertDialogDescription>
-              This will permanently delete {itemToDelete ? 'this draft' : `${selectedItems.length} selected drafts`}. 
-              This action cannot be undone.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel onClick={() => setItemToDelete(null)}>Cancel</AlertDialogCancel>
-            <AlertDialogAction 
-              onClick={() => {
-                if (itemToDelete) {
-                  handleDelete(itemToDelete);
-                } else {
-                  handleBatchDelete();
-                }
-              }}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-            >
-              Delete
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <DeleteConfirmDialog 
+        open={deleteConfirmOpen} 
+        onOpenChange={setDeleteConfirmOpen}
+        onConfirm={() => {
+          if (itemToDelete) {
+            handleDelete(itemToDelete);
+          } else {
+            handleBatchDelete();
+          }
+        }}
+        onCancel={() => {
+          setItemToDelete(null);
+          setDeleteConfirmOpen(false);
+        }}
+      />
     </div>
   );
 };
