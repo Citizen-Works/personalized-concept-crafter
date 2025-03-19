@@ -3,6 +3,7 @@ import React from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "sonner";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 import Index from "@/pages/Index";
 import RegisterPage from "@/pages/RegisterPage";
@@ -27,39 +28,51 @@ import { AuthProvider } from "./context/AuthContext";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import TranscriptsPage from "./pages/TranscriptsPage";
 
+// Create a client
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 5 * 60 * 1000, // 5 minutes
+      retry: 1,
+    },
+  },
+});
+
 function App() {
   return (
-    <BrowserRouter>
-      <AuthProvider>
-        <ThemeProvider defaultTheme="system" storageKey="ui-theme">
-          <Toaster position="top-right" richColors />
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/register" element={<RegisterPage />} />
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/onboarding" element={<OnboardingPage />} />
-            <Route element={<ProtectedRoute />}>
-              <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/ideas" element={<IdeasPage />} />
-              <Route path="/ideas/:id" element={<IdeaDetailPage />} />
-              <Route path="/ideas/new" element={<NewIdeaPage />} />
-              <Route path="/drafts" element={<DraftsPage />} />
-              <Route path="/drafts/:id" element={<DraftDetailPage />} />
-              <Route path="/settings/*" element={<Settings />} />
-              <Route path="/content-pillars" element={<ContentPillarsPage />} />
-              <Route path="/target-audiences" element={<TargetAudiencesPage />} />
-              <Route path="/writing-style" element={<WritingStylePage />} />
-              <Route path="/linkedin-posts" element={<LinkedinPostsPage />} />
-              <Route path="/documents" element={<DocumentsPage />} />
-              <Route path="/transcripts" element={<TranscriptsPage />} />
-              <Route path="/marketing-examples" element={<MarketingExamplesPage />} />
-              <Route path="/newsletter-examples" element={<NewsletterExamplesPage />} />
-              <Route path="*" element={<NotFound />} />
-            </Route>
-          </Routes>
-        </ThemeProvider>
-      </AuthProvider>
-    </BrowserRouter>
+    <QueryClientProvider client={queryClient}>
+      <BrowserRouter>
+        <AuthProvider>
+          <ThemeProvider defaultTheme="system" storageKey="ui-theme">
+            <Toaster position="top-right" richColors />
+            <Routes>
+              <Route path="/" element={<Index />} />
+              <Route path="/register" element={<RegisterPage />} />
+              <Route path="/login" element={<LoginPage />} />
+              <Route path="/onboarding" element={<OnboardingPage />} />
+              <Route element={<ProtectedRoute />}>
+                <Route path="/dashboard" element={<Dashboard />} />
+                <Route path="/ideas" element={<IdeasPage />} />
+                <Route path="/ideas/:id" element={<IdeaDetailPage />} />
+                <Route path="/ideas/new" element={<NewIdeaPage />} />
+                <Route path="/drafts" element={<DraftsPage />} />
+                <Route path="/drafts/:id" element={<DraftDetailPage />} />
+                <Route path="/settings/*" element={<Settings />} />
+                <Route path="/content-pillars" element={<ContentPillarsPage />} />
+                <Route path="/target-audiences" element={<TargetAudiencesPage />} />
+                <Route path="/writing-style" element={<WritingStylePage />} />
+                <Route path="/linkedin-posts" element={<LinkedinPostsPage />} />
+                <Route path="/documents" element={<DocumentsPage />} />
+                <Route path="/transcripts" element={<TranscriptsPage />} />
+                <Route path="/marketing-examples" element={<MarketingExamplesPage />} />
+                <Route path="/newsletter-examples" element={<NewsletterExamplesPage />} />
+                <Route path="*" element={<NotFound />} />
+              </Route>
+            </Routes>
+          </ThemeProvider>
+        </AuthProvider>
+      </BrowserRouter>
+    </QueryClientProvider>
   );
 }
 
