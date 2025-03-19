@@ -31,8 +31,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setUser(session?.user ?? null);
       setLoading(false);
       
-      // Only redirect to dashboard if on login page or root path and already logged in
-      if (session && (location.pathname === '/login' || location.pathname === '/')) {
+      // Only redirect to dashboard if on login page and already logged in
+      // We've removed the root path (/) from this condition to allow the waitlist page to be accessible
+      if (session && location.pathname === '/login') {
         navigate('/dashboard');
       }
     });
@@ -45,7 +46,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setLoading(false);
         
         // Only redirect to dashboard when signed in from auth pages
-        if (event === 'SIGNED_IN' && (location.pathname === '/login' || location.pathname === '/register' || location.pathname === '/')) {
+        // We've removed the root path (/) from this condition
+        if (event === 'SIGNED_IN' && (location.pathname === '/login' || location.pathname === '/register')) {
           navigate('/dashboard');
         }
       }
