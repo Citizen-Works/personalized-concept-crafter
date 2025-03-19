@@ -50,12 +50,15 @@ const UploadDialog: React.FC<UploadDialogProps> = ({
     
     setUploadError(null);
     
+    // Declare interval variable outside the try/catch block so it's accessible in both
+    let progressInterval: NodeJS.Timeout | undefined;
+    
     try {
       setIsSubmitting(true);
       setUploadProgress(10);
       
       // Simulate progress for better UX
-      const progressInterval = setInterval(() => {
+      progressInterval = setInterval(() => {
         setUploadProgress(prev => {
           if (prev >= 90) {
             clearInterval(progressInterval);
@@ -76,7 +79,10 @@ const UploadDialog: React.FC<UploadDialogProps> = ({
       setFile(null);
     } catch (error) {
       console.error("Error uploading document:", error);
-      clearInterval(progressInterval);
+      // Clear the interval if it exists
+      if (progressInterval) {
+        clearInterval(progressInterval);
+      }
       setUploadProgress(0);
       
       // Display error message to user
