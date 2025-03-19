@@ -86,7 +86,8 @@ describe('Content Specific Sections', () => {
           content: 'First post content',
           publishedAt: new Date(),
           url: 'https://linkedin.com/post/1',
-          createdAt: new Date()
+          createdAt: new Date(),
+          tag: 'My post' // Add the tag property
         },
         {
           id: '2',
@@ -94,7 +95,8 @@ describe('Content Specific Sections', () => {
           content: 'Second post content',
           publishedAt: new Date(),
           url: 'https://linkedin.com/post/2',
-          createdAt: new Date()
+          createdAt: new Date(),
+          tag: 'Competitor\'s post' // Add the tag property
         }
       ];
       

@@ -37,7 +37,8 @@ export async function fetchRecentLinkedinPosts(userId: string, limit: number = 5
         content: post.content,
         publishedAt: post.published_at ? new Date(post.published_at) : undefined,
         url: post.url || '',
-        createdAt: new Date(post.created_at)
+        createdAt: new Date(post.created_at),
+        tag: post.tag || 'My post' // Add tag with default value
       })),
       ...linkedinDocuments.map(doc => ({
         id: doc.id,
@@ -45,7 +46,8 @@ export async function fetchRecentLinkedinPosts(userId: string, limit: number = 5
         content: doc.content || '',
         publishedAt: undefined,
         url: '',
-        createdAt: new Date(doc.created_at)
+        createdAt: new Date(doc.created_at),
+        tag: 'My post' // Default tag for document-sourced posts
       }))
     ];
     

@@ -90,7 +90,8 @@ describe('PromptBuilder Index', () => {
       content: 'Test Post',
       publishedAt: new Date(),
       url: 'https://linkedin.com/post/1',
-      createdAt: new Date()
+      createdAt: new Date(),
+      tag: 'My post' // Add the tag property
     }];
     
     addContentIdeaToPrompt(mockPrompt, mockIdea);
