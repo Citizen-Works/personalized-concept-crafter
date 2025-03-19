@@ -1,10 +1,10 @@
 
-import React from "react";
+import React, { memo } from "react";
 import { NavigationItems } from "./navigation/NavigationItems";
 import { useSidebarNavigation } from "@/hooks/useSidebarNavigation";
 import { SidebarMenu } from "@/components/ui/sidebar/menu";
 
-export const SidebarNav = () => {
+export const SidebarNav = memo(() => {
   const { isRouteActive } = useSidebarNavigation();
 
   return (
@@ -14,4 +14,6 @@ export const SidebarNav = () => {
       </SidebarMenu>
     </aside>
   );
-};
+});
+
+SidebarNav.displayName = "SidebarNav";

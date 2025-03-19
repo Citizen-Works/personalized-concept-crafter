@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { memo } from "react";
 import { Link } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import {
@@ -13,16 +13,19 @@ interface NavigationItemProps {
   isActive: (href: string) => boolean;
 }
 
-export const NavigationItem: React.FC<NavigationItemProps> = ({ 
+export const NavigationItem: React.FC<NavigationItemProps> = memo(({ 
   item, 
   isActive 
 }) => {
+  // Determine if this route is active
+  const active = isActive(item.href);
+  
   return (
     <SidebarMenuItem>
       <SidebarMenuButton
         asChild
         className={cn(
-          isActive(item.href) && "bg-accent text-accent-foreground"
+          active && "bg-accent text-accent-foreground"
         )}
       >
         <Link to={item.href}>
@@ -32,4 +35,6 @@ export const NavigationItem: React.FC<NavigationItemProps> = ({
       </SidebarMenuButton>
     </SidebarMenuItem>
   );
-};
+});
+
+NavigationItem.displayName = "NavigationItem";
