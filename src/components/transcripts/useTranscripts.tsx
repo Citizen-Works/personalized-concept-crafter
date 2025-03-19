@@ -28,17 +28,13 @@ export const useTranscripts = () => {
     setSelectedTranscript(id);
     
     try {
-      processTranscript(id, {
-        onSuccess: (result) => {
-          setIdeas(result);
-          setIsIdeasDialogOpen(true);
-          toast.success("Transcript processed successfully");
-        },
-        onError: (error) => {
-          console.error("Failed to process transcript:", error);
-          toast.error("Failed to process transcript");
-        }
-      });
+      const result = await processTranscript(id);
+      setIdeas(result);
+      setIsIdeasDialogOpen(true);
+      toast.success("Transcript processed successfully");
+    } catch (error) {
+      console.error("Failed to process transcript:", error);
+      toast.error("Failed to process transcript");
     } finally {
       setIsProcessing(false);
       setSelectedTranscript(null);
