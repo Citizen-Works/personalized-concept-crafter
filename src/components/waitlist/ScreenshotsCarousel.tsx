@@ -69,7 +69,15 @@ const ScreenshotsCarousel = ({ className, title, description }: ScreenshotsCarou
       <div className="max-w-5xl mx-auto">
         <Carousel 
           className="w-full"
-          onSelect={(index) => setCurrentIndex(index)}
+          opts={{
+            loop: true,
+          }}
+          onSelect={(api) => {
+            if (api) {
+              const selectedIndex = api.selectedScrollSnap();
+              setCurrentIndex(selectedIndex);
+            }
+          }}
         >
           <CarouselContent>
             {screenshots.map((screenshot, index) => (
