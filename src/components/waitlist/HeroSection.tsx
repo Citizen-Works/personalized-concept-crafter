@@ -19,11 +19,11 @@ const HeroSection = ({ scrollToSection, painPointsRef }: HeroSectionProps) => {
   return (
     <div 
       ref={heroRef}
-      className="relative flex-1 flex flex-col items-center justify-center px-2 sm:px-4 py-16 sm:py-24 md:py-32 overflow-hidden min-h-[105vh] bg-black/95"
+      className="relative flex-1 flex flex-col items-center justify-center px-1 sm:px-2 py-16 sm:py-28 md:py-36 overflow-hidden min-h-[110vh] bg-black/95"
     >
       <HeroBackground />
       
-      <div className="max-w-[95vw] w-full mx-auto z-10 text-center">
+      <div className="max-w-[98vw] w-full mx-auto z-10 text-center">
         <div className="mb-6 inline-flex items-center justify-center gap-2 px-3 py-1 rounded-full bg-white/10 border border-white/20 backdrop-blur-sm">
           <Zap className="h-4 w-4 text-yellow-400" />
           <span className="text-sm font-semibold text-white">Limited Early Access. Join the Waitlist</span>
@@ -31,7 +31,7 @@ const HeroSection = ({ scrollToSection, painPointsRef }: HeroSectionProps) => {
         
         <HeroHeading />
         
-        <p className="text-xl sm:text-2xl md:text-3xl text-gray-300 max-w-4xl mx-auto mb-10 px-4 mt-2">
+        <p className="text-xl sm:text-2xl md:text-3xl text-gray-300 max-w-5xl mx-auto mb-10 px-2 mt-4">
           Our AI learns <span className="font-semibold">your unique voice</span> and extracts the best insights from your meeting transcripts, turning your expertise into LinkedIn posts and newsletters that grow your audience.
         </p>
         

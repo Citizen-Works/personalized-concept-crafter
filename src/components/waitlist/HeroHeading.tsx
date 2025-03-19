@@ -10,8 +10,8 @@ const HeroHeading = ({ className }: HeroHeadingProps) => {
   
   return (
     <>
-      <h1 className={`text-6xl xs:text-7xl sm:text-8xl md:text-9xl font-bold tracking-tighter mb-6 md:mb-8 bg-clip-text text-transparent relative ${className} w-full max-w-[95vw] mx-auto`}>
-        <span className="absolute inset-0 bg-gradient-to-r from-purple-600 via-pink-500 to-orange-400 opacity-90 blur-3xl -z-10 rounded-3xl transform scale-110" />
+      <h1 className={`text-7xl xs:text-8xl sm:text-9xl md:text-[10rem] font-bold tracking-tighter mb-6 md:mb-8 bg-clip-text text-transparent relative ${className} w-full max-w-[98vw] mx-auto`}>
+        <span className="absolute inset-0 bg-gradient-to-r from-purple-600 via-pink-500 to-orange-400 opacity-90 blur-3xl -z-10 rounded-3xl transform scale-125" />
         
         <span 
           className="inline-block bg-clip-text text-transparent bg-blend-screen px-2"
