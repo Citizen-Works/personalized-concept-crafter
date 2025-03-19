@@ -5,7 +5,7 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "sonner";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
-import Index from "@/pages/Index";
+import WaitlistPage from "@/pages/WaitlistPage";
 import RegisterPage from "@/pages/RegisterPage";
 import LoginPage from "@/pages/LoginPage";
 import OnboardingPage from "@/pages/OnboardingPage";
@@ -24,7 +24,6 @@ import DocumentsPage from "@/pages/DocumentsPage";
 import MarketingExamplesPage from "@/pages/MarketingExamplesPage";
 import NewsletterExamplesPage from "@/pages/NewsletterExamplesPage";
 import NotFound from "@/pages/NotFound";
-import WaitlistPage from "@/pages/WaitlistPage";
 import { AuthProvider } from "./context/AuthContext";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import TranscriptsPage from "./pages/TranscriptsPage";
@@ -47,8 +46,8 @@ function App() {
           <ThemeProvider defaultTheme="system" storageKey="ui-theme">
             <Toaster position="top-right" richColors />
             <Routes>
-              {/* Redirect root to waitlist */}
-              <Route path="/" element={<Navigate to="/waitlist" replace />} />
+              {/* Root path directly renders WaitlistPage instead of redirecting */}
+              <Route path="/" element={<WaitlistPage />} />
               <Route path="/waitlist" element={<WaitlistPage />} />
               
               {/* Auth routes - still accessible but not linked anywhere */}
