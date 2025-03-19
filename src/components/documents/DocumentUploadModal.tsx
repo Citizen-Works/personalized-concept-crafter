@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -186,12 +185,12 @@ const DocumentUploadModal: React.FC<DocumentUploadModalProps> = ({ isOpen, onClo
 
             {inputMethod === "upload" ? (
               <div className="space-y-4">
-                <Label htmlFor="file">Upload File (Text Only)</Label>
+                <Label htmlFor="file">Upload File</Label>
                 <div className="border-2 border-dashed rounded-md p-8 text-center cursor-pointer hover:border-primary/50 transition-colors">
                   <Input
                     id="file"
                     type="file"
-                    accept=".txt,.md,.doc,.docx"
+                    accept=".txt,.md,.doc,.docx,.pdf"
                     onChange={handleFileChange}
                     className="hidden"
                   />
@@ -202,7 +201,7 @@ const DocumentUploadModal: React.FC<DocumentUploadModalProps> = ({ isOpen, onClo
                         {file ? file.name : "Click to upload or drag and drop"}
                       </span>
                       <span className="text-xs text-muted-foreground">
-                        Supports: TXT, MD, DOC, DOCX
+                        Supports: PDF, Word (DOCX), Text (TXT), Markdown (MD)
                       </span>
                     </div>
                   </Label>

@@ -1,4 +1,3 @@
-
 import React, { useState, useRef } from 'react';
 import { useDocuments } from '@/hooks/useDocuments';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -28,7 +27,6 @@ const TranscriptsPage = () => {
   const [isUploadDialogOpen, setIsUploadDialogOpen] = useState(false);
   const [isAddTextDialogOpen, setIsAddTextDialogOpen] = useState(false);
   
-  // New states for document upload and manual text entry
   const [uploadTitle, setUploadTitle] = useState("");
   const [manualText, setManualText] = useState("");
   const [manualTitle, setManualTitle] = useState("");
@@ -220,7 +218,6 @@ const TranscriptsPage = () => {
         </div>
       )}
 
-      {/* Transcript Viewer Dialog */}
       <Dialog open={isViewOpen} onOpenChange={setIsViewOpen}>
         <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
           <DialogHeader>
@@ -235,7 +232,6 @@ const TranscriptsPage = () => {
         </DialogContent>
       </Dialog>
 
-      {/* AI Generated Ideas Dialog */}
       <Dialog open={isIdeasDialogOpen} onOpenChange={setIsIdeasDialogOpen}>
         <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
           <DialogHeader>
@@ -250,7 +246,6 @@ const TranscriptsPage = () => {
         </DialogContent>
       </Dialog>
       
-      {/* Upload Document Dialog */}
       <Dialog open={isUploadDialogOpen} onOpenChange={setIsUploadDialogOpen}>
         <DialogContent>
           <DialogHeader>
@@ -269,6 +264,9 @@ const TranscriptsPage = () => {
                 onChange={handleFileChange}
                 accept=".txt,.md,.doc,.docx,.pdf"
               />
+              <p className="text-xs text-muted-foreground mt-1">
+                Supported formats: PDF, Word (DOCX), Text (TXT), and Markdown (MD)
+              </p>
             </div>
             <div className="space-y-2">
               <Label htmlFor="title">Title</Label>
@@ -287,7 +285,6 @@ const TranscriptsPage = () => {
         </DialogContent>
       </Dialog>
       
-      {/* Add Text Dialog */}
       <Dialog open={isAddTextDialogOpen} onOpenChange={setIsAddTextDialogOpen}>
         <DialogContent className="max-w-3xl">
           <DialogHeader>
