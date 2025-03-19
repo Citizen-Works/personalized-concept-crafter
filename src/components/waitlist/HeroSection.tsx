@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
@@ -22,18 +21,15 @@ const HeroSection = ({ scrollToSection, painPointsRef }: HeroSectionProps) => {
   const [isAnimating, setIsAnimating] = useState(false);
   const heroRef = useRef<HTMLDivElement>(null);
 
-  // Role animation - improved with faster transition
   useEffect(() => {
     const interval = setInterval(() => {
       setIsAnimating(true);
       
-      // Wait for exit animation to complete before changing the role
       setTimeout(() => {
         setCurrentRoleIndex(prevIndex => (prevIndex + 1) % ROLES.length);
         setIsAnimating(false);
-      }, 300); // Short delay for flip animation
-      
-    }, 1500); // Faster total cycle time
+      }, 300);
+    }, 1500);
     
     return () => clearInterval(interval);
   }, []);
@@ -53,15 +49,13 @@ const HeroSection = ({ scrollToSection, painPointsRef }: HeroSectionProps) => {
         }}
       />
       
-      {/* Gradient overlay */}
       <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 to-black/80 z-1"></div>
       
       <div className="max-w-6xl mx-auto z-10 text-center">
         <h1 className="text-7xl sm:text-8xl md:text-9xl font-bold tracking-tighter mb-6 bg-clip-text text-transparent relative">
           <span className="absolute inset-0 bg-gradient-to-r from-purple-600 via-pink-500 to-orange-400 opacity-90 blur-2xl -z-10 rounded-3xl" />
           
-          {/* Added "YOUR" text above */}
-          <span className="block text-4xl sm:text-5xl text-gray-400 font-light mb-[-0.5rem] tracking-wide">YOUR</span>
+          <span className="block font-['Dancing_Script'] text-5xl sm:text-6xl italic text-gray-300 mb-[-0.5rem] tracking-wide transform -rotate-2">Your</span>
           
           <span 
             className="bg-clip-text text-transparent bg-blend-screen"
