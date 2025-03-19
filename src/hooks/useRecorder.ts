@@ -55,6 +55,29 @@ export function useRecorder() {
     };
   }, []);
 
+  // Helper function to get supported MIME type
+  const getSupportedMimeType = () => {
+    const types = [
+      'audio/webm', 
+      'audio/webm;codecs=opus',
+      'audio/mp4',
+      'audio/ogg;codecs=opus',
+      'audio/wav',
+      ''  // Empty string means browser default
+    ];
+    
+    for (const type of types) {
+      if (type === '' || MediaRecorder.isTypeSupported(type)) {
+        console.log(`Using supported audio MIME type: ${type || 'browser default'}`);
+        return type;
+      }
+    }
+    
+    // Fallback to default if none supported (shouldn't happen)
+    console.log("No explicitly supported types found, using browser default");
+    return '';
+  };
+
   const startRecording = useCallback(async () => {
     try {
       // Request audio with high quality settings
@@ -62,18 +85,26 @@ export function useRecorder() {
         audio: {
           echoCancellation: true,
           noiseSuppression: true,
-          autoGainControl: true,
-          sampleRate: 48000
+          autoGainControl: true
         } 
       });
       
       streamRef.current = stream;
       
+      // Get supported MIME type for this browser
+      const mimeType = getSupportedMimeType();
+      
       // Create media recorder with optimal settings for speech
-      const recorder = new MediaRecorder(stream, {
-        mimeType: 'audio/webm;codecs=opus',
+      const recorderOptions: MediaRecorderOptions = {
         audioBitsPerSecond: 128000
-      });
+      };
+      
+      // Only add mimeType if it's supported and not empty
+      if (mimeType) {
+        recorderOptions.mimeType = mimeType;
+      }
+      
+      const recorder = new MediaRecorder(stream, recorderOptions);
       
       setAudioChunks([]);
       setMediaRecorder(recorder);
@@ -93,7 +124,8 @@ export function useRecorder() {
         // Create blob from accumulated chunks
         const chunks = audioChunks;
         if (chunks.length > 0) {
-          const blob = new Blob(chunks, { type: 'audio/webm' });
+          // Use the same mime type as we recorded with
+          const blob = new Blob(chunks, { type: mimeType || 'audio/webm' });
           console.log("Created audio blob:", {
             size: blob.size,
             type: blob.type,
@@ -173,9 +205,9 @@ export function useRecorder() {
     audioBlob,
     formatTime,
     startRecording,
-    pauseRecording,
-    stopRecording,
-    resetRecording
+    pauseRecording: pauseRecording,
+    stopRecording: stopRecording,
+    resetRecording: resetRecording
   }), [
     isRecording,
     isPaused,

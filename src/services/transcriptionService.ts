@@ -62,7 +62,10 @@ export const transcribeAudio = async (
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY}`
       },
-      body: JSON.stringify({ audio: base64Audio })
+      body: JSON.stringify({ 
+        audio: base64Audio,
+        fileType: audioBlob.type || 'audio/webm' 
+      })
     });
     
     if (!response.ok) {

@@ -10,6 +10,36 @@ const corsHeaders = {
 // OpenAI Whisper API endpoint
 const WHISPER_API_URL = "https://api.openai.com/v1/audio/transcriptions";
 
+// Helper function to process base64 in chunks to prevent memory issues
+function processBase64Chunks(base64String: string, chunkSize = 32768) {
+  const chunks: Uint8Array[] = [];
+  let position = 0;
+  
+  while (position < base64String.length) {
+    const chunk = base64String.slice(position, position + chunkSize);
+    const binaryChunk = atob(chunk);
+    const bytes = new Uint8Array(binaryChunk.length);
+    
+    for (let i = 0; i < binaryChunk.length; i++) {
+      bytes[i] = binaryChunk.charCodeAt(i);
+    }
+    
+    chunks.push(bytes);
+    position += chunkSize;
+  }
+
+  const totalLength = chunks.reduce((acc, chunk) => acc + chunk.length, 0);
+  const result = new Uint8Array(totalLength);
+  let offset = 0;
+
+  for (const chunk of chunks) {
+    result.set(chunk, offset);
+    offset += chunk.length;
+  }
+
+  return result;
+}
+
 serve(async (req) => {
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
@@ -18,7 +48,7 @@ serve(async (req) => {
 
   try {
     // Get request data
-    const { audio } = await req.json();
+    const { audio, fileType } = await req.json();
     
     if (!audio) {
       console.error("No audio data provided");
@@ -33,14 +63,45 @@ serve(async (req) => {
       );
     }
 
-    console.log(`Processing audio data of length: ${audio.length}`);
+    const audioDataLength = audio.length;
+    console.log(`Processing audio data of length: ${audioDataLength}`);
     
-    // Convert base64 to binary
-    const binaryAudio = Uint8Array.from(atob(audio), c => c.charCodeAt(0));
+    if (audioDataLength < 100) {
+      return new Response(
+        JSON.stringify({ 
+          error: "Audio data too short or invalid" 
+        }),
+        { 
+          status: 400, 
+          headers: { ...corsHeaders, "Content-Type": "application/json" } 
+        }
+      );
+    }
+    
+    // Convert base64 to binary using chunked processing to avoid memory issues
+    const binaryAudio = processBase64Chunks(audio);
+    
+    // Check if we have a valid binary audio
+    if (!binaryAudio || binaryAudio.length === 0) {
+      console.error("Failed to process audio data");
+      return new Response(
+        JSON.stringify({ 
+          error: "Failed to process audio data" 
+        }),
+        { 
+          status: 400, 
+          headers: { ...corsHeaders, "Content-Type": "application/json" } 
+        }
+      );
+    }
+    
+    // Determine content type - default to webm if not specified
+    const contentType = fileType || "audio/webm";
+    console.log(`Using content type: ${contentType}`);
     
     // Create form data for Whisper API
     const formData = new FormData();
-    formData.append("file", new Blob([binaryAudio], { type: "audio/webm" }), "audio.webm");
+    formData.append("file", new Blob([binaryAudio], { type: contentType }), "audio.webm");
     formData.append("model", "whisper-1");
     formData.append("language", "en");
     formData.append("response_format", "json");
@@ -53,6 +114,9 @@ serve(async (req) => {
       },
       body: formData
     });
+    
+    // Log API response status for debugging
+    console.log(`Whisper API response status: ${openaiResponse.status}`);
     
     // Handle API errors
     if (!openaiResponse.ok) {
