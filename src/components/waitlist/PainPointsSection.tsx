@@ -1,4 +1,3 @@
-
 import { useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Clock, TrendingUp, XCircle, FileText } from "lucide-react";
@@ -14,7 +13,7 @@ const PainPointsSection = ({ scrollToSection, solutionRef }: PainPointsSectionPr
   return (
     <div 
       ref={painPointsRef}
-      className="bg-black/95 py-20 px-4 opacity-0 min-h-screen flex items-center relative"
+      className="bg-black py-20 px-4 opacity-0 min-h-screen flex items-center relative"
     >
       {/* Background overlay */}
       <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/90 to-black/80 z-0"></div>

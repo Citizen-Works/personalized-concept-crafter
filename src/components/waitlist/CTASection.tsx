@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -25,12 +24,14 @@ const CTASection = () => {
 
     setIsSubmitting(true);
     try {
-      // Store email in Supabase
       const { error } = await supabase
         .from('waitlist')
         .insert({ email });
       
-      if (error) throw error;
+      if (error) {
+        console.error("Error details:", error);
+        throw error;
+      }
       
       setIsSubmitted(true);
       toast({
@@ -52,7 +53,7 @@ const CTASection = () => {
   return (
     <>
       {/* Social Proof & CTA Section */}
-      <div className="bg-black/95 py-20 px-4 opacity-0 animate-fade-in relative">
+      <div className="bg-black py-20 px-4 opacity-0 animate-fade-in relative">
         {/* Background overlay */}
         <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/80 to-black/70 z-0"></div>
         
