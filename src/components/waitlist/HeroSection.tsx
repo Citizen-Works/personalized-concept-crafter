@@ -6,9 +6,9 @@ import { ArrowRight } from "lucide-react";
 const ROLES = [
   "Consultant",
   "Advisor",
-  "Coach",
-  "Founder",
   "Executive",
+  "Entrepreneur",
+  "Innovator",
   "Thought Leader"
 ];
 
@@ -21,6 +21,11 @@ const HeroSection = ({ scrollToSection, painPointsRef }: HeroSectionProps) => {
   const [currentRoleIndex, setCurrentRoleIndex] = useState(0);
   const [isAnimating, setIsAnimating] = useState(false);
   const heroRef = useRef<HTMLDivElement>(null);
+
+  // Helper function to determine if we should use "an" instead of "a"
+  const getArticle = (word: string) => {
+    return /^[aeiou]/i.test(word) ? "an" : "a";
+  };
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -82,16 +87,18 @@ const HeroSection = ({ scrollToSection, painPointsRef }: HeroSectionProps) => {
         </h1>
         
         <div className="mb-8 text-2xl md:text-3xl text-gray-300 max-w-3xl mx-auto h-12 overflow-hidden">
-          <div className="relative h-full flex items-center justify-center">
-            <span className="font-bold mr-2">You are a</span>
-            <div className="h-12 inline-flex items-center overflow-hidden">
-              <span 
-                className={`font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-purple-500 to-pink-500 transition-all duration-300 ${
+          <div className="h-12 flex items-center justify-center">
+            <div className="h-full overflow-hidden">
+              <div 
+                className={`flex items-center transition-all duration-300 ${
                   isAnimating ? "opacity-0 transform -translate-y-full" : "opacity-100 transform translate-y-0"
                 }`}
               >
-                {ROLES[currentRoleIndex]}
-              </span>
+                <span className="font-bold mr-2">You are {getArticle(ROLES[currentRoleIndex])}</span>
+                <span className="font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-purple-500 to-pink-500">
+                  {ROLES[currentRoleIndex]}
+                </span>
+              </div>
             </div>
           </div>
         </div>
