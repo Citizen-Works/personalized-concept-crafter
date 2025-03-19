@@ -80,7 +80,7 @@ const WaitlistPage = () => {
             <span 
               className="bg-clip-text text-transparent"
               style={{
-                backgroundImage: `url('https://images.unsplash.com/photo-1487058792275-0ad4aaf24ca7?auto=format&fit=crop&w=2000&q=80')`,
+                backgroundImage: `url('https://images.unsplash.com/photo-1558470598-a5dda9640f68?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTB8fHJhaW5ib3d8ZW58MHx8MHx8fDA%3D')`,
                 backgroundSize: 'cover',
                 backgroundPosition: 'center',
                 WebkitBackgroundClip: 'text',
