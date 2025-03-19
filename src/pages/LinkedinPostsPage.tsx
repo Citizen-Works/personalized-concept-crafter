@@ -2,12 +2,21 @@
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Plus, LinkedinIcon, Trash2 } from 'lucide-react';
+import { Plus, LinkedinIcon, Trash2, Calendar, FileText } from 'lucide-react';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import { useLinkedinPosts } from '@/hooks/useLinkedinPosts';
 import { toast } from 'sonner';
+import { 
+  Table, 
+  TableBody, 
+  TableCell, 
+  TableHead, 
+  TableHeader, 
+  TableRow 
+} from "@/components/ui/table";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 const LinkedinPostsPage = () => {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
@@ -51,8 +60,16 @@ const LinkedinPostsPage = () => {
     }
   };
 
+  const formatDate = (date: Date) => {
+    return new Date(date).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    });
+  };
+
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       <div className="flex flex-col gap-2">
         <h1 className="text-3xl font-bold tracking-tight">LinkedIn Posts</h1>
         <p className="text-muted-foreground">
@@ -105,55 +122,72 @@ const LinkedinPostsPage = () => {
       </div>
       
       {isLoading ? (
-        <div className="grid gap-4 md:grid-cols-2">
-          {[1, 2].map((i) => (
-            <Card key={i} className="animate-pulse">
-              <CardHeader className="bg-muted/20 h-12"></CardHeader>
-              <CardContent className="pt-6">
-                <div className="space-y-2">
-                  <div className="h-4 bg-muted/20 rounded"></div>
-                  <div className="h-4 bg-muted/20 rounded w-3/4"></div>
-                  <div className="h-4 bg-muted/20 rounded w-1/2"></div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+        <Card className="animate-pulse">
+          <CardHeader className="bg-muted/20 h-12"></CardHeader>
+          <CardContent className="pt-6">
+            <div className="space-y-2">
+              <div className="h-4 bg-muted/20 rounded"></div>
+              <div className="h-4 bg-muted/20 rounded w-3/4"></div>
+              <div className="h-4 bg-muted/20 rounded w-1/2"></div>
+            </div>
+          </CardContent>
+        </Card>
       ) : posts && posts.length > 0 ? (
-        <div className="grid gap-4 md:grid-cols-2">
-          {posts.map((post) => (
-            <Card key={post.id}>
-              <CardHeader className="pb-2 flex flex-row items-start justify-between">
-                <div>
-                  <CardTitle className="text-sm text-muted-foreground">
-                    {new Date(post.createdAt).toLocaleDateString()}
-                  </CardTitle>
-                </div>
-                <Button 
-                  variant="ghost" 
-                  size="icon" 
-                  className="h-8 w-8" 
-                  onClick={() => handleDeletePost(post.id)}
-                >
-                  <Trash2 className="h-4 w-4" />
-                </Button>
-              </CardHeader>
-              <CardContent>
-                <p className="whitespace-pre-line">{post.content}</p>
-                {post.url && (
-                  <a 
-                    href={post.url} 
-                    target="_blank" 
-                    rel="noopener noreferrer" 
-                    className="text-sm text-blue-500 hover:underline mt-2 block"
-                  >
-                    View on LinkedIn →
-                  </a>
-                )}
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+        <Card>
+          <CardContent className="p-0">
+            <ScrollArea className="h-[calc(100vh-230px)]">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="w-[180px]">Date</TableHead>
+                    <TableHead>Content Preview</TableHead>
+                    <TableHead className="w-[100px] text-right">Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {posts.map((post) => (
+                    <TableRow key={post.id}>
+                      <TableCell className="font-medium">
+                        <div className="flex items-center gap-2">
+                          <Calendar className="h-4 w-4 text-muted-foreground" />
+                          {formatDate(post.createdAt)}
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-start gap-2">
+                          <FileText className="h-4 w-4 text-muted-foreground mt-1 flex-shrink-0" />
+                          <div>
+                            <p className="line-clamp-2">{post.content}</p>
+                            {post.url && (
+                              <a 
+                                href={post.url} 
+                                target="_blank" 
+                                rel="noopener noreferrer" 
+                                className="text-sm text-blue-500 hover:underline mt-1 inline-block"
+                              >
+                                View on LinkedIn →
+                              </a>
+                            )}
+                          </div>
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          onClick={() => handleDeletePost(post.id)} 
+                          className="h-8 w-8 p-0"
+                        >
+                          <Trash2 className="h-4 w-4 text-muted-foreground hover:text-destructive" />
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </ScrollArea>
+          </CardContent>
+        </Card>
       ) : (
         <div className="flex flex-col items-center justify-center p-12 text-center border rounded-lg bg-muted/10">
           <LinkedinIcon className="h-12 w-12 text-muted-foreground mb-4" />
