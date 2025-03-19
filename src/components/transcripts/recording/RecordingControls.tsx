@@ -41,6 +41,16 @@ const RecordingControls: React.FC<RecordingControlsProps> = ({
     }
   };
   
+  // Helper to log state for debugging
+  React.useEffect(() => {
+    console.log("RecordingControls props:", { 
+      isRecording, 
+      isPaused, 
+      isTranscribing, 
+      recordingTime 
+    });
+  }, [isRecording, isPaused, isTranscribing, recordingTime]);
+  
   return (
     <div className="flex flex-col items-center justify-center space-y-4">
       {!isRecording && !isTranscribing && (
@@ -96,10 +106,9 @@ const RecordingControls: React.FC<RecordingControlsProps> = ({
             <Button 
               onClick={onStopRecording} 
               variant="default"
-              disabled={recordingTime < 1}
             >
               <StopCircle className="h-4 w-4 mr-2" />
-              {recordingTime < 1 ? "Recording..." : "Stop"}
+              Stop
             </Button>
           </>
         )}

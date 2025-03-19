@@ -1,5 +1,5 @@
 
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo, useEffect } from 'react';
 import { toast } from 'sonner';
 import { useMediaStream } from './useMediaStream';
 import { useRecordingTimer } from './useRecordingTimer';
@@ -16,6 +16,17 @@ export function useRecorder() {
   const { stream, mimeType, requestMediaStream, stopMediaStream } = useMediaStream();
   const { recordingTime, formatTime, startTimer, pauseTimer, stopTimer, resetTimer } = useRecordingTimer();
 
+  // Cleanup effect for component unmount
+  useEffect(() => {
+    return () => {
+      if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+        mediaRecorder.stop();
+      }
+      stopMediaStream();
+      resetTimer();
+    };
+  }, [mediaRecorder, stopMediaStream, resetTimer]);
+
   const startRecording = useCallback(async () => {
     try {
       // Reset state
@@ -24,9 +35,16 @@ export function useRecorder() {
       resetTimer();
       setRecorderInitialized(false);
       
+      // First set recording state to true to update UI immediately
+      setIsRecording(true);
+      setIsPaused(false);
+      
       // Request media stream access
       const mediaStreamData = await requestMediaStream();
-      if (!mediaStreamData) return;
+      if (!mediaStreamData) {
+        setIsRecording(false);
+        return;
+      }
       
       const { stream, mimeType } = mediaStreamData;
       
@@ -71,6 +89,7 @@ export function useRecorder() {
           } else {
             console.error("No audio chunks collected during recording");
             toast.error("No audio recorded. Please try again.");
+            setIsRecording(false);
           }
           
           return currentChunks;
@@ -83,14 +102,12 @@ export function useRecorder() {
       // Start recording with smaller time slices for more frequent data events
       recorder.start(500); // Increased from 100ms to 500ms for more reliable collection
       
-      // Mark as initialized after a short delay to ensure the recorder has started
-      setTimeout(() => {
-        setRecorderInitialized(true);
-        setIsRecording(true);
-        setIsPaused(false);
-        startTimer();
-        toast.success("Recording started");
-      }, 300);
+      // Start the timer immediately
+      startTimer();
+      
+      // Mark as initialized
+      setRecorderInitialized(true);
+      toast.success("Recording started");
       
     } catch (error) {
       console.error("Error starting recording:", error);

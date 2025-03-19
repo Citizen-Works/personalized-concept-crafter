@@ -54,6 +54,11 @@ const RecordingDialog: React.FC<RecordingDialogProps> = ({
     }
   });
 
+  // Debug recording state
+  useEffect(() => {
+    console.log("Recording state:", { isRecording, isPaused, recordingTime });
+  }, [isRecording, isPaused, recordingTime]);
+
   // Reset state when dialog opens
   useEffect(() => {
     if (isOpen) {
