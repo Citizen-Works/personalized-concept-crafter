@@ -1,0 +1,35 @@
+
+/**
+ * Returns the full webhook URL for a service based on a token
+ * @param token - The unique token part of the webhook URL
+ * @returns Full webhook URL including domain 
+ */
+export const getFullWebhookUrl = (token: string): string => {
+  return `${window.location.origin}/api/webhook/${token}`;
+};
+
+/**
+ * Parses a webhook URL to extract the token part
+ * @param url - The full webhook URL
+ * @returns The token part of the URL
+ */
+export const parseWebhookToken = (url: string): string | null => {
+  const parts = url.split('/');
+  return parts[parts.length - 1] || null;
+};
+
+/**
+ * Format a webhook service name for display
+ * @param serviceName - The internal service name
+ * @returns Formatted service name for display
+ */
+export const formatServiceName = (serviceName: string): string => {
+  const names: Record<string, string> = {
+    'otter': 'Otter.ai',
+    'fathom': 'Fathom',
+    'read': 'Read.AI',
+    'fireflies': 'Fireflies.ai'
+  };
+  
+  return names[serviceName] || serviceName;
+};

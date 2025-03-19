@@ -278,6 +278,78 @@ export type Database = {
         }
         Relationships: []
       }
+      webhook_configurations: {
+        Row: {
+          api_key: string | null
+          created_at: string
+          id: string
+          is_active: boolean | null
+          last_connected: string | null
+          service_name: string
+          settings: Json | null
+          updated_at: string
+          user_id: string
+          webhook_url: string | null
+        }
+        Insert: {
+          api_key?: string | null
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          last_connected?: string | null
+          service_name: string
+          settings?: Json | null
+          updated_at?: string
+          user_id: string
+          webhook_url?: string | null
+        }
+        Update: {
+          api_key?: string | null
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          last_connected?: string | null
+          service_name?: string
+          settings?: Json | null
+          updated_at?: string
+          user_id?: string
+          webhook_url?: string | null
+        }
+        Relationships: []
+      }
+      webhook_logs: {
+        Row: {
+          created_at: string
+          error: string | null
+          event_type: string
+          id: string
+          payload: Json | null
+          processed: boolean | null
+          service_name: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          error?: string | null
+          event_type: string
+          id?: string
+          payload?: Json | null
+          processed?: boolean | null
+          service_name: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          error?: string | null
+          event_type?: string
+          id?: string
+          payload?: Json | null
+          processed?: boolean | null
+          service_name?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       writing_style_profiles: {
         Row: {
           avoid_patterns: string | null
