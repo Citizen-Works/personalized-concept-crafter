@@ -37,6 +37,21 @@ const IdeaDetailPage = () => {
     }
   };
 
+  const handleApproveIdea = async () => {
+    if (!idea) return;
+    
+    try {
+      await updateIdea({
+        id: idea.id,
+        status: 'approved'
+      });
+      toast.success('Idea approved successfully');
+    } catch (error) {
+      console.error('Error approving idea:', error);
+      toast.error('Failed to approve idea');
+    }
+  };
+
   const handleGenerateDraft = async (contentType: string, content: string) => {
     if (!idea) return;
     
@@ -79,7 +94,11 @@ const IdeaDetailPage = () => {
   
   return (
     <div className="space-y-8">
-      <IdeaPageHeader idea={idea} onEdit={() => setIsEditorOpen(true)} />
+      <IdeaPageHeader 
+        idea={idea} 
+        onEdit={() => setIsEditorOpen(true)} 
+        onApprove={handleApproveIdea}
+      />
       
       <div className="grid gap-6 md:grid-cols-3">
         <div className="md:col-span-2 space-y-6">
