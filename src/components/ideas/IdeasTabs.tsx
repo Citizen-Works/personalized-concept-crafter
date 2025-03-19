@@ -22,7 +22,8 @@ const IdeasTabs: React.FC<IdeasTabsProps> = ({
   getStatusBadgeClasses,
   getTypeBadgeClasses
 }) => {
-  const [viewMode, setViewMode] = useState<'list' | 'kanban'>('list');
+  // Changed default view to 'kanban' instead of 'list'
+  const [viewMode, setViewMode] = useState<'list' | 'kanban'>('kanban');
 
   return (
     <div className="space-y-4">

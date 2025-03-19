@@ -18,13 +18,17 @@ interface IdeaCardProps {
   onDeleteIdea: (id: string) => void;
   getStatusBadgeClasses: (status: ContentStatus) => string;
   getTypeBadgeClasses: (type: ContentType) => string;
+  hideStatusBadge?: boolean;
+  hideTypeBadge?: boolean;
 }
 
 const IdeaCard: React.FC<IdeaCardProps> = ({ 
   idea, 
   onDeleteIdea,
   getStatusBadgeClasses,
-  getTypeBadgeClasses
+  getTypeBadgeClasses,
+  hideStatusBadge = false,
+  hideTypeBadge = false
 }) => {
   return (
     <Card key={idea.id} className="overflow-hidden transition-all duration-200 hover:shadow-md">
@@ -34,16 +38,20 @@ const IdeaCard: React.FC<IdeaCardProps> = ({
             <div className="flex flex-col sm:flex-row sm:items-center gap-2">
               <h3 className="font-medium text-sm sm:text-base truncate">{idea.title}</h3>
               <div className="flex flex-wrap gap-1 sm:gap-2">
-                <Badge 
-                  className={`${getStatusBadgeClasses(idea.status)} text-xs whitespace-nowrap`}
-                >
-                  {idea.status.charAt(0).toUpperCase() + idea.status.slice(1)}
-                </Badge>
-                <Badge 
-                  className={`${getTypeBadgeClasses(idea.contentType)} text-xs whitespace-nowrap`}
-                >
-                  {idea.contentType.charAt(0).toUpperCase() + idea.contentType.slice(1)}
-                </Badge>
+                {!hideStatusBadge && (
+                  <Badge 
+                    className={`${getStatusBadgeClasses(idea.status)} text-xs whitespace-nowrap`}
+                  >
+                    {idea.status.charAt(0).toUpperCase() + idea.status.slice(1)}
+                  </Badge>
+                )}
+                {!hideTypeBadge && (
+                  <Badge 
+                    className={`${getTypeBadgeClasses(idea.contentType)} text-xs whitespace-nowrap`}
+                  >
+                    {idea.contentType.charAt(0).toUpperCase() + idea.contentType.slice(1)}
+                  </Badge>
+                )}
               </div>
             </div>
             <p className="text-xs sm:text-sm text-muted-foreground line-clamp-2">{idea.description}</p>

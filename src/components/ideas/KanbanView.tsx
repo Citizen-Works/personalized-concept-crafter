@@ -4,7 +4,6 @@ import { ContentIdea, ContentStatus, ContentType } from '@/types';
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import IdeaCard from './IdeaCard';
 import EmptyIdeasState from './EmptyIdeasState';
-import { KanbanSquare } from 'lucide-react';
 
 interface KanbanViewProps {
   ideas: ContentIdea[];
@@ -51,6 +50,8 @@ const KanbanView: React.FC<KanbanViewProps> = ({
                   onDeleteIdea={onDeleteIdea}
                   getStatusBadgeClasses={getStatusBadgeClasses}
                   getTypeBadgeClasses={getTypeBadgeClasses}
+                  hideStatusBadge={true}  // New prop to hide status badge
+                  hideTypeBadge={true}    // New prop to hide type badge
                 />
               ))}
             </div>
