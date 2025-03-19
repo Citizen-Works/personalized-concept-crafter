@@ -6,6 +6,7 @@ import {
   CarouselItem,
   CarouselNext,
   CarouselPrevious,
+  type CarouselApi
 } from "@/components/ui/carousel";
 import { Card } from "@/components/ui/card";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
@@ -27,6 +28,7 @@ interface ScreenshotsCarouselProps {
 const ScreenshotsCarousel = ({ className, title, description }: ScreenshotsCarouselProps) => {
   const isMobile = useIsMobile();
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [api, setApi] = useState<CarouselApi>();
   
   // Replace these with actual screenshots from your app
   const screenshots: Screenshot[] = [
@@ -52,6 +54,18 @@ const ScreenshotsCarousel = ({ className, title, description }: ScreenshotsCarou
     },
   ];
 
+  // Update current index when the carousel changes
+  const handleApiChange = (newApi: CarouselApi) => {
+    setApi(newApi);
+    
+    // Set up a callback to track selected index
+    if (newApi) {
+      newApi.on("select", () => {
+        setCurrentIndex(newApi.selectedScrollSnap());
+      });
+    }
+  };
+
   return (
     <div className={cn("py-16 px-4 text-center", className)}>
       {title && (
@@ -72,12 +86,7 @@ const ScreenshotsCarousel = ({ className, title, description }: ScreenshotsCarou
           opts={{
             loop: true,
           }}
-          onSelect={(api) => {
-            if (api) {
-              const selectedIndex = api.selectedScrollSnap();
-              setCurrentIndex(selectedIndex);
-            }
-          }}
+          setApi={handleApiChange}
         >
           <CarouselContent>
             {screenshots.map((screenshot, index) => (
@@ -126,7 +135,7 @@ const ScreenshotsCarousel = ({ className, title, description }: ScreenshotsCarou
               {screenshots.map((_, index) => (
                 <button
                   key={index}
-                  onClick={() => setCurrentIndex(index)}
+                  onClick={() => api?.scrollTo(index)}
                   className={cn(
                     "w-2.5 h-2.5 rounded-full transition-all",
                     currentIndex === index 
