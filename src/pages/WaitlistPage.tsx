@@ -38,6 +38,9 @@ const WaitlistPage = () => {
   const heroRef = useRef<HTMLDivElement>(null);
   const painPointsRef = useRef<HTMLDivElement>(null);
   const solutionRef = useRef<HTMLDivElement>(null);
+  
+  // Used to track if the component has mounted
+  const [mounted, setMounted] = useState(false);
 
   // Role animation
   useEffect(() => {
@@ -55,20 +58,31 @@ const WaitlistPage = () => {
     return () => clearInterval(interval);
   }, []);
 
-  // Scroll animations
+  // Initialize component and handle animations
   useEffect(() => {
+    setMounted(true);
+    
+    // Setup intersection observer after component mounts
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach(entry => {
           if (entry.isIntersecting) {
             entry.target.classList.add('animate-fade-in');
+            entry.target.classList.remove('opacity-0');
           }
         });
       },
       { threshold: 0.1 }
     );
 
-    const sections = [heroRef.current, painPointsRef.current, solutionRef.current];
+    // Get all sections that should be animated on scroll
+    const sections = [
+      heroRef.current, 
+      painPointsRef.current, 
+      solutionRef.current
+    ].filter(Boolean);
+    
+    // Observe each section
     sections.forEach(section => {
       if (section) observer.observe(section);
     });
@@ -78,7 +92,7 @@ const WaitlistPage = () => {
         if (section) observer.unobserve(section);
       });
     };
-  }, []);
+  }, [mounted]);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -120,6 +134,13 @@ const WaitlistPage = () => {
   const scrollToSection = (ref: React.RefObject<HTMLDivElement>) => {
     ref.current?.scrollIntoView({ behavior: 'smooth' });
   };
+
+  // Apply initial animation classes
+  if (!mounted) {
+    return <div className="min-h-screen flex items-center justify-center">
+      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+    </div>;
+  }
 
   return (
     <div className="min-h-screen flex flex-col">
