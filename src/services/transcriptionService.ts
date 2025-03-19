@@ -14,6 +14,9 @@ export interface TranscriptionResult {
   text: string;
 }
 
+// Track if there's an active transcription to prevent duplicate toasts
+let isActiveTranscription = false;
+
 /**
  * Transcribes audio data to text using the API
  * @param audioBlob - The recorded audio blob
@@ -24,6 +27,13 @@ export const transcribeAudio = async (
   audioBlob: Blob, 
   onProgress: TranscriptionProgressCallback
 ): Promise<string> => {
+  if (isActiveTranscription) {
+    console.warn("Another transcription is already in progress");
+    return "";
+  }
+  
+  isActiveTranscription = true;
+  
   try {
     // Validate audio data
     if (!audioBlob || audioBlob.size === 0) {
@@ -91,6 +101,8 @@ export const transcribeAudio = async (
   } catch (error) {
     console.error("Transcription error:", error);
     throw error;
+  } finally {
+    isActiveTranscription = false;
   }
 };
 

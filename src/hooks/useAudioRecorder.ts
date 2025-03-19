@@ -17,22 +17,32 @@ export function useAudioRecorder({ onTranscriptionComplete }: UseAudioRecorderPr
   const [transcribedText, setTranscribedText] = useState("");
   const [processingProgress, setProcessingProgress] = useState(0);
   const [processingStage, setProcessingStage] = useState<TranscriptionStage>('idle');
+  const [hasError, setHasError] = useState(false);
 
   // Handle transcription of recorded audio
   const processAudioForTranscription = useCallback(async (blob: Blob) => {
-    if (!blob) {
-      toast.error("No audio recorded");
+    if (!blob || blob.size === 0) {
+      setHasError(true);
       setIsTranscribing(false);
       setProcessingStage('idle');
+      toast.error("No audio data captured");
       return;
     }
     
     try {
+      setHasError(false);
+      
       // Use the transcriptionService to handle the API call
       const text = await transcribeAudio(blob, (progress, stage) => {
         setProcessingProgress(progress);
         setProcessingStage(stage);
       });
+      
+      if (!text || text.trim() === '') {
+        toast.error("No speech detected in the recording");
+        setHasError(true);
+        return;
+      }
       
       setTranscribedText(text);
       
@@ -41,6 +51,7 @@ export function useAudioRecorder({ onTranscriptionComplete }: UseAudioRecorderPr
       }
     } catch (error) {
       console.error("Error processing audio:", error);
+      setHasError(true);
       toast.error("Failed to transcribe audio");
       setProcessingStage('idle');
       setProcessingProgress(0);
@@ -51,8 +62,14 @@ export function useAudioRecorder({ onTranscriptionComplete }: UseAudioRecorderPr
 
   // Enhanced stop recording to automatically start transcription
   const stopRecording = useCallback(async () => {
+    if (!recorderState.isRecording) {
+      return;
+    }
+    
     recorderState.stopRecording();
     setIsTranscribing(true);
+    
+    // Clear any existing toast
     toast.success("Recording stopped, transcribing audio...");
     
     // We need to wait for the audioBlob to be set after stopping
@@ -66,12 +83,13 @@ export function useAudioRecorder({ onTranscriptionComplete }: UseAudioRecorderPr
             processAudioForTranscription(recorderState.audioBlob);
           } else {
             setIsTranscribing(false);
+            setHasError(true);
             toast.error("No audio data captured");
           }
         }, 500);
       }
     }, 500);
-  }, [recorderState.audioBlob, recorderState.stopRecording, processAudioForTranscription]);
+  }, [recorderState.audioBlob, recorderState.stopRecording, processAudioForTranscription, recorderState.isRecording]);
 
   // Enhanced reset that clears transcription state
   const resetRecording = useCallback(() => {
@@ -80,6 +98,7 @@ export function useAudioRecorder({ onTranscriptionComplete }: UseAudioRecorderPr
     setProcessingProgress(0);
     setProcessingStage('idle');
     setIsTranscribing(false);
+    setHasError(false);
   }, [recorderState.resetRecording]);
 
   // Memoize the return value to prevent unnecessary rerenders in consuming components
@@ -87,6 +106,7 @@ export function useAudioRecorder({ onTranscriptionComplete }: UseAudioRecorderPr
     isRecording: recorderState.isRecording,
     isPaused: recorderState.isPaused,
     isTranscribing,
+    hasError,
     recordingTime: recorderState.recordingTime,
     transcribedText,
     formatTime: recorderState.formatTime,
@@ -106,6 +126,7 @@ export function useAudioRecorder({ onTranscriptionComplete }: UseAudioRecorderPr
     recorderState.startRecording,
     recorderState.pauseRecording,
     isTranscribing,
+    hasError,
     transcribedText,
     stopRecording,
     resetRecording,

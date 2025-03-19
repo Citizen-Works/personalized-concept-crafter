@@ -32,6 +32,7 @@ const RecordingDialog: React.FC<RecordingDialogProps> = ({
     isRecording,
     isPaused,
     isTranscribing,
+    hasError,
     recordingTime,
     transcribedText,
     formatTime,
@@ -73,11 +74,10 @@ const RecordingDialog: React.FC<RecordingDialogProps> = ({
         transcribedText, 
         recordingTitle || `Recording ${new Date().toLocaleString()}`
       );
-      toast.success("Recording saved successfully");
       onOpenChange(false);
     } catch (error) {
       console.error("Error saving recording:", error);
-      toast.error("Failed to save recording");
+      // Don't show another toast here - the error is already shown in the handler
     } finally {
       setIsSubmitting(false);
     }
@@ -112,7 +112,7 @@ const RecordingDialog: React.FC<RecordingDialogProps> = ({
         
         <div className="space-y-4 py-4">
           {/* Recording Controls */}
-          {!transcribedText && (
+          {!transcribedText && !hasError && (
             <RecordingControls
               isRecording={isRecording}
               isPaused={isPaused}
@@ -127,12 +127,27 @@ const RecordingDialog: React.FC<RecordingDialogProps> = ({
             />
           )}
           
+          {/* Show a retry button if there was an error */}
+          {hasError && !isRecording && !isTranscribing && !transcribedText && (
+            <div className="flex flex-col items-center py-4">
+              <p className="text-destructive mb-4">Recording failed. Please check your microphone and try again.</p>
+              <Button onClick={() => {
+                resetRecording();
+                setTimeout(() => startRecording(), 500);
+              }}>
+                Try Again
+              </Button>
+            </div>
+          )}
+          
           {/* Transcription Result */}
-          <TranscriptionResult
-            transcribedText={transcribedText}
-            title={recordingTitle}
-            onTitleChange={setRecordingTitle}
-          />
+          {transcribedText && (
+            <TranscriptionResult
+              transcribedText={transcribedText}
+              title={recordingTitle}
+              onTitleChange={setRecordingTitle}
+            />
+          )}
         </div>
         
         <DialogFooter>
