@@ -51,9 +51,10 @@ export const processTranscriptForIdeas = async (
       ? 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml2YmpvZmpzbWhuYXRteml4cWNvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDIxNjgwNDIsImV4cCI6MjA1Nzc0NDA0Mn0.vW7uUXyXRIRLB6HAm_lKcV-ACx7OWiGObiHgktb9fYs'
       : 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml2YmpvZmpzbWhuYXRteml4cWNvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDIxNjgwNDIsImV4cCI6MjA1Nzc0NDA0Mn0.vW7uUXyXRIRLB6HAm_lKcV-ACx7OWiGObiHgktb9fYs';
 
-    console.log(`Making request to ${window.location.origin}/api/functions/generate-with-claude`);
+    const apiUrl = `${window.location.origin}/api/functions/generate-with-claude`;
+    console.log(`Making request to ${apiUrl}`);
     
-    const response = await fetch(`${window.location.origin}/api/functions/generate-with-claude`, {
+    const response = await fetch(apiUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -80,9 +81,37 @@ export const processTranscriptForIdeas = async (
     });
 
     if (!response.ok) {
-      const errorText = await response.text();
-      console.error("Error response from claude function:", errorText);
-      throw new Error(`Error processing transcript: ${response.statusText}`);
+      // Try to extract error details from the response
+      let errorMessage = `Error processing transcript: ${response.status} ${response.statusText}`;
+      
+      try {
+        // First try to parse as JSON
+        const errorData = await response.json();
+        console.error("Error response from claude function (JSON):", errorData);
+        errorMessage = errorData.error || errorMessage;
+      } catch (jsonError) {
+        // If JSON parsing fails, get the text instead
+        try {
+          const errorText = await response.text();
+          console.error("Error response from claude function (Text):", errorText);
+          // Limit the length of the error text to avoid huge logs
+          const truncatedText = errorText.length > 300 ? errorText.substring(0, 300) + '...' : errorText;
+          errorMessage = `${errorMessage}. Response: ${truncatedText}`;
+        } catch (textError) {
+          console.error("Failed to read error response body:", textError);
+        }
+      }
+      
+      throw new Error(errorMessage);
+    }
+
+    // First check the content type to make sure we're getting JSON
+    const contentType = response.headers.get('content-type');
+    if (!contentType || !contentType.includes('application/json')) {
+      console.error("Response is not JSON. Content-Type:", contentType);
+      const responseText = await response.text();
+      console.error("Non-JSON response body:", responseText.substring(0, 500));
+      throw new Error("Received non-JSON response from API");
     }
 
     let result;
@@ -90,9 +119,21 @@ export const processTranscriptForIdeas = async (
       result = await response.json();
     } catch (parseError) {
       console.error("Failed to parse JSON response:", parseError);
-      const responseText = await response.text();
-      console.error("Raw response:", responseText);
+      
+      // Get the raw response for debugging
+      try {
+        const responseText = await response.text();
+        console.error("Raw response that failed JSON parsing:", responseText.substring(0, 500));
+      } catch (textError) {
+        console.error("Failed to get raw response text after JSON parse error:", textError);
+      }
+      
       throw new Error("Failed to parse response from AI service");
+    }
+
+    if (!result || !result.content) {
+      console.error("Invalid response structure:", result);
+      throw new Error("Invalid response structure from AI service");
     }
 
     return result.content;
