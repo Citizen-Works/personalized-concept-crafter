@@ -7,7 +7,7 @@ import {
   createDocument, 
   updateDocumentStatus, 
   processTranscriptForIdeas 
-} from "@/services/documentService";
+} from "@/services/documents"; // Updated import path
 import { useDocumentUpload } from "./documents/useDocumentUpload";
 import { useMemo, useCallback } from "react";
 
