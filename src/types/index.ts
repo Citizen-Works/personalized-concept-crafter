@@ -1,4 +1,3 @@
-
 export interface User {
   id: string;
   email: string;
@@ -106,10 +105,10 @@ export interface ContentDraft {
   status?: DraftStatus;
 }
 
-// Add ThemeProviderProps type to solve the import issue
+// Update ThemeProviderProps to match next-themes requirements
 export interface ThemeProviderProps {
   children: React.ReactNode;
-  attribute?: string;
+  attribute?: string | string[];
   defaultTheme?: string;
   enableSystem?: boolean;
   disableTransitionOnChange?: boolean;

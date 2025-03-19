@@ -42,7 +42,7 @@ const AppSidebar = () => {
   };
 
   return (
-    <Sidebar defaultCollapsed={isMobile} collapsible="offcanvas">
+    <Sidebar collapsible="offcanvas">
       <SidebarHeader className="border-b p-4">
         <div className="flex items-center space-x-2">
           <img src="/logo.svg" alt="Logo" className="h-6 w-6" />
@@ -54,36 +54,50 @@ const AppSidebar = () => {
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton 
-              icon={<Home />} 
               isActive={pathname === '/dashboard'}
             >
-              <Link to="/dashboard">Dashboard</Link>
+              <Link to="/dashboard">
+                <Home className="mr-2" />
+                <span>Dashboard</span>
+              </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
           
           <SidebarMenuItem>
             <SidebarMenuButton 
-              icon={<Lightbulb />} 
               isActive={pathname.includes('/ideas')}
             >
-              <Link to="/ideas">Content Ideas</Link>
+              <Link to="/ideas">
+                <Lightbulb className="mr-2" />
+                <span>Content Ideas</span>
+              </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
           
           <SidebarMenuItem>
             <SidebarMenuButton 
-              icon={<PenSquare />} 
               isActive={pathname.includes('/drafts')}
             >
-              <Link to="/drafts">Content Drafts</Link>
+              <Link to="/drafts">
+                <PenSquare className="mr-2" />
+                <span>Content Drafts</span>
+              </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
           
           <SidebarMenuItem>
-            <SidebarMenuSub 
-              title="Documents"
-              defaultOpen={pathname.includes('/documents') || pathname.includes('/transcripts')}
-            >
+            <SidebarMenuSub>
+              {pathname.includes('/documents') || pathname.includes('/transcripts') ? (
+                <SidebarMenuButton>
+                  <FileText className="mr-2" />
+                  <span>Documents</span>
+                </SidebarMenuButton>
+              ) : (
+                <SidebarMenuButton>
+                  <FileText className="mr-2" />
+                  <span>Documents</span>
+                </SidebarMenuButton>
+              )}
               <SidebarMenuSubItem>
                 <SidebarMenuSubButton 
                   isActive={pathname === '/documents'}
@@ -102,10 +116,18 @@ const AppSidebar = () => {
           </SidebarMenuItem>
           
           <SidebarMenuItem>
-            <SidebarMenuSub 
-              title="LinkedIn"
-              defaultOpen={pathname.includes('/linkedin')}
-            >
+            <SidebarMenuSub>
+              {pathname.includes('/linkedin') ? (
+                <SidebarMenuButton>
+                  <Linkedin className="mr-2" />
+                  <span>LinkedIn</span>
+                </SidebarMenuButton>
+              ) : (
+                <SidebarMenuButton>
+                  <Linkedin className="mr-2" />
+                  <span>LinkedIn</span>
+                </SidebarMenuButton>
+              )}
               <SidebarMenuSubItem>
                 <SidebarMenuSubButton 
                   isActive={pathname === '/linkedin-posts'}
@@ -117,10 +139,18 @@ const AppSidebar = () => {
           </SidebarMenuItem>
           
           <SidebarMenuItem>
-            <SidebarMenuSub 
-              title="Resources"
-              defaultOpen={pathname.includes('/content-pillars') || pathname.includes('/target-audiences') || pathname.includes('/writing-style')}
-            >
+            <SidebarMenuSub>
+              {pathname.includes('/content-pillars') || pathname.includes('/target-audiences') || pathname.includes('/writing-style') ? (
+                <SidebarMenuButton>
+                  <BookText className="mr-2" />
+                  <span>Resources</span>
+                </SidebarMenuButton>
+              ) : (
+                <SidebarMenuButton>
+                  <BookText className="mr-2" />
+                  <span>Resources</span>
+                </SidebarMenuButton>
+              )}
               <SidebarMenuSubItem>
                 <SidebarMenuSubButton 
                   isActive={pathname === '/content-pillars'}
@@ -146,10 +176,18 @@ const AppSidebar = () => {
           </SidebarMenuItem>
           
           <SidebarMenuItem>
-            <SidebarMenuSub 
-              title="Examples"
-              defaultOpen={pathname.includes('/marketing-examples') || pathname.includes('/newsletter-examples')}
-            >
+            <SidebarMenuSub>
+              {pathname.includes('/marketing-examples') || pathname.includes('/newsletter-examples') ? (
+                <SidebarMenuButton>
+                  <FileImage className="mr-2" />
+                  <span>Examples</span>
+                </SidebarMenuButton>
+              ) : (
+                <SidebarMenuButton>
+                  <FileImage className="mr-2" />
+                  <span>Examples</span>
+                </SidebarMenuButton>
+              )}
               <SidebarMenuSubItem>
                 <SidebarMenuSubButton 
                   isActive={pathname === '/marketing-examples'}
@@ -169,10 +207,12 @@ const AppSidebar = () => {
           
           <SidebarMenuItem>
             <SidebarMenuButton 
-              icon={<Settings />} 
               isActive={pathname.includes('/settings')}
             >
-              <Link to="/settings">Settings</Link>
+              <Link to="/settings">
+                <Settings className="mr-2" />
+                <span>Settings</span>
+              </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>

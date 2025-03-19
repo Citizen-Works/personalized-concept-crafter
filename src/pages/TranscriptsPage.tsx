@@ -38,6 +38,8 @@ const TranscriptsPage = () => {
         setIdeas(result);
         setIsIdeasDialogOpen(true);
         toast.success("Transcript processed successfully");
+      } else {
+        toast.error("Failed to process transcript");
       }
     } catch (error) {
       console.error("Failed to process transcript:", error);
