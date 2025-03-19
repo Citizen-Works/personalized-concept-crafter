@@ -1,214 +1,171 @@
 
 import React, { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Loader2, Bug, FileText, Mail, Megaphone } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Textarea } from "@/components/ui/textarea";
+import { Loader2, Lightbulb, AlertCircle, CheckCircle } from 'lucide-react';
 import { ContentIdea, ContentType } from '@/types';
+import { Badge } from '@/components/ui/badge';
 import { useClaudeAI } from '@/hooks/useClaudeAI';
-import { toast } from 'sonner';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { MarketingDetailsDialog, MarketingDetails } from './MarketingDetailsDialog';
 
 interface IdeaContentGenerationProps {
   idea: ContentIdea;
   onGenerateDraft: (contentType: string, content: string) => Promise<void>;
 }
 
-const IdeaContentGeneration: React.FC<IdeaContentGenerationProps> = ({ 
-  idea, 
-  onGenerateDraft 
+const IdeaContentGeneration: React.FC<IdeaContentGenerationProps> = ({
+  idea,
+  onGenerateDraft
 }) => {
-  const [generatingType, setGeneratingType] = useState<ContentType | null>(null);
-  const [showDebugDialog, setShowDebugDialog] = useState(false);
-  const [showMarketingDialog, setShowMarketingDialog] = useState(false);
-  const [selectedType, setSelectedType] = useState<ContentType>('linkedin');
-  const { generateContent, isGenerating, debugPrompt } = useClaudeAI();
-
-  const handleGenerateDraft = async (contentType: ContentType) => {
-    setGeneratingType(contentType);
+  const [selectedContentType, setSelectedContentType] = useState<ContentType>(idea.contentType || 'linkedin');
+  const [generatedContent, setGeneratedContent] = useState('');
+  const { generateContent, isGenerating, error } = useClaudeAI();
+  
+  // Extract content goal and call to action from the idea
+  const extractContentGoal = () => {
+    if (!idea.description) return null;
     
+    const goalMatch = idea.description.match(/Content Goal: (.*?)(?:\n|$)/);
+    if (goalMatch && goalMatch[1]) {
+      return goalMatch[1].trim();
+    }
+    return null;
+  };
+  
+  const extractCallToAction = () => {
+    if (!idea.notes) return null;
+    
+    const ctaMatch = idea.notes.match(/Call to Action: (.*?)(?:\n|$)/);
+    if (ctaMatch && ctaMatch[1]) {
+      return ctaMatch[1].trim();
+    }
+    return null;
+  };
+  
+  const contentGoal = extractContentGoal();
+  const callToAction = extractCallToAction();
+  
+  const handleGenerateContent = async () => {
     try {
-      console.log("Generating content of type:", contentType, "for idea:", idea.id);
-      const generatedContent = await generateContent(idea, contentType);
-      
-      if (generatedContent) {
-        await onGenerateDraft(contentType, generatedContent);
+      const content = await generateContent(idea, selectedContentType);
+      if (content) {
+        setGeneratedContent(content);
       }
     } catch (error) {
-      console.error('Error in handleGenerateDraft:', error);
-      toast.error(`Failed to generate ${contentType} content`);
-    } finally {
-      setGeneratingType(null);
+      console.error('Error generating content:', error);
     }
   };
   
-  const handleGenerateMarketingContent = async (details: MarketingDetails) => {
-    setGeneratingType('marketing');
-    
-    try {
-      console.log("Generating marketing content for idea:", idea.id, "with details:", details);
-      
-      // Add the marketing details to the idea for the prompt
-      const ideaWithDetails = {
-        ...idea,
-        marketingDetails: details
-      };
-      
-      const generatedContent = await generateContent(ideaWithDetails, 'marketing');
-      
-      if (generatedContent) {
-        await onGenerateDraft('marketing', generatedContent);
-      }
-    } catch (error) {
-      console.error('Error generating marketing content:', error);
-      toast.error('Failed to generate marketing content');
-    } finally {
-      setGeneratingType(null);
-    }
+  const handleSaveAsDraft = async () => {
+    await onGenerateDraft(selectedContentType, generatedContent);
+    // Optionally clear the content after saving
+    setGeneratedContent('');
   };
-
-  const handleDebugPrompt = async (contentType: ContentType) => {
-    setSelectedType(contentType);
-    try {
-      await generateContent(idea, contentType, true);
-      setShowDebugDialog(true);
-    } catch (error) {
-      console.error('Error debugging prompt:', error);
-      toast.error('Failed to generate debug prompt');
-    }
-  };
-
+  
   return (
-    <>
-      <Card>
-        <CardHeader className="pb-3">
-          <CardTitle>Generate Content</CardTitle>
-          <CardDescription>
-            Create content based on this idea
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="flex gap-2">
-            <Button 
-              className="w-full gap-1" 
-              disabled={isGenerating || generatingType !== null}
-              onClick={() => handleGenerateDraft('linkedin')}
-            >
-              {generatingType === 'linkedin' ? (
-                <>
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                  Generating...
-                </>
-              ) : (
-                <>
-                  <FileText className="h-4 w-4" />
-                  LinkedIn Post
-                </>
-              )}
-            </Button>
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={() => handleDebugPrompt('linkedin')}
-              title={`Debug LinkedIn prompt`}
-            >
-              <Bug className="h-4 w-4" />
-            </Button>
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center justify-between">
+          <span>Generate Content</span>
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        {contentGoal && (
+          <div className="mb-4">
+            <Badge variant="outline" className="bg-primary/10 text-primary hover:bg-primary/20">
+              Goal: {contentGoal}
+            </Badge>
+            {callToAction && (
+              <div className="mt-2">
+                <Badge variant="outline" className="bg-secondary/10 text-secondary hover:bg-secondary/20">
+                  CTA: {callToAction}
+                </Badge>
+              </div>
+            )}
           </div>
+        )}
+        
+        <Tabs defaultValue={selectedContentType} onValueChange={(value) => setSelectedContentType(value as ContentType)}>
+          <TabsList className="grid grid-cols-3 mb-4">
+            <TabsTrigger value="linkedin">LinkedIn</TabsTrigger>
+            <TabsTrigger value="newsletter">Newsletter</TabsTrigger>
+            <TabsTrigger value="marketing">Marketing</TabsTrigger>
+          </TabsList>
           
-          <div className="flex gap-2">
-            <Button 
-              className="w-full gap-1" 
-              disabled={isGenerating || generatingType !== null}
-              onClick={() => handleGenerateDraft('newsletter')}
-            >
-              {generatingType === 'newsletter' ? (
-                <>
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                  Generating...
-                </>
-              ) : (
-                <>
-                  <Mail className="h-4 w-4" />
-                  Newsletter
-                </>
-              )}
-            </Button>
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={() => handleDebugPrompt('newsletter')}
-              title={`Debug newsletter prompt`}
-            >
-              <Bug className="h-4 w-4" />
-            </Button>
+          <TabsContent value="linkedin" className="space-y-4">
+            <p className="text-sm text-muted-foreground">Generate a professional LinkedIn post based on this idea.</p>
+          </TabsContent>
+          <TabsContent value="newsletter" className="space-y-4">
+            <p className="text-sm text-muted-foreground">Generate an engaging newsletter article based on this idea.</p>
+          </TabsContent>
+          <TabsContent value="marketing" className="space-y-4">
+            <p className="text-sm text-muted-foreground">Generate compelling marketing copy based on this idea.</p>
+          </TabsContent>
+        </Tabs>
+        
+        {error && (
+          <div className="bg-destructive/10 text-destructive text-sm p-3 rounded-md flex items-start gap-2">
+            <AlertCircle className="h-5 w-5 flex-shrink-0 mt-0.5" />
+            <span>{error}</span>
           </div>
-          
-          <div className="flex gap-2">
-            <Button 
-              className="w-full gap-1" 
-              disabled={isGenerating || generatingType !== null}
-              onClick={() => setShowMarketingDialog(true)}
-            >
-              {generatingType === 'marketing' ? (
-                <>
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                  Generating...
-                </>
-              ) : (
-                <>
-                  <Megaphone className="h-4 w-4" />
-                  Marketing Copy
-                </>
-              )}
-            </Button>
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={() => handleDebugPrompt('marketing')}
-              title={`Debug marketing prompt`}
-            >
-              <Bug className="h-4 w-4" />
-            </Button>
+        )}
+        
+        {!isGenerating && !generatedContent ? (
+          <Button 
+            onClick={handleGenerateContent} 
+            className="w-full"
+            disabled={isGenerating}
+          >
+            <Lightbulb className="mr-2 h-4 w-4" />
+            Generate {selectedContentType.charAt(0).toUpperCase() + selectedContentType.slice(1)} Content
+          </Button>
+        ) : (
+          <div className="space-y-4">
+            {isGenerating ? (
+              <div className="flex items-center justify-center py-8">
+                <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+                <span className="ml-2 text-muted-foreground">Generating content...</span>
+              </div>
+            ) : (
+              <>
+                <Textarea 
+                  value={generatedContent} 
+                  onChange={(e) => setGeneratedContent(e.target.value)}
+                  className="min-h-[300px]"
+                  placeholder="Generated content will appear here"
+                />
+                
+                <div className="flex gap-2">
+                  <Button 
+                    variant="outline" 
+                    onClick={() => setGeneratedContent('')}
+                    className="flex-1"
+                  >
+                    Clear
+                  </Button>
+                  <Button 
+                    onClick={handleGenerateContent}
+                    variant="outline"
+                    className="flex-1"
+                  >
+                    <Lightbulb className="mr-2 h-4 w-4" />
+                    Regenerate
+                  </Button>
+                  <Button 
+                    onClick={handleSaveAsDraft}
+                    className="flex-1"
+                  >
+                    <CheckCircle className="mr-2 h-4 w-4" />
+                    Save as Draft
+                  </Button>
+                </div>
+              </>
+            )}
           </div>
-        </CardContent>
-      </Card>
-
-      <Dialog open={showDebugDialog} onOpenChange={setShowDebugDialog}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-auto">
-          <DialogHeader>
-            <DialogTitle>Debug Prompt for {selectedType.charAt(0).toUpperCase() + selectedType.slice(1)}</DialogTitle>
-            <DialogDescription>
-              This is the exact prompt that will be sent to Claude AI
-            </DialogDescription>
-          </DialogHeader>
-          <div className="bg-slate-800 p-4 rounded border border-slate-700 whitespace-pre-wrap font-mono text-sm text-slate-100">
-            {debugPrompt}
-          </div>
-          <div className="flex justify-end gap-2">
-            <Button 
-              onClick={() => {
-                if (debugPrompt) {
-                  navigator.clipboard.writeText(debugPrompt);
-                  toast.success('Prompt copied to clipboard');
-                }
-              }}
-            >
-              Copy to Clipboard
-            </Button>
-            <Button variant="outline" onClick={() => setShowDebugDialog(false)}>
-              Close
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
-      
-      <MarketingDetailsDialog
-        open={showMarketingDialog}
-        onOpenChange={setShowMarketingDialog}
-        onGenerate={handleGenerateMarketingContent}
-      />
-    </>
+        )}
+      </CardContent>
+    </Card>
   );
 };
 

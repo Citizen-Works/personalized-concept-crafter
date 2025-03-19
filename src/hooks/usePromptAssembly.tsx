@@ -129,6 +129,54 @@ export const usePromptAssembly = () => {
     
     finalPrompt = addPatternsToAvoidToPrompt(finalPrompt, formattedStyleProfile);
     
+    // Extract content goal from idea description
+    let contentGoal = "";
+    let callToAction = "";
+    
+    if (idea.description) {
+      const goalMatch = idea.description.match(/Content Goal: (.*?)(?:\n|$)/);
+      if (goalMatch && goalMatch[1]) {
+        contentGoal = goalMatch[1].trim();
+      }
+    }
+    
+    if (idea.notes) {
+      const ctaMatch = idea.notes.match(/Call to Action: (.*?)(?:\n|$)/);
+      if (ctaMatch && ctaMatch[1]) {
+        callToAction = ctaMatch[1].trim();
+      }
+    }
+    
+    // Add content goal to prompt if found
+    if (contentGoal) {
+      finalPrompt += `\n\n# CONTENT GOAL\nThis content has the goal of: ${contentGoal}.\n`;
+      
+      // Add specific guidance based on content goal
+      switch(contentGoal.toLowerCase().replace(' ', '_')) {
+        case 'audience_building':
+          finalPrompt += "Focus on creating engaging, shareable content that demonstrates expertise and value. Aim to increase visibility and followers.\n";
+          break;
+        case 'lead_generation':
+          finalPrompt += "Create content that highlights a problem and positions our expertise as the solution. Include a clear way for potential leads to take the next step.\n";
+          break;
+        case 'nurturing':
+          finalPrompt += "Provide valuable insights that build trust and demonstrate ongoing value. Assume the audience is already familiar with us but needs more reasons to engage further.\n";
+          break;
+        case 'conversion':
+          finalPrompt += "Create compelling content that overcomes objections and emphasizes benefits. Show why taking action now is valuable and reduce perceived risk.\n";
+          break;
+        case 'retention':
+          finalPrompt += "Focus on providing additional value to existing customers. Highlight features they might not be using, success stories, or additional ways they can benefit.\n";
+          break;
+      }
+    }
+    
+    // Add call to action to prompt if found
+    if (callToAction) {
+      finalPrompt += `\n\n# CALL TO ACTION\nThis content should guide the reader to: ${callToAction}.\n`;
+      finalPrompt += "Make sure this call to action is integrated naturally into the content and feels like a logical next step for the reader.\n";
+    }
+    
     // Add content idea details (toward the end)
     finalPrompt = addContentIdeaToPrompt(finalPrompt, idea);
     

@@ -17,37 +17,74 @@ import { ArrowLeft } from 'lucide-react';
 import { ContentType, ContentSource } from '@/types';
 import { useIdeas } from '@/hooks/ideas';
 import { toast } from 'sonner';
+import { 
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormDescription
+} from "@/components/ui/form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import * as z from "zod";
+
+// Content goal types
+type ContentGoal = 'audience_building' | 'lead_generation' | 'nurturing' | 'conversion' | 'retention' | 'other';
+
+// Define the form schema
+const formSchema = z.object({
+  title: z.string().min(2, "Title must be at least 2 characters."),
+  description: z.string().optional(),
+  notes: z.string().optional(),
+  contentType: z.enum(["linkedin", "newsletter", "marketing"]),
+  source: z.enum(["manual", "meeting", "other"]),
+  sourceUrl: z.string().optional(),
+  contentGoal: z.enum(["audience_building", "lead_generation", "nurturing", "conversion", "retention", "other"]),
+  callToAction: z.string().optional(),
+});
+
+type FormValues = z.infer<typeof formSchema>;
 
 const NewIdeaPage = () => {
   const navigate = useNavigate();
   const { createIdea } = useIdeas();
-  
-  const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
-  const [notes, setNotes] = useState('');
-  const [contentType, setContentType] = useState<ContentType>('linkedin');
-  const [source, setSource] = useState<ContentSource>('manual');
-  const [sourceUrl, setSourceUrl] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!title.trim()) {
-      toast.error('Title is required');
-      return;
-    }
-    
+  // Initialize form with react-hook-form and zod validation
+  const form = useForm<FormValues>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      title: "",
+      description: "",
+      notes: "",
+      contentType: "linkedin" as ContentType,
+      source: "manual" as ContentSource,
+      sourceUrl: "",
+      contentGoal: "audience_building" as ContentGoal,
+      callToAction: "",
+    },
+  });
+  
+  const onSubmit = async (values: FormValues) => {
     setIsSubmitting(true);
     
     try {
+      // Format notes to include CTA if provided
+      const formattedNotes = values.callToAction 
+        ? `${values.notes || ""}\n\nCall to Action: ${values.callToAction}` 
+        : values.notes;
+      
+      // Format description to include content goal
+      const formattedDescription = `Content Goal: ${values.contentGoal.replace('_', ' ')}\n\n${values.description || ""}`;
+      
       await createIdea({
-        title,
-        description,
-        notes,
-        contentType,
-        source,
-        sourceUrl: sourceUrl || null,
+        title: values.title,
+        description: formattedDescription,
+        notes: formattedNotes,
+        contentType: values.contentType,
+        source: values.source,
+        sourceUrl: values.sourceUrl || null,
         status: 'unreviewed',
         meetingTranscriptExcerpt: null
       });
@@ -60,6 +97,21 @@ const NewIdeaPage = () => {
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const contentTypeDescription = {
+    linkedin: "Professional content for your LinkedIn audience",
+    newsletter: "Engaging content for your email subscribers",
+    marketing: "Persuasive content to promote products/services"
+  };
+
+  const goalDescriptions = {
+    audience_building: "Grow your audience and increase visibility",
+    lead_generation: "Attract new potential customers",
+    nurturing: "Build relationships with existing leads",
+    conversion: "Turn prospects into customers",
+    retention: "Keep existing customers engaged",
+    other: "Custom goal"
   };
   
   return (
@@ -81,106 +133,200 @@ const NewIdeaPage = () => {
       </div>
       
       <Card>
-        <form onSubmit={handleSubmit}>
-          <CardHeader>
-            <CardTitle>Idea Details</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            <div className="space-y-2">
-              <Label htmlFor="title">Title</Label>
-              <Input 
-                id="title" 
-                placeholder="Enter a title for your idea" 
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                required
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)}>
+            <CardHeader>
+              <CardTitle>Idea Details</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <FormField
+                control={form.control}
+                name="title"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Title</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Enter a title for your idea" {...field} />
+                    </FormControl>
+                  </FormItem>
+                )}
               />
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="description">Description</Label>
-              <Textarea 
-                id="description" 
-                placeholder="Describe your content idea" 
-                className="min-h-32 resize-none"
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-              />
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="notes">Notes</Label>
-              <Textarea 
-                id="notes" 
-                placeholder="Add any additional notes or context" 
-                className="min-h-24 resize-none"
-                value={notes}
-                onChange={(e) => setNotes(e.target.value)}
-              />
-            </div>
-            
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-              <div className="space-y-2">
-                <Label htmlFor="contentType">Content Type</Label>
-                <Select 
-                  value={contentType} 
-                  onValueChange={(value) => setContentType(value as ContentType)}
-                >
-                  <SelectTrigger id="contentType">
-                    <SelectValue placeholder="Select content type" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="linkedin">LinkedIn</SelectItem>
-                    <SelectItem value="newsletter">Newsletter</SelectItem>
-                    <SelectItem value="marketing">Marketing</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
               
-              <div className="space-y-2">
-                <Label htmlFor="source">Source</Label>
-                <Select 
-                  value={source} 
-                  onValueChange={(value) => setSource(value as ContentSource)}
-                >
-                  <SelectTrigger id="source">
-                    <SelectValue placeholder="Select source" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="manual">Manual Entry</SelectItem>
-                    <SelectItem value="meeting">Meeting</SelectItem>
-                    <SelectItem value="other">Other</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-            
-            {(source === 'other') && (
-              <div className="space-y-2">
-                <Label htmlFor="sourceUrl">Source URL</Label>
-                <Input 
-                  id="sourceUrl" 
-                  placeholder="Enter the source URL" 
-                  type="url"
-                  value={sourceUrl}
-                  onChange={(e) => setSourceUrl(e.target.value)}
+              <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                <FormField
+                  control={form.control}
+                  name="contentType"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Content Type</FormLabel>
+                      <Select 
+                        onValueChange={field.onChange} 
+                        defaultValue={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select content type" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="linkedin">LinkedIn</SelectItem>
+                          <SelectItem value="newsletter">Newsletter</SelectItem>
+                          <SelectItem value="marketing">Marketing</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormDescription>
+                        {contentTypeDescription[field.value as keyof typeof contentTypeDescription]}
+                      </FormDescription>
+                    </FormItem>
+                  )}
+                />
+                
+                <FormField
+                  control={form.control}
+                  name="contentGoal"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Content Goal</FormLabel>
+                      <Select 
+                        onValueChange={field.onChange} 
+                        defaultValue={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select content goal" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="audience_building">Audience Building</SelectItem>
+                          <SelectItem value="lead_generation">Lead Generation</SelectItem>
+                          <SelectItem value="nurturing">Nurturing</SelectItem>
+                          <SelectItem value="conversion">Conversion</SelectItem>
+                          <SelectItem value="retention">Retention</SelectItem>
+                          <SelectItem value="other">Other</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormDescription>
+                        {goalDescriptions[field.value as keyof typeof goalDescriptions]}
+                      </FormDescription>
+                    </FormItem>
+                  )}
                 />
               </div>
-            )}
-          </CardContent>
-          <CardFooter className="flex justify-end gap-2">
-            <Button 
-              type="button" 
-              variant="outline" 
-              onClick={() => navigate('/ideas')}
-            >
-              Cancel
-            </Button>
-            <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? 'Creating...' : 'Create Idea'}
-            </Button>
-          </CardFooter>
-        </form>
+              
+              <FormField
+                control={form.control}
+                name="description"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Description</FormLabel>
+                    <FormControl>
+                      <Textarea 
+                        placeholder="Describe your content idea" 
+                        className="min-h-32 resize-none"
+                        {...field}
+                      />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+              
+              <FormField
+                control={form.control}
+                name="callToAction"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Call to Action</FormLabel>
+                    <FormControl>
+                      <Input 
+                        placeholder="What action should readers take? (e.g., 'Sign up for webinar')" 
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormDescription>
+                      Define what you want your audience to do after consuming this content
+                    </FormDescription>
+                  </FormItem>
+                )}
+              />
+              
+              <FormField
+                control={form.control}
+                name="notes"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Additional Notes</FormLabel>
+                    <FormControl>
+                      <Textarea 
+                        placeholder="Add any specific instructions or context for content generation" 
+                        className="min-h-24 resize-none"
+                        {...field}
+                      />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+              
+              <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                <FormField
+                  control={form.control}
+                  name="source"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Source</FormLabel>
+                      <Select 
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select source" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="manual">Manual Entry</SelectItem>
+                          <SelectItem value="meeting">Meeting</SelectItem>
+                          <SelectItem value="other">Other</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </FormItem>
+                  )}
+                />
+                
+                {form.watch('source') === 'other' && (
+                  <FormField
+                    control={form.control}
+                    name="sourceUrl"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Source URL</FormLabel>
+                        <FormControl>
+                          <Input 
+                            placeholder="Enter the source URL" 
+                            type="url"
+                            {...field}
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                )}
+              </div>
+            </CardContent>
+            <CardFooter className="flex justify-end gap-2">
+              <Button 
+                type="button" 
+                variant="outline" 
+                onClick={() => navigate('/ideas')}
+                disabled={isSubmitting}
+              >
+                Cancel
+              </Button>
+              <Button type="submit" disabled={isSubmitting}>
+                {isSubmitting ? 'Creating...' : 'Create Idea'}
+              </Button>
+            </CardFooter>
+          </form>
+        </Form>
       </Card>
     </div>
   );
