@@ -2,6 +2,7 @@
 import { ReactNode } from 'react';
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
+import { Loading } from '@/components/ui/loading';
 
 type ProtectedRouteProps = {
   children: ReactNode;
@@ -11,8 +12,7 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   const { user, loading } = useAuth();
   
   if (loading) {
-    // You could return a loading spinner here
-    return <div className="h-screen flex items-center justify-center">Loading...</div>;
+    return <Loading fullScreen size="lg" />;
   }
   
   if (!user) {

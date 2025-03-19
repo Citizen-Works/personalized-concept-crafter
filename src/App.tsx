@@ -49,7 +49,7 @@ function App() {
               <AuthProvider>
                 <Routes>
                   <Route path="/" element={<WaitlistPage />} />
-                  <Route path="/app" element={<Index />} />
+                  <Route path="/app" element={<Navigate to="/dashboard" replace />} />
                   <Route path="/login" element={<LoginPage />} />
                   <Route path="/register" element={<RegisterPage />} />
                   
