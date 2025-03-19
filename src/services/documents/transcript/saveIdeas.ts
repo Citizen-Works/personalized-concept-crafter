@@ -1,7 +1,7 @@
 
 import { ContentIdea } from "./types";
 import { createIdea } from "@/hooks/ideas/ideaApi";
-import { ContentSource, ContentStatus, ContentType } from "@/types";
+import { ContentSource, ContentStatus } from "@/types";
 
 /**
  * Saves generated content ideas to the database
@@ -33,8 +33,7 @@ export const saveIdeas = async (
         meetingTranscriptExcerpt: idea.transcriptExcerpt || "",
         sourceUrl: "",
         status: "idea" as ContentStatus,
-        // Fix: Use a valid content type from the allowed enum values
-        contentType: "linkedin" as ContentType, // Using "linkedin" as default, which is a valid value
+        // Don't specify contentType, so it will be NULL by default
       };
 
       // Save to database

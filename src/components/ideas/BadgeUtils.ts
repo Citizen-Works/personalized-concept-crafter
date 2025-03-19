@@ -16,7 +16,9 @@ export const getStatusBadgeClasses = (status: ContentStatus): string => {
   }
 };
 
-export const getTypeBadgeClasses = (type: ContentType): string => {
+export const getTypeBadgeClasses = (type: ContentType | null): string => {
+  if (!type) return 'bg-gray-50 text-gray-700 border-gray-200';
+  
   switch (type) {
     case 'linkedin':
       return 'bg-sky-50 text-sky-700 border-sky-200';
@@ -36,10 +38,10 @@ export const getStatusBadgeProps = (status: ContentStatus) => {
   };
 };
 
-export const getContentTypeBadgeProps = (contentType: ContentType) => {
+export const getContentTypeBadgeProps = (contentType: ContentType | null) => {
   return {
     variant: 'outline' as const,
     className: getTypeBadgeClasses(contentType),
-    children: contentType.charAt(0).toUpperCase() + contentType.slice(1)
+    children: contentType ? (contentType.charAt(0).toUpperCase() + contentType.slice(1)) : 'None'
   };
 };

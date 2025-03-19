@@ -17,7 +17,7 @@ interface IdeaCardProps {
   idea: ContentIdea;
   onDeleteIdea: (id: string) => void;
   getStatusBadgeClasses: (status: ContentStatus) => string;
-  getTypeBadgeClasses: (type: ContentType) => string;
+  getTypeBadgeClasses: (type: ContentType | null) => string;
   hideStatusBadge?: boolean;
   hideTypeBadge?: boolean;
 }
@@ -46,7 +46,7 @@ const IdeaCard: React.FC<IdeaCardProps> = ({
                     {idea.status.charAt(0).toUpperCase() + idea.status.slice(1)}
                   </Badge>
                 )}
-                {!hideTypeBadge && (
+                {!hideTypeBadge && idea.contentType && (
                   <Badge 
                     className={`${getTypeBadgeClasses(idea.contentType)} text-xs whitespace-nowrap`}
                   >

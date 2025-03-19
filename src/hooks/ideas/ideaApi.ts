@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { ContentIdea, ContentStatus, ContentType, ContentSource } from "@/types";
@@ -27,7 +26,7 @@ export const fetchIdeas = async (userId: string): Promise<ContentIdea[]> => {
     meetingTranscriptExcerpt: item.meeting_transcript_excerpt,
     sourceUrl: item.source_url,
     status: item.status as ContentStatus,
-    contentType: item.content_type as ContentType,
+    contentType: item.content_type as ContentType | null,
     createdAt: new Date(item.created_at)
   }));
 };
@@ -60,7 +59,7 @@ export const fetchIdeaById = async (id: string, userId: string): Promise<Content
     meetingTranscriptExcerpt: data.meeting_transcript_excerpt,
     sourceUrl: data.source_url,
     status: data.status as ContentStatus,
-    contentType: data.content_type as ContentType,
+    contentType: data.content_type as ContentType | null,
     createdAt: new Date(data.created_at)
   };
 };
@@ -79,7 +78,7 @@ export const createIdea = async (idea: IdeaCreateInput, userId: string): Promise
         meeting_transcript_excerpt: idea.meetingTranscriptExcerpt,
         source_url: idea.sourceUrl,
         status: idea.status,
-        content_type: idea.contentType,
+        content_type: idea.contentType || null,
         user_id: userId
       }
     ])
@@ -102,7 +101,7 @@ export const createIdea = async (idea: IdeaCreateInput, userId: string): Promise
     meetingTranscriptExcerpt: data.meeting_transcript_excerpt,
     sourceUrl: data.source_url,
     status: data.status as ContentStatus,
-    contentType: data.content_type as ContentType,
+    contentType: data.content_type as ContentType | null,
     createdAt: new Date(data.created_at)
   };
 };
@@ -118,7 +117,7 @@ export const updateIdea = async ({ id, ...updates }: { id: string } & IdeaUpdate
   if (updates.meetingTranscriptExcerpt !== undefined) updateData.meeting_transcript_excerpt = updates.meetingTranscriptExcerpt;
   if (updates.sourceUrl !== undefined) updateData.source_url = updates.sourceUrl;
   if (updates.status) updateData.status = updates.status;
-  if (updates.contentType) updateData.content_type = updates.contentType;
+  if (updates.contentType !== undefined) updateData.content_type = updates.contentType;
 
   const { data, error } = await supabase
     .from("content_ideas")
@@ -143,7 +142,7 @@ export const updateIdea = async ({ id, ...updates }: { id: string } & IdeaUpdate
     meetingTranscriptExcerpt: data.meeting_transcript_excerpt,
     sourceUrl: data.source_url,
     status: data.status as ContentStatus,
-    contentType: data.content_type as ContentType,
+    contentType: data.content_type as ContentType | null,
     createdAt: new Date(data.created_at)
   };
 };
