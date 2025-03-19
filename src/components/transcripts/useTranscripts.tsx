@@ -65,7 +65,6 @@ export const useTranscripts = () => {
       };
       
       await uploadDocument({ file, documentData });
-      toast.success("Document uploaded successfully");
     } catch (error) {
       console.error("Error uploading document:", error);
       toast.error("Failed to upload document");
@@ -77,6 +76,11 @@ export const useTranscripts = () => {
    * Adds text content as a document
    */
   const handleAddText = async (text: string, title: string) => {
+    if (!text.trim()) {
+      toast.error("Text content cannot be empty");
+      throw new Error("Text content cannot be empty");
+    }
+    
     try {
       await uploadDocument({ 
         file: new File([text], `${title}.txt`, { type: "text/plain" }),
@@ -101,7 +105,17 @@ export const useTranscripts = () => {
    * Handles adding a recording transcript
    */
   const handleAddRecording = async (text: string, title: string) => {
-    return handleAddText(text, title);
+    if (!text.trim()) {
+      toast.error("Recorded text cannot be empty");
+      throw new Error("Recorded text cannot be empty");
+    }
+    
+    try {
+      return await handleAddText(text, title);
+    } catch (error) {
+      console.error("Error adding recording:", error);
+      throw error;
+    }
   };
   
   /**

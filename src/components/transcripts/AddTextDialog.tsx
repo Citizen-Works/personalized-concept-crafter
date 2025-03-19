@@ -1,12 +1,12 @@
 
 import React, { useState } from 'react';
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogFooter,
+  Dialog, 
+  DialogContent, 
+  DialogHeader, 
+  DialogTitle, 
+  DialogDescription, 
+  DialogFooter 
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -27,18 +27,22 @@ const AddTextDialog: React.FC<AddTextDialogProps> = ({
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handleAddText = async () => {
     if (!content.trim()) {
+      setError("Content cannot be empty");
       return;
     }
     
     try {
+      setError(null);
       setIsSubmitting(true);
       await onAddText(content, title || "Text");
       handleClose();
     } catch (error) {
       console.error("Error adding text:", error);
+      setError("Failed to add text. Please try again.");
       // Error is already handled in the service
     } finally {
       setIsSubmitting(false);
@@ -49,13 +53,14 @@ const AddTextDialog: React.FC<AddTextDialogProps> = ({
     if (!isSubmitting) {
       setTitle("");
       setContent("");
+      setError(null);
       onOpenChange(false);
     }
   };
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent>
+      <DialogContent className="sm:max-w-[550px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Add Text</DialogTitle>
           <DialogDescription>
@@ -63,6 +68,11 @@ const AddTextDialog: React.FC<AddTextDialogProps> = ({
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-4 py-4">
+          {error && (
+            <div className="bg-destructive/15 text-destructive text-sm p-3 rounded-md">
+              {error}
+            </div>
+          )}
           <div>
             <Label htmlFor="title">Title</Label>
             <Input 
