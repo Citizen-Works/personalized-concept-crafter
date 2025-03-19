@@ -1,12 +1,16 @@
 
+import { useIsMobile } from "@/hooks/use-mobile";
+
 interface HeroHeadingProps {
   className?: string;
 }
 
 const HeroHeading = ({ className }: HeroHeadingProps) => {
+  const isMobile = useIsMobile();
+  
   return (
     <>
-      <h1 className={`text-6xl sm:text-7xl md:text-8xl font-bold tracking-tighter mb-6 bg-clip-text text-transparent relative ${className}`}>
+      <h1 className={`text-5xl xs:text-6xl sm:text-7xl md:text-8xl font-bold tracking-tighter mb-4 md:mb-6 bg-clip-text text-transparent relative ${className}`}>
         <span className="absolute inset-0 bg-gradient-to-r from-purple-600 via-pink-500 to-orange-400 opacity-90 blur-2xl -z-10 rounded-3xl" />
         
         <span 
@@ -34,7 +38,7 @@ const HeroHeading = ({ className }: HeroHeadingProps) => {
         </span>
       </h1>
       
-      <h2 className="text-3xl md:text-4xl font-bold mb-10 text-white max-w-4xl mx-auto text-balance">
+      <h2 className="text-2xl xs:text-2xl sm:text-3xl md:text-4xl font-bold mb-6 md:mb-10 text-white max-w-4xl mx-auto text-balance px-2">
         Transform Your <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-500">Meeting Gold</span> Into Content That Grows Your Business
       </h2>
     </>

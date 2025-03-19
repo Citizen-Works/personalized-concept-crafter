@@ -1,6 +1,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { Loading } from "@/components/ui/loading";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { 
   HeroSection, 
   PainPointsSection, 
@@ -16,6 +17,7 @@ const WaitlistPage = () => {
   
   // Used to track if the component has mounted
   const [mounted, setMounted] = useState(false);
+  const isMobile = useIsMobile();
 
   // Initialize component and handle animations
   useEffect(() => {
@@ -52,7 +54,10 @@ const WaitlistPage = () => {
           }
         });
       },
-      { threshold: 0.1, rootMargin: "0px 0px -100px 0px" }
+      { 
+        threshold: isMobile ? 0.05 : 0.1, 
+        rootMargin: isMobile ? "0px 0px -50px 0px" : "0px 0px -100px 0px" 
+      }
     );
 
     // Get all sections that should be animated on scroll
@@ -68,10 +73,13 @@ const WaitlistPage = () => {
         observer.unobserve(section);
       });
     };
-  }, [mounted]);
+  }, [mounted, isMobile]);
 
   const scrollToSection = (ref: React.RefObject<HTMLDivElement>) => {
-    ref.current?.scrollIntoView({ behavior: 'smooth' });
+    ref.current?.scrollIntoView({ 
+      behavior: 'smooth',
+      block: isMobile ? 'start' : 'center'
+    });
   };
 
   // Apply initial animation classes
