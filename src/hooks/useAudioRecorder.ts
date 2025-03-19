@@ -24,10 +24,6 @@ export function useAudioRecorder({ onTranscriptionComplete }: UseAudioRecorderPr
     }
     
     recorderState.stopRecording();
-    transcriptionState.setIsTranscribing(true);
-    
-    // Clear any existing toast
-    toast.success("Recording stopped, transcribing audio...");
     
     // We need to wait for the audioBlob to be set after stopping
     setTimeout(() => {
@@ -36,6 +32,7 @@ export function useAudioRecorder({ onTranscriptionComplete }: UseAudioRecorderPr
           size: recorderState.audioBlob.size,
           type: recorderState.audioBlob.type
         });
+        transcriptionState.setIsTranscribing(true);
         transcriptionState.processAudioForTranscription(recorderState.audioBlob);
       } else {
         // Check again after a short delay in case the blob hasn't been set yet
@@ -45,10 +42,9 @@ export function useAudioRecorder({ onTranscriptionComplete }: UseAudioRecorderPr
               size: recorderState.audioBlob.size,
               type: recorderState.audioBlob.type
             });
+            transcriptionState.setIsTranscribing(true);
             transcriptionState.processAudioForTranscription(recorderState.audioBlob);
           } else {
-            transcriptionState.setIsTranscribing(false);
-            transcriptionState.hasError = true;
             toast.error("No audio data captured. Please try again.");
           }
         }, 1000); // Longer delay to ensure blob is set

@@ -99,8 +99,15 @@ export function useRecorder() {
       // Now it's safe to set state values
       setMediaRecorder(recorder);
       
-      // Start recording with smaller time slices for more frequent data events
-      recorder.start(500); // Increased from 100ms to 500ms for more reliable collection
+      // Force a data event at the start to ensure we get some data
+      recorder.start(100); // Use a shorter time slice initially
+      
+      // Force a data request after a short delay to ensure some data is collected
+      setTimeout(() => {
+        if (recorder.state === 'recording') {
+          recorder.requestData();
+        }
+      }, 500);
       
       // Start the timer immediately
       startTimer();
@@ -148,33 +155,19 @@ export function useRecorder() {
       // Force data collection before stopping
       if (mediaRecorder.state !== 'inactive') {
         mediaRecorder.requestData();
-      }
-      
-      // Ensure we have some recording time before stopping
-      const minRecordingTime = 1000; // 1 second in ms
-      const hasMinimumRecording = recordingTime > 1;
-      
-      if (!hasMinimumRecording) {
-        console.log("Recording too short, ensuring minimum recording time");
-        // If recording is too short, wait a bit before stopping
+        
+        // Give it a moment to collect the data before stopping
         setTimeout(() => {
           if (mediaRecorder.state !== 'inactive') {
-            mediaRecorder.requestData();
-            setTimeout(() => {
-              mediaRecorder.stop();
-              processRecordingEnd();
-            }, 500);
+            mediaRecorder.stop();
+            processRecordingEnd();
           }
-        }, minRecordingTime);
-      } else {
-        // For normal recordings, give a small delay to ensure all data is collected
-        setTimeout(() => {
-          mediaRecorder.stop();
-          processRecordingEnd();
         }, 300);
+      } else {
+        processRecordingEnd();
       }
     }
-  }, [mediaRecorder, isRecording, isPaused, recordingTime, recorderInitialized]);
+  }, [mediaRecorder, isRecording, isPaused, recorderInitialized]);
   
   // Helper function to handle common stop recording logic
   const processRecordingEnd = useCallback(() => {
