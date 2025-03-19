@@ -1,6 +1,7 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { toast } from 'sonner';
+import { transcribeAudio, TranscriptionStage } from '@/services/transcriptionService';
 
 interface UseAudioRecorderProps {
   onTranscriptionComplete?: (text: string) => void;
@@ -14,9 +15,9 @@ export function useAudioRecorder({ onTranscriptionComplete }: UseAudioRecorderPr
   const [audioChunks, setAudioChunks] = useState<Blob[]>([]);
   const [isTranscribing, setIsTranscribing] = useState(false);
   const [transcribedText, setTranscribedText] = useState("");
-  // Add progress tracking states
+  // Progress tracking states
   const [processingProgress, setProcessingProgress] = useState(0);
-  const [processingStage, setProcessingStage] = useState<'idle' | 'preparing' | 'uploading' | 'transcribing' | 'complete'>('idle');
+  const [processingStage, setProcessingStage] = useState<TranscriptionStage>('idle');
   
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -119,75 +120,26 @@ export function useAudioRecorder({ onTranscriptionComplete }: UseAudioRecorderPr
     }
     
     try {
-      // Update stage to preparing
-      setProcessingStage('preparing');
-      setProcessingProgress(10);
-      
       const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
-      const reader = new FileReader();
       
-      reader.onprogress = (event) => {
-        if (event.lengthComputable) {
-          // Calculate progress from 10% to 40%
-          const progress = 10 + (event.loaded / event.total) * 30;
-          setProcessingProgress(Math.round(progress));
-        }
-      };
+      // Use the transcriptionService to handle the API call
+      const text = await transcribeAudio(audioBlob, (progress, stage) => {
+        setProcessingProgress(progress);
+        setProcessingStage(stage);
+      });
       
-      reader.readAsDataURL(audioBlob);
-      reader.onloadend = async () => {
-        const base64data = reader.result as string;
-        // Remove the data URL prefix to get just the base64 string
-        const base64Audio = base64data.split(',')[1];
-        
-        // Update stage to uploading
-        setProcessingStage('uploading');
-        setProcessingProgress(50);
-        
-        try {
-          // Update stage to transcribing
-          setProcessingStage('transcribing');
-          setProcessingProgress(70);
-          
-          const response = await fetch(`${window.location.origin}/api/functions/transcribe-audio`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY}`
-            },
-            body: JSON.stringify({ audio: base64Audio })
-          });
-          
-          if (!response.ok) {
-            throw new Error(`Transcription failed: ${response.statusText}`);
-          }
-          
-          const result = await response.json();
-          
-          // Update stage to complete
-          setProcessingStage('complete');
-          setProcessingProgress(100);
-          
-          setTranscribedText(result.text);
-          
-          if (onTranscriptionComplete) {
-            onTranscriptionComplete(result.text);
-          }
-        } catch (error) {
-          console.error("Transcription error:", error);
-          toast.error("Failed to transcribe audio");
-          setProcessingStage('idle');
-          setProcessingProgress(0);
-        } finally {
-          setIsTranscribing(false);
-        }
-      };
+      setTranscribedText(text);
+      
+      if (onTranscriptionComplete) {
+        onTranscriptionComplete(text);
+      }
     } catch (error) {
       console.error("Error processing audio:", error);
-      toast.error("Failed to process audio");
-      setIsTranscribing(false);
+      toast.error("Failed to transcribe audio");
       setProcessingStage('idle');
       setProcessingProgress(0);
+    } finally {
+      setIsTranscribing(false);
     }
   };
 
@@ -219,7 +171,7 @@ export function useAudioRecorder({ onTranscriptionComplete }: UseAudioRecorderPr
     stopRecording,
     resetRecording,
     setTranscribedText,
-    // Return new progress states
+    // Progress states
     processingProgress,
     processingStage
   };
