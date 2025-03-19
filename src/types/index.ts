@@ -1,3 +1,4 @@
+
 export interface User {
   id: string;
   email: string;
@@ -100,10 +101,10 @@ export interface WritingStyleProfile {
 }
 
 // Content Types
-export type ContentStatus = 'unreviewed' | 'approved' | 'drafted' | 'ready' | 'published';
+export type ContentStatus = 'unreviewed' | 'approved' | 'drafted' | 'ready' | 'published' | 'archived';
 export type ContentType = 'linkedin' | 'newsletter' | 'marketing';
 export type ContentSource = 'meeting' | 'manual' | 'other';
-export type DraftStatus = 'draft' | 'published' | 'archived';
+export type DraftStatus = 'draft' | 'ready' | 'published' | 'archived';
 
 export interface ContentIdea {
   id: string;

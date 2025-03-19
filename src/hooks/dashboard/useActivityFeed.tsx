@@ -10,6 +10,7 @@ type Activity = {
   status: string;
   timestamp: Date;
   entityId: string;
+  route: string;
 };
 
 export function useActivityFeed() {
@@ -27,7 +28,8 @@ export function useActivityFeed() {
         type: 'idea',
         status: idea.status,
         timestamp: idea.createdAt,
-        entityId: idea.id
+        entityId: idea.id,
+        route: `/ideas/${idea.id}`
       });
     });
     
@@ -39,7 +41,8 @@ export function useActivityFeed() {
         type: 'draft',
         status: 'draft',
         timestamp: draft.createdAt,
-        entityId: draft.id
+        entityId: draft.id,
+        route: `/drafts/${draft.id}`
       });
     });
     

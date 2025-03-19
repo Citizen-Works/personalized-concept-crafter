@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import {
@@ -16,7 +17,7 @@ import {
   Target,
   PenTool,
   SendHorizontal,
-  Icons,
+  icons,
   Users,
   Briefcase,
   Facebook,
@@ -26,7 +27,7 @@ import {
   ThumbsUp,
   Lightbulb,
   Check,
-  Pipeline,
+  GitMerge,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -58,7 +59,7 @@ export const SidebarNav = () => {
     {
       title: "Content Pipeline",
       href: "/pipeline",
-      icon: Pipeline,
+      icon: GitMerge,
       subItems: [
         {
           title: "Review Queue",

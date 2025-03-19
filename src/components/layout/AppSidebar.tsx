@@ -2,7 +2,7 @@
 import React, { Suspense, memo } from 'react';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, useSidebar } from '@/components/ui/sidebar';
 import SidebarLogo from './sidebar/SidebarLogo';
-import SidebarNav from './sidebar/SidebarNav';
+import { SidebarNav } from './sidebar/SidebarNav';
 import UserProfileMenu from './sidebar/UserProfileMenu';
 
 // Using direct imports instead of lazy loading for critical UI components

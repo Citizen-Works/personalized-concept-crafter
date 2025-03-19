@@ -57,7 +57,17 @@ export function useWeeklyStats() {
       }
     });
     
-    return dailyCounts;
+    // Calculate totals for the week
+    const ideasCreated = dailyCounts.reduce((sum, day) => sum + day.ideas, 0);
+    const draftsGenerated = dailyCounts.reduce((sum, day) => sum + day.drafts, 0);
+    const contentPublished = dailyCounts.reduce((sum, day) => sum + day.published, 0);
+    
+    return {
+      dailyCounts,
+      ideasCreated,
+      draftsGenerated,
+      contentPublished
+    };
   }, [ideas, drafts]);
   
   return {
