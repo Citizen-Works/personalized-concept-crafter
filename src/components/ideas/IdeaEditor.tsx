@@ -38,7 +38,7 @@ const IdeaEditor: React.FC<IdeaEditorProps> = ({ idea, isOpen, onClose }) => {
   const [contentGoal, setContentGoal] = useState<ContentGoal>("audience_building");
   const [callToAction, setCallToAction] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { updateIdea } = useIdeas();
+  const { updateIdea, updateIdeaAsync } = useIdeas();
 
   // Parse existing content goal and description from the idea
   useEffect(() => {
@@ -95,7 +95,8 @@ const IdeaEditor: React.FC<IdeaEditorProps> = ({ idea, isOpen, onClose }) => {
         formattedNotes = `${formattedNotes}\n\nCall to Action: ${callToAction}`;
       }
       
-      await updateIdea({
+      // Use the async version to ensure the promise resolves before proceeding
+      await updateIdeaAsync({
         id: idea.id,
         title,
         description,
