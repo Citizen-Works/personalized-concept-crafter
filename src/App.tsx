@@ -24,6 +24,7 @@ import DocumentsPage from "@/pages/DocumentsPage";
 import MarketingExamplesPage from "@/pages/MarketingExamplesPage";
 import NewsletterExamplesPage from "@/pages/NewsletterExamplesPage";
 import NotFound from "@/pages/NotFound";
+import WaitlistPage from "@/pages/WaitlistPage";
 import { AuthProvider } from "./context/AuthContext";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import TranscriptsPage from "./pages/TranscriptsPage";
@@ -47,6 +48,7 @@ function App() {
             <Toaster position="top-right" richColors />
             <Routes>
               <Route path="/" element={<Index />} />
+              <Route path="/waitlist" element={<WaitlistPage />} />
               <Route path="/register" element={<RegisterPage />} />
               <Route path="/login" element={<LoginPage />} />
               <Route path="/onboarding" element={<OnboardingPage />} />
