@@ -1,12 +1,14 @@
 
-import React, { memo } from 'react';
+import React, { memo, lazy, Suspense } from 'react';
 import { 
   SidebarMenuItem, 
   SidebarMenuButton, 
   SidebarMenuSub 
 } from '@/components/ui/sidebar';
 import { LucideIcon } from 'lucide-react';
-import SubMenuItem from './SubMenuItem';
+
+// Lazy load SubMenuItem component
+const SubMenuItem = lazy(() => import('./SubMenuItem'));
 
 interface SubMenuOption {
   to: string;
@@ -35,14 +37,16 @@ const SubmenuGroup: React.FC<SubmenuGroupProps> = ({
           <span>{label}</span>
         </SidebarMenuButton>
         
-        {subItems.map((item, index) => (
-          <SubMenuItem 
-            key={index}
-            to={item.to}
-            label={item.label}
-            isActive={item.isActive}
-          />
-        ))}
+        <Suspense fallback={<div className="px-3 py-1 text-xs">Loading...</div>}>
+          {subItems.map((item, index) => (
+            <SubMenuItem 
+              key={index}
+              to={item.to}
+              label={item.label}
+              isActive={item.isActive}
+            />
+          ))}
+        </Suspense>
       </SidebarMenuSub>
     </SidebarMenuItem>
   );

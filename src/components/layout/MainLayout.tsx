@@ -1,16 +1,20 @@
 
-import React from 'react';
+import React, { lazy, Suspense } from 'react';
 import { Outlet } from 'react-router-dom';
-import AppSidebar from './AppSidebar';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { SidebarTrigger } from '@/components/ui/sidebar';
+
+// Lazy load AppSidebar
+const AppSidebar = lazy(() => import('./AppSidebar'));
 
 export const MainLayout = () => {
   const isMobile = useIsMobile();
   
   return (
     <div className="min-h-screen flex w-full bg-background">
-      <AppSidebar />
+      <Suspense fallback={<div className="w-0 md:w-64 bg-sidebar animate-pulse"></div>}>
+        <AppSidebar />
+      </Suspense>
       <main className="flex-1 h-screen overflow-y-auto">
         {isMobile && (
           <div className="p-4">
