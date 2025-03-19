@@ -182,15 +182,9 @@ Feel free to reference this information and ask if the user wants to update or e
       systemPrompt += '\n\n' + profileContext;
     }
 
-    const claudeMessages = [
-      {
-        role: "system",
-        content: systemPrompt
-      },
-      ...messages
-    ];
-    
-    console.log(`Sending ${claudeMessages.length} messages to Claude`);
+    // We need to separate the system message from the user/assistant messages
+    // As Claude API expects system as a top-level parameter
+    console.log(`Sending ${messages.length} messages to Claude`);
     
     // Make request to Claude API
     const response = await fetch(CLAUDE_API_URL, {
@@ -203,7 +197,8 @@ Feel free to reference this information and ask if the user wants to update or e
       body: JSON.stringify({
         model: "claude-3-sonnet-20240229",
         max_tokens: 4000,
-        messages: claudeMessages
+        system: systemPrompt,
+        messages: messages
       })
     });
 
