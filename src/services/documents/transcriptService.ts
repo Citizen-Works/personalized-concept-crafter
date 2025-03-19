@@ -41,6 +41,11 @@ export const processTranscriptForIdeas = async (
       Business Name: ${profileData.business_name || 'Not specified'}
       Business Description: ${profileData.business_description || 'Not specified'}\n` : '';
 
+    // Sanitize transcript content to prevent HTML/XML confusion
+    const sanitizedContent = document.content 
+      ? document.content.replace(/<[^>]*>/g, '') // Remove any HTML-like tags
+      : '';
+
     const response = await fetch(`${window.location.origin}/api/functions/generate-with-claude`, {
       method: 'POST',
       headers: {
@@ -60,7 +65,7 @@ export const processTranscriptForIdeas = async (
         If the transcript doesn't contain any valuable content ideas that would be relevant to the business context, respond with "No valuable content ideas found in this transcript." and a brief explanation why.
         
         Meeting Transcript:
-        ${document.content}`,
+        ${sanitizedContent}`,
         contentType: "content_ideas",
         idea: { title: document.title },
         task: "transcript_analysis"
@@ -73,7 +78,16 @@ export const processTranscriptForIdeas = async (
       throw new Error(`Error processing transcript: ${response.statusText}`);
     }
 
-    const result = await response.json();
+    let result;
+    try {
+      result = await response.json();
+    } catch (parseError) {
+      console.error("Failed to parse JSON response:", parseError);
+      const responseText = await response.text();
+      console.error("Raw response:", responseText);
+      throw new Error("Failed to parse response from AI service");
+    }
+
     return result.content;
   } catch (error) {
     console.error("Error processing transcript:", error);
