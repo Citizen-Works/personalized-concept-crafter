@@ -150,7 +150,7 @@ export const createDraft = async (
 };
 
 export const updateDraft = async (
-  { id, ...draft }: { id: string } & Partial<Omit<ContentDraft, "id" | "createdAt"> & { status?: 'draft' | 'ready' | 'published' | 'archived' }>,
+  { id, ...draft }: { id: string } & Partial<Omit<ContentDraft, "id" | "createdAt"> & { status?: DraftStatus }>,
   userId: string
 ) => {
   if (!userId) throw new Error("User not authenticated");
