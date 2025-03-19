@@ -54,7 +54,9 @@ export const useIdeas = () => {
     isError: ideasQuery.isError,
     getIdea: ideaByIdQuery,
     createIdea: createIdeaMutation.mutate,
+    createIdeaAsync: createIdeaMutation.mutateAsync, // Add this line to expose the async version
     updateIdea: updateIdeaMutation.mutate,
+    updateIdeaAsync: updateIdeaMutation.mutateAsync, // Add this line too for consistency
     deleteIdea: deleteIdeaMutation.mutate,
   };
 };

@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -50,7 +49,7 @@ type FormValues = z.infer<typeof formSchema>;
 
 const NewIdeaPage = () => {
   const navigate = useNavigate();
-  const { createIdea, updateIdea } = useIdeas();
+  const { createIdea, createIdeaAsync, updateIdea } = useIdeas();
   const { generateContent, isGenerating } = useClaudeAI();
   const { createDraft } = useDrafts();
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -83,7 +82,7 @@ const NewIdeaPage = () => {
       // Format description to include content goal
       const formattedDescription = `Content Goal: ${values.contentGoal.replace('_', ' ')}\n\n${values.description || ""}`;
       
-      const savedIdea = await createIdea({
+      await createIdea({
         title: values.title,
         description: formattedDescription,
         notes: formattedNotes,
@@ -128,8 +127,8 @@ const NewIdeaPage = () => {
       // Format description to include content goal
       const formattedDescription = `Content Goal: ${values.contentGoal.replace('_', ' ')}\n\n${values.description || ""}`;
       
-      // 1. Create the idea
-      const savedIdea = await createIdea({
+      // 1. Create the idea - use the async version to get the result
+      const savedIdea = await createIdeaAsync({
         title: values.title,
         description: formattedDescription,
         notes: formattedNotes,
