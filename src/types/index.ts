@@ -105,3 +105,15 @@ export interface ContentDraft {
   createdAt: Date;
   status?: DraftStatus;
 }
+
+// Add ThemeProviderProps type to solve the import issue
+export interface ThemeProviderProps {
+  children: React.ReactNode;
+  attribute?: string;
+  defaultTheme?: string;
+  enableSystem?: boolean;
+  disableTransitionOnChange?: boolean;
+  storageKey?: string;
+  forcedTheme?: string;
+  enableColorScheme?: boolean;
+}

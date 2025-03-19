@@ -5,7 +5,7 @@ import { useAuth } from '@/context/AuthContext';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
 import { 
   Sidebar, SidebarContent, SidebarFooter, SidebarHeader, 
-  SidebarMenu, SidebarMenuItem, SidebarMenuSub, SidebarMenuSubItem 
+  SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarMenuSub, SidebarMenuSubItem, SidebarMenuSubButton
 } from '@/components/ui/sidebar';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -42,7 +42,7 @@ const AppSidebar = () => {
   };
 
   return (
-    <Sidebar defaultCollapsed={isMobile} collapsible="true">
+    <Sidebar defaultCollapsed={isMobile} collapsible="offcanvas">
       <SidebarHeader className="border-b p-4">
         <div className="flex items-center space-x-2">
           <img src="/logo.svg" alt="Logo" className="h-6 w-6" />
@@ -52,100 +52,128 @@ const AppSidebar = () => {
       
       <SidebarContent className="h-full">
         <SidebarMenu>
-          <SidebarMenuItem 
-            icon={<Home />} 
-            active={pathname === '/dashboard'}
-          >
-            <Link to="/dashboard">Dashboard</Link>
+          <SidebarMenuItem>
+            <SidebarMenuButton 
+              icon={<Home />} 
+              isActive={pathname === '/dashboard'}
+            >
+              <Link to="/dashboard">Dashboard</Link>
+            </SidebarMenuButton>
           </SidebarMenuItem>
           
-          <SidebarMenuItem 
-            icon={<Lightbulb />} 
-            active={pathname.includes('/ideas')}
-          >
-            <Link to="/ideas">Content Ideas</Link>
+          <SidebarMenuItem>
+            <SidebarMenuButton 
+              icon={<Lightbulb />} 
+              isActive={pathname.includes('/ideas')}
+            >
+              <Link to="/ideas">Content Ideas</Link>
+            </SidebarMenuButton>
           </SidebarMenuItem>
           
-          <SidebarMenuItem 
-            icon={<PenSquare />} 
-            active={pathname.includes('/drafts')}
-          >
-            <Link to="/drafts">Content Drafts</Link>
+          <SidebarMenuItem>
+            <SidebarMenuButton 
+              icon={<PenSquare />} 
+              isActive={pathname.includes('/drafts')}
+            >
+              <Link to="/drafts">Content Drafts</Link>
+            </SidebarMenuButton>
           </SidebarMenuItem>
           
-          <SidebarMenuSub 
-            icon={<FileText />}
-            title="Documents"
-            defaultOpen={pathname.includes('/documents') || pathname.includes('/transcripts')}
-          >
-            <SidebarMenuSubItem 
-              active={pathname === '/documents'}
+          <SidebarMenuItem>
+            <SidebarMenuSub 
+              title="Documents"
+              defaultOpen={pathname.includes('/documents') || pathname.includes('/transcripts')}
             >
-              <Link to="/documents">All Documents</Link>
-            </SidebarMenuSubItem>
-            <SidebarMenuSubItem 
-              active={pathname === '/transcripts'}
-            >
-              <Link to="/transcripts">Meeting Transcripts</Link>
-            </SidebarMenuSubItem>
-          </SidebarMenuSub>
+              <SidebarMenuSubItem>
+                <SidebarMenuSubButton 
+                  isActive={pathname === '/documents'}
+                >
+                  <Link to="/documents">All Documents</Link>
+                </SidebarMenuSubButton>
+              </SidebarMenuSubItem>
+              <SidebarMenuSubItem>
+                <SidebarMenuSubButton 
+                  isActive={pathname === '/transcripts'}
+                >
+                  <Link to="/transcripts">Meeting Transcripts</Link>
+                </SidebarMenuSubButton>
+              </SidebarMenuSubItem>
+            </SidebarMenuSub>
+          </SidebarMenuItem>
           
-          <SidebarMenuSub 
-            icon={<Linkedin />}
-            title="LinkedIn"
-            defaultOpen={pathname.includes('/linkedin')}
-          >
-            <SidebarMenuSubItem 
-              active={pathname === '/linkedin-posts'}
+          <SidebarMenuItem>
+            <SidebarMenuSub 
+              title="LinkedIn"
+              defaultOpen={pathname.includes('/linkedin')}
             >
-              <Link to="/linkedin-posts">Posts</Link>
-            </SidebarMenuSubItem>
-          </SidebarMenuSub>
+              <SidebarMenuSubItem>
+                <SidebarMenuSubButton 
+                  isActive={pathname === '/linkedin-posts'}
+                >
+                  <Link to="/linkedin-posts">Posts</Link>
+                </SidebarMenuSubButton>
+              </SidebarMenuSubItem>
+            </SidebarMenuSub>
+          </SidebarMenuItem>
           
-          <SidebarMenuSub 
-            icon={<BookText />}
-            title="Resources"
-            defaultOpen={pathname.includes('/content-pillars') || pathname.includes('/target-audiences') || pathname.includes('/writing-style')}
-          >
-            <SidebarMenuSubItem 
-              active={pathname === '/content-pillars'}
+          <SidebarMenuItem>
+            <SidebarMenuSub 
+              title="Resources"
+              defaultOpen={pathname.includes('/content-pillars') || pathname.includes('/target-audiences') || pathname.includes('/writing-style')}
             >
-              <Link to="/content-pillars">Content Pillars</Link>
-            </SidebarMenuSubItem>
-            <SidebarMenuSubItem 
-              active={pathname === '/target-audiences'}
-            >
-              <Link to="/target-audiences">Target Audiences</Link>
-            </SidebarMenuSubItem>
-            <SidebarMenuSubItem 
-              active={pathname === '/writing-style'}
-            >
-              <Link to="/writing-style">Writing Style</Link>
-            </SidebarMenuSubItem>
-          </SidebarMenuSub>
+              <SidebarMenuSubItem>
+                <SidebarMenuSubButton 
+                  isActive={pathname === '/content-pillars'}
+                >
+                  <Link to="/content-pillars">Content Pillars</Link>
+                </SidebarMenuSubButton>
+              </SidebarMenuSubItem>
+              <SidebarMenuSubItem>
+                <SidebarMenuSubButton 
+                  isActive={pathname === '/target-audiences'}
+                >
+                  <Link to="/target-audiences">Target Audiences</Link>
+                </SidebarMenuSubButton>
+              </SidebarMenuSubItem>
+              <SidebarMenuSubItem>
+                <SidebarMenuSubButton 
+                  isActive={pathname === '/writing-style'}
+                >
+                  <Link to="/writing-style">Writing Style</Link>
+                </SidebarMenuSubButton>
+              </SidebarMenuSubItem>
+            </SidebarMenuSub>
+          </SidebarMenuItem>
           
-          <SidebarMenuSub 
-            icon={<FileImage />}
-            title="Examples"
-            defaultOpen={pathname.includes('/marketing-examples') || pathname.includes('/newsletter-examples')}
-          >
-            <SidebarMenuSubItem 
-              active={pathname === '/marketing-examples'}
+          <SidebarMenuItem>
+            <SidebarMenuSub 
+              title="Examples"
+              defaultOpen={pathname.includes('/marketing-examples') || pathname.includes('/newsletter-examples')}
             >
-              <Link to="/marketing-examples">Marketing</Link>
-            </SidebarMenuSubItem>
-            <SidebarMenuSubItem 
-              active={pathname === '/newsletter-examples'}
-            >
-              <Link to="/newsletter-examples">Newsletter</Link>
-            </SidebarMenuSubItem>
-          </SidebarMenuSub>
+              <SidebarMenuSubItem>
+                <SidebarMenuSubButton 
+                  isActive={pathname === '/marketing-examples'}
+                >
+                  <Link to="/marketing-examples">Marketing</Link>
+                </SidebarMenuSubButton>
+              </SidebarMenuSubItem>
+              <SidebarMenuSubItem>
+                <SidebarMenuSubButton 
+                  isActive={pathname === '/newsletter-examples'}
+                >
+                  <Link to="/newsletter-examples">Newsletter</Link>
+                </SidebarMenuSubButton>
+              </SidebarMenuSubItem>
+            </SidebarMenuSub>
+          </SidebarMenuItem>
           
-          <SidebarMenuItem 
-            icon={<Settings />} 
-            active={pathname.includes('/settings')}
-          >
-            <Link to="/settings">Settings</Link>
+          <SidebarMenuItem>
+            <SidebarMenuButton 
+              icon={<Settings />} 
+              isActive={pathname.includes('/settings')}
+            >
+              <Link to="/settings">Settings</Link>
+            </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarContent>
