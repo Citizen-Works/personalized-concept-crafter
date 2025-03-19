@@ -26,8 +26,29 @@ const WaitlistPage = () => {
       (entries) => {
         entries.forEach(entry => {
           if (entry.isIntersecting) {
+            // First add the base fade-in animation to the section itself
             entry.target.classList.add('animate-fade-in');
             entry.target.classList.remove('opacity-0');
+            
+            // Then animate child elements with slide/fade effects
+            const animatedElements = entry.target.querySelectorAll(
+              '.transform.transition-all'
+            );
+            
+            animatedElements.forEach(element => {
+              element.classList.remove('opacity-0');
+              
+              // Remove transform classes that create the initial offset
+              if (element.classList.contains('-translate-x-8')) {
+                element.classList.remove('-translate-x-8');
+              }
+              if (element.classList.contains('translate-x-8')) {
+                element.classList.remove('translate-x-8');
+              }
+              if (element.classList.contains('translate-y-8')) {
+                element.classList.remove('translate-y-8');
+              }
+            });
           }
         });
       },

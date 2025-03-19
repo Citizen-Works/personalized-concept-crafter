@@ -1,3 +1,4 @@
+
 import { useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Clock, TrendingUp, XCircle, FileText } from "lucide-react";
@@ -19,13 +20,13 @@ const PainPointsSection = ({ scrollToSection, solutionRef }: PainPointsSectionPr
       <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/90 to-black/80 z-0"></div>
       
       <div className="max-w-7xl mx-auto z-10 relative">
-        <h2 className="text-4xl md:text-5xl font-bold mb-12 text-center text-white">
+        <h2 className="text-4xl md:text-5xl font-bold mb-12 text-center text-white transform transition-all duration-700 translate-y-8 opacity-0">
           The Content Creation <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-600 via-pink-500 to-orange-400">Struggle</span> Is Real
         </h2>
         
         <div className="grid md:grid-cols-2 gap-16 items-center mb-20">
           <div className="space-y-8">
-            <div className="flex items-start gap-4 p-6 rounded-xl bg-white/5 backdrop-blur-sm border border-white/10 shadow-md transform transition-all hover:scale-105">
+            <div className="flex items-start gap-4 p-6 rounded-xl bg-white/5 backdrop-blur-sm border border-white/10 shadow-md transform transition-all duration-700 delay-150 -translate-x-8 opacity-0 hover:scale-105">
               <Clock className="h-8 w-8 text-purple-500 flex-shrink-0 mt-1" />
               <div>
                 <h3 className="text-xl font-semibold mb-2 text-white">No Time for Content</h3>
@@ -35,7 +36,7 @@ const PainPointsSection = ({ scrollToSection, solutionRef }: PainPointsSectionPr
               </div>
             </div>
             
-            <div className="flex items-start gap-4 p-6 rounded-xl bg-white/5 backdrop-blur-sm border border-white/10 shadow-md transform transition-all hover:scale-105">
+            <div className="flex items-start gap-4 p-6 rounded-xl bg-white/5 backdrop-blur-sm border border-white/10 shadow-md transform transition-all duration-700 delay-300 -translate-x-8 opacity-0 hover:scale-105">
               <TrendingUp className="h-8 w-8 text-purple-500 flex-shrink-0 mt-1" />
               <div>
                 <h3 className="text-xl font-semibold mb-2 text-white">The Competition Is Gaining Ground</h3>
@@ -45,7 +46,7 @@ const PainPointsSection = ({ scrollToSection, solutionRef }: PainPointsSectionPr
               </div>
             </div>
             
-            <div className="flex items-start gap-4 p-6 rounded-xl bg-white/5 backdrop-blur-sm border border-white/10 shadow-md transform transition-all hover:scale-105">
+            <div className="flex items-start gap-4 p-6 rounded-xl bg-white/5 backdrop-blur-sm border border-white/10 shadow-md transform transition-all duration-700 delay-450 -translate-x-8 opacity-0 hover:scale-105">
               <FileText className="h-8 w-8 text-purple-500 flex-shrink-0 mt-1" />
               <div>
                 <h3 className="text-xl font-semibold mb-2 text-white">Meeting Gold Stays Buried</h3>
@@ -56,7 +57,7 @@ const PainPointsSection = ({ scrollToSection, solutionRef }: PainPointsSectionPr
             </div>
           </div>
           
-          <div className="relative h-[400px] rounded-xl overflow-hidden shadow-2xl">
+          <div className="relative h-[400px] rounded-xl overflow-hidden shadow-2xl transform transition-all duration-700 delay-300 translate-x-8 opacity-0">
             <img 
               src="https://images.unsplash.com/photo-1581291518633-83b4ebd1d83e?auto=format&fit=crop&w=1000&q=80" 
               alt="Person stressed at computer"
@@ -71,7 +72,7 @@ const PainPointsSection = ({ scrollToSection, solutionRef }: PainPointsSectionPr
           </div>
         </div>
         
-        <div className="text-center mt-12 mb-8">
+        <div className="text-center mt-12 mb-8 transform transition-all duration-700 delay-600 translate-y-8 opacity-0">
           <h3 className="text-3xl font-bold mb-6 text-white">
             You have the <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-pink-600">ideas and expertise</span>...
           </h3>
