@@ -1,193 +1,235 @@
-
-import React, { memo } from 'react';
-import { Link } from 'react-router-dom';
-import { 
+import React from "react";
+import { Link, useLocation } from "react-router-dom";
+import {
+  CircleUser,
+  Gauge,
+  Settings,
+  FileText,
+  LifeBuoy,
+  MessagesSquare,
+  BookOpen,
+  Upload,
+  Folder,
+  FileEdit,
+  Music,
+  BookMarked,
+  Target,
+  PenTool,
+  SendHorizontal,
+  Icons,
+  Users,
+  Briefcase,
+  Facebook,
+  Twitter,
+  Github,
+  Linkedin,
+  ThumbsUp,
+  Lightbulb,
+  Check,
+  Pipeline,
+} from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import {
   SidebarMenu,
-  SidebarMenuItem,
   SidebarMenuButton,
+  SidebarMenuItem,
   SidebarMenuSub,
+  SidebarMenuSubButton,
   SidebarMenuSubItem,
-  SidebarMenuSubButton
-} from '@/components/ui/sidebar';
-import { 
-  Home, FileText, PenSquare, Lightbulb, 
-  Linkedin, BookText, FileImage, Settings,
-  ChevronRight, ListTodo, CheckCircle, Upload,
-  Plus, MessageSquare, Users, Link as LinkIcon,
-  Layout, Target, Type
-} from 'lucide-react';
-import { useSidebarNavigation } from '@/hooks/useSidebarNavigation';
+} from "@/components/ui/sidebar/menu";
 
-const SidebarNav = () => {
-  const { isRouteActive, currentPath } = useSidebarNavigation();
-  
-  // Define main navigation items with updated structure
-  const navigationItems = [
+export const SidebarNav = () => {
+  const location = useLocation();
+  const currentPath = location.pathname;
+
+  const navigation = [
     {
-      to: "/dashboard",
-      label: "Dashboard",
-      icon: Home,
-      isActive: isRouteActive("/dashboard", true)
+      title: "Dashboard",
+      href: "/dashboard",
+      icon: Gauge,
     },
     {
-      label: "Content Pipeline",
-      icon: Layout,
-      isActive: isRouteActive("/review-queue") || 
-               isRouteActive("/ideas") || 
-               isRouteActive("/drafts") ||
-               isRouteActive("/ready-to-publish") ||
-               isRouteActive("/published"),
+      title: "Content Pipeline",
+      href: "/pipeline",
+      icon: Pipeline,
       subItems: [
         {
-          to: "/review-queue",
-          label: "Review Queue",
-          isActive: isRouteActive("/review-queue")
+          title: "Review Queue",
+          href: "/pipeline?tab=review",
+          icon: Lightbulb,
         },
         {
-          to: "/ideas",
-          label: "Ideas",
-          isActive: isRouteActive("/ideas")
+          title: "Ideas",
+          href: "/pipeline?tab=ideas",
+          icon: FileText,
         },
         {
-          to: "/drafts",
-          label: "Drafts",
-          isActive: isRouteActive("/drafts")
+          title: "Drafts",
+          href: "/pipeline?tab=drafts",
+          icon: FileEdit,
         },
         {
-          to: "/ready-to-publish",
-          label: "Ready to Publish",
-          isActive: isRouteActive("/ready-to-publish")
+          title: "Ready to Publish",
+          href: "/pipeline?tab=ready",
+          icon: Check,
         },
         {
-          to: "/published",
-          label: "Published",
-          isActive: isRouteActive("/published")
-        }
-      ]
+          title: "Published",
+          href: "/pipeline?tab=published",
+          icon: SendHorizontal,
+        },
+      ],
     },
     {
-      label: "Create",
-      icon: Plus,
-      isActive: isRouteActive("/new-content-idea") || 
-               isRouteActive("/generate-draft"),
-      subItems: [
-        {
-          to: "/new-content-idea",
-          label: "New Content Idea",
-          isActive: isRouteActive("/new-content-idea")
-        },
-        {
-          to: "/generate-draft",
-          label: "Generate Draft",
-          isActive: isRouteActive("/generate-draft")
-        }
-      ]
+      title: "Ideas",
+      href: "/ideas",
+      icon: Lightbulb,
     },
     {
-      label: "Content Library",
-      icon: FileText,
-      isActive: isRouteActive("/linkedin-posts") || 
-               isRouteActive("/transcripts") ||
-               isRouteActive("/documents") ||
-               isRouteActive("/personal-stories"),
-      subItems: [
-        {
-          to: "/linkedin-posts",
-          label: "LinkedIn Posts",
-          isActive: isRouteActive("/linkedin-posts")
-        },
-        {
-          to: "/transcripts",
-          label: "Meeting Transcripts",
-          isActive: isRouteActive("/transcripts")
-        },
-        {
-          to: "/documents",
-          label: "Documents",
-          isActive: isRouteActive("/documents", true)
-        },
-        {
-          to: "/personal-stories",
-          label: "Personal Stories",
-          isActive: isRouteActive("/personal-stories")
-        }
-      ]
+      title: "Drafts",
+      href: "/drafts",
+      icon: FileEdit,
     },
     {
-      label: "Strategy",
-      icon: BookText,
-      isActive: isRouteActive("/content-pillars") || 
-               isRouteActive("/target-audiences") || 
-               isRouteActive("/writing-style") ||
-               isRouteActive("/call-to-actions"),
-      subItems: [
-        {
-          to: "/content-pillars",
-          label: "Content Pillars",
-          isActive: isRouteActive("/content-pillars")
-        },
-        {
-          to: "/target-audiences",
-          label: "Target Audiences",
-          isActive: isRouteActive("/target-audiences")
-        },
-        {
-          to: "/writing-style",
-          label: "Writing Style",
-          isActive: isRouteActive("/writing-style")
-        },
-        {
-          to: "/call-to-actions",
-          label: "Call-to-Actions",
-          isActive: isRouteActive("/call-to-actions")
-        }
-      ]
+      title: "LinkedIn Posts",
+      href: "/linkedin-posts",
+      icon: Linkedin,
     },
     {
-      to: "/settings",
-      label: "Settings",
+      title: "Transcripts",
+      href: "/transcripts",
+      icon: Upload,
+    },
+    {
+      title: "Documents",
+      href: "/documents",
+      icon: Folder,
+    },
+    {
+      title: "Personal Stories",
+      href: "/personal-stories",
+      icon: BookMarked,
+    },
+    {
+      title: "Content Pillars",
+      href: "/content-pillars",
+      icon: Icons,
+    },
+    {
+      title: "Target Audiences",
+      href: "/target-audiences",
+      icon: Target,
+    },
+    {
+      title: "Writing Style",
+      href: "/writing-style",
+      icon: PenTool,
+    },
+    {
+      title: "Call To Actions",
+      href: "/call-to-actions",
+      icon: ThumbsUp,
+    },
+    {
+      title: "Marketing Examples",
+      href: "/marketing-examples",
+      icon: Briefcase,
+    },
+    {
+      title: "Newsletter Examples",
+      href: "/newsletter-examples",
+      icon: MessagesSquare,
+    },
+    {
+      title: "Settings",
+      href: "/settings",
       icon: Settings,
-      isActive: isRouteActive("/settings")
-    }
+    },
   ];
 
-  const renderSubMenu = (subItems, isActive) => (
-    <SidebarMenuSub>
-      {subItems.map((item, index) => (
-        <SidebarMenuSubItem key={index}>
-          <SidebarMenuSubButton isActive={item.isActive}>
-            <Link to={item.to}>{item.label}</Link>
-          </SidebarMenuSubButton>
-        </SidebarMenuSubItem>
-      ))}
-    </SidebarMenuSub>
-  );
+  const isActive = (href: string) => {
+    if (href === "/dashboard" && currentPath === "/dashboard") {
+      return true;
+    }
+    
+    // Handle pipeline tabs
+    if (href.startsWith("/pipeline?tab=")) {
+      const tabParam = new URLSearchParams(location.search).get("tab");
+      const hrefTab = new URLSearchParams(href.split("?")[1]).get("tab");
+      return currentPath === "/pipeline" && tabParam === hrefTab;
+    }
+    
+    if (href === "/pipeline" && currentPath === "/pipeline") {
+      return true;
+    }
+    
+    if (href !== "/dashboard" && currentPath.startsWith(href)) {
+      return true;
+    }
+    
+    return false;
+  };
 
   return (
-    <SidebarMenu>
-      {navigationItems.map((item, index) => (
-        <SidebarMenuItem key={index}>
-          {item.subItems ? (
-            <>
-              <SidebarMenuButton isActive={item.isActive}>
-                <item.icon className="mr-2" />
-                <span>{item.label}</span>
-                <ChevronRight className="ml-auto h-4 w-4 shrink-0 opacity-50" />
+    <aside className="flex flex-col gap-2 py-2">
+      <SidebarMenu>
+        {navigation.map((item, index) => {
+          if (item.subItems) {
+            return (
+              <SidebarMenuItem key={index}>
+                <SidebarMenuSub>
+                  <SidebarMenuSubButton 
+                    className={cn(
+                      isActive(item.href) && "bg-accent text-accent-foreground"
+                    )}
+                  >
+                    <item.icon className="h-4 w-4" />
+                    <span>{item.title}</span>
+                  </SidebarMenuSubButton>
+                  {item.subItems.map((subItem, subIndex) => (
+                    <SidebarMenuSubItem key={subIndex}>
+                      <SidebarMenuButton
+                        asChild
+                        className={cn(
+                          isActive(subItem.href) && "bg-accent text-accent-foreground"
+                        )}
+                      >
+                        <Link to={subItem.href}>
+                          <subItem.icon className="h-4 w-4" />
+                          <span>{subItem.title}</span>
+                        </Link>
+                      </SidebarMenuButton>
+                    </SidebarMenuSubItem>
+                  ))}
+                </SidebarMenuSub>
+              </SidebarMenuItem>
+            );
+          }
+
+          return (
+            <SidebarMenuItem key={index}>
+              <SidebarMenuButton
+                asChild
+                className={cn(
+                  isActive(item.href) && "bg-accent text-accent-foreground"
+                )}
+              >
+                <Link to={item.href}>
+                  <item.icon className="h-4 w-4" />
+                  <span>{item.title}</span>
+                </Link>
               </SidebarMenuButton>
-              {renderSubMenu(item.subItems, item.isActive)}
-            </>
-          ) : (
-            <SidebarMenuButton isActive={item.isActive}>
-              <Link to={item.to} className="flex items-center w-full">
-                <item.icon className="mr-2" />
-                <span>{item.label}</span>
-              </Link>
-            </SidebarMenuButton>
-          )}
-        </SidebarMenuItem>
-      ))}
-    </SidebarMenu>
+            </SidebarMenuItem>
+          );
+        })}
+      </SidebarMenu>
+    </aside>
   );
 };
-
-export default memo(SidebarNav);

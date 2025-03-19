@@ -1,57 +1,54 @@
 
-import { useState, useEffect } from 'react';
+import { useMemo } from 'react';
 import { useIdeas } from '@/hooks/ideas';
 import { useDrafts } from '@/hooks/useDrafts';
-import { ActivityItem } from '@/components/dashboard/ActivityFeed';
+
+type Activity = {
+  id: string;
+  title: string;
+  type: 'idea' | 'draft' | 'publish';
+  status: string;
+  timestamp: Date;
+  entityId: string;
+};
 
 export function useActivityFeed() {
   const { ideas, isLoading: isIdeasLoading } = useIdeas();
   const { drafts, isLoading: isDraftsLoading } = useDrafts();
-  const [activities, setActivities] = useState<ActivityItem[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
   
-  useEffect(() => {
-    if (isIdeasLoading || isDraftsLoading) return;
+  const activities = useMemo(() => {
+    const allActivities: Activity[] = [];
     
-    setIsLoading(true);
-    
-    // Create a combined array of activities
-    const allActivities: ActivityItem[] = [];
-    
-    // Add idea creation activities
+    // Add ideas as activities
     ideas.forEach(idea => {
       allActivities.push({
         id: `idea-${idea.id}`,
-        type: 'idea_created',
         title: idea.title,
-        timestamp: new Date(idea.createdAt),
+        type: 'idea',
         status: idea.status,
-        route: `/ideas/${idea.id}`
+        timestamp: idea.createdAt,
+        entityId: idea.id
       });
     });
     
-    // Add draft generation activities
+    // Add drafts as activities
     drafts.forEach(draft => {
       allActivities.push({
         id: `draft-${draft.id}`,
-        type: 'draft_generated',
         title: draft.ideaTitle,
-        timestamp: new Date(draft.createdAt),
-        status: 'drafted',
-        route: `/drafts/${draft.id}`
+        type: 'draft',
+        status: 'draft',
+        timestamp: draft.createdAt,
+        entityId: draft.id
       });
     });
     
-    // Sort by timestamp descending (newest first)
-    allActivities.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
-    
-    // Take only the 5 most recent activities
-    setActivities(allActivities.slice(0, 5));
-    setIsLoading(false);
-  }, [ideas, drafts, isIdeasLoading, isDraftsLoading]);
+    // Sort activities by timestamp, newest first
+    return allActivities.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
+  }, [ideas, drafts]);
   
   return {
     activities,
-    isLoading
+    isLoading: isIdeasLoading || isDraftsLoading
   };
 }

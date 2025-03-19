@@ -1,71 +1,63 @@
 
 import { useMemo } from 'react';
-import { startOfWeek, endOfWeek, subWeeks } from 'date-fns';
 import { useIdeas } from '@/hooks/ideas';
 import { useDrafts } from '@/hooks/useDrafts';
+import { startOfWeek, endOfWeek, eachDayOfInterval, format, isSameDay } from 'date-fns';
 
-export interface WeeklyStatsData {
-  ideasCreated: {
-    current: number;
-    previous: number;
-  };
-  draftsGenerated: {
-    current: number;
-    previous: number;
-  };
-  contentPublished: {
-    current: number;
-    previous: number;
-  };
-}
+type DailyCount = {
+  day: string;
+  ideas: number;
+  drafts: number;
+  published: number;
+};
 
 export function useWeeklyStats() {
   const { ideas, isLoading: isIdeasLoading } = useIdeas();
   const { drafts, isLoading: isDraftsLoading } = useDrafts();
   
   const weeklyStats = useMemo(() => {
-    // Calculate weekly stats
-    const today = new Date();
-    const currentWeekStart = startOfWeek(today, { weekStartsOn: 0 });
-    const currentWeekEnd = endOfWeek(today, { weekStartsOn: 0 });
-    const previousWeekStart = startOfWeek(subWeeks(today, 1), { weekStartsOn: 0 });
-    const previousWeekEnd = endOfWeek(subWeeks(today, 1), { weekStartsOn: 0 });
+    // Define the current week interval
+    const start = startOfWeek(new Date(), { weekStartsOn: 1 }); // Start from Monday
+    const end = endOfWeek(new Date(), { weekStartsOn: 1 });
     
-    const isInCurrentWeek = (date: Date) => {
-      return date >= currentWeekStart && date <= currentWeekEnd;
-    };
+    // Create array of days in the current week
+    const days = eachDayOfInterval({ start, end });
     
-    const isInPreviousWeek = (date: Date) => {
-      return date >= previousWeekStart && date <= previousWeekEnd;
-    };
+    // Initialize counts for each day
+    const dailyCounts: DailyCount[] = days.map(day => ({
+      day: format(day, 'EEE'),
+      ideas: 0,
+      drafts: 0,
+      published: 0
+    }));
     
-    const ideasCreatedCurrentWeek = ideas.filter(idea => isInCurrentWeek(new Date(idea.createdAt))).length;
-    const ideasCreatedPreviousWeek = ideas.filter(idea => isInPreviousWeek(new Date(idea.createdAt))).length;
-    
-    const draftsGeneratedCurrentWeek = drafts.filter(draft => isInCurrentWeek(new Date(draft.createdAt))).length;
-    const draftsGeneratedPreviousWeek = drafts.filter(draft => isInPreviousWeek(new Date(draft.createdAt))).length;
-    
-    const contentPublishedCurrentWeek = ideas.filter(idea => 
-      idea.status === 'published' && isInCurrentWeek(new Date(idea.createdAt))
-    ).length;
-    const contentPublishedPreviousWeek = ideas.filter(idea => 
-      idea.status === 'published' && isInPreviousWeek(new Date(idea.createdAt))
-    ).length;
-    
-    return {
-      ideasCreated: {
-        current: ideasCreatedCurrentWeek,
-        previous: ideasCreatedPreviousWeek
-      },
-      draftsGenerated: {
-        current: draftsGeneratedCurrentWeek,
-        previous: draftsGeneratedPreviousWeek
-      },
-      contentPublished: {
-        current: contentPublishedCurrentWeek,
-        previous: contentPublishedPreviousWeek
+    // Count ideas created per day
+    ideas.forEach(idea => {
+      const createdAt = new Date(idea.createdAt);
+      if (createdAt >= start && createdAt <= end) {
+        const dayIndex = days.findIndex(day => isSameDay(day, createdAt));
+        if (dayIndex !== -1) {
+          if (idea.status === 'published') {
+            dailyCounts[dayIndex].published += 1;
+          } else {
+            dailyCounts[dayIndex].ideas += 1;
+          }
+        }
       }
-    };
+    });
+    
+    // Count drafts created per day
+    drafts.forEach(draft => {
+      const createdAt = new Date(draft.createdAt);
+      if (createdAt >= start && createdAt <= end) {
+        const dayIndex = days.findIndex(day => isSameDay(day, createdAt));
+        if (dayIndex !== -1) {
+          dailyCounts[dayIndex].drafts += 1;
+        }
+      }
+    });
+    
+    return dailyCounts;
   }, [ideas, drafts]);
   
   return {

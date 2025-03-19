@@ -36,6 +36,7 @@ import NewContentIdeaPage from "@/pages/NewContentIdeaPage";
 import GenerateDraftPage from "@/pages/GenerateDraftPage";
 import PersonalStoriesPage from "@/pages/PersonalStoriesPage";
 import CallToActionsPage from "@/pages/CallToActionsPage";
+import ContentPipelinePage from "@/pages/ContentPipelinePage";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -64,6 +65,8 @@ function App() {
                 
                 <Route element={<ProtectedRoute><MainLayout /></ProtectedRoute>}>
                   <Route path="/dashboard" element={<Dashboard />} />
+                  
+                  <Route path="/pipeline" element={<ContentPipelinePage />} />
                   
                   <Route path="/review-queue" element={<ReviewQueuePage />} />
                   <Route path="/ideas" element={<IdeasPage />} />
