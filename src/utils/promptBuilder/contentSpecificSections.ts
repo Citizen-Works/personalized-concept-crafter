@@ -135,7 +135,7 @@ export function buildAvoidPatternsSection(styleProfile: WritingStyleProfile | nu
   
   // Add the common AI writing patterns to avoid
   content += 'Critically important patterns to avoid:\n';
-  content += '- Avoid formulaic transitions and setups. Specifically, don\'t use short phrase + question mark/colon constructions (like \'The result?\' or \'Here\'s why:\' or \'My thoughts?\'). Instead, use more natural, varied sentence structures and transitions that flow organically without relying on these predictable patterns.\n';
+  content += '- Avoid formulaic transitions and setups. Specifically, don\'t use short phrase + question mark/colon constructions. Dont ask rhetorical questions to the reader. Instead, use more natural, varied sentence structures and transitions that flow organically without relying on these predictable patterns.\n';
   content += '- Avoid rhetorical questions as transitions.\n';
   content += '- Skip predictable setups and just state insights directly.\n';
   content += '- Use a more conversational flow without manufactured \'turning points\' in the content.\n';
