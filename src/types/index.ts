@@ -102,7 +102,7 @@ export interface WritingStyleProfile {
 // Content Types
 export type ContentStatus = 'unreviewed' | 'approved' | 'drafted' | 'ready' | 'published' | 'archived';
 export type ContentType = 'linkedin' | 'newsletter' | 'marketing';
-export type ContentSource = 'meeting' | 'manual' | 'other';
+export type ContentSource = 'meeting' | 'transcript' | 'manual' | 'other';
 export type DraftStatus = 'draft' | 'ready' | 'published' | 'archived';
 
 export interface ContentIdea {

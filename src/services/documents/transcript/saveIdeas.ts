@@ -33,7 +33,7 @@ export const saveIdeas = async (
         meetingTranscriptExcerpt: idea.transcriptExcerpt || "",
         sourceUrl: "",
         status: "idea" as ContentStatus,
-        // Don't specify contentType, so it will be NULL by default
+        contentType: null, // Set contentType to null explicitly
       };
 
       // Save to database
