@@ -46,21 +46,11 @@ export const processTranscriptForIdeas = async (
       ? document.content.replace(/<[^>]*>/g, '') // Remove any HTML-like tags
       : '';
 
-    // Get the Supabase anon key from the window environment
-    const supabaseAnonKey = window.location.hostname.includes('localhost') 
-      ? 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml2YmpvZmpzbWhuYXRteml4cWNvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDIxNjgwNDIsImV4cCI6MjA1Nzc0NDA0Mn0.vW7uUXyXRIRLB6HAm_lKcV-ACx7OWiGObiHgktb9fYs'
-      : 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml2YmpvZmpzbWhuYXRteml4cWNvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDIxNjgwNDIsImV4cCI6MjA1Nzc0NDA0Mn0.vW7uUXyXRIRLB6HAm_lKcV-ACx7OWiGObiHgktb9fYs';
+    console.log("Calling Claude function via Supabase invocation");
 
-    const apiUrl = `${window.location.origin}/api/functions/generate-with-claude`;
-    console.log(`Making request to ${apiUrl}`);
-    
-    const response = await fetch(apiUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${supabaseAnonKey}`
-      },
-      body: JSON.stringify({
+    // Use supabase.functions.invoke to call the edge function
+    const { data, error } = await supabase.functions.invoke("generate-with-claude", {
+      body: {
         prompt: `You are an expert content strategist tasked with identifying potential content ideas from meeting transcripts. 
         
         Analyze the following meeting transcript and extract 3-5 potential content ideas. For each idea:
@@ -77,66 +67,20 @@ export const processTranscriptForIdeas = async (
         contentType: "content_ideas",
         idea: { title: document.title },
         task: "transcript_analysis"
-      })
+      }
     });
 
-    if (!response.ok) {
-      // Try to extract error details from the response
-      let errorMessage = `Error processing transcript: ${response.status} ${response.statusText}`;
-      
-      try {
-        // First try to parse as JSON
-        const errorData = await response.json();
-        console.error("Error response from claude function (JSON):", errorData);
-        errorMessage = errorData.error || errorMessage;
-      } catch (jsonError) {
-        // If JSON parsing fails, get the text instead
-        try {
-          const errorText = await response.text();
-          console.error("Error response from claude function (Text):", errorText);
-          // Limit the length of the error text to avoid huge logs
-          const truncatedText = errorText.length > 300 ? errorText.substring(0, 300) + '...' : errorText;
-          errorMessage = `${errorMessage}. Response: ${truncatedText}`;
-        } catch (textError) {
-          console.error("Failed to read error response body:", textError);
-        }
-      }
-      
-      throw new Error(errorMessage);
+    if (error) {
+      console.error("Error from Claude function:", error);
+      throw new Error(`Failed to process transcript: ${error.message}`);
     }
 
-    // First check the content type to make sure we're getting JSON
-    const contentType = response.headers.get('content-type');
-    if (!contentType || !contentType.includes('application/json')) {
-      console.error("Response is not JSON. Content-Type:", contentType);
-      const responseText = await response.text();
-      console.error("Non-JSON response body:", responseText.substring(0, 500));
-      throw new Error("Received non-JSON response from API");
+    if (!data || !data.content) {
+      console.error("Invalid response structure:", data);
+      throw new Error("Invalid response from AI service");
     }
 
-    let result;
-    try {
-      result = await response.json();
-    } catch (parseError) {
-      console.error("Failed to parse JSON response:", parseError);
-      
-      // Get the raw response for debugging
-      try {
-        const responseText = await response.text();
-        console.error("Raw response that failed JSON parsing:", responseText.substring(0, 500));
-      } catch (textError) {
-        console.error("Failed to get raw response text after JSON parse error:", textError);
-      }
-      
-      throw new Error("Failed to parse response from AI service");
-    }
-
-    if (!result || !result.content) {
-      console.error("Invalid response structure:", result);
-      throw new Error("Invalid response structure from AI service");
-    }
-
-    return result.content;
+    return data.content;
   } catch (error) {
     console.error("Error processing transcript:", error);
     toast.error("Failed to process transcript for ideas");
