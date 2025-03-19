@@ -1,5 +1,5 @@
 
-import React, { useRef, useState } from 'react';
+import React, { useState } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -14,6 +14,7 @@ import { Input } from "@/components/ui/input";
 import { toast } from 'sonner';
 import UploadDropzone from '@/components/documents/UploadDropzone';
 import UploadProgress from '@/components/documents/UploadProgress';
+import { AlertCircle } from 'lucide-react';
 
 interface UploadDialogProps {
   isOpen: boolean;
@@ -30,12 +31,14 @@ const UploadDialog: React.FC<UploadDialogProps> = ({
   const [file, setFile] = useState<File | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
+  const [uploadError, setUploadError] = useState<string | null>(null);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const selectedFile = e.target.files[0];
       setFile(selectedFile);
       setUploadTitle(selectedFile.name.split('.')[0]);
+      setUploadError(null); // Clear any previous errors
     }
   };
 
@@ -44,6 +47,8 @@ const UploadDialog: React.FC<UploadDialogProps> = ({
       toast.error("Please select a file to upload");
       return;
     }
+    
+    setUploadError(null);
     
     try {
       setIsSubmitting(true);
@@ -71,10 +76,19 @@ const UploadDialog: React.FC<UploadDialogProps> = ({
       setFile(null);
     } catch (error) {
       console.error("Error uploading document:", error);
-      // Error toast is shown in the service level, no need to show it here
+      clearInterval(progressInterval);
+      setUploadProgress(0);
+      
+      // Display error message to user
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+      setUploadError(errorMessage);
+      
+      // Only show toast for generic errors, specific ones will be shown in the dialog
+      if (!errorMessage.includes('parsing') && !errorMessage.includes('library')) {
+        toast.error("Failed to upload document");
+      }
     } finally {
       setIsSubmitting(false);
-      setTimeout(() => setUploadProgress(0), 500);
     }
   };
 
@@ -84,6 +98,7 @@ const UploadDialog: React.FC<UploadDialogProps> = ({
       setUploadTitle("");
       setFile(null);
       setUploadProgress(0);
+      setUploadError(null);
     }
   };
 
@@ -105,6 +120,17 @@ const UploadDialog: React.FC<UploadDialogProps> = ({
           
           {uploadProgress > 0 && (
             <UploadProgress value={uploadProgress} />
+          )}
+          
+          {uploadError && (
+            <div className="bg-destructive/10 text-destructive rounded-md p-3 text-sm flex items-start">
+              <AlertCircle className="h-4 w-4 mr-2 mt-0.5 flex-shrink-0" />
+              <div>
+                <p className="font-medium">Error uploading document</p>
+                <p>{uploadError}</p>
+                <p className="mt-1 text-xs">Try using a plain text (.txt) file instead.</p>
+              </div>
+            </div>
           )}
           
           <div className="space-y-2">
