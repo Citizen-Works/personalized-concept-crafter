@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -106,7 +107,7 @@ const CTASection = () => {
           {/* Final CTA */}
           <div id="waitlist-form" className="backdrop-blur-md bg-black/50 border border-white/10 p-10 rounded-2xl shadow-xl max-w-3xl mx-auto text-center">
             <h2 className="text-3xl font-bold mb-6 text-white">
-              Be First to Experience Content Engine
+              Be First to Experience the Content Engine
             </h2>
             
             <p className="text-xl text-gray-300 mb-8">
