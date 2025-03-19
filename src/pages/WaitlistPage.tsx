@@ -8,6 +8,8 @@ import {
   SolutionSection, 
   CTASection
 } from "@/components/waitlist";
+import SEO from "@/components/SEO";
+import StructuredData from "@/components/waitlist/StructuredData";
 
 const WaitlistPage = () => {
   // Refs for scrolling
@@ -96,27 +98,35 @@ const WaitlistPage = () => {
   }
 
   return (
-    <div className="min-h-screen flex flex-col overflow-x-hidden">
-      <HeroSection 
-        scrollToSection={scrollToSection} 
-        painPointsRef={painPointsRef} 
+    <>
+      <SEO 
+        title="Content Engine - Turn Your Meeting Insights Into Valuable Content"
+        description="Our AI learns your unique voice and extracts the best insights from your meeting transcripts, turning your expertise into LinkedIn posts and newsletters that grow your audience."
+        canonical="https://yourcontentengine.ai/"
       />
-      
-      <div ref={painPointsRef}>
-        <PainPointsSection 
+      <StructuredData />
+      <div className="min-h-screen flex flex-col overflow-x-hidden">
+        <HeroSection 
           scrollToSection={scrollToSection} 
-          solutionRef={solutionRef} 
+          painPointsRef={painPointsRef} 
         />
+        
+        <div ref={painPointsRef}>
+          <PainPointsSection 
+            scrollToSection={scrollToSection} 
+            solutionRef={solutionRef} 
+          />
+        </div>
+        
+        <div ref={solutionRef}>
+          <SolutionSection />
+        </div>
+        
+        <div ref={ctaRef}>
+          <CTASection />
+        </div>
       </div>
-      
-      <div ref={solutionRef}>
-        <SolutionSection />
-      </div>
-      
-      <div ref={ctaRef}>
-        <CTASection />
-      </div>
-    </div>
+    </>
   );
 };
 

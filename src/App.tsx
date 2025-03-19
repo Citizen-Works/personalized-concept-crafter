@@ -4,6 +4,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "sonner";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { HelmetProvider } from 'react-helmet-async';
 
 import WaitlistPage from "@/pages/WaitlistPage";
 import RegisterPage from "@/pages/RegisterPage";
@@ -40,45 +41,47 @@ const queryClient = new QueryClient({
 
 function App() {
   return (
-    <QueryClientProvider client={queryClient}>
-      <BrowserRouter>
-        <AuthProvider>
-          <ThemeProvider defaultTheme="system" storageKey="ui-theme">
-            <Toaster position="top-right" richColors />
-            <Routes>
-              {/* Root path directly renders WaitlistPage instead of redirecting */}
-              <Route path="/" element={<WaitlistPage />} />
-              <Route path="/waitlist" element={<WaitlistPage />} />
-              
-              {/* Auth routes - still accessible but not linked anywhere */}
-              <Route path="/register" element={<ProtectedRoute><RegisterPage /></ProtectedRoute>} />
-              <Route path="/login" element={<ProtectedRoute><LoginPage /></ProtectedRoute>} />
-              <Route path="/onboarding" element={<ProtectedRoute><OnboardingPage /></ProtectedRoute>} />
-              
-              {/* All other routes protected */}
-              <Route element={<ProtectedRoute />}>
-                <Route path="/dashboard" element={<Dashboard />} />
-                <Route path="/ideas" element={<IdeasPage />} />
-                <Route path="/ideas/:id" element={<IdeaDetailPage />} />
-                <Route path="/ideas/new" element={<NewIdeaPage />} />
-                <Route path="/drafts" element={<DraftsPage />} />
-                <Route path="/drafts/:id" element={<DraftDetailPage />} />
-                <Route path="/settings/*" element={<Settings />} />
-                <Route path="/content-pillars" element={<ContentPillarsPage />} />
-                <Route path="/target-audiences" element={<TargetAudiencesPage />} />
-                <Route path="/writing-style" element={<WritingStylePage />} />
-                <Route path="/linkedin-posts" element={<LinkedinPostsPage />} />
-                <Route path="/documents" element={<DocumentsPage />} />
-                <Route path="/transcripts" element={<TranscriptsPage />} />
-                <Route path="/marketing-examples" element={<MarketingExamplesPage />} />
-                <Route path="/newsletter-examples" element={<NewsletterExamplesPage />} />
-                <Route path="*" element={<NotFound />} />
-              </Route>
-            </Routes>
-          </ThemeProvider>
-        </AuthProvider>
-      </BrowserRouter>
-    </QueryClientProvider>
+    <HelmetProvider>
+      <QueryClientProvider client={queryClient}>
+        <BrowserRouter>
+          <AuthProvider>
+            <ThemeProvider defaultTheme="system" storageKey="ui-theme">
+              <Toaster position="top-right" richColors />
+              <Routes>
+                {/* Root path directly renders WaitlistPage instead of redirecting */}
+                <Route path="/" element={<WaitlistPage />} />
+                <Route path="/waitlist" element={<WaitlistPage />} />
+                
+                {/* Auth routes - still accessible but not linked anywhere */}
+                <Route path="/register" element={<ProtectedRoute><RegisterPage /></ProtectedRoute>} />
+                <Route path="/login" element={<ProtectedRoute><LoginPage /></ProtectedRoute>} />
+                <Route path="/onboarding" element={<ProtectedRoute><OnboardingPage /></ProtectedRoute>} />
+                
+                {/* All other routes protected */}
+                <Route element={<ProtectedRoute />}>
+                  <Route path="/dashboard" element={<Dashboard />} />
+                  <Route path="/ideas" element={<IdeasPage />} />
+                  <Route path="/ideas/:id" element={<IdeaDetailPage />} />
+                  <Route path="/ideas/new" element={<NewIdeaPage />} />
+                  <Route path="/drafts" element={<DraftsPage />} />
+                  <Route path="/drafts/:id" element={<DraftDetailPage />} />
+                  <Route path="/settings/*" element={<Settings />} />
+                  <Route path="/content-pillars" element={<ContentPillarsPage />} />
+                  <Route path="/target-audiences" element={<TargetAudiencesPage />} />
+                  <Route path="/writing-style" element={<WritingStylePage />} />
+                  <Route path="/linkedin-posts" element={<LinkedinPostsPage />} />
+                  <Route path="/documents" element={<DocumentsPage />} />
+                  <Route path="/transcripts" element={<TranscriptsPage />} />
+                  <Route path="/marketing-examples" element={<MarketingExamplesPage />} />
+                  <Route path="/newsletter-examples" element={<NewsletterExamplesPage />} />
+                  <Route path="*" element={<NotFound />} />
+                </Route>
+              </Routes>
+            </ThemeProvider>
+          </AuthProvider>
+        </BrowserRouter>
+      </QueryClientProvider>
+    </HelmetProvider>
   );
 }
 
