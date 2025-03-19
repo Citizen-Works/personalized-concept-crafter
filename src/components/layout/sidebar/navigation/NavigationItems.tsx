@@ -1,5 +1,5 @@
 
-import React, { memo } from "react";
+import React, { memo, useMemo } from "react";
 import { NavigationItemWithSub } from "./NavigationItemWithSub";
 import { NavigationItem } from "./NavigationItem";
 import { getNavigationItems } from "./navigationData";
@@ -9,7 +9,8 @@ interface NavigationItemsProps {
 }
 
 export const NavigationItems: React.FC<NavigationItemsProps> = memo(({ isActive }) => {
-  const navigation = getNavigationItems();
+  // Memoize navigation items to prevent unnecessary recalculation
+  const navigation = useMemo(() => getNavigationItems(), []);
 
   return (
     <>
@@ -17,7 +18,7 @@ export const NavigationItems: React.FC<NavigationItemsProps> = memo(({ isActive 
         if (item.subItems) {
           return (
             <NavigationItemWithSub 
-              key={index} 
+              key={`nav-item-sub-${index}-${item.title}`}
               item={item} 
               isActive={isActive} 
             />
@@ -26,7 +27,7 @@ export const NavigationItems: React.FC<NavigationItemsProps> = memo(({ isActive 
 
         return (
           <NavigationItem 
-            key={index} 
+            key={`nav-item-${index}-${item.title}`}
             item={item} 
             isActive={isActive} 
           />

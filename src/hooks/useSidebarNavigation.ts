@@ -3,37 +3,55 @@ import { useCallback, useMemo } from 'react';
 import { useLocation } from 'react-router-dom';
 
 export function useSidebarNavigation() {
-  const { pathname } = useLocation();
+  const location = useLocation();
 
-  // Memoize the current path to prevent unnecessary re-renders
-  const currentPath = useMemo(() => pathname, [pathname]);
+  // Memoize the current path parts for more efficient route matching
+  const pathData = useMemo(() => {
+    const { pathname, search } = location;
+    const params = new URLSearchParams(search);
+    
+    return {
+      pathname,
+      search,
+      params,
+      fullPath: pathname + search
+    };
+  }, [location.pathname, location.search]);
   
-  // Check if a path is active based on the current pathname
+  // Optimized route matching that handles special cases more efficiently
   const isRouteActive = useCallback(
     (path: string, exact: boolean = false) => {
+      // Handle exact matches
       if (exact) {
-        return currentPath === path;
+        return pathData.fullPath === path;
       }
       
       // Special handling for pipeline routes with query parameters
       if (path.startsWith('/pipeline?tab=')) {
-        const tabParam = new URLSearchParams(path.split('?')[1]).get('tab');
-        const currentTabParam = new URLSearchParams(currentPath.split('?')[1])?.get('tab');
-        return currentPath.startsWith('/pipeline') && tabParam === currentTabParam;
+        // Quick path for performance: if not on pipeline page, return false
+        if (!pathData.pathname.startsWith('/pipeline')) {
+          return false;
+        }
+        
+        const pathTabParam = new URLSearchParams(path.split('?')[1]).get('tab');
+        const currentTabParam = pathData.params.get('tab');
+        
+        return pathTabParam === currentTabParam;
       }
       
       // For pipeline without query params
-      if (path === '/pipeline' && currentPath.startsWith('/pipeline')) {
+      if (path === '/pipeline' && pathData.pathname.startsWith('/pipeline')) {
         return true;
       }
       
-      return currentPath.startsWith(path);
+      // Default path-based matching
+      return pathData.pathname.startsWith(path);
     },
-    [currentPath]
+    [pathData]
   );
 
   return {
     isRouteActive,
-    currentPath
+    currentPath: pathData.fullPath
   };
 }

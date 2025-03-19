@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { ReviewQueueTab } from "@/components/pipeline/ReviewQueueTab";
@@ -18,22 +18,27 @@ const ContentPipelinePage = () => {
   const [dateRange, setDateRange] = useState<[Date | undefined, Date | undefined]>([undefined, undefined]);
   const [contentTypeFilter, setContentTypeFilter] = useState<ContentType | "all">("all");
   
-  // Load the last active tab from localStorage on component mount
+  // Use useEffect with cleaner dependency handling
   useEffect(() => {
     const storedTab = localStorage.getItem("contentPipelineActiveTab");
-    if (storedTab) {
-      setActiveTab(storedTab);
-    }
     
-    // Also check URL for tab parameter
+    // Check URL for tab parameter first, then fallback to localStorage
     const urlParams = new URLSearchParams(location.search);
     const tabParam = urlParams.get("tab");
+    
     if (tabParam) {
       setActiveTab(tabParam);
+    } else if (storedTab) {
+      setActiveTab(storedTab);
+      
+      // Also update URL to match the stored tab
+      const currentParams = new URLSearchParams(location.search);
+      currentParams.set("tab", storedTab);
+      navigate(`${location.pathname}?${currentParams.toString()}`, { replace: true });
     }
-  }, [location]);
+  }, [location.search, navigate]);
   
-  // Save active tab to localStorage when it changes
+  // Separate effect for saving to localStorage to avoid render cycles
   useEffect(() => {
     localStorage.setItem("contentPipelineActiveTab", activeTab);
     
@@ -41,7 +46,14 @@ const ContentPipelinePage = () => {
     const currentParams = new URLSearchParams(location.search);
     currentParams.set("tab", activeTab);
     navigate(`${location.pathname}?${currentParams.toString()}`, { replace: true });
-  }, [activeTab, navigate, location]);
+  }, [activeTab, navigate]);
+  
+  // Memoize the filter props to prevent unnecessary re-renders
+  const filterProps = useMemo(() => ({
+    searchQuery,
+    dateRange,
+    contentTypeFilter
+  }), [searchQuery, dateRange, contentTypeFilter]);
   
   // Handle tab change
   const handleTabChange = (value: string) => {
@@ -84,43 +96,23 @@ const ContentPipelinePage = () => {
         </TabsList>
         
         <TabsContent value="review" className="mt-6">
-          <ReviewQueueTab 
-            searchQuery={searchQuery}
-            dateRange={dateRange}
-            contentTypeFilter={contentTypeFilter}
-          />
+          <ReviewQueueTab {...filterProps} />
         </TabsContent>
         
         <TabsContent value="ideas" className="mt-6">
-          <IdeasTab 
-            searchQuery={searchQuery}
-            dateRange={dateRange}
-            contentTypeFilter={contentTypeFilter}
-          />
+          <IdeasTab {...filterProps} />
         </TabsContent>
         
         <TabsContent value="drafts" className="mt-6">
-          <DraftsTab 
-            searchQuery={searchQuery}
-            dateRange={dateRange}
-            contentTypeFilter={contentTypeFilter}
-          />
+          <DraftsTab {...filterProps} />
         </TabsContent>
         
         <TabsContent value="ready" className="mt-6">
-          <ReadyToPublishTab 
-            searchQuery={searchQuery}
-            dateRange={dateRange}
-            contentTypeFilter={contentTypeFilter}
-          />
+          <ReadyToPublishTab {...filterProps} />
         </TabsContent>
         
         <TabsContent value="published" className="mt-6">
-          <PublishedTab 
-            searchQuery={searchQuery}
-            dateRange={dateRange}
-            contentTypeFilter={contentTypeFilter}
-          />
+          <PublishedTab {...filterProps} />
         </TabsContent>
       </Tabs>
     </div>

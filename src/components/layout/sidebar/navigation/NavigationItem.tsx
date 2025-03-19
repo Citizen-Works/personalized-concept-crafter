@@ -1,5 +1,5 @@
 
-import React, { memo } from "react";
+import React, { memo, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import {
@@ -17,16 +17,20 @@ export const NavigationItem: React.FC<NavigationItemProps> = memo(({
   item, 
   isActive 
 }) => {
-  // Determine if this route is active
-  const active = isActive(item.href);
+  // Memoize the active state to prevent unnecessary re-renders
+  const active = useMemo(() => isActive(item.href), [isActive, item.href]);
+  
+  // Memoize the className computation
+  const buttonClassName = useMemo(() => 
+    cn(active && "bg-accent text-accent-foreground"),
+    [active]
+  );
   
   return (
     <SidebarMenuItem>
       <SidebarMenuButton
         asChild
-        className={cn(
-          active && "bg-accent text-accent-foreground"
-        )}
+        className={buttonClassName}
       >
         <Link to={item.href}>
           <item.icon className="h-4 w-4" />
