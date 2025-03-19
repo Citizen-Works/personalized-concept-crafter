@@ -1,7 +1,7 @@
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { createDraft, updateDraft, deleteDraft } from "@/services/draftService";
-import { ContentDraft } from "@/types";
+import { ContentDraft, DraftStatus } from "@/types";
 
 export const useDraftMutations = (userId: string | undefined) => {
   const queryClient = useQueryClient();
@@ -15,7 +15,7 @@ export const useDraftMutations = (userId: string | undefined) => {
   });
 
   const updateDraftMutation = useMutation({
-    mutationFn: (params: { id: string } & Partial<Omit<ContentDraft, "id" | "createdAt">>) => 
+    mutationFn: (params: { id: string } & Partial<Omit<ContentDraft, "id" | "createdAt"> & { status?: DraftStatus }>) => 
       updateDraft(params, userId || ""),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["drafts", userId] });

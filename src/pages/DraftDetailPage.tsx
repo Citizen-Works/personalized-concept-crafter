@@ -9,7 +9,7 @@ import { DraftLoading } from '@/components/drafts/DraftLoading';
 import { DraftError } from '@/components/drafts/DraftError';
 import { DraftStatusToggle } from '@/components/drafts/DraftStatusToggle';
 import { toast } from 'sonner';
-import { ContentIdea, ContentType, ContentSource, ContentStatus } from '@/types';
+import { ContentIdea, ContentType, ContentSource, ContentStatus, DraftStatus } from '@/types';
 import { supabase } from '@/integrations/supabase/client';
 
 const DraftDetailPage = () => {
@@ -20,7 +20,7 @@ const DraftDetailPage = () => {
   const [idea, setIdea] = useState<ContentIdea | null>(null);
   const [isLoadingIdea, setIsLoadingIdea] = useState(false);
   const [content, setContent] = useState<string>('');
-  const [draftStatus, setDraftStatus] = useState<'draft' | 'published' | 'archived'>('draft');
+  const [draftStatus, setDraftStatus] = useState<DraftStatus>('draft');
   
   useEffect(() => {
     if (draft) {
@@ -121,7 +121,7 @@ const DraftDetailPage = () => {
     });
   };
   
-  const handleStatusChange = async (status: 'draft' | 'published' | 'archived'): Promise<void> => {
+  const handleStatusChange = async (status: DraftStatus): Promise<void> => {
     if (!draft) return;
     
     try {

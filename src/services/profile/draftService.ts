@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { ContentDraft, ContentType, DraftStatus } from "@/types";
 import { toast } from "sonner";
@@ -113,8 +112,6 @@ export const createDraft = async (
 ) => {
   if (!userId) throw new Error("User not authenticated");
 
-  // Remove contentType if it's included in the draft object
-  // since it doesn't exist in the database table
   const { contentType, ...draftData } = draft as any;
 
   console.log("Creating draft with data:", {
@@ -150,7 +147,7 @@ export const createDraft = async (
 };
 
 export const updateDraft = async (
-  { id, ...draft }: { id: string } & Partial<Omit<ContentDraft, "id" | "createdAt"> & { status?: 'draft' | 'published' | 'archived' }>,
+  { id, ...draft }: { id: string } & Partial<Omit<ContentDraft, "id" | "createdAt"> & { status?: DraftStatus }>,
   userId: string
 ) => {
   if (!userId) throw new Error("User not authenticated");
