@@ -33,18 +33,10 @@ const TranscriptsPage = () => {
     setSelectedTranscript(id);
     
     try {
-      // Call processTranscript and set ideas based on result
-      processTranscript(id, {
-        onSuccess: (result: string) => {
-          setIdeas(result);
-          setIsIdeasDialogOpen(true);
-          toast.success("Transcript processed successfully");
-        },
-        onError: (error) => {
-          console.error("Failed to process transcript:", error);
-          toast.error("Failed to process transcript");
-        }
-      });
+      const result = await processTranscript(id);
+      setIdeas(result);
+      setIsIdeasDialogOpen(true);
+      toast.success("Transcript processed successfully");
     } catch (error) {
       console.error("Failed to process transcript:", error);
       toast.error("Failed to process transcript");
@@ -116,7 +108,7 @@ const TranscriptsPage = () => {
                     disabled={isProcessing && selectedTranscript === doc.id}
                   >
                     {isProcessing && selectedTranscript === doc.id ? (
-                      <>Processing...</>
+                      "Processing..."
                     ) : (
                       <>
                         <BrainCircuit className="h-4 w-4 mr-1" />
