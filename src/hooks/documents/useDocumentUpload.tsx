@@ -3,7 +3,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { Document } from "@/types";
 import { parseDocumentContent } from "@/utils/documentUtils";
-import { createDocument } from "@/services/documentService";
+import { createDocument } from "@/services/documents"; // Updated import path
 
 export const useDocumentUpload = (userId: string | undefined) => {
   const [uploadProgress, setUploadProgress] = useState(0);
