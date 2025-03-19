@@ -1,12 +1,12 @@
 
 import React from 'react';
 import { Button } from "@/components/ui/button";
-import { Upload, PlusCircle, FileText, Download, Mic } from "lucide-react";
+import { Upload, PlusCircle, FileText, Download } from "lucide-react";
 
 interface TranscriptActionsProps {
   onOpenUpload: () => void;
   onOpenAddText: () => void;
-  onOpenRecording: () => void;
+  onOpenRecording: () => void; // We'll keep the prop but won't use it
   onExport: () => void;
   hasTranscripts: boolean;
 }
@@ -14,7 +14,6 @@ interface TranscriptActionsProps {
 const TranscriptActions: React.FC<TranscriptActionsProps> = ({ 
   onOpenUpload, 
   onOpenAddText,
-  onOpenRecording,
   onExport,
   hasTranscripts
 }) => {
@@ -33,15 +32,6 @@ const TranscriptActions: React.FC<TranscriptActionsProps> = ({
         >
           <PlusCircle className="h-4 w-4 mr-2" />
           Add Text
-        </Button>
-        <Button 
-          onClick={onOpenRecording}
-          variant="outline"
-          className="flex-1 sm:flex-initial"
-          aria-label="Record audio"
-        >
-          <Mic className="h-4 w-4 mr-2" />
-          Record
         </Button>
         <Button 
           onClick={onOpenUpload} 

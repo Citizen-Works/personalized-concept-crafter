@@ -1,4 +1,3 @@
-
 import {
   Gauge,
   Settings,
@@ -76,7 +75,7 @@ export const getNavigationItems = (): NavItem[] => [
   {
     title: "Transcripts",
     href: "/transcripts",
-    icon: Upload,
+    icon: FileText,
   },
   {
     title: "Documents",
