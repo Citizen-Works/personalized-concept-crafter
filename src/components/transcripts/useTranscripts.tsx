@@ -113,9 +113,12 @@ export const useTranscripts = () => {
     }
     
     try {
-      return await handleAddText(text, title);
+      await handleAddText(text, title);
+      toast.success("Recording transcript added successfully");
+      return true;
     } catch (error) {
       console.error("Error adding recording:", error);
+      toast.error("Failed to add recording transcript");
       throw error;
     }
   };
