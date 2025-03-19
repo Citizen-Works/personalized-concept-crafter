@@ -23,6 +23,7 @@ import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import NotFound from "./pages/NotFound";
 import Index from "./pages/Index";
+import WaitlistPage from "./pages/WaitlistPage";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
 import OnboardingPage from './pages/OnboardingPage';
 
@@ -47,7 +48,8 @@ function App() {
             <BrowserRouter>
               <AuthProvider>
                 <Routes>
-                  <Route path="/" element={<Index />} />
+                  <Route path="/" element={<WaitlistPage />} />
+                  <Route path="/app" element={<Index />} />
                   <Route path="/login" element={<LoginPage />} />
                   <Route path="/register" element={<RegisterPage />} />
                   
