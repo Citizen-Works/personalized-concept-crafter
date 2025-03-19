@@ -2,11 +2,13 @@
 import React from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import AddLinkedinPostDialog from './AddLinkedinPostDialog';
+import { UseMutateFunction } from '@tanstack/react-query';
+import { LinkedinPost } from '@/types';
 
 interface LinkedinPostsHeaderProps {
   tagFilter: string | null;
   setTagFilter: (value: string | null) => void;
-  addPost: (post: { content: string; url: string | null; tag: string }) => Promise<void>;
+  addPost: UseMutateFunction<LinkedinPost, Error, { content: string; url: string | null; tag: string; }, unknown>;
 }
 
 const LinkedinPostsHeader: React.FC<LinkedinPostsHeaderProps> = ({ 

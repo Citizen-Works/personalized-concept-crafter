@@ -7,9 +7,11 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Plus } from 'lucide-react';
 import { toast } from 'sonner';
+import { LinkedinPost } from '@/types';
+import { UseMutateFunction } from '@tanstack/react-query';
 
 interface AddLinkedinPostDialogProps {
-  addPost: (post: { content: string; url: string | null; tag: string }) => Promise<void>;
+  addPost: UseMutateFunction<LinkedinPost, Error, { content: string; url: string | null; tag: string; }, unknown>;
 }
 
 const AddLinkedinPostDialog: React.FC<AddLinkedinPostDialogProps> = ({ addPost }) => {
@@ -25,19 +27,24 @@ const AddLinkedinPostDialog: React.FC<AddLinkedinPostDialogProps> = ({ addPost }
     }
 
     try {
-      await addPost({
+      addPost({
         content: newPostContent,
         url: newPostUrl || null,
         tag: newPostTag
+      }, {
+        onSuccess: () => {
+          // Reset form and close dialog
+          setNewPostContent('');
+          setNewPostUrl('');
+          setNewPostTag('My post');
+          setIsOpen(false);
+          toast.success('LinkedIn post added successfully');
+        },
+        onError: (error) => {
+          console.error('Error adding LinkedIn post:', error);
+          toast.error('Failed to add LinkedIn post');
+        }
       });
-      
-      // Reset form and close dialog
-      setNewPostContent('');
-      setNewPostUrl('');
-      setNewPostTag('My post');
-      setIsOpen(false);
-      
-      toast.success('LinkedIn post added successfully');
     } catch (error) {
       console.error('Error adding LinkedIn post:', error);
       toast.error('Failed to add LinkedIn post');
