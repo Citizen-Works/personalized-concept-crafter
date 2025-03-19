@@ -12,7 +12,6 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { toast } from 'sonner';
 
 interface AddTextDialogProps {
   isOpen: boolean;
@@ -25,74 +24,76 @@ const AddTextDialog: React.FC<AddTextDialogProps> = ({
   onOpenChange,
   onAddText,
 }) => {
-  const [manualText, setManualText] = useState("");
-  const [manualTitle, setManualTitle] = useState("");
+  const [title, setTitle] = useState("");
+  const [content, setContent] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleAddText = async () => {
-    if (!manualText) {
-      toast.error("Please enter text content");
+    if (!content.trim()) {
       return;
     }
     
     try {
       setIsSubmitting(true);
-      await onAddText(manualText, manualTitle || "New Text");
-      onOpenChange(false);
-      setManualTitle("");
-      setManualText("");
+      await onAddText(content, title || "Text");
+      handleClose();
     } catch (error) {
       console.error("Error adding text:", error);
+      // Error is already handled in the service
     } finally {
       setIsSubmitting(false);
     }
   };
 
+  const handleClose = () => {
+    if (!isSubmitting) {
+      setTitle("");
+      setContent("");
+      onOpenChange(false);
+    }
+  };
+
   return (
-    <Dialog open={isOpen} onOpenChange={(open) => {
-      if (!isSubmitting) {
-        onOpenChange(open);
-      }
-    }}>
-      <DialogContent className="max-w-3xl">
+    <Dialog open={isOpen} onOpenChange={handleClose}>
+      <DialogContent>
         <DialogHeader>
           <DialogTitle>Add Text</DialogTitle>
           <DialogDescription>
-            Add text content to extract ideas from
+            Paste or type text content to add as a transcript
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-4 py-4">
-          <div className="space-y-2">
-            <Label htmlFor="text-title">Title</Label>
+          <div>
+            <Label htmlFor="title">Title</Label>
             <Input 
-              id="text-title" 
-              value={manualTitle} 
-              onChange={(e) => setManualTitle(e.target.value)} 
-              placeholder="Text title"
+              id="title" 
+              value={title} 
+              onChange={(e) => setTitle(e.target.value)} 
+              placeholder="Text title" 
             />
           </div>
-          <div className="space-y-2">
-            <Label htmlFor="text-content">Content</Label>
+          <div>
+            <Label htmlFor="content">Content</Label>
             <Textarea 
-              id="text-content" 
-              value={manualText} 
-              onChange={(e) => setManualText(e.target.value)} 
-              placeholder="Enter or paste your text here..."
-              className="min-h-[200px]"
+              id="content" 
+              value={content} 
+              onChange={(e) => setContent(e.target.value)} 
+              placeholder="Paste or type text here" 
+              className="min-h-[200px]" 
             />
           </div>
         </div>
         <DialogFooter>
           <Button 
             variant="outline" 
-            onClick={() => onOpenChange(false)}
+            onClick={handleClose}
             disabled={isSubmitting}
           >
             Cancel
           </Button>
           <Button 
             onClick={handleAddText}
-            disabled={isSubmitting}
+            disabled={isSubmitting || !content.trim()}
           >
             {isSubmitting ? "Adding..." : "Add Text"}
           </Button>

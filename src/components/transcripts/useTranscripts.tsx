@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useDocuments } from '@/hooks/useDocuments';
 import { toast } from 'sonner';
@@ -58,7 +57,7 @@ export const useTranscripts = () => {
     try {
       const documentData = {
         title: title,
-        type: "transcript" as const,
+        type: "other" as const,
         purpose: "business_context" as const,
         content_type: null,
         status: "active" as const
@@ -82,7 +81,7 @@ export const useTranscripts = () => {
         file: new File([text], `${title}.txt`, { type: "text/plain" }),
         documentData: {
           title: title,
-          type: "transcript",
+          type: "other",
           purpose: "business_context",
           content_type: null,
           status: "active"

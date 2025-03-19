@@ -65,23 +65,30 @@ const UploadDialog: React.FC<UploadDialogProps> = ({
       clearInterval(progressInterval);
       setUploadProgress(100);
       
+      // Success will be handled in the service
       onOpenChange(false);
       setUploadTitle("");
       setFile(null);
     } catch (error) {
       console.error("Error uploading document:", error);
+      // Error toast is shown in the service level, no need to show it here
     } finally {
       setIsSubmitting(false);
       setTimeout(() => setUploadProgress(0), 500);
     }
   };
 
+  const handleClose = () => {
+    if (!isSubmitting) {
+      onOpenChange(false);
+      setUploadTitle("");
+      setFile(null);
+      setUploadProgress(0);
+    }
+  };
+
   return (
-    <Dialog open={isOpen} onOpenChange={(open) => {
-      if (!isSubmitting) {
-        onOpenChange(open);
-      }
-    }}>
+    <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Upload Transcript</DialogTitle>
@@ -113,7 +120,7 @@ const UploadDialog: React.FC<UploadDialogProps> = ({
         <DialogFooter>
           <Button 
             variant="outline" 
-            onClick={() => onOpenChange(false)}
+            onClick={handleClose}
             disabled={isSubmitting}
           >
             Cancel

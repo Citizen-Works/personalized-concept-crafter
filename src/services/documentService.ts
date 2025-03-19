@@ -35,7 +35,7 @@ export const fetchDocuments = async (
   const { data, error } = await query.order("created_at", { ascending: false });
 
   if (error) {
-    toast.error("Failed to fetch documents");
+    console.error("Failed to fetch documents:", error);
     throw error;
   }
 
@@ -61,40 +61,46 @@ export const createDocument = async (
 ): Promise<Document> => {
   if (!userId) throw new Error("User not authenticated");
 
-  const { data, error } = await supabase
-    .from("documents")
-    .insert([
-      {
-        title: document.title,
-        content: document.content,
-        type: document.type,
-        purpose: document.purpose,
-        status: document.status,
-        content_type: document.content_type,
-        user_id: userId,
-      },
-    ])
-    .select()
-    .single();
+  try {
+    const { data, error } = await supabase
+      .from("documents")
+      .insert([
+        {
+          title: document.title,
+          content: document.content,
+          type: document.type,
+          purpose: document.purpose,
+          status: document.status,
+          content_type: document.content_type,
+          user_id: userId,
+        },
+      ])
+      .select()
+      .single();
 
-  if (error) {
-    toast.error("Failed to create document");
+    if (error) {
+      console.error("Failed to create document:", error);
+      throw error;
+    }
+
+    // Only show success toast here, errors will be handled by the calling function
+    toast.success("Document created successfully");
+    
+    return {
+      id: data.id,
+      userId: data.user_id,
+      title: data.title,
+      content: data.content || "",
+      type: data.type as Document["type"],
+      purpose: data.purpose as Document["purpose"],
+      status: data.status as Document["status"],
+      content_type: data.content_type as Document["content_type"],
+      createdAt: new Date(data.created_at)
+    };
+  } catch (error) {
+    console.error("Error in createDocument:", error);
     throw error;
   }
-
-  toast.success("Document created successfully");
-  
-  return {
-    id: data.id,
-    userId: data.user_id,
-    title: data.title,
-    content: data.content || "",
-    type: data.type as Document["type"],
-    purpose: data.purpose as Document["purpose"],
-    status: data.status as Document["status"],
-    content_type: data.content_type as Document["content_type"],
-    createdAt: new Date(data.created_at)
-  };
 };
 
 /**
