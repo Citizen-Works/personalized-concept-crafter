@@ -1,4 +1,3 @@
-
 export interface User {
   id: string;
   email: string;
@@ -35,6 +34,7 @@ export interface LinkedinPost {
   publishedAt: Date;
   url: string;
   createdAt: Date;
+  tag: string;
 }
 
 // Document Types

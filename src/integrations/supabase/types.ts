@@ -170,6 +170,7 @@ export type Database = {
           created_at: string
           id: string
           published_at: string | null
+          tag: string
           updated_at: string
           url: string | null
           user_id: string
@@ -179,6 +180,7 @@ export type Database = {
           created_at?: string
           id?: string
           published_at?: string | null
+          tag?: string
           updated_at?: string
           url?: string | null
           user_id: string
@@ -188,6 +190,7 @@ export type Database = {
           created_at?: string
           id?: string
           published_at?: string | null
+          tag?: string
           updated_at?: string
           url?: string | null
           user_id?: string

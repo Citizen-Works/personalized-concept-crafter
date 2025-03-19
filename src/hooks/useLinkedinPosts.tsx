@@ -8,6 +8,12 @@ import { useAuth } from '@/context/AuthContext';
 type PostInput = {
   content: string;
   url: string | null;
+  tag?: string; // Added tag field (optional, defaults to "My post")
+};
+
+type TagUpdateInput = {
+  id: string;
+  tag: string;
 };
 
 export const useLinkedinPosts = () => {
@@ -32,7 +38,8 @@ export const useLinkedinPosts = () => {
       content: item.content,
       publishedAt: item.published_at ? new Date(item.published_at) : undefined,
       url: item.url || '',
-      createdAt: new Date(item.created_at)
+      createdAt: new Date(item.created_at),
+      tag: item.tag || 'My post' // Include tag with default fallback
     }));
   };
 
@@ -46,7 +53,8 @@ export const useLinkedinPosts = () => {
         {
           content: post.content,
           url: post.url,
-          user_id: user.id
+          user_id: user.id,
+          tag: post.tag || 'My post' // Use provided tag or default
         }
       ])
       .select()
@@ -60,8 +68,22 @@ export const useLinkedinPosts = () => {
       content: data.content,
       publishedAt: data.published_at ? new Date(data.published_at) : undefined,
       url: data.url || '',
-      createdAt: new Date(data.created_at)
+      createdAt: new Date(data.created_at),
+      tag: data.tag
     };
+  };
+
+  // Update a post's tag
+  const updatePostTag = async ({ id, tag }: TagUpdateInput): Promise<void> => {
+    if (!user) throw new Error('User not authenticated');
+
+    const { error } = await supabase
+      .from('linkedin_posts')
+      .update({ tag })
+      .eq('id', id)
+      .eq('user_id', user.id);
+
+    if (error) throw error;
   };
 
   // Delete a LinkedIn post
@@ -96,6 +118,14 @@ export const useLinkedinPosts = () => {
     }
   });
 
+  // Mutation for updating a post's tag
+  const updateTagMutation = useMutation({
+    mutationFn: updatePostTag,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['linkedin-posts', user?.id] });
+    }
+  });
+
   // Mutation for deleting a post
   const deletePostMutation = useMutation({
     mutationFn: deleteExistingPost,
@@ -109,6 +139,7 @@ export const useLinkedinPosts = () => {
     isLoading,
     isError,
     addPost: addPostMutation.mutate,
+    updateTag: updateTagMutation.mutate,
     deletePost: deletePostMutation.mutate
   };
 };
