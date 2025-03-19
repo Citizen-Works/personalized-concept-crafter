@@ -11,7 +11,7 @@ import {
   DropdownMenuItem, 
   DropdownMenuTrigger 
 } from "@/components/ui/dropdown-menu";
-import { Edit, MoreHorizontal, Trash } from 'lucide-react';
+import { ArrowUpRight, Edit, MoreHorizontal, Trash } from 'lucide-react';
 
 interface IdeaCardProps {
   idea: ContentIdea;
@@ -33,10 +33,11 @@ const IdeaCard: React.FC<IdeaCardProps> = ({
   return (
     <Card key={idea.id} className="overflow-hidden transition-all duration-200 hover:shadow-md">
       <CardContent className="p-4 sm:p-6">
-        <div className="flex flex-col md:flex-row gap-3 md:items-center justify-between">
-          <div className="space-y-1 flex-1 min-w-0">
-            <div className="flex flex-col sm:flex-row sm:items-center gap-2">
-              <h3 className="font-medium text-sm sm:text-base truncate">{idea.title}</h3>
+        <div className="flex flex-col gap-3">
+          {/* Title section - now with more space and no truncation */}
+          <div className="space-y-1 flex-1">
+            <div className="flex flex-col gap-2">
+              <h3 className="font-medium text-sm sm:text-base line-clamp-2 break-words">{idea.title}</h3>
               <div className="flex flex-wrap gap-1 sm:gap-2">
                 {!hideStatusBadge && (
                   <Badge 
@@ -55,21 +56,23 @@ const IdeaCard: React.FC<IdeaCardProps> = ({
               </div>
             </div>
             <p className="text-xs sm:text-sm text-muted-foreground line-clamp-2">{idea.description}</p>
-            <p className="text-xs text-muted-foreground">
+            {/* Date is now more prominent and will always be visible */}
+            <p className="text-xs text-muted-foreground mt-2 font-medium">
               Created {new Date(idea.createdAt).toLocaleDateString()}
             </p>
           </div>
           
-          <div className="flex items-center gap-2 mt-2 md:mt-0">
-            <Button variant="outline" size="sm" asChild className="h-8 text-xs sm:text-sm w-full sm:w-auto">
-              <Link to={`/ideas/${idea.id}`}>
-                View Details
+          {/* Actions row - with smaller view details button */}
+          <div className="flex items-center justify-between mt-2">
+            <Button variant="outline" size="sm" asChild className="h-8 w-8 p-0">
+              <Link to={`/ideas/${idea.id}`} aria-label="View details">
+                <ArrowUpRight className="h-4 w-4" />
               </Link>
             </Button>
             
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className="h-8 w-8 ml-auto">
+                <Button variant="ghost" size="icon" className="h-8 w-8">
                   <MoreHorizontal className="h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>
