@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -25,13 +24,10 @@ const WaitlistPage = () => {
 
     setIsSubmitting(true);
     try {
-      // Store email in Supabase - use the .from().insert() method with correct options
+      // Store email in Supabase with correct options that match the API types
       const { error } = await supabase
         .from('waitlist')
-        .insert({ email }, { 
-          returning: 'minimal', // Don't return the inserted row
-          count: 'none' // Don't count affected rows
-        });
+        .insert({ email });
       
       if (error) throw error;
       
