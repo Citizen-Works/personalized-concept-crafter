@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useDrafts } from '@/hooks/useDrafts';
@@ -91,7 +90,6 @@ const DraftDetailPage = () => {
     if (!draft) return;
     
     try {
-      // Create a new version of the draft
       await createDraft({
         contentIdeaId: draft.contentIdeaId,
         content: updatedContent,
@@ -102,7 +100,6 @@ const DraftDetailPage = () => {
       
       toast.success("New version created successfully");
       
-      // Redirect to the drafts page to see all versions
       navigate(`/ideas/${draft.contentIdeaId}`);
     } catch (error) {
       toast.error("Failed to create new version");
@@ -166,6 +163,7 @@ const DraftDetailPage = () => {
           <DraftContent 
             content={content} 
             contentType={draft.contentType}
+            version={draft.version}
             onUpdateContent={handleUpdateContent}
           />
         </div>
