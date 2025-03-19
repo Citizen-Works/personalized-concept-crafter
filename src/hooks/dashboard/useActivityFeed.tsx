@@ -6,8 +6,18 @@ import { useDrafts } from '@/hooks/useDrafts';
 type Activity = {
   id: string;
   title: string;
-  type: 'idea_created' | 'draft_generated' | 'status_changed' | 'transcript_processed';
+  type: 'idea' | 'draft' | 'publish'; // Original types from data
   status: string;
+  timestamp: Date;
+  entityId: string;
+  route: string;
+};
+
+type ActivityItem = {
+  id: string;
+  title: string;
+  type: 'idea_created' | 'draft_generated' | 'status_changed' | 'transcript_processed';
+  status?: string;
   timestamp: Date;
   entityId: string;
   route: string;
@@ -25,7 +35,7 @@ export function useActivityFeed() {
       allActivities.push({
         id: `idea-${idea.id}`,
         title: idea.title,
-        type: 'idea_created',
+        type: 'idea',
         status: idea.status,
         timestamp: idea.createdAt,
         entityId: idea.id,
@@ -38,7 +48,7 @@ export function useActivityFeed() {
       allActivities.push({
         id: `draft-${draft.id}`,
         title: draft.ideaTitle,
-        type: 'draft_generated',
+        type: 'draft',
         status: 'draft',
         timestamp: draft.createdAt,
         entityId: draft.id,

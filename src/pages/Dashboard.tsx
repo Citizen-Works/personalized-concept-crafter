@@ -53,7 +53,7 @@ const Dashboard = () => {
               ? 'draft_generated' 
               : activity.type === 'publish' 
                 ? 'status_changed' 
-                : 'draft_generated'
+                : 'transcript_processed'
         }))}
         isLoading={isLoading.activities}
       />

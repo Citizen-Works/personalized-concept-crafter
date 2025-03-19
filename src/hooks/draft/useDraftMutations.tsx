@@ -15,7 +15,7 @@ export const useDraftMutations = (userId: string | undefined) => {
   });
 
   const updateDraftMutation = useMutation({
-    mutationFn: (params: { id: string } & Partial<Omit<ContentDraft, "id" | "createdAt"> & { status?: DraftStatus }>) => 
+    mutationFn: (params: { id: string } & Partial<Omit<ContentDraft, "id" | "createdAt"> & { status?: "draft" | "ready" | "published" | "archived" }>) => 
       updateDraft(params, userId || ""),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["drafts", userId] });
