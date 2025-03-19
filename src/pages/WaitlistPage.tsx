@@ -6,13 +6,15 @@ import {
   HeroSection, 
   PainPointsSection, 
   SolutionSection, 
-  CTASection 
+  CTASection,
+  ScreenshotsCarousel
 } from "@/components/waitlist";
 
 const WaitlistPage = () => {
   // Refs for scrolling
   const painPointsRef = useRef<HTMLDivElement>(null);
   const solutionRef = useRef<HTMLDivElement>(null);
+  const screenshotsRef = useRef<HTMLDivElement>(null);
   const ctaRef = useRef<HTMLDivElement>(null);
   
   // Used to track if the component has mounted
@@ -107,6 +109,13 @@ const WaitlistPage = () => {
       
       <div ref={solutionRef}>
         <SolutionSection />
+      </div>
+      
+      <div ref={screenshotsRef} className="opacity-0">
+        <ScreenshotsCarousel 
+          title="See Content Engine in Action" 
+          description="Turn your meetings into content that grows your business"
+        />
       </div>
       
       <div ref={ctaRef}>

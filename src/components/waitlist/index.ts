@@ -8,3 +8,4 @@ export { default as HeroHeading } from './HeroHeading';
 export { default as EmailSignupForm } from './EmailSignupForm';
 export { default as BenefitsList } from './BenefitsList';
 export { default as TrustedBySection } from './TrustedBySection';
+export { default as ScreenshotsCarousel } from './ScreenshotsCarousel';
