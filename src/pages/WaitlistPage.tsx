@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -79,7 +80,7 @@ const WaitlistPage = () => {
             <span 
               className="bg-clip-text text-transparent"
               style={{
-                backgroundImage: `url('https://images.unsplash.com/photo-1531297484001-80022131f5a1?auto=format&fit=crop&w=2000&q=80')`,
+                backgroundImage: `url('https://images.unsplash.com/photo-1487058792275-0ad4aaf24ca7?auto=format&fit=crop&w=2000&q=80')`,
                 backgroundSize: 'cover',
                 backgroundPosition: 'center',
                 WebkitBackgroundClip: 'text',
