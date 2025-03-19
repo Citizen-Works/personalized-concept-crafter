@@ -8,6 +8,8 @@ import { Loader2, Lightbulb, AlertCircle, CheckCircle } from 'lucide-react';
 import { ContentIdea, ContentType } from '@/types';
 import { Badge } from '@/components/ui/badge';
 import { useClaudeAI } from '@/hooks/useClaudeAI';
+import { useIdeas } from '@/hooks/ideas';
+import { toast } from 'sonner';
 
 interface IdeaContentGenerationProps {
   idea: ContentIdea;
@@ -21,6 +23,7 @@ const IdeaContentGeneration: React.FC<IdeaContentGenerationProps> = ({
   const [selectedContentType, setSelectedContentType] = useState<ContentType>(idea.contentType || 'linkedin');
   const [generatedContent, setGeneratedContent] = useState('');
   const { generateContent, isGenerating, error } = useClaudeAI();
+  const { updateIdea } = useIdeas();
   
   // Extract content goal and call to action from the idea
   const extractContentGoal = () => {
@@ -58,9 +61,24 @@ const IdeaContentGeneration: React.FC<IdeaContentGenerationProps> = ({
   };
   
   const handleSaveAsDraft = async () => {
-    await onGenerateDraft(selectedContentType, generatedContent);
-    // Optionally clear the content after saving
-    setGeneratedContent('');
+    try {
+      await onGenerateDraft(selectedContentType, generatedContent);
+      
+      // Update the idea status to 'drafted'
+      if (idea.status !== 'drafted') {
+        await updateIdea({
+          id: idea.id,
+          status: 'drafted'
+        });
+        toast.success('Idea status updated to drafted');
+      }
+      
+      // Optionally clear the content after saving
+      setGeneratedContent('');
+    } catch (error) {
+      console.error('Error saving draft:', error);
+      toast.error('Failed to save draft');
+    }
   };
   
   return (
