@@ -64,16 +64,27 @@ export function useOnboardingAssistant() {
       );
       
       if (hasData) {
-        // If user has existing data, acknowledge it
+        // If user has existing data, acknowledge it with a more consultative approach
         setMessages([{
           role: 'assistant',
-          content: `Welcome back! I'm your Content Strategy Assistant. I'm here to help you set up or update your profile for better content generation. I can see you already have some information in your profile. Would you like to review what we have, or focus on updating specific areas?`
+          content: `Welcome back! I'm your Content Strategy Consultant. I see you already have some information in your profile. What would you like to focus on today?
+
+Would you like to:
+• Refine your current content strategy?
+• Update your business information?
+• Explore new target audiences?
+• Fine-tune your content pillars?
+• Work on your writing style and voice?
+
+Or is there something else specific you'd like to discuss about your content strategy?`
         }]);
       } else {
-        // First time setup
+        // First time setup - consultative approach
         setMessages([{
           role: 'assistant',
-          content: `Hi there! I'm your Content Strategy Assistant. I'm here to help you set up your profile for better content generation. Let's have a conversation about your business, content goals, target audience, and writing style preferences. This will help me generate more relevant content for you later. How about we start with you telling me about your business?`
+          content: `Hi there! I'm your Content Strategy Consultant. I'm here to help you develop a content strategy that truly resonates with your audience and supports your business goals.
+
+Let's start by understanding your business better. Could you tell me about what your business does, who you serve, and what makes your approach unique?`
         }]);
       }
     }
