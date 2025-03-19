@@ -1,100 +1,34 @@
 
-import { useState, useRef, useEffect, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { toast } from 'sonner';
+import { useMediaStream } from './useMediaStream';
+import { useRecordingTimer } from './useRecordingTimer';
 
 export function useRecorder() {
   const [isRecording, setIsRecording] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
-  const [recordingTime, setRecordingTime] = useState(0);
   const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null);
   const [audioChunks, setAudioChunks] = useState<Blob[]>([]);
   const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
   
-  const intervalRef = useRef<NodeJS.Timeout | null>(null);
-  const streamRef = useRef<MediaStream | null>(null);
-
-  // Handle recording timer
-  useEffect(() => {
-    if (isRecording && !isPaused) {
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
-      }
-      
-      intervalRef.current = setInterval(() => {
-        setRecordingTime(prev => prev + 1);
-      }, 1000);
-      
-      return () => {
-        if (intervalRef.current) {
-          clearInterval(intervalRef.current);
-          intervalRef.current = null;
-        }
-      };
-    } else if (intervalRef.current) {
-      clearInterval(intervalRef.current);
-      intervalRef.current = null;
-    }
-  }, [isRecording, isPaused]);
-
-  // Memoize formatter to prevent unnecessary rerenders
-  const formatTime = useCallback((seconds: number) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-  }, []);
-
-  // Clean up resources when component unmounts
-  useEffect(() => {
-    return () => {
-      if (streamRef.current) {
-        streamRef.current.getTracks().forEach(track => track.stop());
-      }
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
-      }
-    };
-  }, []);
-
-  // Helper function to get supported MIME type
-  const getSupportedMimeType = () => {
-    const types = [
-      'audio/webm', 
-      'audio/webm;codecs=opus',
-      'audio/mp4',
-      'audio/ogg;codecs=opus',
-      'audio/wav',
-      ''  // Empty string means browser default
-    ];
-    
-    for (const type of types) {
-      if (type === '' || MediaRecorder.isTypeSupported(type)) {
-        console.log(`Using supported audio MIME type: ${type || 'browser default'}`);
-        return type;
-      }
-    }
-    
-    // Fallback to default if none supported (shouldn't happen)
-    console.log("No explicitly supported types found, using browser default");
-    return '';
-  };
+  // Use our new sub-hooks
+  const { stream, mimeType, requestMediaStream, stopMediaStream } = useMediaStream();
+  const { recordingTime, formatTime, startTimer, pauseTimer, stopTimer, resetTimer } = useRecordingTimer();
 
   const startRecording = useCallback(async () => {
     try {
-      // Request audio with high quality settings
-      const stream = await navigator.mediaDevices.getUserMedia({ 
-        audio: {
-          echoCancellation: true,
-          noiseSuppression: true,
-          autoGainControl: true
-        } 
-      });
+      // Reset state
+      setAudioChunks([]);
+      setAudioBlob(null);
+      resetTimer();
       
-      streamRef.current = stream;
+      // Request media stream access
+      const mediaStreamData = await requestMediaStream();
+      if (!mediaStreamData) return;
       
-      // Get supported MIME type for this browser
-      const mimeType = getSupportedMimeType();
+      const { stream, mimeType } = mediaStreamData;
       
-      // Create media recorder with optimal settings for speech
+      // Create recorder options with optimal settings for speech
       const recorderOptions: MediaRecorderOptions = {
         audioBitsPerSecond: 128000
       };
@@ -104,16 +38,14 @@ export function useRecorder() {
         recorderOptions.mimeType = mimeType;
       }
       
+      // Create and configure the media recorder
       const recorder = new MediaRecorder(stream, recorderOptions);
       
-      setAudioChunks([]);
       setMediaRecorder(recorder);
       setIsRecording(true);
       setIsPaused(false);
-      setRecordingTime(0);
-      setAudioBlob(null);
       
-      // Collect data as it becomes available
+      // Set up event handlers
       recorder.ondataavailable = (e) => {
         if (e.data.size > 0) {
           setAudioChunks(prev => [...prev, e.data]);
@@ -140,62 +72,57 @@ export function useRecorder() {
       
       // Start recording with smaller time slices for more accurate data
       recorder.start(500);
+      startTimer();
       toast.success("Recording started");
     } catch (error) {
       console.error("Error starting recording:", error);
-      toast.error("Could not access microphone. Please check permissions and try again.");
+      toast.error("Could not start recording. Please try again.");
     }
-  }, [audioChunks]);
+  }, [audioChunks, requestMediaStream, resetTimer, startTimer]);
 
   const pauseRecording = useCallback(() => {
     if (mediaRecorder && isRecording) {
       if (isPaused) {
         mediaRecorder.resume();
         setIsPaused(false);
+        pauseTimer();
         toast.success("Recording resumed");
       } else {
         mediaRecorder.pause();
         setIsPaused(true);
+        pauseTimer();
         toast.success("Recording paused");
       }
     }
-  }, [mediaRecorder, isRecording, isPaused]);
+  }, [mediaRecorder, isRecording, isPaused, pauseTimer]);
 
   const stopRecording = useCallback(() => {
     if (mediaRecorder && (isRecording || isPaused)) {
       mediaRecorder.stop();
-      
-      // Stop all audio tracks
-      if (streamRef.current) {
-        streamRef.current.getTracks().forEach(track => track.stop());
-        streamRef.current = null;
-      }
+      stopMediaStream();
+      stopTimer();
       
       setIsRecording(false);
       setIsPaused(false);
       
-      // The audioBlob will be set in the onstop handler
       toast.success("Recording stopped");
     }
-  }, [mediaRecorder, isRecording, isPaused]);
+  }, [mediaRecorder, isRecording, isPaused, stopMediaStream, stopTimer]);
 
   const resetRecording = useCallback(() => {
     if (isRecording || isPaused) {
       if (mediaRecorder) {
         mediaRecorder.stream.getTracks().forEach(track => track.stop());
       }
-      if (streamRef.current) {
-        streamRef.current.getTracks().forEach(track => track.stop());
-        streamRef.current = null;
-      }
+      stopMediaStream();
     }
     
     setIsRecording(false);
     setIsPaused(false);
     setAudioChunks([]);
     setAudioBlob(null);
-    setRecordingTime(0);
-  }, [isRecording, isPaused, mediaRecorder]);
+    resetTimer();
+  }, [isRecording, isPaused, mediaRecorder, stopMediaStream, resetTimer]);
 
   // Memoize the return value to prevent unnecessary rerenders
   return useMemo(() => ({
@@ -205,9 +132,9 @@ export function useRecorder() {
     audioBlob,
     formatTime,
     startRecording,
-    pauseRecording: pauseRecording,
-    stopRecording: stopRecording,
-    resetRecording: resetRecording
+    pauseRecording,
+    stopRecording,
+    resetRecording
   }), [
     isRecording,
     isPaused,
