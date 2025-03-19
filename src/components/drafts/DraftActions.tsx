@@ -15,8 +15,10 @@ type DraftActionsProps = {
   content: string;
   contentIdeaId: string;
   contentType: ContentType;
+  version: number;
   onDelete: (id: string) => Promise<void>;
   onUpdate: (content: string) => Promise<void>;
+  onCreateNewVersion: (content: string) => Promise<void>;
   idea?: ContentIdea;
 };
 
@@ -25,8 +27,10 @@ export const DraftActions: React.FC<DraftActionsProps> = ({
   content, 
   contentIdeaId, 
   contentType,
+  version,
   onDelete,
   onUpdate,
+  onCreateNewVersion,
   idea
 }) => {
   const navigate = useNavigate();
@@ -67,8 +71,9 @@ export const DraftActions: React.FC<DraftActionsProps> = ({
       const regeneratedContent = await generateContent(ideaWithInstructions, contentType);
       
       if (regeneratedContent) {
-        await onUpdate(regeneratedContent);
-        toast.success('Content regenerated successfully');
+        // Use the new createNewVersion function instead of update
+        await onCreateNewVersion(regeneratedContent);
+        toast.success('Content regenerated as a new version');
         setShowRegenerateDialog(false);
       }
     } catch (error) {

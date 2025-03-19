@@ -10,12 +10,14 @@ import { Textarea } from "@/components/ui/textarea";
 type DraftContentProps = {
   content: string;
   contentType: string;
+  version: number;
   onUpdateContent?: (content: string) => Promise<void>;
 };
 
 export const DraftContent: React.FC<DraftContentProps> = ({ 
   content, 
   contentType,
+  version = 1,
   onUpdateContent 
 }) => {
   const [isEditing, setIsEditing] = useState(false);
@@ -50,7 +52,12 @@ export const DraftContent: React.FC<DraftContentProps> = ({
       <Card>
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
-            <CardTitle>Content</CardTitle>
+            <div>
+              <CardTitle>Content</CardTitle>
+              <CardDescription>
+                Draft content for {contentType} (Version {version})
+              </CardDescription>
+            </div>
             <div className="flex items-center gap-2">
               {isEditing ? (
                 <>
@@ -98,7 +105,6 @@ export const DraftContent: React.FC<DraftContentProps> = ({
               )}
             </div>
           </div>
-          <CardDescription>Draft content for {contentType}</CardDescription>
         </CardHeader>
         <CardContent>
           {isEditing ? (

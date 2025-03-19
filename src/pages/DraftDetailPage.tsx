@@ -16,7 +16,7 @@ import { supabase } from '@/integrations/supabase/client';
 const DraftDetailPage = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { getDraft, updateDraft, deleteDraft } = useDrafts();
+  const { getDraft, updateDraft, deleteDraft, createDraft } = useDrafts();
   const { data: draft, isLoading, isError, refetch } = getDraft(id || '');
   const [idea, setIdea] = useState<ContentIdea | null>(null);
   const [isLoadingIdea, setIsLoadingIdea] = useState(false);
@@ -87,6 +87,29 @@ const DraftDetailPage = () => {
     }
   };
 
+  const handleCreateNewVersion = async (updatedContent: string) => {
+    if (!draft) return;
+    
+    try {
+      // Create a new version of the draft
+      await createDraft({
+        contentIdeaId: draft.contentIdeaId,
+        content: updatedContent,
+        version: draft.version + 1,
+        feedback: '',
+        status: draft.status
+      });
+      
+      toast.success("New version created successfully");
+      
+      // Redirect to the drafts page to see all versions
+      navigate(`/ideas/${draft.contentIdeaId}`);
+    } catch (error) {
+      toast.error("Failed to create new version");
+      console.error(error);
+    }
+  };
+
   const handleDeleteDraft = async (id: string): Promise<void> => {
     return new Promise<void>((resolve, reject) => {
       try {
@@ -153,8 +176,10 @@ const DraftDetailPage = () => {
             content={content}
             contentIdeaId={draft.contentIdeaId}
             contentType={draft.contentType}
+            version={draft.version}
             onDelete={handleDeleteDraft}
             onUpdate={handleUpdateContent}
+            onCreateNewVersion={handleCreateNewVersion}
             idea={idea || undefined}
           />
           
