@@ -8,23 +8,28 @@
  * @returns The supported MIME type string or empty string for browser default
  */
 export function getSupportedMimeType(): string {
+  // Try these types in order of preference
   const types = [
-    'audio/webm', 
     'audio/webm;codecs=opus',
-    'audio/mp4',
+    'audio/webm',
     'audio/ogg;codecs=opus',
+    'audio/mp4',
     'audio/wav',
     ''  // Empty string means browser default
   ];
   
+  // Loop through types and find first supported one
   for (const type of types) {
-    if (type === '' || MediaRecorder.isTypeSupported(type)) {
-      console.log(`Using supported audio MIME type: ${type || 'browser default'}`);
+    // Skip empty string initially
+    if (type === '') continue;
+    
+    if (MediaRecorder.isTypeSupported(type)) {
+      console.log(`Using supported audio MIME type: ${type}`);
       return type;
     }
   }
   
-  // Fallback to default if none supported (shouldn't happen)
+  // Fallback to default if none supported
   console.log("No explicitly supported types found, using browser default");
   return '';
 }
@@ -48,6 +53,9 @@ export function getAudioConstraints(): MediaTrackConstraints {
   return {
     echoCancellation: true,
     noiseSuppression: true,
-    autoGainControl: true
+    autoGainControl: true,
+    // Request high quality audio if available
+    sampleRate: { ideal: 48000 },
+    channelCount: { ideal: 1 }
   };
 }

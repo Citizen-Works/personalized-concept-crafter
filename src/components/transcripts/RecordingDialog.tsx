@@ -53,6 +53,15 @@ const RecordingDialog: React.FC<RecordingDialogProps> = ({
     }
   });
 
+  // Reset state when dialog opens
+  useEffect(() => {
+    if (isOpen) {
+      resetRecording();
+      setRecordingTitle("");
+      setIsSubmitting(false);
+    }
+  }, [isOpen, resetRecording]);
+
   // Reset state when dialog closes
   useEffect(() => {
     if (!isOpen) {

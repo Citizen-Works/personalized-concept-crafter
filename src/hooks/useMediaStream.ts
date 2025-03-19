@@ -35,13 +35,22 @@ export function useMediaStream(): UseMediaStreamReturn {
         streamRef.current.getTracks().forEach(track => track.stop());
       }
 
+      // Get supported MIME type before requesting stream
+      const supportedMimeType = getSupportedMimeType();
+      console.log(`Using MIME type: ${supportedMimeType || 'browser default'}`);
+
       // Request audio with high quality settings
       const audioStream = await navigator.mediaDevices.getUserMedia({ 
         audio: getAudioConstraints()
       });
       
-      // Get supported MIME type for this browser
-      const supportedMimeType = getSupportedMimeType();
+      // Check if we have a valid audio track
+      const audioTracks = audioStream.getAudioTracks();
+      if (audioTracks.length === 0) {
+        throw new Error("No audio track available");
+      }
+      
+      console.log("Audio track obtained:", audioTracks[0].label);
       
       streamRef.current = audioStream;
       setStream(audioStream);
@@ -57,6 +66,7 @@ export function useMediaStream(): UseMediaStreamReturn {
 
   const stopMediaStream = useCallback(() => {
     if (streamRef.current) {
+      console.log("Stopping media stream");
       streamRef.current.getTracks().forEach(track => track.stop());
       streamRef.current = null;
       setStream(null);

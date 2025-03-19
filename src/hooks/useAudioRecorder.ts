@@ -32,18 +32,26 @@ export function useAudioRecorder({ onTranscriptionComplete }: UseAudioRecorderPr
     // We need to wait for the audioBlob to be set after stopping
     setTimeout(() => {
       if (recorderState.audioBlob) {
+        console.log("Processing audio blob:", {
+          size: recorderState.audioBlob.size,
+          type: recorderState.audioBlob.type
+        });
         transcriptionState.processAudioForTranscription(recorderState.audioBlob);
       } else {
         // Check again after a short delay in case the blob hasn't been set yet
         setTimeout(() => {
           if (recorderState.audioBlob) {
+            console.log("Processing audio blob (delayed):", {
+              size: recorderState.audioBlob.size,
+              type: recorderState.audioBlob.type
+            });
             transcriptionState.processAudioForTranscription(recorderState.audioBlob);
           } else {
             transcriptionState.setIsTranscribing(false);
             transcriptionState.hasError = true;
-            toast.error("No audio data captured");
+            toast.error("No audio data captured. Please try again.");
           }
-        }, 500);
+        }, 1000); // Longer delay to ensure blob is set
       }
     }, 500);
   }, [recorderState.audioBlob, recorderState.stopRecording, recorderState.isRecording, transcriptionState]);

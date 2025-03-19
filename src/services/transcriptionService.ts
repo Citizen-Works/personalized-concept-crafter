@@ -41,7 +41,7 @@ export const transcribeAudio = async (
     }
     
     // Log audio metadata for debugging
-    console.log("Audio metadata:", {
+    console.log("Audio metadata sent for transcription:", {
       type: audioBlob.type,
       size: audioBlob.size,
       lastModified: new Date().toISOString()
@@ -61,6 +61,8 @@ export const transcribeAudio = async (
     if (!base64Audio || base64Audio.length === 0) {
       throw new Error("Failed to encode audio. Please try again.");
     }
+    
+    console.log(`Base64 audio prepared, length: ${base64Audio.length} characters`);
     
     // Update stage to uploading
     onProgress(50, 'uploading');
@@ -94,6 +96,11 @@ export const transcribeAudio = async (
       throw new Error("No speech detected in the audio. Please speak clearly and try again.");
     }
     
+    console.log("Transcription received:", {
+      textLength: result.text.length,
+      firstWords: result.text.slice(0, 30) + "..."
+    });
+    
     // Update stage to complete
     onProgress(100, 'complete');
     
@@ -124,14 +131,28 @@ const blobToBase64 = (blob: Blob, onProgress: (progress: number) => void): Promi
     };
     
     reader.onloadend = () => {
-      const base64data = reader.result as string;
-      // Extract only the base64 part after the comma
-      const base64 = base64data.split(',')[1];
-      resolve(base64);
+      try {
+        const base64data = reader.result as string;
+        if (!base64data) {
+          reject(new Error('Failed to read audio data - empty result'));
+          return;
+        }
+        
+        // Extract only the base64 part after the comma
+        const base64 = base64data.split(',')[1];
+        if (!base64) {
+          reject(new Error('Failed to extract base64 data'));
+          return;
+        }
+        
+        resolve(base64);
+      } catch (e) {
+        reject(new Error('Error processing audio data: ' + e.message));
+      }
     };
     
     reader.onerror = () => {
-      reject(new Error('Failed to read audio data'));
+      reject(new Error('Failed to read audio data: ' + reader.error?.message));
     };
     
     reader.readAsDataURL(blob);

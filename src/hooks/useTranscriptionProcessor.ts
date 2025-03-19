@@ -16,12 +16,18 @@ export function useTranscriptionProcessor({ onTranscriptionComplete }: UseTransc
 
   const processAudioForTranscription = useCallback(async (blob: Blob) => {
     if (!blob || blob.size === 0) {
+      console.error("Empty audio blob received, size:", blob?.size);
       setHasError(true);
       setIsTranscribing(false);
       setProcessingStage('idle');
-      toast.error("No audio data captured");
+      toast.error("No audio data captured. Please try again.");
       return;
     }
+    
+    console.log("Processing audio for transcription:", {
+      blobSize: blob.size,
+      blobType: blob.type
+    });
     
     try {
       setHasError(false);
@@ -46,7 +52,7 @@ export function useTranscriptionProcessor({ onTranscriptionComplete }: UseTransc
     } catch (error) {
       console.error("Error processing audio:", error);
       setHasError(true);
-      toast.error("Failed to transcribe audio");
+      toast.error("Failed to transcribe audio: " + (error.message || "Unknown error"));
       setProcessingStage('idle');
       setProcessingProgress(0);
     } finally {
