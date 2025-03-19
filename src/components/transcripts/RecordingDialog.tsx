@@ -3,18 +3,16 @@ import React, { useState, useEffect } from 'react';
 import {
   Dialog,
   DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogFooter,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
 import { useAudioRecorder } from '@/hooks/useAudioRecorder';
+import { toast } from 'sonner';
+import DialogHeader from './recording/DialogHeader';
+import PermissionError from './recording/PermissionError';
 import RecordingControls from './recording/RecordingControls';
 import TranscriptionResult from './recording/TranscriptionResult';
-import { toast } from 'sonner';
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { AlertCircle } from "lucide-react";
+import RecordingError from './recording/RecordingError';
+import DialogActions from './recording/DialogActions';
+import { useRetryRecording } from '@/hooks/useRetryRecording';
 
 interface RecordingDialogProps {
   isOpen: boolean;
@@ -29,7 +27,6 @@ const RecordingDialog: React.FC<RecordingDialogProps> = ({
 }) => {
   const [recordingTitle, setRecordingTitle] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isRetrying, setIsRetrying] = useState(false);
   const [permissionError, setPermissionError] = useState(false);
   
   const {
@@ -57,6 +54,12 @@ const RecordingDialog: React.FC<RecordingDialogProps> = ({
     }
   });
 
+  const { isRetrying, handleRetry } = useRetryRecording({
+    resetRecording,
+    startRecording,
+    setPermissionError
+  });
+
   // Debug recording state
   useEffect(() => {
     console.log("Recording state:", { isRecording, isPaused, recordingTime });
@@ -68,7 +71,6 @@ const RecordingDialog: React.FC<RecordingDialogProps> = ({
       resetRecording();
       setRecordingTitle("");
       setIsSubmitting(false);
-      setIsRetrying(false);
       setPermissionError(false);
     }
   }, [isOpen, resetRecording]);
@@ -79,7 +81,6 @@ const RecordingDialog: React.FC<RecordingDialogProps> = ({
       resetRecording();
       setRecordingTitle("");
       setIsSubmitting(false);
-      setIsRetrying(false);
       setPermissionError(false);
     }
   }, [isOpen, resetRecording]);
@@ -110,26 +111,6 @@ const RecordingDialog: React.FC<RecordingDialogProps> = ({
     setRecordingTitle("");
     onOpenChange(false);
   };
-  
-  const handleRetry = () => {
-    setIsRetrying(true);
-    resetRecording();
-    setPermissionError(false);
-    
-    // Add a small delay before starting again
-    setTimeout(() => {
-      startRecording()
-        .then(() => {
-          setIsRetrying(false);
-        })
-        .catch((error) => {
-          setIsRetrying(false);
-          if (error.name === 'NotAllowedError' || error.name === 'PermissionDeniedError') {
-            setPermissionError(true);
-          }
-        });
-    }, 500);
-  };
 
   const handleStartRecording = async () => {
     try {
@@ -154,24 +135,17 @@ const RecordingDialog: React.FC<RecordingDialogProps> = ({
       onOpenChange(open);
     }}>
       <DialogContent className="max-w-2xl">
-        <DialogHeader>
-          <DialogTitle>{isRecording || isPaused ? "Recording in Progress" : "Voice to Text"}</DialogTitle>
-          <DialogDescription>
-            {isRecording || isPaused 
-              ? "Speak clearly to capture your meeting or conversation" 
-              : "Record audio to automatically transcribe to text"}
-          </DialogDescription>
-        </DialogHeader>
+        <DialogHeader 
+          isRecording={isRecording} 
+          isPaused={isPaused} 
+        />
         
         <div className="space-y-4 py-4">
-          {permissionError && (
-            <Alert variant="destructive">
-              <AlertCircle className="h-4 w-4" />
-              <AlertDescription>
-                Microphone access denied. Please allow microphone access in your browser settings and try again.
-              </AlertDescription>
-            </Alert>
-          )}
+          <PermissionError 
+            permissionError={permissionError}
+            onRetry={handleRetry}
+            isRetrying={isRetrying}
+          />
           
           {/* Recording Controls */}
           {!transcribedText && !hasError && (
@@ -190,21 +164,15 @@ const RecordingDialog: React.FC<RecordingDialogProps> = ({
           )}
           
           {/* Show a retry button if there was an error */}
-          {(hasError || permissionError) && !isRecording && !isTranscribing && !transcribedText && (
-            <div className="flex flex-col items-center py-4">
-              <p className="text-destructive mb-4">
-                {permissionError 
-                  ? "Microphone access denied. Please check your browser settings."
-                  : "Recording failed. Please check your microphone and try again."}
-              </p>
-              <Button 
-                onClick={handleRetry}
-                disabled={isRetrying}
-              >
-                {isRetrying ? "Starting..." : "Try Again"}
-              </Button>
-            </div>
-          )}
+          <RecordingError 
+            hasError={hasError}
+            permissionError={permissionError}
+            isRecording={isRecording}
+            isTranscribing={isTranscribing}
+            hasTranscribedText={!!transcribedText}
+            onRetry={handleRetry}
+            isRetrying={isRetrying}
+          />
           
           {/* Transcription Result */}
           {transcribedText && (
@@ -216,24 +184,13 @@ const RecordingDialog: React.FC<RecordingDialogProps> = ({
           )}
         </div>
         
-        <DialogFooter>
-          <Button 
-            variant="outline" 
-            onClick={handleCancel}
-            disabled={isTranscribing || isSubmitting}
-          >
-            Cancel
-          </Button>
-          
-          {transcribedText && (
-            <Button 
-              onClick={handleSave}
-              disabled={isSubmitting}
-            >
-              {isSubmitting ? "Saving..." : "Save Transcript"}
-            </Button>
-          )}
-        </DialogFooter>
+        <DialogActions 
+          hasTranscribedText={!!transcribedText}
+          isTranscribing={isTranscribing}
+          isSubmitting={isSubmitting}
+          onCancel={handleCancel}
+          onSave={handleSave}
+        />
       </DialogContent>
     </Dialog>
   );
