@@ -32,7 +32,7 @@ const SubmenuGroup: React.FC<SubmenuGroupProps> = ({
   return (
     <SidebarMenuItem>
       <SidebarMenuSub>
-        <SidebarMenuButton>
+        <SidebarMenuButton isActive={isActive}>
           <Icon className="mr-2" />
           <span>{label}</span>
         </SidebarMenuButton>
