@@ -45,16 +45,7 @@ const Dashboard = () => {
       </div>
       
       <ActivityFeed 
-        activities={activities.map(activity => ({
-          ...activity,
-          type: activity.type === 'idea' 
-            ? 'idea_created' 
-            : activity.type === 'draft' 
-              ? 'draft_generated' 
-              : activity.type === 'publish' 
-                ? 'status_changed' 
-                : 'transcript_processed'
-        }))}
+        activities={activities}
         isLoading={isLoading.activities}
       />
     </div>

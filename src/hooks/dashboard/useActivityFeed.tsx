@@ -3,6 +3,7 @@ import { useMemo } from 'react';
 import { useIdeas } from '@/hooks/ideas';
 import { useDrafts } from '@/hooks/useDrafts';
 
+// Define the base activity type from our data sources
 type Activity = {
   id: string;
   title: string;
@@ -13,7 +14,8 @@ type Activity = {
   route: string;
 };
 
-type ActivityItem = {
+// Define the activity type that's expected by the ActivityFeed component
+export type ActivityItem = {
   id: string;
   title: string;
   type: 'idea_created' | 'draft_generated' | 'status_changed' | 'transcript_processed';
@@ -21,6 +23,20 @@ type ActivityItem = {
   timestamp: Date;
   entityId: string;
   route: string;
+};
+
+// Map from backend activity types to frontend activity types
+const mapActivityType = (type: Activity['type']): ActivityItem['type'] => {
+  switch (type) {
+    case 'idea':
+      return 'idea_created';
+    case 'draft':
+      return 'draft_generated';
+    case 'publish':
+      return 'status_changed';
+    default:
+      return 'idea_created'; // Default fallback
+  }
 };
 
 export function useActivityFeed() {
@@ -60,8 +76,16 @@ export function useActivityFeed() {
     return allActivities.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
   }, [ideas, drafts]);
   
+  // Map internal activity types to the types expected by the ActivityFeed component
+  const mappedActivities: ActivityItem[] = useMemo(() => {
+    return activities.map(activity => ({
+      ...activity,
+      type: mapActivityType(activity.type)
+    }));
+  }, [activities]);
+  
   return {
-    activities,
+    activities: mappedActivities,
     isLoading: isIdeasLoading || isDraftsLoading
   };
 }
