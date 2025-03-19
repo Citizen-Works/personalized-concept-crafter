@@ -16,7 +16,7 @@ const AppSidebar = () => {
         </Suspense>
       </SidebarHeader>
       
-      <SidebarContent className="h-full">
+      <SidebarContent className="flex-1 overflow-y-auto">
         <Suspense fallback={<div className="p-4 space-y-2">
           {[...Array(5)].map((_, i) => (
             <div key={i} className="h-8 w-full animate-pulse bg-gray-200 rounded"></div>
@@ -26,7 +26,7 @@ const AppSidebar = () => {
         </Suspense>
       </SidebarContent>
       
-      <SidebarFooter className="border-t p-4">
+      <SidebarFooter className="border-t p-4 mt-auto">
         <Suspense fallback={<div className="h-10 w-full animate-pulse bg-gray-200 rounded"></div>}>
           <UserProfileMenu />
         </Suspense>

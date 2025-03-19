@@ -13,13 +13,13 @@ export const MainLayout = () => {
   
   return (
     <SidebarProvider>
-      <div className="min-h-screen flex w-full bg-background">
+      <div className="flex w-full h-screen overflow-hidden bg-background">
         <Suspense fallback={<div className="w-0 md:w-64 bg-sidebar animate-pulse"></div>}>
           <AppSidebar />
         </Suspense>
         <main className="flex-1 h-screen overflow-y-auto">
           {isMobile && (
-            <div className="p-4">
+            <div className="p-4 sticky top-0 z-10 bg-background">
               <SidebarTrigger />
             </div>
           )}
