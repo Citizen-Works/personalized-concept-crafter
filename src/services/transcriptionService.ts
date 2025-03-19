@@ -2,12 +2,24 @@
 /**
  * Service responsible for handling audio transcription API calls
  */
+
+// Centralized type definitions for transcription process
 export type TranscriptionStage = 'idle' | 'preparing' | 'uploading' | 'transcribing' | 'complete';
 
 export interface TranscriptionProgressCallback {
   (progress: number, stage: TranscriptionStage): void;
 }
 
+export interface TranscriptionResult {
+  text: string;
+}
+
+/**
+ * Transcribes audio data to text using the API
+ * @param audioBlob - The recorded audio blob
+ * @param onProgress - Callback for progress updates during transcription
+ * @returns Promise with the transcribed text
+ */
 export const transcribeAudio = async (
   audioBlob: Blob, 
   onProgress: TranscriptionProgressCallback
@@ -57,6 +69,9 @@ export const transcribeAudio = async (
 
 /**
  * Converts a Blob to base64 string with progress reporting
+ * @param blob - The binary blob to convert
+ * @param onProgress - Progress callback
+ * @returns Promise with the base64 string
  */
 const blobToBase64 = (blob: Blob, onProgress: (progress: number) => void): Promise<string> => {
   return new Promise((resolve, reject) => {

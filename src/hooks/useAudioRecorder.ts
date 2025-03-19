@@ -1,5 +1,5 @@
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { toast } from 'sonner';
 import { useRecorder } from './useRecorder';
 import { transcribeAudio, TranscriptionStage } from '@/services/transcriptionService';
@@ -10,18 +10,8 @@ interface UseAudioRecorderProps {
 
 export function useAudioRecorder({ onTranscriptionComplete }: UseAudioRecorderProps = {}) {
   // Use the dedicated recorder hook for audio recording functionality
-  const {
-    isRecording,
-    isPaused,
-    recordingTime,
-    audioBlob,
-    formatTime,
-    startRecording,
-    pauseRecording,
-    stopRecording: stopRecordingBase,
-    resetRecording: resetRecordingBase
-  } = useRecorder();
-
+  const recorderState = useRecorder();
+  
   // Transcription-specific state
   const [isTranscribing, setIsTranscribing] = useState(false);
   const [transcribedText, setTranscribedText] = useState("");
@@ -61,19 +51,19 @@ export function useAudioRecorder({ onTranscriptionComplete }: UseAudioRecorderPr
 
   // Enhanced stop recording to automatically start transcription
   const stopRecording = useCallback(async () => {
-    stopRecordingBase();
+    recorderState.stopRecording();
     setIsTranscribing(true);
     toast.success("Recording stopped, transcribing audio...");
     
     // We need to wait for the audioBlob to be set after stopping
     setTimeout(() => {
-      if (audioBlob) {
-        processAudioForTranscription(audioBlob);
+      if (recorderState.audioBlob) {
+        processAudioForTranscription(recorderState.audioBlob);
       } else {
         // Check again after a short delay in case the blob hasn't been set yet
         setTimeout(() => {
-          if (audioBlob) {
-            processAudioForTranscription(audioBlob);
+          if (recorderState.audioBlob) {
+            processAudioForTranscription(recorderState.audioBlob);
           } else {
             setIsTranscribing(false);
             toast.error("No audio data captured");
@@ -81,31 +71,45 @@ export function useAudioRecorder({ onTranscriptionComplete }: UseAudioRecorderPr
         }, 500);
       }
     }, 500);
-  }, [audioBlob, processAudioForTranscription, stopRecordingBase]);
+  }, [recorderState.audioBlob, recorderState.stopRecording, processAudioForTranscription]);
 
   // Enhanced reset that clears transcription state
   const resetRecording = useCallback(() => {
-    resetRecordingBase();
+    recorderState.resetRecording();
     setTranscribedText("");
     setProcessingProgress(0);
     setProcessingStage('idle');
     setIsTranscribing(false);
-  }, [resetRecordingBase]);
+  }, [recorderState.resetRecording]);
 
-  return {
-    isRecording,
-    isPaused,
+  // Memoize the return value to prevent unnecessary rerenders in consuming components
+  return useMemo(() => ({
+    isRecording: recorderState.isRecording,
+    isPaused: recorderState.isPaused,
     isTranscribing,
-    recordingTime,
+    recordingTime: recorderState.recordingTime,
     transcribedText,
-    formatTime,
-    startRecording,
-    pauseRecording,
+    formatTime: recorderState.formatTime,
+    startRecording: recorderState.startRecording,
+    pauseRecording: recorderState.pauseRecording,
     stopRecording,
     resetRecording,
     setTranscribedText,
     // Progress states
     processingProgress,
     processingStage
-  };
+  }), [
+    recorderState.isRecording,
+    recorderState.isPaused,
+    recorderState.recordingTime,
+    recorderState.formatTime,
+    recorderState.startRecording,
+    recorderState.pauseRecording,
+    isTranscribing,
+    transcribedText,
+    stopRecording,
+    resetRecording,
+    processingProgress,
+    processingStage
+  ]);
 }

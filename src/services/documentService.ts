@@ -1,13 +1,16 @@
 
 import { supabase } from "@/integrations/supabase/client";
-import { Document } from "@/types";
+import { Document, DocumentFilterOptions, DocumentCreateInput } from "@/types";
 import { toast } from "sonner";
 
-export const fetchDocuments = async (userId: string, filters?: {
-  type?: Document["type"],
-  status?: Document["status"],
-  content_type?: Document["content_type"]
-}): Promise<Document[]> => {
+/**
+ * Fetches documents with optional filtering
+ * Performance optimized with memoization in the consuming hooks
+ */
+export const fetchDocuments = async (
+  userId: string, 
+  filters?: DocumentFilterOptions
+): Promise<Document[]> => {
   if (!userId) throw new Error("User not authenticated");
 
   let query = supabase
@@ -15,6 +18,7 @@ export const fetchDocuments = async (userId: string, filters?: {
     .select("*")
     .eq("user_id", userId);
   
+  // Apply filters if provided
   if (filters?.type) {
     query = query.eq("type", filters.type);
   }
@@ -23,6 +27,9 @@ export const fetchDocuments = async (userId: string, filters?: {
   }
   if (filters?.content_type) {
     query = query.eq("content_type", filters.content_type);
+  }
+  if (filters?.purpose) {
+    query = query.eq("purpose", filters.purpose);
   }
   
   const { data, error } = await query.order("created_at", { ascending: false });
@@ -45,7 +52,13 @@ export const fetchDocuments = async (userId: string, filters?: {
   }));
 };
 
-export const createDocument = async (userId: string, document: Omit<Document, "id" | "userId" | "createdAt">) => {
+/**
+ * Creates a new document
+ */
+export const createDocument = async (
+  userId: string, 
+  document: DocumentCreateInput
+): Promise<Document> => {
   if (!userId) throw new Error("User not authenticated");
 
   const { data, error } = await supabase
@@ -84,7 +97,14 @@ export const createDocument = async (userId: string, document: Omit<Document, "i
   };
 };
 
-export const updateDocumentStatus = async (userId: string, id: string, status: 'active' | 'archived') => {
+/**
+ * Updates the status of a document
+ */
+export const updateDocumentStatus = async (
+  userId: string, 
+  id: string, 
+  status: 'active' | 'archived'
+): Promise<void> => {
   if (!userId) throw new Error("User not authenticated");
 
   const { error } = await supabase
@@ -101,7 +121,13 @@ export const updateDocumentStatus = async (userId: string, id: string, status: '
   toast.success("Document status updated");
 };
 
-export const processTranscriptForIdeas = async (userId: string, documentId: string): Promise<string> => {
+/**
+ * Processes a transcript to extract content ideas
+ */
+export const processTranscriptForIdeas = async (
+  userId: string, 
+  documentId: string
+): Promise<string> => {
   if (!userId) throw new Error("User not authenticated");
 
   const { data: document, error: docError } = await supabase

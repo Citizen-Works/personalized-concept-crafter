@@ -37,15 +37,37 @@ export interface LinkedinPost {
   createdAt: Date;
 }
 
+// Document Types
+export type DocumentType = 'blog' | 'newsletter' | 'whitepaper' | 'case-study' | 'transcript' | 'other';
+export type DocumentPurpose = 'writing_sample' | 'business_context';
+export type DocumentStatus = 'active' | 'archived';
+export type DocumentContentType = 'linkedin' | 'newsletter' | 'marketing' | 'general' | null;
+
+export interface DocumentFilterOptions {
+  type?: DocumentType;
+  purpose?: DocumentPurpose;
+  status?: DocumentStatus;
+  content_type?: DocumentContentType;
+}
+
+export interface DocumentCreateInput {
+  title: string;
+  content: string;
+  type: DocumentType;
+  purpose: DocumentPurpose;
+  status: DocumentStatus;
+  content_type: DocumentContentType;
+}
+
 export interface Document {
   id: string;
   userId: string;
   title: string;
   content: string;
-  type: 'blog' | 'newsletter' | 'whitepaper' | 'case-study' | 'transcript' | 'other';
-  purpose: 'writing_sample' | 'business_context';
-  status: 'active' | 'archived';
-  content_type: 'linkedin' | 'newsletter' | 'marketing' | 'general' | null;
+  type: DocumentType;
+  purpose: DocumentPurpose;
+  status: DocumentStatus;
+  content_type: DocumentContentType;
   createdAt: Date;
 }
 
@@ -77,6 +99,7 @@ export interface WritingStyleProfile {
   updatedAt: Date;
 }
 
+// Content Types
 export type ContentStatus = 'unreviewed' | 'approved' | 'drafted' | 'ready' | 'published';
 export type ContentType = 'linkedin' | 'newsletter' | 'marketing';
 export type ContentSource = 'meeting' | 'manual' | 'other';
@@ -106,10 +129,9 @@ export interface ContentDraft {
   status?: DraftStatus;
 }
 
-// Define valid attribute types for the theme provider
+// Theme provider types
 export type Attribute = 'class' | 'data-theme' | 'data-mode';
 
-// Update ThemeProviderProps to match next-themes requirements with correct typing
 export interface ThemeProviderProps {
   children: React.ReactNode;
   attribute?: Attribute | Attribute[];
@@ -119,4 +141,25 @@ export interface ThemeProviderProps {
   storageKey?: string;
   forcedTheme?: string;
   enableColorScheme?: boolean;
+}
+
+// Transcription types
+export type TranscriptionStage = 'idle' | 'preparing' | 'uploading' | 'transcribing' | 'complete';
+
+export interface TranscriptionProgressCallback {
+  (progress: number, stage: TranscriptionStage): void;
+}
+
+// Marketing example types
+export interface MarketingExample {
+  id: string;
+  userId: string;
+  title: string;
+  content: string;
+  createdAt: Date;
+}
+
+export interface ExampleInput {
+  title: string;
+  content: string;
 }
