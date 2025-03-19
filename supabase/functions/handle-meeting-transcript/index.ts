@@ -11,6 +11,8 @@ const SUPABASE_URL = Deno.env.get("SUPABASE_URL") || "";
 const SUPABASE_ANON_KEY = Deno.env.get("SUPABASE_ANON_KEY") || "";
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
 
+type WebhookService = "otter" | "fathom" | "read" | "fireflies";
+
 serve(async (req) => {
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
@@ -43,11 +45,12 @@ serve(async (req) => {
     // Parse incoming data
     const requestData = await req.json();
     const userId = config.user_id;
+    const serviceName = config.service_name as WebhookService;
     
     // Log the webhook request
     await supabaseAdmin.from('webhook_logs').insert({
       user_id: userId,
-      service_name: config.service_name,
+      service_name: serviceName,
       event_type: 'transcript_received',
       payload: requestData,
     });
@@ -63,7 +66,7 @@ serve(async (req) => {
       user_id: userId
     };
     
-    switch (config.service_name) {
+    switch (serviceName) {
       case 'otter':
         processedTranscript.title = requestData.title || "Otter.ai Transcript";
         processedTranscript.content = requestData.transcript || "";
@@ -105,7 +108,7 @@ serve(async (req) => {
       .from('webhook_logs')
       .update({ processed: true })
       .eq('user_id', userId)
-      .eq('service_name', config.service_name)
+      .eq('service_name', serviceName)
       .eq('event_type', 'transcript_received')
       .order('created_at', { ascending: false })
       .limit(1);

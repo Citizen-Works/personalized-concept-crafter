@@ -39,7 +39,7 @@ export const useWebhookConfig = () => {
       throw error;
     }
 
-    return data;
+    return data as WebhookConfiguration[];
   };
 
   const getOrCreateWebhookUrl = async (serviceName: WebhookService): Promise<string> => {

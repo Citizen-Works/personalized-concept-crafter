@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -163,7 +162,6 @@ const WebhookSettings = () => {
                                 size="sm" 
                                 variant="outline"
                                 onClick={() => {
-                                  // Open service-specific setup docs
                                   const docsUrls: Record<WebhookService, string> = {
                                     otter: "https://otter.ai/help/webhooks",
                                     fathom: "https://fathom.video/help/webhooks",
