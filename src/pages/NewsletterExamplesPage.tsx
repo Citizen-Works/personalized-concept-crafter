@@ -52,10 +52,10 @@ const NewsletterExamplesPage = () => {
   };
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       <div className="flex flex-col gap-2">
-        <h1 className="text-3xl font-bold tracking-tight">Newsletter Examples</h1>
-        <p className="text-muted-foreground">
+        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Newsletter Examples</h1>
+        <p className="text-muted-foreground text-sm sm:text-base">
           Manage your newsletter examples for AI training
         </p>
       </div>
@@ -65,7 +65,8 @@ const NewsletterExamplesPage = () => {
           <DialogTrigger asChild>
             <Button className="gap-1">
               <Plus className="h-4 w-4" />
-              Add Newsletter Example
+              <span className="hidden sm:inline">Add Newsletter Example</span>
+              <span className="sm:hidden">Add Example</span>
             </Button>
           </DialogTrigger>
           <DialogContent className="sm:max-w-[550px]">
@@ -105,7 +106,7 @@ const NewsletterExamplesPage = () => {
       </div>
       
       {isLoading ? (
-        <div className="grid gap-4 md:grid-cols-2">
+        <div className="grid gap-4 sm:grid-cols-1 md:grid-cols-2">
           {[1, 2].map((i) => (
             <Card key={i} className="animate-pulse">
               <CardHeader className="bg-muted/20 h-12"></CardHeader>
@@ -120,36 +121,36 @@ const NewsletterExamplesPage = () => {
           ))}
         </div>
       ) : examples && examples.length > 0 ? (
-        <div className="grid gap-4 md:grid-cols-2">
+        <div className="grid gap-4 sm:grid-cols-1 md:grid-cols-2">
           {examples.map((example) => (
-            <Card key={example.id}>
+            <Card key={example.id} className="overflow-hidden">
               <CardHeader className="pb-2 flex flex-row items-start justify-between">
-                <div>
-                  <CardTitle>{example.title}</CardTitle>
-                  <CardDescription className="text-sm">
+                <div className="overflow-hidden">
+                  <CardTitle className="text-lg truncate-text">{example.title}</CardTitle>
+                  <CardDescription className="text-xs sm:text-sm">
                     {new Date(example.createdAt).toLocaleDateString()}
                   </CardDescription>
                 </div>
                 <Button 
                   variant="ghost" 
                   size="icon" 
-                  className="h-8 w-8" 
+                  className="h-8 w-8 flex-shrink-0" 
                   onClick={() => handleDeleteExample(example.id)}
                 >
                   <Trash2 className="h-4 w-4" />
                 </Button>
               </CardHeader>
-              <CardContent>
-                <p className="whitespace-pre-line">{example.content}</p>
+              <CardContent className="max-h-[200px] overflow-y-auto">
+                <p className="whitespace-pre-line text-sm">{example.content}</p>
               </CardContent>
             </Card>
           ))}
         </div>
       ) : (
-        <div className="flex flex-col items-center justify-center p-12 text-center border rounded-lg bg-muted/10">
-          <MailIcon className="h-12 w-12 text-muted-foreground mb-4" />
-          <h3 className="text-lg font-medium">No Newsletter Examples Added</h3>
-          <p className="text-sm text-muted-foreground mt-2 mb-6 max-w-md">
+        <div className="flex flex-col items-center justify-center p-6 sm:p-12 text-center border rounded-lg bg-muted/10">
+          <MailIcon className="h-8 w-8 sm:h-12 sm:w-12 text-muted-foreground mb-4" />
+          <h3 className="text-base sm:text-lg font-medium">No Newsletter Examples Added</h3>
+          <p className="text-xs sm:text-sm text-muted-foreground mt-2 mb-6 max-w-md">
             Add newsletter examples to help the AI understand your writing style and generate better content.
           </p>
         </div>

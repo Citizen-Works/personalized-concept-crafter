@@ -17,9 +17,9 @@ export const MainLayout = () => {
         <Suspense fallback={<div className="w-0 md:w-64 bg-sidebar animate-pulse"></div>}>
           <AppSidebar />
         </Suspense>
-        <main className="flex-1 h-screen overflow-y-auto">
+        <main className="flex-1 h-screen overflow-y-auto relative">
           {isMobile && (
-            <div className="p-4 sticky top-0 z-10 bg-background">
+            <div className="p-4 sticky top-0 z-30 bg-background/95 backdrop-blur-sm shadow-sm">
               <SidebarTrigger />
             </div>
           )}
