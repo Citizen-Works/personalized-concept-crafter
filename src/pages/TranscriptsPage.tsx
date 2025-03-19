@@ -1,7 +1,5 @@
 
 import React, { useEffect } from 'react';
-import MainLayout from '@/components/layout/MainLayout';
-import { PlusCircle, Upload } from "lucide-react";
 import TranscriptList from '@/components/transcripts/TranscriptList';
 import TranscriptActions from '@/components/transcripts/TranscriptActions';
 import TranscriptViewDialog from '@/components/transcripts/TranscriptViewDialog';
@@ -56,7 +54,7 @@ const TranscriptsPage = () => {
 
   const hasTranscripts = documents && documents.length > 0;
 
-  const pageContent = (
+  return (
     <div className="container mx-auto py-6">
       <TranscriptActions 
         onOpenUpload={() => setIsUploadDialogOpen(true)}
@@ -104,17 +102,6 @@ const TranscriptsPage = () => {
         onOpenChange={setIsRecordingDialogOpen}
         onSaveRecording={handleAddRecording}
       />
-    </div>
-  );
-
-  return (
-    <div className="min-h-screen flex w-full bg-background">
-      <MainLayout />
-      <main className="flex-1 h-screen overflow-y-auto">
-        <div className="container py-4 px-2 sm:py-6 sm:px-4 md:py-6 md:px-6 lg:py-8 lg:px-8 max-w-7xl mx-auto animate-fade-in">
-          {pageContent}
-        </div>
-      </main>
     </div>
   );
 };
