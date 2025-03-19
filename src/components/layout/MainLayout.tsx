@@ -4,6 +4,7 @@ import { Outlet } from 'react-router-dom';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { SidebarTrigger } from '@/components/ui/sidebar';
 import { SidebarProvider } from '@/components/ui/sidebar/SidebarContext';
+import { SidebarRail } from '@/components/ui/sidebar/SidebarRail';
 
 // Lazy load AppSidebar
 const AppSidebar = lazy(() => import('./AppSidebar'));
@@ -12,11 +13,15 @@ export const MainLayout = () => {
   const isMobile = useIsMobile();
   
   return (
-    <SidebarProvider>
+    <SidebarProvider defaultOpen={!isMobile}>
       <div className="flex w-full h-screen overflow-hidden bg-background">
         <Suspense fallback={<div className="w-0 md:w-64 bg-sidebar animate-pulse"></div>}>
           <AppSidebar />
         </Suspense>
+        
+        {/* Add SidebarRail for desktop resizing */}
+        <SidebarRail className="hidden md:flex" />
+        
         <main className="flex-1 h-screen overflow-y-auto relative">
           {isMobile && (
             <div className="p-4 sticky top-0 z-30 bg-background/95 backdrop-blur-sm shadow-sm">
