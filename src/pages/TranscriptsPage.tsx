@@ -33,15 +33,18 @@ const TranscriptsPage = () => {
     setSelectedTranscript(id);
     
     try {
-      const result = await processTranscript(id);
-      // Check if result exists and is not null/undefined before setting state
-      if (result && typeof result === 'string') {
-        setIdeas(result);
-        setIsIdeasDialogOpen(true);
-        toast.success("Transcript processed successfully");
-      } else {
-        toast.error("Failed to process transcript");
-      }
+      // Call processTranscript and set ideas based on result
+      processTranscript(id, {
+        onSuccess: (result: string) => {
+          setIdeas(result);
+          setIsIdeasDialogOpen(true);
+          toast.success("Transcript processed successfully");
+        },
+        onError: (error) => {
+          console.error("Failed to process transcript:", error);
+          toast.error("Failed to process transcript");
+        }
+      });
     } catch (error) {
       console.error("Failed to process transcript:", error);
       toast.error("Failed to process transcript");

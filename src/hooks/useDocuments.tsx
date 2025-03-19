@@ -245,7 +245,7 @@ export const useDocuments = (filters?: {
     createDocument: createDocumentMutation.mutate,
     uploadDocument: uploadDocumentMutation.mutate,
     updateDocumentStatus: updateDocumentStatusMutation.mutate,
-    processTranscript: processTranscriptMutation.mutate,
+    processTranscript: processTranscriptMutation.mutateAsync,
     uploadProgress,
   };
 };
