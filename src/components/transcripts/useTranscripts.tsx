@@ -56,6 +56,7 @@ export const useTranscripts = () => {
    */
   const handleUploadDocument = async (file: File, title: string) => {
     try {
+      // Ensure we're using a valid document type that matches the database constraints
       const documentData = {
         title: title,
         type: "transcript" as const,
@@ -65,6 +66,7 @@ export const useTranscripts = () => {
       };
       
       await uploadDocument({ file, documentData });
+      toast.success("Transcript uploaded successfully");
     } catch (error) {
       console.error("Error uploading document:", error);
       toast.error("Failed to upload document");
@@ -86,10 +88,10 @@ export const useTranscripts = () => {
         file: new File([text], `${title}.txt`, { type: "text/plain" }),
         documentData: {
           title: title,
-          type: "transcript",
-          purpose: "business_context",
+          type: "transcript" as const,
+          purpose: "business_context" as const,
           content_type: null,
-          status: "active"
+          status: "active" as const
         }
       });
       
