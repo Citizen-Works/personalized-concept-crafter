@@ -149,22 +149,22 @@ export const processTranscriptForIdeas = async (
   }
 
   try {
-    // Get user's business info for context
-    const { data: userData, error: userError } = await supabase
-      .from("users")
+    // Get user's business info from profiles table
+    const { data: profileData, error: profileError } = await supabase
+      .from("profiles")
       .select("business_name, business_description")
       .eq("id", userId)
       .single();
       
-    if (userError) {
-      console.warn("Could not retrieve user business info:", userError);
+    if (profileError) {
+      console.warn("Could not retrieve user business info:", profileError);
     }
     
     // Prepare business context
-    const businessContext = userData ? 
+    const businessContext = profileData ? 
       `\nBusiness Context:
-      Business Name: ${userData.business_name || 'Not specified'}
-      Business Description: ${userData.business_description || 'Not specified'}\n` : '';
+      Business Name: ${profileData.business_name || 'Not specified'}
+      Business Description: ${profileData.business_description || 'Not specified'}\n` : '';
 
     const response = await fetch(`${window.location.origin}/api/functions/generate-with-claude`, {
       method: 'POST',
