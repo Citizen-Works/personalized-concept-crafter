@@ -6,8 +6,9 @@ import {
   fetchDocuments, 
   createDocument, 
   updateDocumentStatus, 
-  processTranscriptForIdeas 
-} from "@/services/documents"; // Updated import path
+  processTranscriptForIdeas,
+  IdeaResponse 
+} from "@/services/documents"; // Updated import path with IdeaResponse type
 import { useDocumentUpload } from "./documents/useDocumentUpload";
 import { useMemo, useCallback } from "react";
 
