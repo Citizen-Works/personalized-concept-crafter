@@ -9,7 +9,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Copy, CheckCircle2 } from "lucide-react";
+import { Copy, CheckCircle2, AlertCircle } from "lucide-react";
 import { toast } from 'sonner';
 
 interface IdeasDialogProps {
@@ -41,23 +41,40 @@ const IdeasDialog: React.FC<IdeasDialogProps> = ({
     }
   };
 
+  const noIdeasFound = ideas?.includes("No valuable content ideas found");
+
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="text-xl font-semibold">Generated Content Ideas</DialogTitle>
+          <DialogTitle className="text-xl font-semibold">
+            {noIdeasFound ? "No Content Ideas Found" : "Generated Content Ideas"}
+          </DialogTitle>
           <DialogDescription className="text-muted-foreground">
-            Content ideas extracted from your transcript
+            {noIdeasFound 
+              ? "AI analysis didn't find valuable content ideas in this transcript" 
+              : "Content ideas extracted from your transcript"
+            }
           </DialogDescription>
         </DialogHeader>
         
-        <div className="my-4 p-4 bg-muted/50 rounded-md border border-border whitespace-pre-wrap text-sm">
-          {ideas ? (
-            ideas
-          ) : (
-            <div className="text-muted-foreground italic">No ideas were generated</div>
-          )}
-        </div>
+        {noIdeasFound ? (
+          <div className="my-4 p-4 bg-amber-50 dark:bg-amber-950/30 rounded-md border border-amber-200 dark:border-amber-800 text-amber-700 dark:text-amber-300 flex items-start">
+            <AlertCircle className="h-5 w-5 mr-2 mt-0.5 flex-shrink-0" />
+            <div>
+              <p className="whitespace-pre-wrap text-sm">{ideas}</p>
+              <p className="mt-2 text-sm">Try a different transcript or edit this one to include more detailed discussions.</p>
+            </div>
+          </div>
+        ) : (
+          <div className="my-4 p-4 bg-muted/50 rounded-md border border-border whitespace-pre-wrap text-sm">
+            {ideas ? (
+              ideas
+            ) : (
+              <div className="text-muted-foreground italic">No ideas were generated</div>
+            )}
+          </div>
+        )}
         
         <DialogFooter>
           <Button

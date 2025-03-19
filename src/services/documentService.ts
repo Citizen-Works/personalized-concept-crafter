@@ -149,6 +149,23 @@ export const processTranscriptForIdeas = async (
   }
 
   try {
+    // Get user's business info for context
+    const { data: userData, error: userError } = await supabase
+      .from("users")
+      .select("business_name, business_description")
+      .eq("id", userId)
+      .single();
+      
+    if (userError) {
+      console.warn("Could not retrieve user business info:", userError);
+    }
+    
+    // Prepare business context
+    const businessContext = userData ? 
+      `\nBusiness Context:
+      Business Name: ${userData.business_name || 'Not specified'}
+      Business Description: ${userData.business_description || 'Not specified'}\n` : '';
+
     const response = await fetch(`${window.location.origin}/api/functions/generate-with-claude`, {
       method: 'POST',
       headers: {
@@ -163,6 +180,10 @@ export const processTranscriptForIdeas = async (
         2. Write a brief description explaining what the content would cover
         3. Identify which sections of the transcript support this idea (include relevant quotes)
         
+        ${businessContext}
+        
+        If the transcript doesn't contain any valuable content ideas that would be relevant to the business context, respond with "No valuable content ideas found in this transcript." and a brief explanation why.
+        
         Meeting Transcript:
         ${document.content}`,
         contentType: "content_ideas",
@@ -172,6 +193,8 @@ export const processTranscriptForIdeas = async (
     });
 
     if (!response.ok) {
+      const errorText = await response.text();
+      console.error("Error response from claude function:", errorText);
       throw new Error(`Error processing transcript: ${response.statusText}`);
     }
 

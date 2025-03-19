@@ -10,6 +10,17 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+// Function to sanitize input to prevent JSON parsing issues
+function sanitizeInput(text: string): string {
+  if (!text) return "";
+  
+  // Replace HTML-like content and problematic characters
+  return text
+    .replace(/<(!DOCTYPE|[a-zA-Z])[^>]*>/g, "") // Remove HTML tags and DOCTYPE declarations
+    .replace(/[^\x20-\x7E\x0A\x0D\x09]/g, "") // Keep only printable ASCII, newlines, returns, and tabs
+    .trim();
+}
+
 serve(async (req) => {
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
@@ -31,6 +42,9 @@ serve(async (req) => {
       );
     }
 
+    // Sanitize the prompt to prevent JSON parsing issues
+    const sanitizedPrompt = sanitizeInput(prompt);
+    
     let logMessage = 'Generating content with Claude';
     
     // Log different message based on task type
@@ -62,7 +76,7 @@ serve(async (req) => {
         messages: [
           {
             role: "user",
-            content: prompt
+            content: sanitizedPrompt
           }
         ]
       })
