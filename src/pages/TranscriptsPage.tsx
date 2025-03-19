@@ -34,7 +34,8 @@ const TranscriptsPage = () => {
     
     try {
       const result = await processTranscript(id);
-      if (result) {
+      // Check if result exists and is not null/undefined before setting state
+      if (result && typeof result === 'string') {
         setIdeas(result);
         setIsIdeasDialogOpen(true);
         toast.success("Transcript processed successfully");

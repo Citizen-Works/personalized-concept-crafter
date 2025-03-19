@@ -1,3 +1,4 @@
+
 export interface User {
   id: string;
   email: string;
@@ -105,10 +106,13 @@ export interface ContentDraft {
   status?: DraftStatus;
 }
 
-// Update ThemeProviderProps to match next-themes requirements
+// Define valid attribute types for the theme provider
+export type Attribute = 'class' | 'data-theme' | 'data-mode';
+
+// Update ThemeProviderProps to match next-themes requirements with correct typing
 export interface ThemeProviderProps {
   children: React.ReactNode;
-  attribute?: string | string[];
+  attribute?: Attribute | Attribute[];
   defaultTheme?: string;
   enableSystem?: boolean;
   disableTransitionOnChange?: boolean;
