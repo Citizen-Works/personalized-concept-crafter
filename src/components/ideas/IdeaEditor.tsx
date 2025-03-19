@@ -42,33 +42,35 @@ const IdeaEditor: React.FC<IdeaEditorProps> = ({ idea, isOpen, onClose }) => {
 
   // Parse existing content goal and description from the idea
   useEffect(() => {
-    // Extract content goal from description if it exists
-    const descriptionText = idea.description || "";
-    const goalMatch = descriptionText.match(/Content Goal: (.*?)(?:\n|$)/);
+    // Set description directly (no need to extract content goal)
+    setDescription(idea.description || "");
     
+    // Extract content goal from notes if it exists
+    const notesText = idea.notes || "";
+    
+    // Extract content goal pattern if it exists
+    const goalMatch = notesText.match(/Content Goal: (.*?)(?:\n|$)/);
     if (goalMatch && goalMatch[1]) {
       const extractedGoal = goalMatch[1].trim().replace(' ', '_').toLowerCase();
       if (['audience_building', 'lead_generation', 'nurturing', 'conversion', 'retention', 'other'].includes(extractedGoal)) {
         setContentGoal(extractedGoal as ContentGoal);
       }
-      
-      // Set description without the content goal line
-      setDescription(descriptionText.replace(/Content Goal: .*?(?:\n|$)/, "").trim());
-    } else {
-      setDescription(descriptionText);
     }
     
     // Extract call to action from notes if it exists
-    const notesText = idea.notes || "";
     const ctaMatch = notesText.match(/Call to Action: (.*?)(?:\n|$)/);
     
     if (ctaMatch && ctaMatch[1]) {
       setCallToAction(ctaMatch[1].trim());
-      // Set notes without the CTA line
-      setNotes(notesText.replace(/Call to Action: .*?(?:\n|$)/, "").trim());
-    } else {
-      setNotes(notesText);
     }
+    
+    // Set notes without the CTA or content goal lines
+    let cleanedNotes = notesText
+      .replace(/Call to Action: .*?(?:\n|$)/, "")
+      .replace(/Content Goal: .*?(?:\n|$)/, "")
+      .trim();
+      
+    setNotes(cleanedNotes);
   }, [idea]);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -82,18 +84,21 @@ const IdeaEditor: React.FC<IdeaEditorProps> = ({ idea, isOpen, onClose }) => {
     setIsSubmitting(true);
     
     try {
-      // Format notes to include CTA if provided
-      const formattedNotes = callToAction 
-        ? `${notes || ""}\n\nCall to Action: ${callToAction}` 
-        : notes;
+      // Format notes to include content goal and CTA
+      let formattedNotes = notes || "";
       
-      // Format description to include content goal
-      const formattedDescription = `Content Goal: ${contentGoal.replace('_', ' ')}\n\n${description || ""}`;
+      // Add content goal at the beginning
+      formattedNotes = `Content Goal: ${contentGoal.replace('_', ' ')}\n\n${formattedNotes}`;
+      
+      // Add CTA if provided
+      if (callToAction) {
+        formattedNotes = `${formattedNotes}\n\nCall to Action: ${callToAction}`;
+      }
       
       await updateIdea({
         id: idea.id,
         title,
-        description: formattedDescription,
+        description,
         notes: formattedNotes
       });
       
@@ -127,6 +132,31 @@ const IdeaEditor: React.FC<IdeaEditorProps> = ({ idea, isOpen, onClose }) => {
           </div>
           
           <div className="space-y-2">
+            <Label htmlFor="description">Description</Label>
+            <Textarea
+              id="description"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder="Describe your content idea"
+              className="min-h-[100px]"
+            />
+          </div>
+          
+          <div className="space-y-2">
+            <Label htmlFor="notes">Additional Notes</Label>
+            <Textarea
+              id="notes"
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+              placeholder="Add specific instructions like 'Keep it concise' or 'Plug my community'"
+              className="min-h-[100px]"
+            />
+            <p className="text-sm text-muted-foreground">
+              Add any specific instructions for AI content generation
+            </p>
+          </div>
+          
+          <div className="space-y-2">
             <Label htmlFor="contentGoal">Content Goal</Label>
             <Select 
               value={contentGoal} 
@@ -150,17 +180,6 @@ const IdeaEditor: React.FC<IdeaEditorProps> = ({ idea, isOpen, onClose }) => {
           </div>
           
           <div className="space-y-2">
-            <Label htmlFor="description">Description</Label>
-            <Textarea
-              id="description"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              placeholder="Describe your content idea"
-              className="min-h-[100px]"
-            />
-          </div>
-          
-          <div className="space-y-2">
             <Label htmlFor="callToAction">Call to Action</Label>
             <Input
               id="callToAction"
@@ -171,17 +190,6 @@ const IdeaEditor: React.FC<IdeaEditorProps> = ({ idea, isOpen, onClose }) => {
             <p className="text-sm text-muted-foreground">
               Define what you want your audience to do after consuming this content
             </p>
-          </div>
-          
-          <div className="space-y-2">
-            <Label htmlFor="notes">Additional Notes</Label>
-            <Textarea
-              id="notes"
-              value={notes}
-              onChange={(e) => setNotes(e.target.value)}
-              placeholder="Add specific instructions like 'Keep it concise' or 'Plug my community'"
-              className="min-h-[100px]"
-            />
           </div>
           
           <DialogFooter>

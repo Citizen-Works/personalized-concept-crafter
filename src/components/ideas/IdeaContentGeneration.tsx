@@ -25,11 +25,11 @@ const IdeaContentGeneration: React.FC<IdeaContentGenerationProps> = ({
   const { generateContent, isGenerating, error } = useClaudeAI();
   const { updateIdea } = useIdeas();
   
-  // Extract content goal and call to action from the idea
+  // Extract content goal and call to action from the idea notes
   const extractContentGoal = () => {
-    if (!idea.description) return null;
+    if (!idea.notes) return null;
     
-    const goalMatch = idea.description.match(/Content Goal: (.*?)(?:\n|$)/);
+    const goalMatch = idea.notes.match(/Content Goal: (.*?)(?:\n|$)/);
     if (goalMatch && goalMatch[1]) {
       return goalMatch[1].trim();
     }

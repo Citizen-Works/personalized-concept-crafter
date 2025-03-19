@@ -129,18 +129,16 @@ export const usePromptAssembly = () => {
     
     finalPrompt = addPatternsToAvoidToPrompt(finalPrompt, formattedStyleProfile);
     
-    // Extract content goal from idea description
+    // Extract content goal and call to action from idea notes
     let contentGoal = "";
     let callToAction = "";
     
-    if (idea.description) {
-      const goalMatch = idea.description.match(/Content Goal: (.*?)(?:\n|$)/);
+    if (idea.notes) {
+      const goalMatch = idea.notes.match(/Content Goal: (.*?)(?:\n|$)/);
       if (goalMatch && goalMatch[1]) {
         contentGoal = goalMatch[1].trim();
       }
-    }
-    
-    if (idea.notes) {
+      
       const ctaMatch = idea.notes.match(/Call to Action: (.*?)(?:\n|$)/);
       if (ctaMatch && ctaMatch[1]) {
         callToAction = ctaMatch[1].trim();

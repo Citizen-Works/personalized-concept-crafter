@@ -37,17 +37,20 @@ export const useNewIdeaForm = () => {
     setIsSubmitting(true);
     
     try {
-      // Format notes to include CTA if provided
-      const formattedNotes = values.callToAction 
-        ? `${values.notes || ""}\n\nCall to Action: ${values.callToAction}` 
-        : values.notes;
+      // Format notes to include content goal and CTA if provided
+      let formattedNotes = values.notes || "";
       
-      // Format description to include content goal
-      const formattedDescription = `Content Goal: ${values.contentGoal.replace('_', ' ')}\n\n${values.description || ""}`;
+      // Add content goal at the beginning
+      formattedNotes = `Content Goal: ${values.contentGoal.replace('_', ' ')}\n\n${formattedNotes}`;
+      
+      // Add CTA if provided
+      if (values.callToAction) {
+        formattedNotes = `${formattedNotes}\n\nCall to Action: ${values.callToAction}`;
+      }
       
       await createIdeaAsync({
         title: values.title,
-        description: formattedDescription,
+        description: values.description || "",
         notes: formattedNotes,
         contentType: values.contentType,
         source: values.source,
@@ -82,18 +85,21 @@ export const useNewIdeaForm = () => {
       // Get form values
       const values = form.getValues();
       
-      // Format notes to include CTA if provided
-      const formattedNotes = values.callToAction 
-        ? `${values.notes || ""}\n\nCall to Action: ${values.callToAction}` 
-        : values.notes;
+      // Format notes to include content goal and CTA if provided
+      let formattedNotes = values.notes || "";
       
-      // Format description to include content goal
-      const formattedDescription = `Content Goal: ${values.contentGoal.replace('_', ' ')}\n\n${values.description || ""}`;
+      // Add content goal at the beginning
+      formattedNotes = `Content Goal: ${values.contentGoal.replace('_', ' ')}\n\n${formattedNotes}`;
+      
+      // Add CTA if provided
+      if (values.callToAction) {
+        formattedNotes = `${formattedNotes}\n\nCall to Action: ${values.callToAction}`;
+      }
       
       // 1. Create the idea - use the async version to get the result
       const savedIdea = await createIdeaAsync({
         title: values.title,
-        description: formattedDescription,
+        description: values.description || "",
         notes: formattedNotes,
         contentType: contentType, // Use the selected content type
         source: values.source,
