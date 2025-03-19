@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useDocuments } from '@/hooks/useDocuments';
 import { toast } from 'sonner';
@@ -9,7 +8,6 @@ export const useTranscripts = () => {
     status: "active"
   });
   
-  // State management for transcript viewing and processing
   const [selectedTranscript, setSelectedTranscript] = useState<string | null>(null);
   const [transcriptContent, setTranscriptContent] = useState<string>("");
   const [isViewOpen, setIsViewOpen] = useState(false);
@@ -17,22 +15,15 @@ export const useTranscripts = () => {
   const [ideas, setIdeas] = useState<string | null>(null);
   const [isIdeasDialogOpen, setIsIdeasDialogOpen] = useState(false);
   
-  // Dialog state management
   const [isUploadDialogOpen, setIsUploadDialogOpen] = useState(false);
   const [isAddTextDialogOpen, setIsAddTextDialogOpen] = useState(false);
   const [isRecordingDialogOpen, setIsRecordingDialogOpen] = useState(false);
 
-  /**
-   * Opens the transcript viewer dialog with the specified content
-   */
   const handleViewTranscript = (content: string) => {
     setTranscriptContent(content);
     setIsViewOpen(true);
   };
 
-  /**
-   * Processes a transcript to extract ideas
-   */
   const handleProcessTranscript = async (id: string) => {
     setIsProcessing(true);
     setSelectedTranscript(id);
@@ -51,12 +42,8 @@ export const useTranscripts = () => {
     }
   };
   
-  /**
-   * Uploads a document file with metadata
-   */
   const handleUploadDocument = async (file: File, title: string) => {
     try {
-      // Ensure we're using a valid document type that matches the database constraints
       const documentData = {
         title: title,
         type: "transcript" as const,
@@ -74,9 +61,6 @@ export const useTranscripts = () => {
     }
   };
   
-  /**
-   * Adds text content as a document
-   */
   const handleAddText = async (text: string, title: string) => {
     if (!text.trim()) {
       toast.error("Text content cannot be empty");
@@ -103,10 +87,7 @@ export const useTranscripts = () => {
     }
   };
 
-  /**
-   * Handles adding a recording transcript
-   */
-  const handleAddRecording = async (text: string, title: string) => {
+  const handleAddRecording = async (text: string, title: string): Promise<void> => {
     if (!text.trim()) {
       toast.error("Recorded text cannot be empty");
       throw new Error("Recorded text cannot be empty");
@@ -115,7 +96,6 @@ export const useTranscripts = () => {
     try {
       await handleAddText(text, title);
       toast.success("Recording transcript added successfully");
-      return true;
     } catch (error) {
       console.error("Error adding recording:", error);
       toast.error("Failed to add recording transcript");
@@ -123,9 +103,6 @@ export const useTranscripts = () => {
     }
   };
   
-  /**
-   * Exports transcripts to a downloadable file
-   */
   const handleExportTranscripts = () => {
     if (!documents || documents.length === 0) {
       toast.error("No transcripts available to export");
@@ -133,21 +110,17 @@ export const useTranscripts = () => {
     }
     
     try {
-      // Create a formatted text with all transcripts
       const formattedData = documents.map(doc => {
         return `# ${doc.title}\nDate: ${doc.createdAt.toLocaleString()}\n\n${doc.content}\n\n---\n\n`;
       }).join('');
       
-      // Create a blob and download link
       const blob = new Blob([formattedData], { type: 'text/plain' });
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
       
-      // Set up download attributes
       link.href = url;
       link.download = `transcripts-export-${new Date().toISOString().split('T')[0]}.txt`;
       
-      // Add to DOM, trigger download, and clean up
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -161,7 +134,6 @@ export const useTranscripts = () => {
   };
 
   return {
-    // Data
     documents,
     isLoading,
     isProcessing,
@@ -169,21 +141,18 @@ export const useTranscripts = () => {
     transcriptContent,
     ideas,
     
-    // Dialog states
     isViewOpen,
     isIdeasDialogOpen,
     isUploadDialogOpen,
     isAddTextDialogOpen,
     isRecordingDialogOpen,
     
-    // Dialog actions
     setIsViewOpen,
     setIsIdeasDialogOpen,
     setIsUploadDialogOpen,
     setIsAddTextDialogOpen,
     setIsRecordingDialogOpen,
     
-    // Handler methods
     handleViewTranscript,
     handleProcessTranscript,
     handleUploadDocument,
