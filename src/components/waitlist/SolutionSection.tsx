@@ -29,7 +29,7 @@ const SolutionSection = () => {
       className="py-20 px-4 opacity-0 relative bg-black"
     >
       {/* Background overlay */}
-      <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/80 to-black/70 z-0"></div>
+      <div className="absolute inset-0 bg-gradient-to-b from-black to-black z-0"></div>
       
       <div className="max-w-7xl mx-auto relative z-10">
         <h2 className="text-4xl md:text-5xl font-bold mb-4 text-center text-white">
@@ -89,7 +89,7 @@ const SolutionSection = () => {
         </div>
         
         {/* Meeting Notes Feature Section */}
-        <div className="bg-gradient-to-br from-purple-900/30 to-pink-900/30 p-10 rounded-2xl shadow-xl mb-20 border border-white/10 backdrop-blur-sm">
+        <div className="bg-black p-10 rounded-2xl shadow-xl mb-20 border border-white/10 backdrop-blur-sm">
           <h3 className="text-2xl md:text-3xl font-bold mb-8 text-center text-white">
             Transform Your Meeting Transcripts into Content Gold
           </h3>
@@ -144,15 +144,15 @@ const SolutionSection = () => {
           </div>
         </div>
         
-        <div className="bg-gradient-to-br from-purple-900/30 to-pink-900/30 p-10 rounded-2xl shadow-xl mb-20 border border-white/10 backdrop-blur-sm">
+        <div className="bg-black p-10 rounded-2xl shadow-xl mb-20 border border-white/10 backdrop-blur-sm">
           <h3 className="text-2xl md:text-3xl font-bold mb-6 text-center text-white">
             How Your Content Engine Works
           </h3>
           
           <div className="grid sm:grid-cols-3 gap-8">
             <Card className="p-6 bg-black/50 backdrop-blur-sm border border-white/10 shadow hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1">
-              <div className="bg-purple-900/50 w-12 h-12 rounded-full flex items-center justify-center mb-4">
-                <span className="text-purple-400 font-bold text-xl">1</span>
+              <div className="bg-black w-12 h-12 rounded-full flex items-center justify-center mb-4 border border-white/20">
+                <span className="text-white font-bold text-xl">1</span>
               </div>
               <h4 className="text-xl font-semibold mb-2 text-white">Analyze Your Style</h4>
               <p className="text-gray-300">
@@ -161,8 +161,8 @@ const SolutionSection = () => {
             </Card>
             
             <Card className="p-6 bg-black/50 backdrop-blur-sm border border-white/10 shadow hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1">
-              <div className="bg-purple-900/50 w-12 h-12 rounded-full flex items-center justify-center mb-4">
-                <span className="text-purple-400 font-bold text-xl">2</span>
+              <div className="bg-black w-12 h-12 rounded-full flex items-center justify-center mb-4 border border-white/20">
+                <span className="text-white font-bold text-xl">2</span>
               </div>
               <h4 className="text-xl font-semibold mb-2 text-white">Extract Key Ideas</h4>
               <p className="text-gray-300">
@@ -171,8 +171,8 @@ const SolutionSection = () => {
             </Card>
             
             <Card className="p-6 bg-black/50 backdrop-blur-sm border border-white/10 shadow hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1">
-              <div className="bg-purple-900/50 w-12 h-12 rounded-full flex items-center justify-center mb-4">
-                <span className="text-purple-400 font-bold text-xl">3</span>
+              <div className="bg-black w-12 h-12 rounded-full flex items-center justify-center mb-4 border border-white/20">
+                <span className="text-white font-bold text-xl">3</span>
               </div>
               <h4 className="text-xl font-semibold mb-2 text-white">Generate & Refine</h4>
               <p className="text-gray-300">

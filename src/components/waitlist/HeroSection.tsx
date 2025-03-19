@@ -53,8 +53,8 @@ const HeroSection = ({ scrollToSection, painPointsRef }: HeroSectionProps) => {
         <TrustedBySection />
       </div>
 
-      <div className="absolute bottom-10 left-1/2 transform -translate-x-1/2 animate-bounce">
-        <ArrowRight className="h-8 w-8 rotate-90 text-gray-300" />
+      <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 animate-bounce hidden md:block">
+        <ArrowRight className="h-6 w-6 rotate-90 text-gray-300" />
       </div>
     </div>
   );
