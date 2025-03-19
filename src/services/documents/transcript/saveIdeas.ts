@@ -33,7 +33,8 @@ export const saveIdeas = async (
         meetingTranscriptExcerpt: idea.transcriptExcerpt || "",
         sourceUrl: "",
         status: "idea" as ContentStatus,
-        contentType: "blog_post" as ContentType, // Default, can be changed by user
+        // Fix: Use a valid content type from the allowed enum values
+        contentType: "linkedin" as ContentType, // Using "linkedin" as default, which is a valid value
       };
 
       // Save to database
