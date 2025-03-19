@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from 'react';
-import { ContentIdea } from '@/types';
+import { ContentIdea, ContentType } from '@/types';
 import { useIdeas } from '@/hooks/ideas';
 import { toast } from 'sonner';
 
@@ -13,6 +13,7 @@ export const useIdeaEditorForm = (idea: ContentIdea, onClose: () => void) => {
   const [notes, setNotes] = useState("");
   const [contentGoal, setContentGoal] = useState<ContentGoal>("audience_building");
   const [callToAction, setCallToAction] = useState("");
+  const [contentType, setContentType] = useState<ContentType>(idea.contentType);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { updateIdeaAsync } = useIdeas();
 
@@ -20,6 +21,9 @@ export const useIdeaEditorForm = (idea: ContentIdea, onClose: () => void) => {
   useEffect(() => {
     // Set description directly
     setDescription(idea.description || "");
+    
+    // Set content type
+    setContentType(idea.contentType);
     
     // Extract content goal from notes if it exists
     const notesText = idea.notes || "";
@@ -76,7 +80,8 @@ export const useIdeaEditorForm = (idea: ContentIdea, onClose: () => void) => {
         id: idea.id,
         title,
         description,
-        notes: formattedNotes
+        notes: formattedNotes,
+        contentType // Include contentType in the update
       });
       
       toast.success('Idea updated successfully');
@@ -100,6 +105,8 @@ export const useIdeaEditorForm = (idea: ContentIdea, onClose: () => void) => {
     setContentGoal,
     callToAction,
     setCallToAction,
+    contentType,
+    setContentType,
     isSubmitting,
     handleSubmit
   };

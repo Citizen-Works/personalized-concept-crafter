@@ -13,6 +13,7 @@ import {
   SelectValue 
 } from "@/components/ui/select";
 import { ContentGoal } from './useIdeaEditorForm';
+import { ContentType } from '@/types';
 
 interface IdeaEditorFormProps {
   title: string;
@@ -25,6 +26,8 @@ interface IdeaEditorFormProps {
   setContentGoal: (value: ContentGoal) => void;
   callToAction: string;
   setCallToAction: (value: string) => void;
+  contentType: ContentType;
+  setContentType: (value: ContentType) => void;
   isSubmitting: boolean;
   onSubmit: (e: React.FormEvent) => void;
   onClose: () => void;
@@ -41,6 +44,8 @@ const IdeaEditorForm: React.FC<IdeaEditorFormProps> = ({
   setContentGoal,
   callToAction,
   setCallToAction,
+  contentType,
+  setContentType,
   isSubmitting,
   onSubmit,
   onClose
@@ -83,27 +88,49 @@ const IdeaEditorForm: React.FC<IdeaEditorFormProps> = ({
         </p>
       </div>
       
-      <div className="space-y-2">
-        <Label htmlFor="contentGoal">Content Goal</Label>
-        <Select 
-          value={contentGoal} 
-          onValueChange={(value) => setContentGoal(value as ContentGoal)}
-        >
-          <SelectTrigger id="contentGoal">
-            <SelectValue placeholder="Select content goal" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="audience_building">Audience Building</SelectItem>
-            <SelectItem value="lead_generation">Lead Generation</SelectItem>
-            <SelectItem value="nurturing">Nurturing</SelectItem>
-            <SelectItem value="conversion">Conversion</SelectItem>
-            <SelectItem value="retention">Retention</SelectItem>
-            <SelectItem value="other">Other</SelectItem>
-          </SelectContent>
-        </Select>
-        <p className="text-sm text-muted-foreground">
-          What's the primary purpose of this content?
-        </p>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="space-y-2">
+          <Label htmlFor="contentGoal">Content Goal</Label>
+          <Select 
+            value={contentGoal} 
+            onValueChange={(value) => setContentGoal(value as ContentGoal)}
+          >
+            <SelectTrigger id="contentGoal">
+              <SelectValue placeholder="Select content goal" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="audience_building">Audience Building</SelectItem>
+              <SelectItem value="lead_generation">Lead Generation</SelectItem>
+              <SelectItem value="nurturing">Nurturing</SelectItem>
+              <SelectItem value="conversion">Conversion</SelectItem>
+              <SelectItem value="retention">Retention</SelectItem>
+              <SelectItem value="other">Other</SelectItem>
+            </SelectContent>
+          </Select>
+          <p className="text-sm text-muted-foreground">
+            What's the primary purpose of this content?
+          </p>
+        </div>
+        
+        <div className="space-y-2">
+          <Label htmlFor="contentType">Content Type</Label>
+          <Select 
+            value={contentType} 
+            onValueChange={(value) => setContentType(value as ContentType)}
+          >
+            <SelectTrigger id="contentType">
+              <SelectValue placeholder="Select content type" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="linkedin">LinkedIn</SelectItem>
+              <SelectItem value="newsletter">Newsletter</SelectItem>
+              <SelectItem value="marketing">Marketing</SelectItem>
+            </SelectContent>
+          </Select>
+          <p className="text-sm text-muted-foreground">
+            What type of content will this idea be used for?
+          </p>
+        </div>
       </div>
       
       <div className="space-y-2">
