@@ -20,40 +20,71 @@ export const processTranscriptForIdeas = async (
 
   // If in background mode, update the document's processing status
   if (backgroundMode) {
-    await supabase
-      .from("documents")
-      .update({ processing_status: 'processing' as DocumentProcessingStatus })
-      .eq("id", documentId)
-      .eq("user_id", userId);
+    try {
+      await supabase
+        .from("documents")
+        .update({ processing_status: 'processing' as DocumentProcessingStatus })
+        .eq("id", documentId)
+        .eq("user_id", userId);
+    } catch (updateError) {
+      console.error("Error updating document processing status:", updateError);
+      // Continue with processing even if status update fails
+    }
   }
 
   try {
-    // Step 1: Fetch the document
-    const document = await fetchDocument(userId, documentId);
+    // Step 1: Fetch the document with optimistic error handling
+    let document;
+    try {
+      document = await fetchDocument(userId, documentId);
+    } catch (docError) {
+      console.error("Error fetching document:", docError);
+      throw new Error(`Failed to retrieve transcript: ${docError instanceof Error ? docError.message : 'Unknown error'}`);
+    }
     
     // Step 2: Get business context for better idea generation
-    const businessContext = await fetchBusinessContext(userId);
+    let businessContext = '';
+    try {
+      businessContext = await fetchBusinessContext(userId);
+    } catch (contextError) {
+      console.error("Error fetching business context:", contextError);
+      // Continue without business context if it fails
+    }
     
     // Step 3: Sanitize transcript content to prevent HTML/XML confusion
     const sanitizedContent = document.content 
       ? document.content.replace(/<[^>]*>/g, '') // Remove any HTML-like tags
       : '';
     
-    // Step 4: Generate content ideas using Claude AI
-    const contentIdeas = await generateIdeas(sanitizedContent, businessContext, document.title);
+    if (!sanitizedContent.trim()) {
+      throw new Error("Transcript content is empty");
+    }
+    
+    // Step 4: Generate content ideas using Claude AI with chunking for large transcripts
+    let contentIdeas;
+    try {
+      contentIdeas = await generateIdeas(sanitizedContent, businessContext, document.title);
+    } catch (generateError) {
+      console.error("Error generating ideas:", generateError);
+      throw new Error(`Failed to generate ideas: ${generateError instanceof Error ? generateError.message : 'Unknown error'}`);
+    }
 
     // Step 5: If no ideas were generated, return a message
     if (contentIdeas.length === 0) {
       // Update document status if in background mode
       if (backgroundMode) {
-        await supabase
-          .from("documents")
-          .update({ 
-            processing_status: 'completed' as DocumentProcessingStatus, 
-            has_ideas: false 
-          })
-          .eq("id", documentId)
-          .eq("user_id", userId);
+        try {
+          await supabase
+            .from("documents")
+            .update({ 
+              processing_status: 'completed' as DocumentProcessingStatus, 
+              has_ideas: false 
+            })
+            .eq("id", documentId)
+            .eq("user_id", userId);
+        } catch (updateError) {
+          console.error("Error updating document status after no ideas:", updateError);
+        }
       }
       
       return {
@@ -63,19 +94,30 @@ export const processTranscriptForIdeas = async (
     }
 
     // Step 6: Save content ideas to the database
-    const savedIdeas = await saveIdeas(contentIdeas, userId);
+    let savedIdeas;
+    try {
+      savedIdeas = await saveIdeas(contentIdeas, userId);
+    } catch (saveError) {
+      console.error("Error saving ideas:", saveError);
+      throw new Error(`Failed to save ideas: ${saveError instanceof Error ? saveError.message : 'Unknown error'}`);
+    }
 
     // Step 7: Update document status if in background mode
     if (backgroundMode) {
-      await supabase
-        .from("documents")
-        .update({ 
-          processing_status: 'completed' as DocumentProcessingStatus, 
-          has_ideas: true,
-          ideas_count: savedIdeas.length
-        })
-        .eq("id", documentId)
-        .eq("user_id", userId);
+      try {
+        await supabase
+          .from("documents")
+          .update({ 
+            processing_status: 'completed' as DocumentProcessingStatus, 
+            has_ideas: true,
+            ideas_count: savedIdeas.length
+          })
+          .eq("id", documentId)
+          .eq("user_id", userId);
+      } catch (updateError) {
+        console.error("Error updating document status after processing:", updateError);
+        // Continue to return ideas even if status update fails
+      }
     }
 
     // Step 8: Return both a summary message and the structured idea data
@@ -88,11 +130,15 @@ export const processTranscriptForIdeas = async (
     
     // Update document status if in background mode
     if (backgroundMode) {
-      await supabase
-        .from("documents")
-        .update({ processing_status: 'failed' as DocumentProcessingStatus })
-        .eq("id", documentId)
-        .eq("user_id", userId);
+      try {
+        await supabase
+          .from("documents")
+          .update({ processing_status: 'failed' as DocumentProcessingStatus })
+          .eq("id", documentId)
+          .eq("user_id", userId);
+      } catch (updateError) {
+        console.error("Error updating document status after failure:", updateError);
+      }
     } else {
       toast.error("Failed to process transcript for ideas");
     }
@@ -120,9 +166,17 @@ export const checkProcessingStatus = async (
       .select("processing_status, has_ideas, ideas_count")
       .eq("id", documentId)
       .eq("user_id", userId)
-      .single();
+      .maybeSingle();
     
     if (error) throw error;
+    
+    if (!data) {
+      return {
+        status: 'idle' as DocumentProcessingStatus,
+        hasIdeas: false,
+        ideasCount: 0
+      };
+    }
     
     return {
       status: (data.processing_status || 'idle') as DocumentProcessingStatus,
