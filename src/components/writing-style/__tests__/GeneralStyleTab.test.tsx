@@ -1,5 +1,6 @@
 
 import { render, screen } from '@testing-library/react';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { GeneralStyleTab } from '../GeneralStyleTab';
 
 describe('GeneralStyleTab', () => {

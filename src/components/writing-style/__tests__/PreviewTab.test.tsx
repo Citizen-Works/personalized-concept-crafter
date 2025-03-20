@@ -1,8 +1,8 @@
 
 import { render } from '@testing-library/react';
+import { describe, it, expect, vi } from 'vitest';
 import { PreviewTab } from '../PreviewTab';
 import { WritingStyleProfile } from '@/types/writingStyle';
-import { vi } from 'vitest';
 
 // Mock the WritingStylePreview component since we're testing it separately
 vi.mock('../WritingStylePreview', () => ({

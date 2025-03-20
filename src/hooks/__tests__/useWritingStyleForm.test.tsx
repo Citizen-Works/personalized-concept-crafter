@@ -1,5 +1,6 @@
 
 import { renderHook, act } from '@testing-library/react';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { useWritingStyleForm } from '../useWritingStyleForm';
 import { WritingStyleProfile } from '@/types/writingStyle';
 import { supabase } from '@/integrations/supabase/client';
@@ -98,7 +99,7 @@ describe('useWritingStyleForm', () => {
     const fromMock = vi.fn().mockReturnValue({ update: updateMock });
     
     // @ts-ignore - we're mocking
-    supabase.from.mockImplementation(fromMock);
+    (supabase.from as any) = fromMock;
     
     const { result } = renderHook(() => useWritingStyleForm(mockInitialProfile));
     
@@ -125,7 +126,7 @@ describe('useWritingStyleForm', () => {
     const fromMock = vi.fn().mockReturnValue({ insert: insertMock });
     
     // @ts-ignore - we're mocking
-    supabase.from.mockImplementation(fromMock);
+    (supabase.from as any) = fromMock;
     
     const { result } = renderHook(() => useWritingStyleForm()); // No initial profile
     
@@ -161,7 +162,7 @@ describe('useWritingStyleForm', () => {
     });
     
     // @ts-ignore - we're mocking
-    supabase.from.mockImplementation(fromMock);
+    (supabase.from as any) = fromMock;
     
     const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
     

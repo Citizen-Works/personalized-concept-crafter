@@ -1,5 +1,6 @@
 
 import { render, screen } from '@testing-library/react';
+import { describe, it, expect } from 'vitest';
 import { WritingStylePreview } from '../WritingStylePreview';
 import { WritingStyleProfile } from '@/types/writingStyle';
 

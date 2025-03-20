@@ -1,4 +1,6 @@
+
 import { renderHook, act } from '@testing-library/react';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { useWritingStyle } from '../useWritingStyle';
 import { fetchWritingStyleProfile } from '@/services/profile';
 import { saveWritingStyleProfile } from '@/services/writingStyleService';
@@ -56,7 +58,7 @@ describe('useWritingStyle', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    (fetchWritingStyleProfile as jest.Mock).mockResolvedValue(mockProfile);
+    (fetchWritingStyleProfile as any).mockResolvedValue(mockProfile);
   });
 
   it('initializes with default empty profile', () => {
@@ -91,7 +93,7 @@ describe('useWritingStyle', () => {
 
   it('handles profile loading error', async () => {
     const error = new Error('Failed to load profile');
-    (fetchWritingStyleProfile as jest.Mock).mockRejectedValue(error);
+    (fetchWritingStyleProfile as any).mockRejectedValue(error);
     
     const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
     
@@ -132,7 +134,7 @@ describe('useWritingStyle', () => {
 
   it('handles save profile error', async () => {
     const error = new Error('Failed to save profile');
-    (saveWritingStyleProfile as jest.Mock).mockRejectedValue(error);
+    (saveWritingStyleProfile as any).mockRejectedValue(error);
     
     const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
     
@@ -152,7 +154,7 @@ describe('useWritingStyle', () => {
     const { result } = renderHook(() => useWritingStyle());
     
     // Clear the first call to fetchWritingStyleProfile from initialization
-    (fetchWritingStyleProfile as jest.Mock).mockClear();
+    (fetchWritingStyleProfile as any).mockClear();
     
     await act(async () => {
       await result.current.refetch();
