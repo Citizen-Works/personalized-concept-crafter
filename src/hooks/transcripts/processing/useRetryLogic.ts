@@ -1,82 +1,85 @@
 
-import { useState, useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import { toast } from 'sonner';
-import { useNavigate } from 'react-router-dom';
+
+const MAX_RETRY_ATTEMPTS = 3;
 
 /**
- * Hook for managing retry attempts for failed processing
+ * Hook for managing retry logic for document processing
  */
-export const useRetryLogic = (handleProcessTranscript: (id: string, isRetry: boolean) => Promise<void>) => {
-  const navigate = useNavigate();
-  const [retryAttempts, setRetryAttempts] = useState<Map<string, number>>(new Map<string, number>());
+export const useRetryLogic = (
+  handleProcessDocument: (id: string, isRetry: boolean) => Promise<void>
+) => {
+  const [retryAttempts, setRetryAttempts] = useState<Record<string, number>>({});
   
-  const updateRetryCount = useCallback((documentId: string, increment: boolean = true) => {
-    setRetryAttempts(prev => {
-      const newMap = new Map<string, number>(prev);
-      
-      if (increment) {
-        const currentCount = prev.get(documentId) || 0;
-        newMap.set(documentId, currentCount + 1);
-      } else {
-        newMap.delete(documentId);
-      }
-      
-      return newMap;
-    });
-  }, []);
+  const getRetryCount = useCallback((documentId: string) => {
+    return retryAttempts[documentId] || 0;
+  }, [retryAttempts]);
   
-  const handleRetry = useCallback((documentId: string, documentTitle: string): boolean => {
-    const currentAttempts = retryAttempts.get(documentId) || 0;
-    
-    if (currentAttempts < 2) {
-      updateRetryCount(documentId);
-      
-      toast.error(`Processing failed for "${documentTitle}". Retrying... (${currentAttempts + 1}/3)`, {
-        duration: 3000
+  const handleSuccess = useCallback((documentId: string, title: string) => {
+    // Reset retry counter on success
+    if (retryAttempts[documentId]) {
+      setRetryAttempts(prev => {
+        const updated = { ...prev };
+        delete updated[documentId];
+        return updated;
       });
+    }
+    
+    // Show success toast
+    toast.success(
+      `Ideas extracted from "${title}"`,
+      {
+        description: "New ideas can be found in your Review Queue",
+        duration: 5000,
+      }
+    );
+  }, [retryAttempts]);
+  
+  const handleRetry = useCallback((documentId: string, documentName: string): boolean => {
+    const currentAttempts = retryAttempts[documentId] || 0;
+    
+    if (currentAttempts < MAX_RETRY_ATTEMPTS) {
+      // Increment retry counter
+      setRetryAttempts(prev => ({
+        ...prev,
+        [documentId]: currentAttempts + 1
+      }));
       
-      // Wait a moment before retrying
+      // Show retry toast
+      const attemptNumber = currentAttempts + 1;
+      toast.info(
+        `Retrying idea extraction (${attemptNumber}/${MAX_RETRY_ATTEMPTS})`, 
+        { 
+          description: `Retry ${attemptNumber} for "${documentName}"`,
+          duration: 3000
+        }
+      );
+      
+      // Execute retry
       setTimeout(() => {
-        handleProcessTranscript(documentId, true);
-      }, 3000);
+        handleProcessDocument(documentId, true);
+      }, 2000);
       
       return true;
     } else {
-      // Reset retry counter
-      updateRetryCount(documentId, false);
-      
-      toast.error(`Failed to extract ideas from "${documentTitle}" after multiple attempts`, {
-        duration: 5000,
-        action: {
-          label: "Try Again",
-          onClick: () => {
-            handleProcessTranscript(documentId, true); // Make sure we pass both arguments
-            updateRetryCount(documentId, false); // Reset counter for manual retry
-          }
+      // Max retries reached
+      toast.error(
+        `Failed to extract ideas after ${MAX_RETRY_ATTEMPTS} attempts`, 
+        { 
+          description: `Please try processing "${documentName}" again manually`,
+          duration: 5000
         }
-      });
+      );
       
       return false;
     }
-  }, [retryAttempts, handleProcessTranscript, updateRetryCount]);
-  
-  const handleSuccess = useCallback((documentId: string, documentTitle: string) => {
-    // Reset retry counter on success
-    updateRetryCount(documentId, false);
-    
-    toast.success(`Ideas extracted from "${documentTitle}"`, {
-      duration: 5000,
-      action: {
-        label: "View Ideas",
-        onClick: () => navigate('/ideas')
-      }
-    });
-  }, [navigate, updateRetryCount]);
+  }, [retryAttempts, handleProcessDocument]);
   
   return {
     retryAttempts,
     handleRetry,
     handleSuccess,
-    getRetryCount: (id: string) => retryAttempts.get(id) || 0
+    getRetryCount
   };
 };
