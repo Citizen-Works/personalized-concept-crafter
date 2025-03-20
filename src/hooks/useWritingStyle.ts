@@ -66,6 +66,8 @@ export const useWritingStyle = () => {
     }
   };
 
+  const refetch = loadProfile;
+
   useEffect(() => {
     if (user) {
       loadProfile();
@@ -77,6 +79,8 @@ export const useWritingStyle = () => {
     isLoading,
     isSaving,
     handleChange,
-    saveProfile
+    saveProfile,
+    writingStyle: profile, // Add this alias for backward compatibility
+    refetch // Add this for compatibility
   };
 };

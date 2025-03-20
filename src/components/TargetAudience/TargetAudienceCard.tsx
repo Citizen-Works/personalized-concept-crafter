@@ -2,7 +2,7 @@
 import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { MoreVertical, Edit, Trash2 } from "lucide-react";
+import { MoreVertical, Edit, Trash2, Archive, ArchiveRestore } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -27,15 +27,23 @@ interface TargetAudienceCardProps {
   audience: TargetAudience;
   onEdit: () => void;
   onDelete: () => void;
+  onArchiveToggle?: () => void;
+  isArchived?: boolean;
 }
 
-export function TargetAudienceCard({ audience, onEdit, onDelete }: TargetAudienceCardProps) {
+export function TargetAudienceCard({ 
+  audience, 
+  onEdit, 
+  onDelete,
+  onArchiveToggle,
+  isArchived = false
+}: TargetAudienceCardProps) {
   const [showDeleteDialog, setShowDeleteDialog] = React.useState(false);
   const [showEditDialog, setShowEditDialog] = React.useState(false);
 
   return (
     <>
-      <Card className="h-full flex flex-col">
+      <Card className={`h-full flex flex-col ${isArchived ? 'bg-muted/50 border-dashed' : ''}`}>
         <CardHeader className="flex flex-row items-start justify-between pb-2">
           <CardTitle className="text-lg">{audience.name}</CardTitle>
           <DropdownMenu>
@@ -50,6 +58,21 @@ export function TargetAudienceCard({ audience, onEdit, onDelete }: TargetAudienc
                 <Edit className="mr-2 h-4 w-4" />
                 Edit
               </DropdownMenuItem>
+              {onArchiveToggle && (
+                <DropdownMenuItem onClick={onArchiveToggle}>
+                  {isArchived ? (
+                    <>
+                      <ArchiveRestore className="mr-2 h-4 w-4" />
+                      Restore
+                    </>
+                  ) : (
+                    <>
+                      <Archive className="mr-2 h-4 w-4" />
+                      Archive
+                    </>
+                  )}
+                </DropdownMenuItem>
+              )}
               <DropdownMenuItem 
                 onClick={() => setShowDeleteDialog(true)}
                 className="text-destructive focus:text-destructive"

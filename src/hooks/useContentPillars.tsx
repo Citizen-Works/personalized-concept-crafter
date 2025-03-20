@@ -84,10 +84,25 @@ export function useContentPillars() {
 
   const updatePillarOrder = useMutation({
     mutationFn: async (pillarOrders: { id: string; displayOrder: number }[]) => {
-      // Create a batch of updates to send to Supabase
+      if (!user) return;
+      
+      // First, fetch the current pillars to get all the required fields
+      const { data: currentPillars, error: fetchError } = await supabase
+        .from("content_pillars")
+        .select("id, name, user_id")
+        .in("id", pillarOrders.map(p => p.id));
+        
+      if (fetchError) throw fetchError;
+      
+      // Create a map of the current pillars for quick lookup
+      const pillarMap = new Map(currentPillars.map(p => [p.id, p]));
+      
+      // Create a complete update object for each pillar
       const updates = pillarOrders.map(({ id, displayOrder }) => ({
         id,
         display_order: displayOrder,
+        name: pillarMap.get(id)?.name || "", // Required field
+        user_id: user.id, // Required field
       }));
       
       const { error } = await supabase

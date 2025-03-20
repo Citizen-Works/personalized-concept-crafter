@@ -1,152 +1,43 @@
-
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
-import { RefreshCw } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { WritingStyleProfile } from '@/types/writingStyle';
-import { generatePreviewWithClaude } from '@/services/claudeAIService';
-import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
-import { ContentType } from '@/types';
-import { fetchUserProfile } from '@/services/profile';
-import { useAuth } from '@/context/AuthContext';
 
-interface WritingStylePreviewProps {
-  styleProfile: WritingStyleProfile;
+export interface WritingStylePreviewProps {
+  writingStyle: WritingStyleProfile;
 }
 
-export const WritingStylePreview: React.FC<WritingStylePreviewProps> = ({ styleProfile }) => {
-  const { user } = useAuth();
-  const [previewText, setPreviewText] = useState<string>('');
-  const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [error, setError] = useState<string | null>(null);
-  const [contentType, setContentType] = useState<ContentType>('linkedin');
-  const [businessName, setBusinessName] = useState<string>('');
-  const [businessDescription, setBusinessDescription] = useState<string>('');
-
-  // Fetch user's business profile information
-  useEffect(() => {
-    const loadBusinessInfo = async () => {
-      if (!user?.id) return;
-      
-      try {
-        const profile = await fetchUserProfile(user.id);
-        if (profile) {
-          setBusinessName(profile.businessName || '');
-          setBusinessDescription(profile.businessDescription || '');
-        }
-      } catch (err) {
-        console.error('Failed to load business information:', err);
-      }
-    };
-    
-    loadBusinessInfo();
-  }, [user?.id]);
-
-  const generatePreview = async () => {
-    if (!styleProfile.user_id) return;
-    
-    setIsLoading(true);
-    setError(null);
-    
-    try {
-      const preview = await generatePreviewWithClaude(
-        styleProfile, 
-        contentType,
-        businessName,
-        businessDescription
-      );
-      setPreviewText(preview);
-    } catch (err) {
-      console.error('Failed to generate preview:', err);
-      setError('Failed to generate preview. Please try again.');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  // Generate preview when component mounts or profile changes significantly
-  useEffect(() => {
-    // Only generate if we have enough style data to work with
-    const hasStyleData = styleProfile.general_style_guide || 
-                          styleProfile.voice_analysis || 
-                          styleProfile.vocabulary_patterns;
-    
-    if (hasStyleData && styleProfile.user_id) {
-      generatePreview();
-    }
-  }, [
-    styleProfile.user_id,
-    styleProfile.general_style_guide,
-    styleProfile.voice_analysis,
-    styleProfile.vocabulary_patterns,
-    contentType, // Regenerate when content type changes
-    businessName, // Regenerate when business info changes
-    businessDescription
-  ]);
-
+export const WritingStylePreview: React.FC<WritingStylePreviewProps> = ({ writingStyle }) => {
   return (
     <Card>
-      <CardHeader className="flex flex-row items-center justify-between">
-        <div>
-          <CardTitle>Preview</CardTitle>
-          <CardDescription>
-            See how your content would look with your writing style
-          </CardDescription>
-        </div>
-        <Button 
-          variant="outline" 
-          size="sm" 
-          onClick={generatePreview}
-          disabled={isLoading}
-        >
-          <RefreshCw className={`mr-2 h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
-          Refresh
-        </Button>
+      <CardHeader>
+        <CardTitle>Writing Style Preview</CardTitle>
+        <CardDescription>
+          See a preview of your writing style in action
+        </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
-        <ToggleGroup 
-          type="single" 
-          value={contentType}
-          onValueChange={(value) => value && setContentType(value as ContentType)}
-          className="justify-start"
-        >
-          <ToggleGroupItem value="linkedin">LinkedIn</ToggleGroupItem>
-          <ToggleGroupItem value="newsletter">Newsletter</ToggleGroupItem>
-          <ToggleGroupItem value="marketing">Marketing</ToggleGroupItem>
-        </ToggleGroup>
-
-        {businessName || businessDescription ? (
-          <div className="text-xs text-muted-foreground">
-            Using business context: {businessName ? businessName : "Unnamed business"}
-          </div>
-        ) : (
-          <div className="text-xs text-muted-foreground">
-            No business information found. <a href="/settings/business" className="underline">Add business details</a> for more personalized previews.
-          </div>
-        )}
-
-        {isLoading ? (
-          <div className="space-y-2">
-            <Skeleton className="h-4 w-full" />
-            <Skeleton className="h-4 w-[90%]" />
-            <Skeleton className="h-4 w-[95%]" />
-            <Skeleton className="h-4 w-[85%]" />
-            <Skeleton className="h-4 w-full" />
-          </div>
-        ) : error ? (
-          <div className="text-destructive py-2">{error}</div>
-        ) : !previewText ? (
-          <div className="text-muted-foreground py-2">
-            Add some writing style details to generate a preview
-          </div>
-        ) : (
-          <div className="prose dark:prose-invert max-w-none">
-            {previewText.split('\n').map((paragraph, i) => (
-              paragraph ? <p key={i}>{paragraph}</p> : <br key={i} />
-            ))}
-          </div>
-        )}
+        <p>
+          <strong>Voice Analysis:</strong> {writingStyle.voiceAnalysis}
+        </p>
+        <p>
+          <strong>General Style Guide:</strong> {writingStyle.generalStyleGuide}
+        </p>
+        <p>
+          <strong>Vocabulary Patterns:</strong> {writingStyle.vocabularyPatterns}
+        </p>
+        <p>
+          <strong>Avoid Patterns:</strong> {writingStyle.avoidPatterns}
+        </p>
+        <p>
+          <strong>LinkedIn Style Guide:</strong> {writingStyle.linkedinStyleGuide}
+        </p>
+        <p>
+          <strong>Newsletter Style Guide:</strong> {writingStyle.newsletterStyleGuide}
+        </p>
+        <p>
+          <strong>Marketing Style Guide:</strong> {writingStyle.marketingStyleGuide}
+        </p>
       </CardContent>
     </Card>
   );

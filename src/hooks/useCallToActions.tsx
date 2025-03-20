@@ -30,8 +30,8 @@ export function useCallToActions() {
       description: cta.description,
       type: cta.type,
       url: cta.url,
-      usageCount: cta.usage_count,
-      isArchived: cta.is_archived,
+      usageCount: cta.usage_count || 0,
+      isArchived: cta.is_archived || false,
       createdAt: new Date(cta.created_at),
       updatedAt: new Date(cta.updated_at),
     }));
@@ -75,6 +75,7 @@ export function useCallToActions() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["callToActions"] });
+      toast.success("Call to action updated successfully!");
     },
     onError: (error) => {
       console.error("Error updating call to action:", error);

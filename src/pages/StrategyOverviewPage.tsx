@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -16,7 +15,7 @@ const StrategyOverviewPage = () => {
   const { contentPillars, isLoading: isPillarsLoading } = useContentPillars();
   const { targetAudiences, isLoading: isAudiencesLoading } = useTargetAudiences();
   const { callToActions, isLoading: isCtasLoading } = useCallToActions();
-  const { writingStyle, isLoading: isStyleLoading } = useWritingStyle();
+  const { profile, isLoading: isStyleLoading } = useWritingStyle();
   
   const isLoading = isPillarsLoading || isAudiencesLoading || isCtasLoading || isStyleLoading;
   
@@ -27,14 +26,14 @@ const StrategyOverviewPage = () => {
   
   // Writing style completion (based on filled fields)
   let writingStyleCompletion = 0;
-  if (writingStyle) {
+  if (profile) {
     const fields = [
-      writingStyle.voiceAnalysis,
-      writingStyle.generalStyleGuide,
-      writingStyle.vocabularyPatterns,
-      writingStyle.linkedinStyleGuide,
-      writingStyle.newsletterStyleGuide,
-      writingStyle.marketingStyleGuide
+      profile.voiceAnalysis || profile.voice_analysis,
+      profile.generalStyleGuide || profile.general_style_guide,
+      profile.vocabularyPatterns || profile.vocabulary_patterns,
+      profile.linkedinStyleGuide || profile.linkedin_style_guide,
+      profile.newsletterStyleGuide || profile.newsletter_style_guide,
+      profile.marketingStyleGuide || profile.marketing_style_guide
     ];
     
     const filledFields = fields.filter(field => field && field.trim().length > 0).length;
@@ -300,3 +299,4 @@ const StrategyCard: React.FC<StrategyCardProps> = ({
 };
 
 export default StrategyOverviewPage;
+

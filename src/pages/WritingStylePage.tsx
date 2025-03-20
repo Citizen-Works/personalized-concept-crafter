@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { WritingStyleHeader } from '@/components/writing-style/WritingStyleHeader';
@@ -19,7 +18,7 @@ import { Link } from 'react-router-dom';
 
 const WritingStylePage = () => {
   const { user } = useAuth();
-  const { writingStyle, isLoading, refetch } = useWritingStyle();
+  const { profile, isLoading, saveProfile, handleChange } = useWritingStyle();
   const [activeTab, setActiveTab] = useState("general");
   
   const [formState, setFormState] = useState<Partial<WritingStyleProfile>>({
@@ -35,18 +34,18 @@ const WritingStylePage = () => {
   const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
-    if (writingStyle) {
+    if (profile) {
       setFormState({
-        voiceAnalysis: writingStyle.voiceAnalysis || '',
-        generalStyleGuide: writingStyle.generalStyleGuide || '',
-        vocabularyPatterns: writingStyle.vocabularyPatterns || '',
-        avoidPatterns: writingStyle.avoidPatterns || '',
-        linkedinStyleGuide: writingStyle.linkedinStyleGuide || '',
-        newsletterStyleGuide: writingStyle.newsletterStyleGuide || '',
-        marketingStyleGuide: writingStyle.marketingStyleGuide || '',
+        voiceAnalysis: profile.voiceAnalysis || profile.voice_analysis || '',
+        generalStyleGuide: profile.generalStyleGuide || profile.general_style_guide || '',
+        vocabularyPatterns: profile.vocabularyPatterns || profile.vocabulary_patterns || '',
+        avoidPatterns: profile.avoidPatterns || profile.avoid_patterns || '',
+        linkedinStyleGuide: profile.linkedinStyleGuide || profile.linkedin_style_guide || '',
+        newsletterStyleGuide: profile.newsletterStyleGuide || profile.newsletter_style_guide || '',
+        marketingStyleGuide: profile.marketingStyleGuide || profile.marketing_style_guide || '',
       });
     }
-  }, [writingStyle]);
+  }, [profile]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -61,7 +60,7 @@ const WritingStylePage = () => {
     
     setIsSaving(true);
     try {
-      if (writingStyle) {
+      if (profile?.id) {
         // Update existing writing style
         await supabase
           .from('writing_style_profiles')
@@ -74,7 +73,7 @@ const WritingStylePage = () => {
             newsletter_style_guide: formState.newsletterStyleGuide,
             marketing_style_guide: formState.marketingStyleGuide,
           })
-          .eq('id', writingStyle.id);
+          .eq('id', profile.id);
       } else {
         // Create new writing style
         await supabase
@@ -96,7 +95,7 @@ const WritingStylePage = () => {
       }
       
       toast.success('Writing style saved successfully');
-      refetch();
+      window.location.reload();
     } catch (error) {
       console.error('Error saving writing style:', error);
       toast.error('Failed to save writing style');
