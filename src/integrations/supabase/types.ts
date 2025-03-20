@@ -184,8 +184,11 @@ export type Database = {
           content: string | null
           content_type: string | null
           created_at: string
+          has_ideas: boolean | null
           id: string
+          ideas_count: number | null
           is_encrypted: boolean | null
+          processing_status: string | null
           purpose: string
           status: string
           title: string
@@ -197,8 +200,11 @@ export type Database = {
           content?: string | null
           content_type?: string | null
           created_at?: string
+          has_ideas?: boolean | null
           id?: string
+          ideas_count?: number | null
           is_encrypted?: boolean | null
+          processing_status?: string | null
           purpose?: string
           status?: string
           title: string
@@ -210,8 +216,11 @@ export type Database = {
           content?: string | null
           content_type?: string | null
           created_at?: string
+          has_ideas?: boolean | null
           id?: string
+          ideas_count?: number | null
           is_encrypted?: boolean | null
+          processing_status?: string | null
           purpose?: string
           status?: string
           title?: string

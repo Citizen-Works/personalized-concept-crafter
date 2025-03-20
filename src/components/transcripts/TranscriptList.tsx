@@ -46,19 +46,25 @@ const TranscriptList: React.FC<TranscriptListProps> = ({
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
       {documents.map((doc) => {
-        const isCurrentlyProcessing = isDocumentProcessing(doc.id);
+        const isCurrentlyProcessing = isDocumentProcessing(doc.id) || doc.processing_status === 'processing';
         
         return (
           <Card key={doc.id} className="overflow-hidden">
             <CardHeader>
               <div className="flex justify-between items-start">
                 <CardTitle className="line-clamp-1 text-lg">{doc.title}</CardTitle>
-                {doc.processing_status === 'processing' || isCurrentlyProcessing ? (
+                {isCurrentlyProcessing ? (
                   <Badge variant="outline" className="bg-yellow-50 text-yellow-700 border-yellow-300 flex items-center gap-1">
                     <Loader2 className="h-3 w-3 animate-spin" />
                     Processing
                   </Badge>
-                ) : null}
+                ) : (
+                  doc.has_ideas && (
+                    <Badge variant="outline" className="bg-green-50 text-green-700 border-green-300">
+                      {doc.ideas_count} Ideas
+                    </Badge>
+                  )
+                )}
               </div>
               <CardDescription className="flex items-center gap-1">
                 <Calendar className="h-3 w-3" />
@@ -83,7 +89,7 @@ const TranscriptList: React.FC<TranscriptListProps> = ({
                 variant="default" 
                 size="sm"
                 onClick={() => onProcess(doc.id)}
-                disabled={(isProcessing && selectedTranscript === doc.id) || isCurrentlyProcessing}
+                disabled={isCurrentlyProcessing || (isProcessing && selectedTranscript === doc.id)}
               >
                 {isCurrentlyProcessing ? (
                   <>
@@ -93,7 +99,7 @@ const TranscriptList: React.FC<TranscriptListProps> = ({
                 ) : (
                   <>
                     <BrainCircuit className="h-4 w-4 mr-1" />
-                    Extract Ideas
+                    {doc.has_ideas ? "View Ideas" : "Extract Ideas"}
                   </>
                 )}
               </Button>

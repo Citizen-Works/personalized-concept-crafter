@@ -6,6 +6,7 @@ export type DocumentType = 'blog' | 'newsletter' | 'whitepaper' | 'case-study' |
 export type DocumentPurpose = 'writing_sample' | 'business_context';
 export type DocumentStatus = 'active' | 'archived';
 export type DocumentContentType = 'linkedin' | 'newsletter' | 'marketing' | 'general' | null;
+export type DocumentProcessingStatus = 'idle' | 'processing' | 'completed' | 'failed';
 
 export interface DocumentFilterOptions {
   type?: DocumentType;
@@ -34,4 +35,7 @@ export interface Document {
   content_type: DocumentContentType;
   createdAt: Date;
   isEncrypted?: boolean;
+  processing_status?: DocumentProcessingStatus;
+  has_ideas?: boolean;
+  ideas_count?: number;
 }

@@ -1,4 +1,3 @@
-
 import { useState, useCallback, useEffect } from 'react';
 import { useDocuments } from '@/hooks/useDocuments';
 import { toast } from 'sonner';
@@ -59,6 +58,36 @@ export const useTranscripts = () => {
       localStorage.removeItem('processingDocuments');
     }
   }, [processingDocuments]);
+  
+  // Update processing documents based on document status
+  useEffect(() => {
+    if (documents && documents.length > 0) {
+      // Check if any documents have processing_status = 'processing'
+      documents.forEach(doc => {
+        if (doc.processing_status === 'processing') {
+          setProcessingDocuments(prev => new Set([...prev, doc.id]));
+        } else if (doc.processing_status === 'completed' || doc.processing_status === 'failed') {
+          // Remove from processing list if completed or failed
+          setProcessingDocuments(prev => {
+            const next = new Set([...prev]);
+            next.delete(doc.id);
+            return next;
+          });
+          
+          // Show completion toast if it was in the processing set
+          if (processingDocuments.has(doc.id) && doc.processing_status === 'completed') {
+            toast.success(`Ideas extracted from "${doc.title}"`, {
+              duration: 5000,
+              action: {
+                label: "View Ideas",
+                onClick: () => navigate('/ideas')
+              }
+            });
+          }
+        }
+      });
+    }
+  }, [documents, processingDocuments, navigate]);
 
   const handleViewTranscript = (content: string) => {
     setTranscriptContent(content);
@@ -194,8 +223,9 @@ export const useTranscripts = () => {
 
   // Check if a document is currently being processed
   const isDocumentProcessing = useCallback((id: string) => {
-    return processingDocuments.has(id);
-  }, [processingDocuments]);
+    const doc = documents.find(d => d.id === id);
+    return processingDocuments.has(id) || (doc && doc.processing_status === 'processing');
+  }, [processingDocuments, documents]);
 
   return {
     documents,

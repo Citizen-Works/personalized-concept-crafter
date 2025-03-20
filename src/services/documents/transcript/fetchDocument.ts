@@ -1,6 +1,6 @@
 
 import { supabase } from "@/integrations/supabase/client";
-import { Document, DocumentType, DocumentPurpose, DocumentStatus, DocumentContentType } from "@/types/documents";
+import { Document, DocumentType, DocumentPurpose, DocumentStatus, DocumentContentType, DocumentProcessingStatus } from "@/types/documents";
 import { decryptContent } from "@/utils/encryptionUtils";
 
 /**
@@ -47,6 +47,9 @@ export const fetchDocument = async (userId: string, documentId: string): Promise
     status: data.status as DocumentStatus,
     content_type: data.content_type as DocumentContentType,
     createdAt: new Date(data.created_at),
-    isEncrypted: isEncrypted
+    isEncrypted: isEncrypted,
+    processing_status: data.processing_status as DocumentProcessingStatus || 'idle',
+    has_ideas: data.has_ideas || false,
+    ideas_count: data.ideas_count || 0
   };
 };

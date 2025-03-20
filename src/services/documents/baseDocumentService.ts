@@ -68,7 +68,10 @@ export const fetchDocuments = async (
         status: item.status as Document["status"],
         content_type: item.content_type as Document["content_type"],
         createdAt: new Date(item.created_at),
-        isEncrypted: isEncrypted
+        isEncrypted: isEncrypted,
+        processing_status: item.processing_status || 'idle',
+        has_ideas: item.has_ideas || false,
+        ideas_count: item.ideas_count || 0
       };
     })
   );
