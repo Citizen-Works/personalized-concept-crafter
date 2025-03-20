@@ -1,5 +1,5 @@
 
-type WebhookService = "otter" | "fathom" | "read" | "fireflies";
+type WebhookService = "otter" | "fathom" | "read" | "fireflies" | "zapier";
 
 // Process transcript data based on service type
 export function processTranscriptData(serviceName: WebhookService, requestData: any, userId: string): any {
@@ -96,6 +96,45 @@ export function processTranscriptData(serviceName: WebhookService, requestData: 
         ...baseTranscript,
         title: requestData.title || requestData.meeting_title || requestData.name || "Fireflies.ai Transcript",
         content: requestData.transcript || requestData.content || requestData.text || ""
+      };
+      
+    case 'zapier':
+      // Handle data coming from Zapier
+      console.log("Processing Zapier payload with keys:", Object.keys(requestData));
+      
+      let zapierTranscript = "";
+      let zapierTitle = "Zapier Integration";
+      
+      // Try to extract the transcript content based on common field patterns
+      if (requestData.transcript || requestData.content || requestData.text || requestData.meeting_transcript) {
+        zapierTranscript = requestData.transcript || requestData.content || requestData.text || requestData.meeting_transcript;
+      } 
+      // Check for nested data which Zapier often uses
+      else if (requestData.data && typeof requestData.data === 'object') {
+        const data = requestData.data;
+        zapierTranscript = data.transcript || data.content || data.text || data.meeting_transcript || JSON.stringify(data);
+      }
+      // If nothing extractable, use entire payload as string
+      else {
+        zapierTranscript = JSON.stringify(requestData);
+      }
+      
+      // Extract title if available
+      zapierTitle = 
+        requestData.title || 
+        requestData.meeting_title || 
+        requestData.meeting_name ||
+        (requestData.data?.title) ||
+        (requestData.data?.meeting_title) ||
+        (requestData.data?.meeting_name) ||
+        `Meeting Transcript from Zapier (${new Date().toLocaleString()})`;
+        
+      console.log(`Extracted Zapier title: "${zapierTitle}", transcript length: ${zapierTranscript.length} characters`);
+      
+      return {
+        ...baseTranscript,
+        title: zapierTitle,
+        content: zapierTranscript
       };
       
     default:

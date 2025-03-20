@@ -48,7 +48,8 @@ export const formatServiceName = (serviceName: string): string => {
     'otter': 'Otter.ai',
     'fathom': 'Fathom',
     'read': 'Read.AI',
-    'fireflies': 'Fireflies.ai'
+    'fireflies': 'Fireflies.ai',
+    'zapier': 'Zapier'
   };
   
   return names[serviceName] || serviceName;
@@ -74,4 +75,31 @@ export const generateSecureToken = (): string => {
 export const isValidToken = (token: string): boolean => {
   // Token should be at least 32 characters long and contain only hexadecimal characters
   return /^[0-9a-f]{32,}$/i.test(token);
+};
+
+/**
+ * Tests a Zapier webhook connection
+ * @param webhookUrl - The Zapier webhook URL
+ * @returns A promise that resolves if the webhook is successfully triggered
+ */
+export const testZapierWebhook = async (webhookUrl: string): Promise<Response> => {
+  if (!webhookUrl) {
+    throw new Error("Webhook URL is required");
+  }
+  
+  return fetch(webhookUrl, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    mode: "no-cors", // Handle CORS for external services
+    body: JSON.stringify({
+      event: "test_connection",
+      timestamp: new Date().toISOString(),
+      source: "content_platform_webhook_settings",
+      data: {
+        message: "This is a test connection from your content platform"
+      }
+    }),
+  });
 };

@@ -6,7 +6,7 @@ import { toast } from "sonner";
 import { useAuth } from "@/context/AuthContext";
 import { generateSecureToken } from '@/utils/webhookUtils';
 
-export type WebhookService = "otter" | "fathom" | "read" | "fireflies";
+export type WebhookService = "otter" | "fathom" | "read" | "fireflies" | "zapier";
 
 export interface WebhookConfiguration {
   id: string;
@@ -42,118 +42,157 @@ export const useWebhookConfig = () => {
     return data as WebhookConfiguration[];
   };
 
-  const getOrCreateWebhookUrl = async (serviceName: WebhookService): Promise<string> => {
+  const getOrCreateWebhookUrl = async (serviceName: WebhookService, options?: { 
+    onSuccess?: (url: string) => void, 
+    onError?: (error: any) => void 
+  }): Promise<string> => {
     if (!user) throw new Error("User not authenticated");
 
-    // First check if configuration exists
-    const { data: existingConfig, error: fetchError } = await supabase
-      .from("webhook_configurations")
-      .select("*")
-      .eq("user_id", user.id)
-      .eq("service_name", serviceName)
-      .single();
-
-    if (fetchError && fetchError.code !== "PGRST116") { // PGRST116 means not found
-      toast.error("Error checking webhook configuration");
-      throw fetchError;
-    }
-
-    // If exists and has URL, return it
-    if (existingConfig?.webhook_url) {
-      return existingConfig.webhook_url;
-    }
-
-    // Generate secure token
-    const webhookToken = generateSecureToken();
-
-    // Create or update configuration
-    if (existingConfig) {
-      const { error: updateError } = await supabase
+    try {
+      // First check if configuration exists
+      const { data: existingConfig, error: fetchError } = await supabase
         .from("webhook_configurations")
-        .update({ 
-          webhook_url: webhookToken,
-          updated_at: new Date().toISOString() 
-        })
-        .eq("id", existingConfig.id);
+        .select("*")
+        .eq("user_id", user.id)
+        .eq("service_name", serviceName)
+        .single();
 
-      if (updateError) {
-        toast.error("Failed to update webhook URL");
-        throw updateError;
+      if (fetchError && fetchError.code !== "PGRST116") { // PGRST116 means not found
+        toast.error("Error checking webhook configuration");
+        options?.onError?.(fetchError);
+        throw fetchError;
       }
-    } else {
-      const { error: insertError } = await supabase
-        .from("webhook_configurations")
-        .insert({
-          user_id: user.id,
-          service_name: serviceName,
-          webhook_url: webhookToken,
-          is_active: true,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        });
 
-      if (insertError) {
-        toast.error("Failed to create webhook configuration");
-        throw insertError;
+      // If exists and has URL, return it
+      if (existingConfig?.webhook_url) {
+        options?.onSuccess?.(existingConfig.webhook_url);
+        return existingConfig.webhook_url;
       }
+
+      // Generate secure token
+      const webhookToken = generateSecureToken();
+
+      // Create or update configuration
+      if (existingConfig) {
+        const { error: updateError } = await supabase
+          .from("webhook_configurations")
+          .update({ 
+            webhook_url: webhookToken,
+            updated_at: new Date().toISOString() 
+          })
+          .eq("id", existingConfig.id);
+
+        if (updateError) {
+          toast.error("Failed to update webhook URL");
+          options?.onError?.(updateError);
+          throw updateError;
+        }
+      } else {
+        const { error: insertError } = await supabase
+          .from("webhook_configurations")
+          .insert({
+            user_id: user.id,
+            service_name: serviceName,
+            webhook_url: webhookToken,
+            is_active: true,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+          });
+
+        if (insertError) {
+          toast.error("Failed to create webhook configuration");
+          options?.onError?.(insertError);
+          throw insertError;
+        }
+      }
+
+      // Invalidate queries to refresh data
+      queryClient.invalidateQueries({ queryKey: ["webhook-configurations"] });
+      
+      options?.onSuccess?.(webhookToken);
+      return webhookToken;
+    } catch (error) {
+      options?.onError?.(error);
+      throw error;
     }
-
-    // Invalidate queries to refresh data
-    queryClient.invalidateQueries({ queryKey: ["webhook-configurations"] });
-    
-    return webhookToken;
   };
 
-  const toggleServiceConnection = async (serviceName: WebhookService, isActive: boolean) => {
+  const toggleServiceConnection = async ({ 
+    serviceName, 
+    isActive,
+    zapierWebhookUrl
+  }: { 
+    serviceName: WebhookService; 
+    isActive: boolean;
+    zapierWebhookUrl?: string;
+  }) => {
     if (!user) throw new Error("User not authenticated");
 
-    const { data: existingConfig, error: fetchError } = await supabase
-      .from("webhook_configurations")
-      .select("*")
-      .eq("user_id", user.id)
-      .eq("service_name", serviceName)
-      .single();
-
-    if (fetchError && fetchError.code !== "PGRST116") {
-      toast.error("Error checking service connection");
-      throw fetchError;
-    }
-
-    if (existingConfig) {
-      // Update existing configuration
-      const { error: updateError } = await supabase
+    try {
+      const { data: existingConfig, error: fetchError } = await supabase
         .from("webhook_configurations")
-        .update({ 
-          is_active: isActive,
-          last_connected: isActive ? new Date().toISOString() : existingConfig.last_connected
-        })
-        .eq("id", existingConfig.id);
+        .select("*")
+        .eq("user_id", user.id)
+        .eq("service_name", serviceName)
+        .single();
 
-      if (updateError) {
-        toast.error("Failed to update service connection");
-        throw updateError;
+      if (fetchError && fetchError.code !== "PGRST116") {
+        toast.error("Error checking service connection");
+        throw fetchError;
       }
-    } else {
-      // Create new configuration with webhook URL
-      const webhookToken = generateSecureToken();
-      const { error: insertError } = await supabase
-        .from("webhook_configurations")
-        .insert({
-          user_id: user.id,
-          service_name: serviceName,
-          webhook_url: webhookToken,
-          is_active: isActive,
-          last_connected: isActive ? new Date().toISOString() : null
-        });
 
-      if (insertError) {
-        toast.error("Failed to create service connection");
-        throw insertError;
+      // For Zapier, we store the Zapier webhook URL in the settings
+      const settings = serviceName === 'zapier' && zapierWebhookUrl 
+        ? { zapier_webhook_url: zapierWebhookUrl }
+        : existingConfig?.settings || {};
+
+      if (existingConfig) {
+        // Update existing configuration
+        const { error: updateError } = await supabase
+          .from("webhook_configurations")
+          .update({ 
+            is_active: isActive,
+            last_connected: isActive ? new Date().toISOString() : existingConfig.last_connected,
+            settings: settings
+          })
+          .eq("id", existingConfig.id);
+
+        if (updateError) {
+          toast.error("Failed to update service connection");
+          throw updateError;
+        }
+      } else {
+        // Create new configuration with webhook URL
+        let webhookToken = "";
+        
+        // For Zapier, we don't need a webhook token since the flow is reversed
+        if (serviceName !== 'zapier') {
+          webhookToken = generateSecureToken();
+        }
+        
+        const { error: insertError } = await supabase
+          .from("webhook_configurations")
+          .insert({
+            user_id: user.id,
+            service_name: serviceName,
+            webhook_url: webhookToken,
+            is_active: isActive,
+            last_connected: isActive ? new Date().toISOString() : null,
+            settings: settings
+          });
+
+        if (insertError) {
+          toast.error("Failed to create service connection");
+          throw insertError;
+        }
       }
+
+      toast.success(isActive ? "Service connected successfully" : "Service disconnected");
+      queryClient.invalidateQueries({ queryKey: ["webhook-configurations"] });
+    } catch (error) {
+      console.error(error);
+      toast.error(`Failed to ${isActive ? 'connect' : 'disconnect'} service`);
     }
-
-    toast.success(isActive ? "Service connected successfully" : "Service disconnected");
-    queryClient.invalidateQueries({ queryKey: ["webhook-configurations"] });
   };
 
   const copyWebhookUrl = async (webhookUrl: string) => {
@@ -180,24 +219,12 @@ export const useWebhookConfig = () => {
     enabled: !!user,
   });
 
-  const getWebhookUrlMutation = useMutation({
-    mutationFn: getOrCreateWebhookUrl,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["webhook-configurations", user?.id] });
-    },
-  });
-
-  const toggleServiceMutation = useMutation({
-    mutationFn: ({ serviceName, isActive }: { serviceName: WebhookService; isActive: boolean }) => 
-      toggleServiceConnection(serviceName, isActive),
-  });
-
   return {
     configurations: configurationsQuery.data || [],
     isLoading: configurationsQuery.isLoading,
     isError: configurationsQuery.isError,
-    getOrCreateWebhookUrl: getWebhookUrlMutation.mutate,
-    toggleServiceConnection: toggleServiceMutation.mutate,
+    getOrCreateWebhookUrl,
+    toggleServiceConnection,
     copyWebhookUrl,
     copying
   };
