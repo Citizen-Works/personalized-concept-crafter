@@ -50,7 +50,7 @@ export const useRetryLogic = (handleProcessTranscript: (id: string, isRetry: boo
         action: {
           label: "Try Again",
           onClick: () => {
-            handleProcessTranscript(documentId);
+            handleProcessTranscript(documentId, true); // Make sure we pass both arguments
             updateRetryCount(documentId, false); // Reset counter for manual retry
           }
         }

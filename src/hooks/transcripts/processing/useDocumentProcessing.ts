@@ -22,7 +22,7 @@ export const useDocumentProcessing = (
   }, [processingDocuments, documents]);
   
   // Handle processing a transcript
-  const handleProcessTranscript = useCallback(async (id: string, isRetry = false) => {
+  const handleProcessTranscript = useCallback(async (id: string, isRetry = false): Promise<void> => {
     try {
       // Mark as processing in UI
       updateProcessingDocuments(prev => {
@@ -49,8 +49,6 @@ export const useDocumentProcessing = (
           duration: 5000
         });
       }
-      
-      return true;
     } catch (error) {
       console.error("Failed to process transcript:", error);
       
@@ -64,8 +62,6 @@ export const useDocumentProcessing = (
         updated.delete(id);
         return updated;
       });
-      
-      return false;
     } finally {
       if (!isRetry) {
         setIsProcessing(false);
