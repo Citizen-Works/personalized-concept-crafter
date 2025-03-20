@@ -2,6 +2,7 @@
 import { supabase } from "@/integrations/supabase/client";
 import { Document, DocumentFilterOptions } from "@/types";
 import { toast } from "sonner";
+import { decryptContent } from "@/utils/encryptionUtils";
 
 /**
  * Fetches documents with optional filtering
@@ -39,17 +40,40 @@ export const fetchDocuments = async (
     throw error;
   }
 
-  return data.map(item => ({
-    id: item.id,
-    userId: item.user_id,
-    title: item.title,
-    content: item.content || "",
-    type: item.type as Document["type"],
-    purpose: item.purpose as Document["purpose"],
-    status: item.status as Document["status"],
-    content_type: item.content_type as Document["content_type"],
-    createdAt: new Date(item.created_at)
-  }));
+  // Decrypt content if it's encrypted
+  const documentsWithDecryptedContent = await Promise.all(
+    data.map(async (item) => {
+      // Check if the document is a transcript and might be encrypted
+      const isEncrypted = item.is_encrypted === true || 
+                         (item.type === 'transcript' && item.content?.length > 100);
+      
+      let content = item.content || "";
+      
+      // Attempt decryption if the document might be encrypted
+      if (isEncrypted && content) {
+        try {
+          content = await decryptContent(content, userId);
+        } catch (err) {
+          console.error("Failed to decrypt document content:", err);
+          // Use original content if decryption fails
+        }
+      }
+      
+      return {
+        id: item.id,
+        userId: item.user_id,
+        title: item.title,
+        content: content,
+        type: item.type as Document["type"],
+        purpose: item.purpose as Document["purpose"],
+        status: item.status as Document["status"],
+        content_type: item.content_type as Document["content_type"],
+        createdAt: new Date(item.created_at)
+      };
+    })
+  );
+
+  return documentsWithDecryptedContent;
 };
 
 /**
@@ -62,17 +86,35 @@ export const createDocument = async (
   if (!userId) throw new Error("User not authenticated");
 
   try {
+    // Import the encryption utils only when needed
+    const { encryptContent } = await import("@/utils/encryptionUtils");
+    
+    // Encrypt content if it's sensitive (like a transcript)
+    let content = document.content || "";
+    let isEncrypted = false;
+    
+    if (document.type === "transcript" && content) {
+      try {
+        content = await encryptContent(content, userId);
+        isEncrypted = true;
+      } catch (err) {
+        console.error("Failed to encrypt document content:", err);
+        // Continue with unencrypted content if encryption fails
+      }
+    }
+    
     const { data, error } = await supabase
       .from("documents")
       .insert([
         {
           title: document.title,
-          content: document.content,
+          content: content,
           type: document.type,
           purpose: document.purpose,
           status: document.status,
           content_type: document.content_type,
           user_id: userId,
+          is_encrypted: isEncrypted
         },
       ])
       .select()
@@ -90,7 +132,7 @@ export const createDocument = async (
       id: data.id,
       userId: data.user_id,
       title: data.title,
-      content: data.content || "",
+      content: document.content || "", // Return the original unencrypted content
       type: data.type as Document["type"],
       purpose: data.purpose as Document["purpose"],
       status: data.status as Document["status"],

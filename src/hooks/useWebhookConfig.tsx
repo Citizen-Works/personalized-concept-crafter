@@ -4,7 +4,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useAuth } from "@/context/AuthContext";
-import { v4 as uuidv4 } from 'uuid';
+import { generateSecureToken } from '@/utils/webhookUtils';
 
 export type WebhookService = "otter" | "fathom" | "read" | "fireflies";
 
@@ -63,14 +63,17 @@ export const useWebhookConfig = () => {
       return existingConfig.webhook_url;
     }
 
-    // Generate unique URL token
-    const webhookUrl = uuidv4();
+    // Generate secure token instead of UUID
+    const webhookUrl = generateSecureToken();
 
     // Create or update configuration
     if (existingConfig) {
       const { error: updateError } = await supabase
         .from("webhook_configurations")
-        .update({ webhook_url: webhookUrl })
+        .update({ 
+          webhook_url: webhookUrl,
+          updated_at: new Date().toISOString() 
+        })
         .eq("id", existingConfig.id);
 
       if (updateError) {
@@ -84,7 +87,9 @@ export const useWebhookConfig = () => {
           user_id: user.id,
           service_name: serviceName,
           webhook_url: webhookUrl,
-          is_active: true
+          is_active: true,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
         });
 
       if (insertError) {

@@ -74,6 +74,7 @@ export interface Document {
   status: DocumentStatus;
   content_type: DocumentContentType;
   createdAt: Date;
+  isEncrypted?: boolean;
 }
 
 export interface WritingStyleProfile {

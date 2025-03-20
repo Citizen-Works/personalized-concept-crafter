@@ -33,3 +33,25 @@ export const formatServiceName = (serviceName: string): string => {
   
   return names[serviceName] || serviceName;
 };
+
+/**
+ * Generates a cryptographically secure token for webhooks
+ * @returns A secure random token
+ */
+export const generateSecureToken = (): string => {
+  const array = new Uint8Array(32);
+  crypto.getRandomValues(array);
+  return Array.from(array)
+    .map(b => b.toString(16).padStart(2, '0'))
+    .join('');
+};
+
+/**
+ * Validates that a webhook token meets security requirements
+ * @param token - The token to validate
+ * @returns Whether the token is valid
+ */
+export const isValidToken = (token: string): boolean => {
+  // Token should be at least 32 characters long and contain only hexadecimal characters
+  return /^[0-9a-f]{32,}$/i.test(token);
+};
