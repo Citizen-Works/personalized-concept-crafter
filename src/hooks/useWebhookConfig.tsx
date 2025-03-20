@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -135,7 +134,7 @@ export const useWebhookConfig = () => {
       }
     } else {
       // Create new configuration with webhook URL
-      const webhookUrl = uuidv4();
+      const webhookUrl = generateSecureToken();
       const { error: insertError } = await supabase
         .from("webhook_configurations")
         .insert({

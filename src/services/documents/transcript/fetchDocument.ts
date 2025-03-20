@@ -1,6 +1,6 @@
 
 import { supabase } from "@/integrations/supabase/client";
-import { Document } from "@/types";
+import { Document, DocumentType, DocumentPurpose, DocumentStatus, DocumentContentType } from "@/types";
 import { decryptContent } from "@/utils/encryptionUtils";
 
 /**
@@ -23,7 +23,9 @@ export const fetchDocument = async (userId: string, documentId: string): Promise
 
   // Handle decryption if the document is encrypted
   let content = data.content || "";
-  if (data.is_encrypted === true) {
+  const isEncrypted = data.is_encrypted === true;
+  
+  if (isEncrypted) {
     try {
       content = await decryptContent(content, userId);
     } catch (err) {
@@ -37,11 +39,11 @@ export const fetchDocument = async (userId: string, documentId: string): Promise
     userId: data.user_id,
     title: data.title,
     content: content,
-    type: data.type,
-    purpose: data.purpose,
-    status: data.status,
-    content_type: data.content_type,
+    type: data.type as DocumentType,
+    purpose: data.purpose as DocumentPurpose,
+    status: data.status as DocumentStatus,
+    content_type: data.content_type as DocumentContentType,
     createdAt: new Date(data.created_at),
-    isEncrypted: data.is_encrypted
+    isEncrypted: isEncrypted
   };
 };

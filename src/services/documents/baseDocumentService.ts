@@ -44,7 +44,7 @@ export const fetchDocuments = async (
   const documentsWithDecryptedContent = await Promise.all(
     data.map(async (item) => {
       // Check if the document is a transcript and might be encrypted
-      const isEncrypted = item.is_encrypted === true || 
+      const isEncrypted = 'is_encrypted' in item ? item.is_encrypted === true : 
                          (item.type === 'transcript' && item.content?.length > 100);
       
       let content = item.content || "";
@@ -68,7 +68,8 @@ export const fetchDocuments = async (
         purpose: item.purpose as Document["purpose"],
         status: item.status as Document["status"],
         content_type: item.content_type as Document["content_type"],
-        createdAt: new Date(item.created_at)
+        createdAt: new Date(item.created_at),
+        isEncrypted: isEncrypted
       };
     })
   );
@@ -137,7 +138,8 @@ export const createDocument = async (
       purpose: data.purpose as Document["purpose"],
       status: data.status as Document["status"],
       content_type: data.content_type as Document["content_type"],
-      createdAt: new Date(data.created_at)
+      createdAt: new Date(data.created_at),
+      isEncrypted: isEncrypted
     };
   } catch (error) {
     console.error("Error in createDocument:", error);
