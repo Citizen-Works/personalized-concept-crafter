@@ -14,7 +14,7 @@ import {
 interface DeleteConfirmDialogProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
-  onConfirm: () => Promise<void>;
+  onConfirm: () => void;
   onCancel: () => void;
 }
 
@@ -28,9 +28,9 @@ export const DeleteConfirmDialog: React.FC<DeleteConfirmDialogProps> = ({
     <AlertDialog open={isOpen} onOpenChange={onOpenChange}>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+          <AlertDialogTitle>Delete Content Idea</AlertDialogTitle>
           <AlertDialogDescription>
-            This will permanently delete this content idea. This action cannot be undone.
+            Are you sure you want to delete this content idea? This action cannot be undone.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>

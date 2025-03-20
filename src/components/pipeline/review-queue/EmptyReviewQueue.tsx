@@ -1,6 +1,7 @@
 
 import React from 'react';
 import { Button } from "@/components/ui/button";
+import { Link } from 'react-router-dom';
 
 export const EmptyReviewQueue: React.FC = () => {
   return (
@@ -10,7 +11,7 @@ export const EmptyReviewQueue: React.FC = () => {
         Content from meeting transcripts or other automated sources will appear here for review.
       </p>
       <Button variant="outline" asChild>
-        <a href="/transcripts">Upload a Meeting Transcript</a>
+        <Link to="/transcripts">Upload a Meeting Transcript</Link>
       </Button>
     </div>
   );

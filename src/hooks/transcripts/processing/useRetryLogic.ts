@@ -25,7 +25,7 @@ export const useRetryLogic = (handleProcessTranscript: (id: string, isRetry: boo
     });
   }, []);
   
-  const handleRetry = useCallback((documentId: string, documentTitle: string) => {
+  const handleRetry = useCallback((documentId: string, documentTitle: string): boolean => {
     const currentAttempts = retryAttempts.get(documentId) || 0;
     
     if (currentAttempts < 2) {

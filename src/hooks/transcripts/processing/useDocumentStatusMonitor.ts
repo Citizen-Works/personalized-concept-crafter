@@ -1,53 +1,62 @@
 
-import { useEffect } from 'react';
+import { useEffect, useCallback } from 'react';
 import { Document } from '@/types';
 import { useRetryLogic } from './useRetryLogic';
 
 /**
- * Hook for monitoring document status changes
+ * Hook to monitor document processing status and handle state changes
  */
 export const useDocumentStatusMonitor = (
   documents: Document[] = [],
   processingDocuments: Set<string>,
-  updateProcessingDocuments: (updater: (prev: Set<string>) => Set<string>) => Set<string>,
+  updateProcessingDocuments: (updater: (prev: Set<string>) => Set<string>) => void,
   handleProcessTranscript: (id: string, isRetry: boolean) => Promise<void>
 ) => {
-  const { handleRetry, handleSuccess, retryAttempts, getRetryCount } = useRetryLogic(handleProcessTranscript);
+  // Use the retry logic hook for managing retries
+  const { retryAttempts, handleRetry, handleSuccess, getRetryCount } = useRetryLogic(handleProcessTranscript);
   
-  // Monitor documents for status changes
+  // Effect to monitor document status changes
   useEffect(() => {
     if (!documents || documents.length === 0) return;
     
-    let shouldUpdate = false;
-    let updatedProcessingDocs = new Set<string>(processingDocuments);
-    
-    // Check if any documents have processing_status changes
-    documents.forEach(doc => {
-      const isCurrentlyProcessing = processingDocuments.has(doc.id);
+    // Check each document being tracked in the processingDocuments set
+    processingDocuments.forEach(docId => {
+      const document = documents.find(d => d.id === docId);
       
-      if (doc.processing_status === 'processing' && !isCurrentlyProcessing) {
-        updatedProcessingDocs.add(doc.id);
-        shouldUpdate = true;
-      } else if ((doc.processing_status === 'completed' || doc.processing_status === 'failed') && isCurrentlyProcessing) {
-        updatedProcessingDocs.delete(doc.id);
+      if (!document) {
+        // Document not found, remove from tracking
+        updateProcessingDocuments(prev => {
+          const updated = new Set<string>([...prev]);
+          updated.delete(docId);
+          return updated;
+        });
+        return;
+      }
+      
+      if (document.processing_status === 'completed') {
+        // Processing completed successfully
+        handleSuccess(docId, document.title);
+        updateProcessingDocuments(prev => {
+          const updated = new Set<string>([...prev]);
+          updated.delete(docId);
+          return updated;
+        });
+      } 
+      else if (document.processing_status === 'failed') {
+        // Processing failed, attempt retry
+        const retrySuccessful = handleRetry(docId, document.title);
         
-        // Show completion toast if it was in the processing set
-        if (doc.processing_status === 'completed') {
-          handleSuccess(doc.id, doc.title);
-        } else if (doc.processing_status === 'failed') {
-          // Handle retry logic
-          handleRetry(doc.id, doc.title);
+        if (!retrySuccessful) {
+          // If retry not attempted, remove from tracking
+          updateProcessingDocuments(prev => {
+            const updated = new Set<string>([...prev]);
+            updated.delete(docId);
+            return updated;
+          });
         }
-        
-        shouldUpdate = true;
       }
     });
-    
-    // Only update state if anything changed
-    if (shouldUpdate) {
-      updateProcessingDocuments(() => updatedProcessingDocs);
-    }
-  }, [documents, processingDocuments, updateProcessingDocuments, handleRetry, handleSuccess]);
+  }, [documents, processingDocuments, handleRetry, handleSuccess, updateProcessingDocuments]);
   
   return {
     retryAttempts,
