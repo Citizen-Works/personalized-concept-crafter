@@ -105,20 +105,10 @@ const WritingStylePage = () => {
     }
   };
 
-  // Create a preview object that includes all required properties for WritingStylePreview
-  const getPreviewProfile = (): WritingStyleProfile => {
+  // Create a preview object that includes fields for the WritingStylePreview component
+  const getPreviewProfile = () => {
     return {
-      // Use the type's required properties
-      user_id: user?.id || '',
-      voice_analysis: formState.voiceAnalysis || '',
-      general_style_guide: formState.generalStyleGuide || '',
-      linkedin_style_guide: formState.linkedinStyleGuide || '',
-      newsletter_style_guide: formState.newsletterStyleGuide || '',
-      marketing_style_guide: formState.marketingStyleGuide || '',
-      vocabulary_patterns: formState.vocabularyPatterns || '',
-      avoid_patterns: formState.avoidPatterns || '',
-      
-      // Include the camelCase aliases
+      // Use camelCase properties that match the type definition
       userId: user?.id || '',
       voiceAnalysis: formState.voiceAnalysis || '',
       generalStyleGuide: formState.generalStyleGuide || '',
@@ -127,6 +117,15 @@ const WritingStylePage = () => {
       marketingStyleGuide: formState.marketingStyleGuide || '',
       vocabularyPatterns: formState.vocabularyPatterns || '',
       avoidPatterns: formState.avoidPatterns || '',
+      
+      // Include the snake_case aliases for backward compatibility
+      voice_analysis: formState.voiceAnalysis || '',
+      general_style_guide: formState.generalStyleGuide || '',
+      linkedin_style_guide: formState.linkedinStyleGuide || '',
+      newsletter_style_guide: formState.newsletterStyleGuide || '',
+      marketing_style_guide: formState.marketingStyleGuide || '',
+      vocabulary_patterns: formState.vocabularyPatterns || '',
+      avoid_patterns: formState.avoidPatterns || '',
       
       // Optional properties with empty defaults
       id: profile?.id || '',
