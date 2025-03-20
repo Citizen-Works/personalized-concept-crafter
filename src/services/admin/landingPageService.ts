@@ -14,7 +14,7 @@ export interface LandingPageContent {
   created_at: string;
 }
 
-export async function fetchLandingPageContent() {
+export async function fetchLandingPageContent(): Promise<LandingPageContent[]> {
   try {
     const { data, error } = await supabase
       .from('landing_page_content')
@@ -22,6 +22,7 @@ export async function fetchLandingPageContent() {
       .order('order', { ascending: true });
     
     if (error) throw error;
+    
     return data as LandingPageContent[];
   } catch (error) {
     console.error('Error fetching landing page content:', error);
@@ -30,56 +31,73 @@ export async function fetchLandingPageContent() {
   }
 }
 
-export async function fetchLandingPageSection(sectionKey: string) {
+export async function fetchLandingPageSection(sectionKey: string): Promise<LandingPageContent | null> {
   try {
     const { data, error } = await supabase
       .from('landing_page_content')
       .select('*')
       .eq('section_key', sectionKey)
-      .maybeSingle();
+      .single();
     
-    if (error) throw error;
-    return data as LandingPageContent | null;
+    if (error && error.code !== 'PGRST116') throw error;
+    
+    return data as LandingPageContent;
   } catch (error) {
-    console.error(`Error fetching section ${sectionKey}:`, error);
-    toast.error(`Failed to load section: ${sectionKey}`);
+    console.error('Error fetching landing page section:', error);
+    toast.error('Failed to load section');
     return null;
   }
 }
 
-export async function updateLandingPageContent(content: Partial<LandingPageContent> & { id: string }) {
+export async function updateLandingPageContent(content: Partial<LandingPageContent> & { id: string }): Promise<LandingPageContent | null> {
   try {
     const { data, error } = await supabase
       .from('landing_page_content')
-      .update(content)
+      .update({
+        title: content.title,
+        content: content.content,
+        image_url: content.image_url,
+        order: content.order,
+        updated_by: (await supabase.auth.getUser()).data.user?.id
+      })
       .eq('id', content.id)
       .select()
       .single();
     
     if (error) throw error;
-    toast.success('Content updated successfully');
+    
+    toast.success('Landing page content updated');
     return data as LandingPageContent;
   } catch (error) {
     console.error('Error updating landing page content:', error);
-    toast.error('Failed to update content');
-    throw error;
+    toast.error('Failed to update landing page content');
+    return null;
   }
 }
 
-export async function createLandingPageContent(content: Omit<LandingPageContent, 'id' | 'created_at' | 'updated_at' | 'updated_by'>) {
+export async function createLandingPageContent(content: Omit<LandingPageContent, 'id' | 'created_at' | 'updated_at' | 'updated_by'>): Promise<LandingPageContent | null> {
   try {
+    const currentUser = await supabase.auth.getUser();
     const { data, error } = await supabase
       .from('landing_page_content')
-      .insert(content)
+      .insert({
+        section_key: content.section_key,
+        title: content.title,
+        content: content.content,
+        image_url: content.image_url,
+        order: content.order,
+        updated_by: currentUser.data.user?.id
+      })
       .select()
       .single();
     
     if (error) throw error;
-    toast.success('New section created successfully');
+    
+    toast.success('New landing page section created');
     return data as LandingPageContent;
   } catch (error) {
     console.error('Error creating landing page content:', error);
-    toast.error('Failed to create new section');
-    throw error;
+    toast.error('Failed to create landing page section');
+    return null;
   }
 }

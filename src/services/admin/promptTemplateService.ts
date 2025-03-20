@@ -17,15 +17,16 @@ export interface PromptTemplate {
   parent_version: string | null;
 }
 
-export async function fetchPromptTemplates() {
+export async function fetchPromptTemplates(): Promise<PromptTemplate[]> {
   try {
     const { data, error } = await supabase
       .from('prompt_templates')
       .select('*')
-      .order('category')
-      .order('template_key');
+      .order('category', { ascending: true })
+      .order('template_key', { ascending: true });
     
     if (error) throw error;
+    
     return data as PromptTemplate[];
   } catch (error) {
     console.error('Error fetching prompt templates:', error);
@@ -34,114 +35,95 @@ export async function fetchPromptTemplates() {
   }
 }
 
-export async function fetchPromptTemplate(templateKey: string) {
+export async function fetchPromptTemplate(templateKey: string): Promise<PromptTemplate | null> {
   try {
     const { data, error } = await supabase
       .from('prompt_templates')
       .select('*')
       .eq('template_key', templateKey)
       .eq('is_active', true)
-      .maybeSingle();
+      .single();
     
-    if (error) throw error;
-    return data as PromptTemplate | null;
+    if (error && error.code !== 'PGRST116') throw error;
+    
+    return data as PromptTemplate;
   } catch (error) {
-    console.error(`Error fetching template ${templateKey}:`, error);
-    toast.error(`Failed to load template: ${templateKey}`);
+    console.error('Error fetching prompt template:', error);
+    toast.error('Failed to load template');
     return null;
   }
 }
 
-export async function updatePromptTemplate(template: Partial<PromptTemplate> & { id: string }) {
+export async function updatePromptTemplate(template: Partial<PromptTemplate> & { id: string }): Promise<PromptTemplate | null> {
   try {
+    const currentUser = await supabase.auth.getUser();
     const { data, error } = await supabase
       .from('prompt_templates')
-      .update(template)
+      .update({
+        content: template.content,
+        description: template.description,
+        category: template.category,
+        content_type: template.content_type,
+        is_active: template.is_active,
+        updated_by: currentUser.data.user?.id
+      })
       .eq('id', template.id)
       .select()
       .single();
     
     if (error) throw error;
-    toast.success('Template updated successfully');
+    
+    toast.success('Prompt template updated');
     return data as PromptTemplate;
   } catch (error) {
     console.error('Error updating prompt template:', error);
-    toast.error('Failed to update template');
-    throw error;
+    toast.error('Failed to update prompt template');
+    return null;
   }
 }
 
-export async function createPromptTemplate(template: Omit<PromptTemplate, 'id' | 'created_at' | 'updated_at' | 'updated_by' | 'version' | 'parent_version'>) {
+export async function createPromptTemplate(template: Omit<PromptTemplate, 'id' | 'created_at' | 'updated_at' | 'version' | 'updated_by' | 'parent_version'>): Promise<PromptTemplate | null> {
   try {
+    const currentUser = await supabase.auth.getUser();
     const { data, error } = await supabase
       .from('prompt_templates')
-      .insert(template)
+      .insert({
+        template_key: template.template_key,
+        content: template.content,
+        description: template.description,
+        category: template.category,
+        content_type: template.content_type,
+        is_active: template.is_active,
+        updated_by: currentUser.data.user?.id
+      })
       .select()
       .single();
     
     if (error) throw error;
-    toast.success('New template created successfully');
+    
+    toast.success('New prompt template created');
     return data as PromptTemplate;
   } catch (error) {
     console.error('Error creating prompt template:', error);
-    toast.error('Failed to create new template');
-    throw error;
+    toast.error('Failed to create prompt template');
+    return null;
   }
 }
 
-export async function createVersionedPromptTemplate(
-  originalId: string, 
-  updatedContent: Partial<PromptTemplate>
-) {
+export async function fetchTemplateVersionHistory(templateKey: string): Promise<PromptTemplate[]> {
   try {
-    // Get the original template
-    const { data: original, error: fetchError } = await supabase
+    // First get the current template
+    const { data: currentTemplate, error: currentError } = await supabase
       .from('prompt_templates')
       .select('*')
-      .eq('id', originalId)
+      .eq('template_key', templateKey)
+      .order('version', { ascending: false })
+      .limit(1)
       .single();
     
-    if (fetchError) throw fetchError;
-
-    // Create a new version
-    const newTemplate = {
-      ...original,
-      ...updatedContent,
-      parent_version: originalId,
-      version: original.version + 1
-    };
+    if (currentError) throw currentError;
     
-    // Remove id to create a new record
-    delete newTemplate.id;
-    
-    // Update original to be inactive
-    const { error: updateError } = await supabase
-      .from('prompt_templates')
-      .update({ is_active: false })
-      .eq('id', originalId);
-    
-    if (updateError) throw updateError;
-    
-    // Insert the new version
-    const { data: newVersion, error: insertError } = await supabase
-      .from('prompt_templates')
-      .insert(newTemplate)
-      .select()
-      .single();
-    
-    if (insertError) throw insertError;
-    
-    toast.success('New template version created successfully');
-    return newVersion as PromptTemplate;
-  } catch (error) {
-    console.error('Error creating versioned template:', error);
-    toast.error('Failed to create new template version');
-    throw error;
-  }
-}
-
-export async function fetchTemplateVersionHistory(templateKey: string) {
-  try {
+    // Then get all versions
     const { data, error } = await supabase
       .from('prompt_templates')
       .select('*')
@@ -149,48 +131,97 @@ export async function fetchTemplateVersionHistory(templateKey: string) {
       .order('version', { ascending: false });
     
     if (error) throw error;
+    
     return data as PromptTemplate[];
   } catch (error) {
-    console.error(`Error fetching template history for ${templateKey}:`, error);
+    console.error('Error fetching template history:', error);
     toast.error('Failed to load template history');
     return [];
   }
 }
 
-export async function activatePromptTemplateVersion(templateId: string) {
+export async function createVersionedPromptTemplate(originalId: string, updates: Partial<PromptTemplate>): Promise<PromptTemplate | null> {
   try {
-    // First, get the template to find its key
-    const { data: template, error: fetchError } = await supabase
+    // Get the original template
+    const { data: original, error: getError } = await supabase
       .from('prompt_templates')
-      .select('template_key')
-      .eq('id', templateId)
+      .select('*')
+      .eq('id', originalId)
       .single();
     
-    if (fetchError) throw fetchError;
+    if (getError) throw getError;
     
-    // Deactivate all versions of this template
-    const { error: deactivateError } = await supabase
+    const original_template = original as PromptTemplate;
+    const currentUser = await supabase.auth.getUser();
+    
+    // Create a new version
+    const { data, error } = await supabase
       .from('prompt_templates')
-      .update({ is_active: false })
-      .eq('template_key', template.template_key);
-    
-    if (deactivateError) throw deactivateError;
-    
-    // Activate the selected version
-    const { data, error: activateError } = await supabase
-      .from('prompt_templates')
-      .update({ is_active: true })
-      .eq('id', templateId)
+      .insert({
+        template_key: original_template.template_key,
+        content: updates.content || original_template.content,
+        description: updates.description || original_template.description,
+        category: updates.category || original_template.category,
+        content_type: updates.content_type || original_template.content_type,
+        is_active: true, // The new version is active
+        version: original_template.version + 1, // Increment version
+        parent_version: original_template.id, // Reference the parent
+        updated_by: currentUser.data.user?.id
+      })
       .select()
       .single();
     
-    if (activateError) throw activateError;
+    if (error) throw error;
     
-    toast.success('Template version activated successfully');
+    // Set the old version to inactive
+    await supabase
+      .from('prompt_templates')
+      .update({ is_active: false })
+      .eq('id', originalId);
+    
+    toast.success('New template version created');
+    return data as PromptTemplate;
+  } catch (error) {
+    console.error('Error creating versioned template:', error);
+    toast.error('Failed to create new template version');
+    return null;
+  }
+}
+
+export async function activatePromptTemplateVersion(versionId: string): Promise<PromptTemplate | null> {
+  try {
+    // Get the template to activate
+    const { data: toActivate, error: getError } = await supabase
+      .from('prompt_templates')
+      .select('*')
+      .eq('id', versionId)
+      .single();
+    
+    if (getError) throw getError;
+    
+    const templateToActivate = toActivate as PromptTemplate;
+    
+    // Mark all other versions of this template as inactive
+    await supabase
+      .from('prompt_templates')
+      .update({ is_active: false })
+      .eq('template_key', templateToActivate.template_key);
+    
+    // Activate the selected version
+    const { data, error } = await supabase
+      .from('prompt_templates')
+      .update({ is_active: true })
+      .eq('id', versionId)
+      .select()
+      .single();
+    
+    if (error) throw error;
+    
+    toast.success('Template version activated');
     return data as PromptTemplate;
   } catch (error) {
     console.error('Error activating template version:', error);
     toast.error('Failed to activate template version');
-    throw error;
+    return null;
   }
 }

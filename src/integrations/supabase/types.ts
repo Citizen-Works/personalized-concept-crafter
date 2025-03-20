@@ -9,6 +9,39 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      admin_activity_logs: {
+        Row: {
+          action: string
+          created_at: string
+          details: Json | null
+          entity_id: string | null
+          entity_type: string
+          id: string
+          ip_address: string | null
+          user_id: string
+        }
+        Insert: {
+          action: string
+          created_at?: string
+          details?: Json | null
+          entity_id?: string | null
+          entity_type: string
+          id?: string
+          ip_address?: string | null
+          user_id: string
+        }
+        Update: {
+          action?: string
+          created_at?: string
+          details?: Json | null
+          entity_id?: string | null
+          entity_type?: string
+          id?: string
+          ip_address?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       call_to_actions: {
         Row: {
           created_at: string
@@ -230,6 +263,42 @@ export type Database = {
         }
         Relationships: []
       }
+      landing_page_content: {
+        Row: {
+          content: string | null
+          created_at: string
+          id: string
+          image_url: string | null
+          order: number
+          section_key: string
+          title: string | null
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          content?: string | null
+          created_at?: string
+          id?: string
+          image_url?: string | null
+          order?: number
+          section_key: string
+          title?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          content?: string | null
+          created_at?: string
+          id?: string
+          image_url?: string | null
+          order?: number
+          section_key?: string
+          title?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
       linkedin_posts: {
         Row: {
           content: string
@@ -388,6 +457,59 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      prompt_templates: {
+        Row: {
+          category: string
+          content: string
+          content_type: string | null
+          created_at: string
+          description: string | null
+          id: string
+          is_active: boolean
+          parent_version: string | null
+          template_key: string
+          updated_at: string
+          updated_by: string | null
+          version: number
+        }
+        Insert: {
+          category: string
+          content: string
+          content_type?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          parent_version?: string | null
+          template_key: string
+          updated_at?: string
+          updated_by?: string | null
+          version?: number
+        }
+        Update: {
+          category?: string
+          content?: string
+          content_type?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          parent_version?: string | null
+          template_key?: string
+          updated_at?: string
+          updated_by?: string | null
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "prompt_templates_parent_version_fkey"
+            columns: ["parent_version"]
+            isOneToOne: false
+            referencedRelation: "prompt_templates"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       story_usage: {
         Row: {

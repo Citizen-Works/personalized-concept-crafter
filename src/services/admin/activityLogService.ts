@@ -17,15 +17,16 @@ export interface AdminActivityLog {
   };
 }
 
-export async function fetchAdminActivityLogs(limit = 50) {
+export async function fetchAdminActivityLogs(limit = 50): Promise<AdminActivityLog[]> {
   try {
+    // Use proper table name from the migration
     const { data, error } = await supabase
       .from('admin_activity_logs')
       .select(`
         *,
-        user:user_id (
-          email,
-          raw_user_meta_data->name
+        user:profiles!admin_activity_logs_user_id_fkey(
+          email:id,
+          name
         )
       `)
       .order('created_at', { ascending: false })
@@ -34,15 +35,13 @@ export async function fetchAdminActivityLogs(limit = 50) {
     if (error) throw error;
     
     // Format the user data
-    const formattedData = data.map(log => ({
+    return data.map(log => ({
       ...log,
       user: {
-        email: log.user?.email,
-        name: log.user?.raw_user_meta_data?.name || 'Unknown'
+        email: log.user?.email || 'Unknown',
+        name: log.user?.name || 'Unknown'
       }
-    }));
-    
-    return formattedData as AdminActivityLog[];
+    })) as AdminActivityLog[];
   } catch (error) {
     console.error('Error fetching admin activity logs:', error);
     toast.error('Failed to load activity logs');
@@ -50,15 +49,15 @@ export async function fetchAdminActivityLogs(limit = 50) {
   }
 }
 
-export async function fetchAdminActivityLogsByEntity(entityType: string, entityId: string) {
+export async function fetchAdminActivityLogsByEntity(entityType: string, entityId: string): Promise<AdminActivityLog[]> {
   try {
     const { data, error } = await supabase
       .from('admin_activity_logs')
       .select(`
         *,
-        user:user_id (
-          email,
-          raw_user_meta_data->name
+        user:profiles!admin_activity_logs_user_id_fkey(
+          email:id,
+          name
         )
       `)
       .eq('entity_type', entityType)
@@ -68,15 +67,13 @@ export async function fetchAdminActivityLogsByEntity(entityType: string, entityI
     if (error) throw error;
     
     // Format the user data
-    const formattedData = data.map(log => ({
+    return data.map(log => ({
       ...log,
       user: {
-        email: log.user?.email,
-        name: log.user?.raw_user_meta_data?.name || 'Unknown'
+        email: log.user?.email || 'Unknown',
+        name: log.user?.name || 'Unknown'
       }
-    }));
-    
-    return formattedData as AdminActivityLog[];
+    })) as AdminActivityLog[];
   } catch (error) {
     console.error('Error fetching entity activity logs:', error);
     toast.error('Failed to load activity logs');

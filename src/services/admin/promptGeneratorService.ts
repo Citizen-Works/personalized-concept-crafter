@@ -1,209 +1,163 @@
-
 import { supabase } from '@/integrations/supabase/client';
-import { PromptTemplate } from './promptTemplateService';
-import { PromptSection, PromptStructure } from '@/utils/promptBuilder/types';
+import { toast } from 'sonner';
 import { 
-  getBestPracticesSection,
-  buildContentIdeaSection,
-  buildLinkedinPostsSection,
-  buildCustomInstructionsSection,
-  buildTaskSection,
-  buildNewsletterExamplesSection,
-  buildMarketingExamplesSection,
-  buildBusinessContextDocsSection,
-  buildAvoidPatternsSection,
-  buildPersonalStoriesSection
+  buildBaseTemplate,
+  getContentTypeSpecificSections,
+  getBestPractices 
 } from '@/utils/promptBuilder';
+import { PromptTemplate } from './promptTemplateService';
 
-// This is a service that bridges the gap between code-based prompts and database-stored prompts
+// Templates are organized into major categories
+const TEMPLATE_CATEGORIES = {
+  BASE: 'base',
+  CONTENT_TYPE: 'content_type',
+  BEST_PRACTICES: 'best_practices'
+};
 
-// Function to extract template functions from the codebase
-export async function extractAndGenerateBaseTemplates() {
+// Check if prompt templates already exist in the database
+export async function checkPromptTemplatesExist(): Promise<boolean> {
   try {
-    // First check if we already have templates in the database
-    const { data: existingTemplates, error: checkError } = await supabase
+    const { count, error } = await supabase
       .from('prompt_templates')
-      .select('template_key')
-      .limit(1);
+      .select('*', { count: 'exact', head: true });
     
-    if (checkError) throw checkError;
+    if (error) throw error;
     
-    // Skip if we already have templates
-    if (existingTemplates && existingTemplates.length > 0) {
-      console.log('Templates already exist in the database. Skipping extraction.');
-      return;
-    }
-    
-    // Generate templates from the codebase
-    const templates = generateTemplatesFromCode();
-    
-    // Insert templates into the database
-    if (templates.length > 0) {
-      const { error: insertError } = await supabase
-        .from('prompt_templates')
-        .insert(templates);
-      
-      if (insertError) throw insertError;
-      console.log('Base templates successfully generated and stored.');
-    }
+    return (count || 0) > 0;
   } catch (error) {
-    console.error('Error extracting and generating templates:', error);
-    throw error;
+    console.error('Error checking for prompt templates:', error);
+    return false;
   }
 }
 
-// Function to generate templates from the codebase
-function generateTemplatesFromCode() {
-  const templates = [];
-  
-  // Extract best practices sections
-  const contentTypes = ['linkedin', 'newsletter', 'marketing'];
-  contentTypes.forEach(type => {
-    const section = getBestPracticesSection(type as any);
-    templates.push({
-      template_key: `best_practices_${type}`,
-      content: section.content,
-      description: `Best practices for ${type} content generation`,
-      category: 'best_practices',
-      content_type: type,
-      is_active: true
-    });
-  });
-  
-  // Content specific templates
-  templates.push({
-    template_key: 'linkedin_posts_section',
-    content: '# EXAMPLE LINKEDIN POSTS\n\nHere are some examples of my previous LinkedIn posts for reference:\n\n{posts}',
-    description: 'Template for LinkedIn posts examples',
-    category: 'examples',
-    content_type: 'linkedin',
-    is_active: true
-  });
-  
-  templates.push({
-    template_key: 'newsletter_examples_section',
-    content: '# NEWSLETTER EXAMPLES\n\nHere are examples of my newsletter style for reference:\n\n{examples}',
-    description: 'Template for newsletter examples',
-    category: 'examples',
-    content_type: 'newsletter',
-    is_active: true
-  });
-  
-  templates.push({
-    template_key: 'marketing_examples_section',
-    content: '# MARKETING MATERIAL EXAMPLES\n\nHere are examples of my marketing material style for reference:\n\n{examples}',
-    description: 'Template for marketing material examples',
-    category: 'examples',
-    content_type: 'marketing',
-    is_active: true
-  });
-  
-  templates.push({
-    template_key: 'business_context_section',
-    content: '# BUSINESS CONTEXT DOCUMENTS\n\nHere is additional business context to reference when creating content:\n\n{documents}',
-    description: 'Template for business context documents',
-    category: 'context',
-    content_type: null,
-    is_active: true
-  });
-  
-  templates.push({
-    template_key: 'patterns_to_avoid_section',
-    content: '# PATTERNS TO AVOID\n\nPlease avoid these patterns in your writing:\n\n{patterns}',
-    description: 'Template for patterns to avoid in writing',
-    category: 'style',
-    content_type: null,
-    is_active: true
-  });
-  
-  templates.push({
-    template_key: 'content_idea_section',
-    content: '# CONTENT IDEA DETAILS\n\nTitle: {title}\nDescription: {description}\nContent Type: {contentType}\n\nNotes: {notes}',
-    description: 'Template for content idea details',
-    category: 'idea',
-    content_type: null,
-    is_active: true
-  });
-  
-  templates.push({
-    template_key: 'personal_stories_section',
-    content: '# PERSONAL STORIES\n\nHere are personal stories that may be relevant to this content:\n\n{stories}',
-    description: 'Template for personal stories',
-    category: 'context',
-    content_type: null,
-    is_active: true
-  });
-  
-  // Task templates for different content types
-  contentTypes.forEach(type => {
-    let taskContent = '';
-    
-    if (type === 'linkedin') {
-      taskContent = '# TASK\n\nUsing my writing style, content pillars, target audience, and the content idea provided, please generate a complete LinkedIn post that matches my voice and focuses on the key message of the content idea.';
-    } else if (type === 'newsletter') {
-      taskContent = '# TASK\n\nUsing my writing style, content pillars, target audience, and the content idea provided, please generate a complete newsletter that matches my voice and focuses on the key message of the content idea.';
-    } else if (type === 'marketing') {
-      taskContent = '# TASK\n\nUsing my writing style, content pillars, target audience, and the content idea provided, please generate marketing content that matches my voice and focuses on the key message of the content idea.';
+// Generate base templates from code files and store in the database
+export async function extractAndGenerateBaseTemplates(): Promise<boolean> {
+  try {
+    // Check if templates already exist
+    const exists = await checkPromptTemplatesExist();
+    if (exists) {
+      console.log('Prompt templates already exist in the database');
+      return true;
     }
     
-    templates.push({
-      template_key: `task_${type}`,
-      content: taskContent,
-      description: `Task template for ${type} content generation`,
-      category: 'task',
-      content_type: type,
-      is_active: true
-    });
-  });
-  
-  return templates;
+    console.log('Extracting prompt templates from code...');
+    
+    const currentUser = await supabase.auth.getUser();
+    const userId = currentUser.data.user?.id;
+    
+    // Extract base templates
+    const baseTemplates = buildBaseTemplate();
+    const contentTypeTemplates = getContentTypeSpecificSections();
+    const bestPracticesTemplates = getBestPractices();
+    
+    // Prepare templates for database
+    const baseTemplateEntries = Object.entries(baseTemplates).map(([key, content]) => ({
+      template_key: `base_${key}`,
+      content: content,
+      description: `Base template for ${key} prompts`,
+      category: TEMPLATE_CATEGORIES.BASE,
+      content_type: null,
+      is_active: true,
+      updated_by: userId
+    }));
+    
+    // Content type specific templates
+    const contentTypeEntries = [];
+    for (const [contentType, sections] of Object.entries(contentTypeTemplates)) {
+      for (const [sectionKey, content] of Object.entries(sections)) {
+        contentTypeEntries.push({
+          template_key: `content_type_${contentType}_${sectionKey}`,
+          content: content,
+          description: `${contentType} specific section for ${sectionKey}`,
+          category: TEMPLATE_CATEGORIES.CONTENT_TYPE,
+          content_type: contentType,
+          is_active: true,
+          updated_by: userId
+        });
+      }
+    }
+    
+    // Best practices templates
+    const bestPracticesEntries = Object.entries(bestPracticesTemplates).map(([key, content]) => ({
+      template_key: `best_practices_${key}`,
+      content: content,
+      description: `Best practices for ${key}`,
+      category: TEMPLATE_CATEGORIES.BEST_PRACTICES,
+      content_type: null,
+      is_active: true,
+      updated_by: userId
+    }));
+    
+    // Combine all template entries
+    const allTemplates = [
+      ...baseTemplateEntries,
+      ...contentTypeEntries,
+      ...bestPracticesEntries
+    ];
+    
+    // Insert templates in batches to avoid hitting Supabase limits
+    const BATCH_SIZE = 50;
+    for (let i = 0; i < allTemplates.length; i += BATCH_SIZE) {
+      const batch = allTemplates.slice(i, i + BATCH_SIZE);
+      const { error } = await supabase
+        .from('prompt_templates')
+        .insert(batch);
+      
+      if (error) throw error;
+      
+      console.log(`Inserted batch ${i/BATCH_SIZE + 1} of ${Math.ceil(allTemplates.length/BATCH_SIZE)}`);
+    }
+    
+    console.log('Successfully extracted and stored prompt templates');
+    return true;
+  } catch (error) {
+    console.error('Error generating base templates:', error);
+    return false;
+  }
 }
 
-// Function to retrieve a template from the database or fall back to code
-export async function getPromptTemplate(templateKey: string, fallbackToCode = true) {
+// Get a specific prompt template from database, or fall back to code
+export async function getPromptTemplate(templateKey: string): Promise<string> {
   try {
-    // First try to get from database
+    // Try to get from database first
     const { data, error } = await supabase
       .from('prompt_templates')
       .select('*')
       .eq('template_key', templateKey)
       .eq('is_active', true)
-      .maybeSingle();
+      .single();
     
-    if (error) throw error;
-    
-    // If found in database, return the content
-    if (data) return data.content;
-    
-    // If not found and fallback is enabled, use code-based function
-    if (fallbackToCode) {
-      return getCodeBasedTemplate(templateKey);
+    // If found in database, return that
+    if (!error && data) {
+      return (data as PromptTemplate).content;
     }
     
-    return null;
+    // Otherwise fall back to code-based templates
+    // This would need custom logic based on the template key to extract from code
+    console.log(`Template ${templateKey} not found in database, falling back to code`);
+    
+    // Example fallback logic based on template key
+    if (templateKey.startsWith('base_')) {
+      const key = templateKey.replace('base_', '');
+      const templates = buildBaseTemplate();
+      return templates[key] || '';
+    } else if (templateKey.startsWith('best_practices_')) {
+      const key = templateKey.replace('best_practices_', '');
+      const templates = getBestPractices();
+      return templates[key] || '';
+    } else if (templateKey.startsWith('content_type_')) {
+      // Parse content_type_linkedin_intro -> [linkedin, intro]
+      const parts = templateKey.replace('content_type_', '').split('_');
+      const contentType = parts[0];
+      const sectionKey = parts.slice(1).join('_');
+      
+      const templates = getContentTypeSpecificSections();
+      return templates[contentType]?.[sectionKey] || '';
+    }
+    
+    return '';
   } catch (error) {
-    console.error(`Error getting prompt template ${templateKey}:`, error);
-    
-    // As a final fallback, try code-based
-    if (fallbackToCode) {
-      return getCodeBasedTemplate(templateKey);
-    }
-    
-    return null;
+    console.error(`Error fetching prompt template ${templateKey}:`, error);
+    return '';
   }
-}
-
-// Function to get a template from the codebase
-function getCodeBasedTemplate(templateKey: string) {
-  // This is a simplified version - in a real implementation, this would be more comprehensive
-  const contentTypeMatch = templateKey.match(/best_practices_(.+)/);
-  if (contentTypeMatch) {
-    const contentType = contentTypeMatch[1];
-    const section = getBestPracticesSection(contentType as any);
-    return section.content;
-  }
-  
-  // Additional template keys could be handled here
-  
-  return null;
 }
