@@ -1,3 +1,4 @@
+
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { 
@@ -9,6 +10,7 @@ import {
   buildWritingStyleSections
 } from '@/utils/promptBuilder';
 import { PromptTemplate } from './promptTemplateService';
+import { User, ContentPillar, TargetAudience, WritingStyleProfile } from '@/types';
 
 // Templates are organized into major categories
 const TEMPLATE_CATEGORIES = {
@@ -49,10 +51,52 @@ export async function extractAndGenerateBaseTemplates(): Promise<boolean> {
     const userId = currentUser.data.user?.id;
     
     // Create dummy data for testing functions
-    const dummyUser = { id: 'dummy', name: 'Dummy User', businessName: 'Dummy Business', businessDescription: 'A test business' };
-    const dummyPillars = [{ id: '1', name: 'Test Pillar', description: 'Test description' }];
-    const dummyAudiences = [{ id: '1', name: 'Test Audience', description: 'Test audience', painPoints: ['pain'], goals: ['goal'] }];
-    const dummyStyleProfile = { voiceAnalysis: 'Test voice', generalStyleGuide: 'Test style' };
+    const dummyUser: User = { 
+      id: 'dummy', 
+      name: 'Dummy User', 
+      businessName: 'Dummy Business', 
+      businessDescription: 'A test business',
+      email: 'dummy@example.com',
+      linkedinUrl: '',
+      jobTitle: 'Tester',
+      createdAt: new Date()
+    };
+    
+    const dummyPillars: ContentPillar[] = [{
+      id: '1', 
+      userId: 'dummy',
+      name: 'Test Pillar', 
+      description: 'Test description',
+      createdAt: new Date()
+    }];
+    
+    const dummyAudiences: TargetAudience[] = [{
+      id: '1', 
+      userId: 'dummy',
+      name: 'Test Audience', 
+      description: 'Test audience', 
+      painPoints: ['pain'], 
+      goals: ['goal'],
+      createdAt: new Date()
+    }];
+    
+    const dummyStyleProfile: WritingStyleProfile = {
+      id: 'dummy',
+      userId: 'dummy',
+      voiceAnalysis: 'Test voice',
+      generalStyleGuide: 'Test style',
+      exampleQuotes: [],
+      vocabularyPatterns: '',
+      avoidPatterns: '',
+      linkedinStyleGuide: '',
+      linkedinExamples: [],
+      newsletterStyleGuide: '',
+      newsletterExamples: [],
+      marketingStyleGuide: '',
+      marketingExamples: [],
+      createdAt: new Date(),
+      updatedAt: new Date()
+    };
     
     // Extract different parts of the prompt structure as templates
     // Base templates
