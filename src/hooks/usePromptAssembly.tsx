@@ -1,4 +1,3 @@
-
 import { useCallback } from 'react';
 import { ContentIdea, ContentType, LinkedinPost, Document } from '@/types';
 import { 
@@ -29,6 +28,8 @@ import {
   invalidateUserCache as invalidateCache 
 } from '@/utils/promptCache';
 import { WritingStyleProfile } from '@/types/writingStyle';
+import { usePersonalStories } from "@/hooks/usePersonalStories";
+import { addPersonalStoriesToPrompt } from "@/utils/promptBuilder";
 
 export const usePromptAssembly = () => {
   // Function to get a cached prompt or create a new one
@@ -175,6 +176,13 @@ export const usePromptAssembly = () => {
       finalPrompt += "Make sure this call to action is integrated naturally into the content and feels like a logical next step for the reader.\n";
     }
     
+    // Add relevant personal stories (if available)
+    const { stories } = usePersonalStories();
+    const relevantStories = selectRelevantStories(stories, idea, contentType);
+    if (relevantStories.length > 0) {
+      finalPrompt = addPersonalStoriesToPrompt(finalPrompt, relevantStories);
+    }
+    
     // Add content idea details (toward the end)
     finalPrompt = addContentIdeaToPrompt(finalPrompt, idea);
     
@@ -197,4 +205,64 @@ export const usePromptAssembly = () => {
     createFinalPrompt,
     invalidateUserCache: invalidateCache
   };
+};
+
+/**
+ * Selects relevant personal stories based on content idea and type
+ */
+const selectRelevantStories = (stories: PersonalStory[] | undefined, idea: ContentIdea, contentType: ContentType): PersonalStory[] => {
+  if (!stories || stories.length === 0) return [];
+  
+  // Filter out archived stories
+  const activeStories = stories.filter(story => !story.isArchived);
+  if (activeStories.length === 0) return [];
+  
+  // Start with all active stories
+  let candidates = [...activeStories];
+  
+  // Filter by content type relevance if specified in usage guidance
+  candidates = candidates.filter(story => {
+    // If usage guidance doesn't specify content types, keep the story
+    if (!story.usageGuidance) return true;
+    
+    // Check if usage guidance mentions this content type
+    const lowercaseGuidance = story.usageGuidance.toLowerCase();
+    return !((lowercaseGuidance.includes('only use for') || 
+              lowercaseGuidance.includes('only include in')) && 
+            !lowercaseGuidance.includes(contentType.toLowerCase()));
+  });
+  
+  // Score each story based on relevance factors
+  const scoredStories = candidates.map(story => {
+    let score = 0;
+    
+    // Content pillar match (highest priority)
+    if (idea.contentPillarId && story.contentPillarIds.includes(idea.contentPillarId)) {
+      score += 30;
+    }
+    
+    // Target audience match if available
+    if (idea.targetAudienceId && story.targetAudienceIds.includes(idea.targetAudienceId)) {
+      score += 20;
+    }
+    
+    // Inverse usage count (to favor less-used stories)
+    score += Math.max(10 - story.usageCount, 0);
+    
+    // Recency penalty (avoid using very recent stories)
+    if (story.lastUsedDate) {
+      const daysSinceLastUse = Math.floor((Date.now() - new Date(story.lastUsedDate).getTime()) / (1000 * 60 * 60 * 24));
+      if (daysSinceLastUse < 7) {
+        score -= (7 - daysSinceLastUse) * 2;
+      }
+    }
+    
+    return { story, score };
+  });
+  
+  // Sort by score (descending) and take top 2 stories
+  return scoredStories
+    .sort((a, b) => b.score - a.score)
+    .slice(0, 2)
+    .map(item => item.story);
 };

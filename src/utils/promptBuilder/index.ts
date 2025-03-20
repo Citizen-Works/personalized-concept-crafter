@@ -1,4 +1,3 @@
-
 import { ContentType, ContentIdea, WritingStyleProfile, User, ContentPillar, TargetAudience, LinkedinPost, Document } from '@/types';
 import { PromptSection, PromptStructure } from './types';
 import { buildBasePromptStructure } from './basePromptBuilder';
@@ -11,7 +10,8 @@ import {
   buildNewsletterExamplesSection,
   buildMarketingExamplesSection,
   buildBusinessContextDocsSection,
-  buildAvoidPatternsSection
+  buildAvoidPatternsSection,
+  buildPersonalStoriesSection
 } from './contentSpecificSections';
 
 /**
@@ -114,6 +114,14 @@ export function addCustomInstructionsToPrompt(prompt: string, customInstructions
 export function addTaskToPrompt(prompt: string, contentType: ContentType): string {
   const taskSection = buildTaskSection(contentType, prompt);
   return prompt + taskSection.title + '\n' + taskSection.content;
+}
+
+/**
+ * Adds personal stories to a prompt
+ */
+export function addPersonalStoriesToPrompt(prompt: string, stories: PersonalStory[]): string {
+  const storiesSection = buildPersonalStoriesSection(stories);
+  return prompt + storiesSection.title + '\n' + storiesSection.content;
 }
 
 // Re-export everything for backwards compatibility

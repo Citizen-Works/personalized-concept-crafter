@@ -1,4 +1,3 @@
-
 import { ContentIdea, ContentType, LinkedinPost, Document, WritingStyleProfile } from '@/types';
 import { PromptSection } from './types';
 
@@ -183,6 +182,40 @@ export function buildTaskSection(contentType: ContentType, promptText: string): 
   
   return {
     title: '# TASK',
+    content
+  };
+}
+
+/**
+ * Builds a personal stories section for the prompt if stories are available
+ */
+export function buildPersonalStoriesSection(stories: PersonalStory[] | null): PromptSection {
+  if (!stories || stories.length === 0) {
+    return {
+      title: "",
+      content: ""
+    };
+  }
+  
+  // Limit to 2 stories maximum to avoid diluting the prompt
+  const limitedStories = stories.slice(0, 2);
+  
+  const content = limitedStories.map(story => {
+    let storyContent = `# PERSONAL STORY: ${story.title}\n\n${story.content}\n\n`;
+    
+    if (story.lesson) {
+      storyContent += `LESSON: ${story.lesson}\n\n`;
+    }
+    
+    if (story.usageGuidance) {
+      storyContent += `HOW TO USE: ${story.usageGuidance}\n\n`;
+    }
+    
+    return storyContent;
+  }).join("\n");
+  
+  return {
+    title: "\n\n# PERSONAL STORIES\nHere are relevant personal stories that should be incorporated naturally into the content:\n\n",
     content
   };
 }

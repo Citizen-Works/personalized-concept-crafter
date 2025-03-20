@@ -1,4 +1,3 @@
-
 export interface User {
   id: string;
   email: string;
@@ -191,5 +190,29 @@ export interface PillarAudienceLink {
   audienceId: string;
   relationshipStrength: number;
   userId: string;
+  createdAt: Date;
+}
+
+export interface PersonalStory {
+  id: string;
+  title: string;
+  content: string;
+  tags: string[];
+  contentPillarIds: string[];
+  targetAudienceIds: string[];
+  lesson: string;
+  usageGuidance: string;
+  usageCount: number;
+  lastUsedDate: string | null;
+  isArchived: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface StoryUsage {
+  id: string;
+  storyId: string;
+  contentId: string;
+  usageDate: Date;
   createdAt: Date;
 }
