@@ -52,7 +52,7 @@ export const useTranscriptProcessing = (documents: Document[] = []) => {
     const storedProcessingDocs = localStorage.getItem('processingDocuments');
     if (storedProcessingDocs) {
       try {
-        const parsedDocs = new Set(JSON.parse(storedProcessingDocs));
+        const parsedDocs = new Set<string>(JSON.parse(storedProcessingDocs));
         if (parsedDocs.size > 0) {
           setState(prev => ({
             ...prev,
@@ -79,8 +79,8 @@ export const useTranscriptProcessing = (documents: Document[] = []) => {
     if (!documents || documents.length === 0) return;
     
     let shouldUpdate = false;
-    let updatedProcessingDocs = new Set(processingDocuments);
-    let updatedRetryAttempts = new Map(retryAttempts);
+    let updatedProcessingDocs = new Set<string>(processingDocuments);
+    let updatedRetryAttempts = new Map<string, number>(retryAttempts);
     
     // Check if any documents have processing_status changes
     documents.forEach(doc => {
@@ -152,7 +152,11 @@ export const useTranscriptProcessing = (documents: Document[] = []) => {
   const handleProcessTranscript = useCallback(async (id: string, isRetry = false) => {
     try {
       // Mark as processing in UI
-      updateProcessingDocuments(prev => new Set([...prev, id]));
+      updateProcessingDocuments(prev => {
+        const updated = new Set<string>([...prev]);
+        updated.add(id);
+        return updated;
+      });
       
       // Only show toast for initial processing, not retries
       if (!isRetry) {
@@ -185,9 +189,9 @@ export const useTranscriptProcessing = (documents: Document[] = []) => {
       
       // Remove from processing list
       updateProcessingDocuments(prev => {
-        const next = new Set([...prev]);
-        next.delete(id);
-        return next;
+        const updated = new Set<string>([...prev]);
+        updated.delete(id);
+        return updated;
       });
     } finally {
       if (!isRetry) {
