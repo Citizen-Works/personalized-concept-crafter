@@ -1,5 +1,6 @@
+
 import { useCallback } from 'react';
-import { ContentIdea, ContentType, LinkedinPost, Document } from '@/types';
+import { ContentIdea, ContentType, LinkedinPost, Document, PersonalStory } from '@/types';
 import { 
   fetchUserProfile, 
   fetchContentPillars, 
@@ -20,7 +21,8 @@ import {
   addNewsletterExamplesToPrompt,
   addMarketingExamplesToPrompt,
   addBusinessContextDocsToPrompt,
-  addPatternsToAvoidToPrompt
+  addPatternsToAvoidToPrompt,
+  addPersonalStoriesToPrompt
 } from '@/utils/promptBuilder';
 import { 
   getCachedPrompt, 
@@ -29,7 +31,6 @@ import {
 } from '@/utils/promptCache';
 import { WritingStyleProfile } from '@/types/writingStyle';
 import { usePersonalStories } from "@/hooks/usePersonalStories";
-import { addPersonalStoriesToPrompt } from "@/utils/promptBuilder";
 
 export const usePromptAssembly = () => {
   // Function to get a cached prompt or create a new one
@@ -236,14 +237,23 @@ const selectRelevantStories = (stories: PersonalStory[] | undefined, idea: Conte
   const scoredStories = candidates.map(story => {
     let score = 0;
     
-    // Content pillar match (highest priority)
-    if (idea.contentPillarId && story.contentPillarIds.includes(idea.contentPillarId)) {
-      score += 30;
+    // Content pillar match - check if any of the story's content pillars match the content pillars associated with the idea
+    // ContentIdea doesn't have a direct contentPillarId field, so we need to be flexible here
+    if (story.contentPillarIds.length > 0 && idea.contentPillarIds) {
+      // Check for any overlap between the arrays
+      const hasMatch = story.contentPillarIds.some(id => idea.contentPillarIds?.includes(id));
+      if (hasMatch) {
+        score += 30;
+      }
     }
     
-    // Target audience match if available
-    if (idea.targetAudienceId && story.targetAudienceIds.includes(idea.targetAudienceId)) {
-      score += 20;
+    // Target audience match if available - similar flexibility needed
+    if (story.targetAudienceIds.length > 0 && idea.targetAudienceIds) {
+      // Check for any overlap between the arrays
+      const hasMatch = story.targetAudienceIds.some(id => idea.targetAudienceIds?.includes(id));
+      if (hasMatch) {
+        score += 20;
+      }
     }
     
     // Inverse usage count (to favor less-used stories)

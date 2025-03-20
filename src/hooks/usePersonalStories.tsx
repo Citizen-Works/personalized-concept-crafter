@@ -209,10 +209,12 @@ export function usePersonalStories() {
       if (usageError) throw usageError;
       
       // Then update the story's usage count and last used date
+      // Fix: Don't try to assign the PostgrestFilterBuilder to a number
+      await supabase.rpc("increment", { row_id: storyId });
+      
       const { data, error: storyError } = await supabase
         .from("personal_stories")
         .update({
-          usage_count: supabase.rpc("increment", { row_id: storyId }),
           last_used_date: new Date().toISOString(),
           updated_at: new Date().toISOString()
         })

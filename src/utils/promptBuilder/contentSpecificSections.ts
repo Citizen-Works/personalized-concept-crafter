@@ -1,4 +1,5 @@
-import { ContentIdea, ContentType, LinkedinPost, Document, WritingStyleProfile } from '@/types';
+
+import { ContentIdea, ContentType, LinkedinPost, Document, WritingStyleProfile, PersonalStory } from '@/types';
 import { PromptSection } from './types';
 
 /**

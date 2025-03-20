@@ -122,6 +122,8 @@ export interface ContentIdea {
   status: ContentStatus;
   contentType: ContentType | null;
   createdAt: Date;
+  contentPillarIds?: string[];  // Optional array of content pillar IDs
+  targetAudienceIds?: string[]; // Optional array of target audience IDs
 }
 
 export interface ContentDraft {
