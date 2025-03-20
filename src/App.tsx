@@ -59,14 +59,29 @@ function App() {
             <ThemeProvider defaultTheme="system" storageKey="ui-theme">
               <Toaster position="top-right" richColors />
               <Routes>
+                {/* Public route that doesn't redirect */}
                 <Route path="/" element={<WaitlistPage />} />
                 <Route path="/waitlist" element={<WaitlistPage />} />
                 
-                <Route path="/register" element={<ProtectedRoute><RegisterPage /></ProtectedRoute>} />
-                <Route path="/login" element={<ProtectedRoute><LoginPage /></ProtectedRoute>} />
-                <Route path="/onboarding" element={<ProtectedRoute><OnboardingPage /></ProtectedRoute>} />
+                {/* Auth routes - redirect to dashboard if logged in */}
+                <Route element={<ProtectedRoute requireAuth={false} />}>
+                  <Route path="/register" element={<RegisterPage />} />
+                  <Route path="/login" element={<LoginPage />} />
+                </Route>
                 
-                <Route element={<ProtectedRoute><MainLayout /></ProtectedRoute>}>
+                {/* Protected onboarding route */}
+                <Route path="/onboarding" element={
+                  <ProtectedRoute redirectPath="/login">
+                    <OnboardingPage />
+                  </ProtectedRoute>
+                } />
+                
+                {/* Protected app routes with main layout */}
+                <Route element={
+                  <ProtectedRoute redirectPath="/login">
+                    <MainLayout />
+                  </ProtectedRoute>
+                }>
                   <Route path="/dashboard" element={<Dashboard />} />
                   
                   <Route path="/pipeline" element={<ContentPipelinePage />} />

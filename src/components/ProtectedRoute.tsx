@@ -7,11 +7,13 @@ import { Loading } from '@/components/ui/loading';
 interface ProtectedRouteProps {
   children?: React.ReactNode;
   requireAuth?: boolean;
+  redirectPath?: string;
 }
 
 export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ 
   children,
-  requireAuth = true
+  requireAuth = true,
+  redirectPath = "/login"
 }) => {
   const { user, loading } = useAuth();
   
@@ -28,9 +30,9 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     return children ? <>{children}</> : <Outlet />;
   }
   
-  // For protected routes, redirect to waitlist if not authenticated
+  // For protected routes, redirect to login if not authenticated
   if (!user) {
-    return <Navigate to="/waitlist" replace />;
+    return <Navigate to={redirectPath} replace />;
   }
   
   return children ? <>{children}</> : <Outlet />;
