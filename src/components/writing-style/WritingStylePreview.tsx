@@ -43,4 +43,3 @@ export const WritingStylePreview: React.FC<WritingStylePreviewProps> = ({ writin
     </Card>
   );
 };
-

@@ -105,42 +105,35 @@ const WritingStylePage = () => {
     }
   };
 
-  // Create a complete WritingStyleProfile object with both camelCase and snake_case properties
-  const getCompleteProfile = (): WritingStyleProfile => {
+  // Create a preview object that includes all required properties for WritingStylePreview
+  const getPreviewProfile = (): WritingStyleProfile => {
     return {
-      id: profile?.id || '',
-      userId: user?.id || '',
+      // Use the type's required properties
       user_id: user?.id || '',
-      
-      // Both camelCase and snake_case versions
-      voiceAnalysis: formState.voiceAnalysis || '',
       voice_analysis: formState.voiceAnalysis || '',
-      
-      generalStyleGuide: formState.generalStyleGuide || '',
       general_style_guide: formState.generalStyleGuide || '',
-      
-      linkedinStyleGuide: formState.linkedinStyleGuide || '',
       linkedin_style_guide: formState.linkedinStyleGuide || '',
-      
-      newsletterStyleGuide: formState.newsletterStyleGuide || '',
       newsletter_style_guide: formState.newsletterStyleGuide || '',
-      
-      marketingStyleGuide: formState.marketingStyleGuide || '',
       marketing_style_guide: formState.marketingStyleGuide || '',
-      
-      vocabularyPatterns: formState.vocabularyPatterns || '',
       vocabulary_patterns: formState.vocabularyPatterns || '',
-      
-      avoidPatterns: formState.avoidPatterns || '',
       avoid_patterns: formState.avoidPatterns || '',
       
-      // Empty arrays for examples
+      // Include the camelCase aliases
+      userId: user?.id || '',
+      voiceAnalysis: formState.voiceAnalysis || '',
+      generalStyleGuide: formState.generalStyleGuide || '',
+      linkedinStyleGuide: formState.linkedinStyleGuide || '',
+      newsletterStyleGuide: formState.newsletterStyleGuide || '',
+      marketingStyleGuide: formState.marketingStyleGuide || '',
+      vocabularyPatterns: formState.vocabularyPatterns || '',
+      avoidPatterns: formState.avoidPatterns || '',
+      
+      // Optional properties with empty defaults
+      id: profile?.id || '',
       exampleQuotes: [],
       linkedinExamples: [],
       newsletterExamples: [],
       marketingExamples: [],
-      
-      // Set default dates
       createdAt: profile?.createdAt || new Date(),
       updatedAt: profile?.updatedAt || new Date()
     };
@@ -238,7 +231,7 @@ const WritingStylePage = () => {
           </TabsContent>
           
           <TabsContent value="preview">
-            <WritingStylePreview writingStyle={getCompleteProfile()} />
+            <WritingStylePreview writingStyle={getPreviewProfile()} />
           </TabsContent>
         </Tabs>
       </div>
@@ -254,4 +247,3 @@ const WritingStylePage = () => {
 };
 
 export default WritingStylePage;
-
