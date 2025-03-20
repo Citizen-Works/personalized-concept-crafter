@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useRef } from 'react';
 import HeroSection from '@/components/waitlist/HeroSection';
 import PainPointsSection from '@/components/waitlist/PainPointsSection';
 import SolutionSection from '@/components/waitlist/SolutionSection';
@@ -14,6 +14,20 @@ import { AlertCircle } from 'lucide-react';
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
 const WaitlistPage = () => {
+  // Create refs for each section that needs scrolling to
+  const painPointsRef = useRef<HTMLDivElement>(null);
+  const solutionRef = useRef<HTMLDivElement>(null);
+  
+  // Scroll to section function
+  const scrollToSection = (ref: React.RefObject<HTMLDivElement>) => {
+    if (ref.current) {
+      ref.current.scrollIntoView({ 
+        behavior: 'smooth',
+        block: 'start'
+      });
+    }
+  };
+
   return (
     <>
       <Helmet>
@@ -47,8 +61,8 @@ const WaitlistPage = () => {
           </Alert>
         </div>
         
-        <HeroSection />
-        <PainPointsSection />
+        <HeroSection scrollToSection={scrollToSection} painPointsRef={painPointsRef} />
+        <PainPointsSection scrollToSection={scrollToSection} solutionRef={solutionRef} />
         <SolutionSection />
         <BenefitsList />
         <ScreenshotsCarousel />
