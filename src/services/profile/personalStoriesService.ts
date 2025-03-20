@@ -28,11 +28,11 @@ export const fetchPersonalStories = async (userId: string): Promise<PersonalStor
     content: item.content,
     isArchived: item.is_archived || false,
     usageCount: item.usage_count || 0,
-    lastUsedDate: item.last_used_date ? new Date(item.last_used_date) : null,
+    lastUsedDate: item.last_used_date || null, // Return as string or null, not as Date
     contentPillarIds: item.content_pillar_ids || [],
     targetAudienceIds: item.target_audience_ids || [],
     tags: item.tags || [],
-    lesson: item.lesson || "",  // Added the missing 'lesson' property
+    lesson: item.lesson || "",
     usageGuidance: item.usage_guidance || "",
     createdAt: new Date(item.created_at),
     updatedAt: new Date(item.updated_at),
