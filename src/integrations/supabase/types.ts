@@ -251,6 +251,57 @@ export type Database = {
         }
         Relationships: []
       }
+      personal_stories: {
+        Row: {
+          content: string
+          content_pillar_ids: string[] | null
+          created_at: string
+          id: string
+          is_archived: boolean | null
+          last_used_date: string | null
+          lesson: string | null
+          tags: string[] | null
+          target_audience_ids: string[] | null
+          title: string
+          updated_at: string
+          usage_count: number | null
+          usage_guidance: string | null
+          user_id: string
+        }
+        Insert: {
+          content: string
+          content_pillar_ids?: string[] | null
+          created_at?: string
+          id?: string
+          is_archived?: boolean | null
+          last_used_date?: string | null
+          lesson?: string | null
+          tags?: string[] | null
+          target_audience_ids?: string[] | null
+          title: string
+          updated_at?: string
+          usage_count?: number | null
+          usage_guidance?: string | null
+          user_id: string
+        }
+        Update: {
+          content?: string
+          content_pillar_ids?: string[] | null
+          created_at?: string
+          id?: string
+          is_archived?: boolean | null
+          last_used_date?: string | null
+          lesson?: string | null
+          tags?: string[] | null
+          target_audience_ids?: string[] | null
+          title?: string
+          updated_at?: string
+          usage_count?: number | null
+          usage_guidance?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       pillar_audience_links: {
         Row: {
           audience_id: string | null
@@ -325,6 +376,41 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      story_usage: {
+        Row: {
+          content_id: string
+          created_at: string
+          id: string
+          story_id: string
+          usage_date: string
+          user_id: string
+        }
+        Insert: {
+          content_id: string
+          created_at?: string
+          id?: string
+          story_id: string
+          usage_date?: string
+          user_id: string
+        }
+        Update: {
+          content_id?: string
+          created_at?: string
+          id?: string
+          story_id?: string
+          usage_date?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "story_usage_story_id_fkey"
+            columns: ["story_id"]
+            isOneToOne: false
+            referencedRelation: "personal_stories"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       target_audiences: {
         Row: {
@@ -517,7 +603,12 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      increment: {
+        Args: {
+          row_id: string
+        }
+        Returns: number
+      }
     }
     Enums: {
       [_ in never]: never

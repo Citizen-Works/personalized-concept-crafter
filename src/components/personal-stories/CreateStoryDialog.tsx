@@ -27,7 +27,7 @@ import { StoryTagInput } from "./StoryTagInput";
 interface CreateStoryDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onSave: (story: Omit<PersonalStory, "id" | "createdAt" | "usageCount" | "lastUsedDate" | "isArchived">) => Promise<void>;
+  onSave: (story: Omit<PersonalStory, "id" | "createdAt" | "updatedAt" | "usageCount" | "lastUsedDate" | "isArchived">) => Promise<void>;
 }
 
 export const CreateStoryDialog: React.FC<CreateStoryDialogProps> = ({

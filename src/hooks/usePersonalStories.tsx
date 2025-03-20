@@ -1,5 +1,5 @@
 
-import { useCallback, useState } from "react";
+import { useCallback, useState, useMemo } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -180,7 +180,7 @@ export function usePersonalStories() {
   });
   
   // Extract all unique tags used across all stories
-  const tags = React.useMemo(() => {
+  const tags = useMemo(() => {
     if (!stories) return [];
     
     const tagSet = new Set<string>();
@@ -236,35 +236,35 @@ export function usePersonalStories() {
   // Helper methods that expose the mutations
   const createStory = useCallback(
     async (storyData: Omit<PersonalStory, "id" | "createdAt" | "updatedAt" | "usageCount" | "lastUsedDate" | "isArchived">) => {
-      return createMutation.mutateAsync(storyData);
+      await createMutation.mutateAsync(storyData);
     },
     [createMutation]
   );
   
   const updateStory = useCallback(
     async (storyData: PersonalStory) => {
-      return updateMutation.mutateAsync(storyData);
+      await updateMutation.mutateAsync(storyData);
     },
     [updateMutation]
   );
   
   const archiveStory = useCallback(
     async (storyId: string) => {
-      return archiveMutation.mutateAsync(storyId);
+      await archiveMutation.mutateAsync(storyId);
     },
     [archiveMutation]
   );
   
   const restoreStory = useCallback(
     async (storyId: string) => {
-      return restoreMutation.mutateAsync(storyId);
+      await restoreMutation.mutateAsync(storyId);
     },
     [restoreMutation]
   );
   
   const trackStoryUsage = useCallback(
     async (storyId: string, contentId: string) => {
-      return trackUsageMutation.mutateAsync({ storyId, contentId });
+      await trackUsageMutation.mutateAsync({ storyId, contentId });
     },
     [trackUsageMutation]
   );

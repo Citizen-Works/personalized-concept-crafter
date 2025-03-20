@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -26,6 +25,7 @@ import { CreateStoryDialog } from "@/components/personal-stories/CreateStoryDial
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
+import { PersonalStory } from "@/types";
 
 const PersonalStoriesPage = () => {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
@@ -44,16 +44,13 @@ const PersonalStoriesPage = () => {
     restoreStory 
   } = usePersonalStories();
 
-  // Filter and sort stories based on current filters
   const filteredStories = React.useMemo(() => {
     if (!stories) return [];
 
-    // First apply tab filter (all or archived)
     let filtered = activeTab === "all" 
       ? stories.filter(story => !story.isArchived)
       : stories.filter(story => story.isArchived);
     
-    // Then filter by search query if present
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
       filtered = filtered.filter(story => 
@@ -62,14 +59,12 @@ const PersonalStoriesPage = () => {
       );
     }
     
-    // Then filter by selected tag if any
     if (selectedTag) {
       filtered = filtered.filter(story => 
         story.tags.includes(selectedTag)
       );
     }
     
-    // Finally sort the filtered list
     return [...filtered].sort((a, b) => {
       switch (sortBy) {
         case "newest":
@@ -83,7 +78,6 @@ const PersonalStoriesPage = () => {
         case "least-used":
           return a.usageCount - b.usageCount;
         case "recently-used":
-          // Handle the case where lastUsedDate might be null
           if (!a.lastUsedDate) return 1;
           if (!b.lastUsedDate) return -1;
           return new Date(b.lastUsedDate).getTime() - new Date(a.lastUsedDate).getTime();
@@ -93,7 +87,6 @@ const PersonalStoriesPage = () => {
     });
   }, [stories, searchQuery, selectedTag, sortBy, activeTab]);
 
-  // Get most used tags for filters
   const topTags = React.useMemo(() => {
     const tagCounts = tags.reduce((acc, tag) => {
       acc[tag] = (acc[tag] || 0) + 1;
@@ -102,7 +95,7 @@ const PersonalStoriesPage = () => {
     
     return Object.entries(tagCounts)
       .sort((a, b) => b[1] - a[1])
-      .slice(0, 10) // Get top 10 tags
+      .slice(0, 10)
       .map(([tag]) => tag);
   }, [tags]);
 

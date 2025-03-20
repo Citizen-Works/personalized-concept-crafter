@@ -1,4 +1,4 @@
-import { ContentType, ContentIdea, WritingStyleProfile, User, ContentPillar, TargetAudience, LinkedinPost, Document } from '@/types';
+import { ContentType, ContentIdea, WritingStyleProfile, User, ContentPillar, TargetAudience, LinkedinPost, Document, PersonalStory } from '@/types';
 import { PromptSection, PromptStructure } from './types';
 import { buildBasePromptStructure } from './basePromptBuilder';
 import { getBestPracticesSection } from './contentBestPractices';
