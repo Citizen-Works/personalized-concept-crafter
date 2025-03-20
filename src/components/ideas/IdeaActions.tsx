@@ -1,9 +1,8 @@
-
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Pencil, Trash } from 'lucide-react';
-import { ContentStatus } from '@/types';
+import { ContentStatus } from '@/types/content';
 
 interface IdeaActionsProps {
   id: string;

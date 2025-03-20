@@ -1,5 +1,4 @@
-
-import { ContentStatus, ContentType, ContentSource } from '@/types';
+import { ContentStatus, ContentType, ContentSource } from '@/types/content';
 
 export const getStatusBadgeClasses = (status: ContentStatus): string => {
   switch (status) {
@@ -44,7 +43,6 @@ export const getSourceBadgeClasses = (source: ContentSource | null): string => {
   }
 };
 
-// Functions to generate the full badge props object
 export const getStatusBadgeProps = (status: ContentStatus) => {
   return {
     variant: 'outline' as const,

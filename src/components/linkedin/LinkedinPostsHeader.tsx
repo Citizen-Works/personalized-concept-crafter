@@ -1,9 +1,8 @@
-
 import React from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import AddLinkedinPostDialog from './AddLinkedinPostDialog';
 import { UseMutateFunction } from '@tanstack/react-query';
-import { LinkedinPost } from '@/types';
+import { LinkedinPost } from '@/types/content';
 
 interface LinkedinPostsHeaderProps {
   tagFilter: string | null;

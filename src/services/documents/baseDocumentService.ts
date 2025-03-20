@@ -1,6 +1,6 @@
 
 import { supabase } from "@/integrations/supabase/client";
-import { Document, DocumentFilterOptions } from "@/types";
+import { Document, DocumentFilterOptions } from "@/types/documents";
 import { toast } from "sonner";
 import { decryptContent } from "@/utils/encryptionUtils";
 

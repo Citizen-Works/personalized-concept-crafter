@@ -2,6 +2,7 @@
 /**
  * Types for transcript processing functionality
  */
+import { ContentType } from '@/types/content';
 
 export interface ContentIdea {
   topic: string;

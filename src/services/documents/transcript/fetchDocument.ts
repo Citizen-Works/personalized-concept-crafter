@@ -1,6 +1,6 @@
 
 import { supabase } from "@/integrations/supabase/client";
-import { Document, DocumentType, DocumentPurpose, DocumentStatus, DocumentContentType } from "@/types";
+import { Document, DocumentType, DocumentPurpose, DocumentStatus, DocumentContentType } from "@/types/documents";
 import { decryptContent } from "@/utils/encryptionUtils";
 
 /**
