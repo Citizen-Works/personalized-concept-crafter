@@ -31,6 +31,8 @@ export function useTargetAudiences() {
       painPoints: audience.pain_points || [],
       goals: audience.goals || [],
       createdAt: new Date(audience.created_at),
+      isArchived: audience.is_archived || false,
+      usageCount: audience.usage_count || 0,
     }));
   };
 
@@ -59,6 +61,27 @@ export function useTargetAudiences() {
     },
   });
 
+  const updateTargetAudience = useMutation({
+    mutationFn: async (params: { id: string; [key: string]: any }) => {
+      const { id, ...updates } = params;
+      
+      const { error } = await supabase
+        .from("target_audiences")
+        .update(updates)
+        .eq("id", id);
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["targetAudiences"] });
+      toast.success("Target audience updated successfully!");
+    },
+    onError: (error) => {
+      console.error("Error updating target audience:", error);
+      toast.error("Failed to update target audience");
+    },
+  });
+
   return {
     targetAudiences: targetAudiencesQuery.data || [],
     isLoading: targetAudiencesQuery.isLoading,
@@ -66,5 +89,6 @@ export function useTargetAudiences() {
     error: targetAudiencesQuery.error,
     refetch: targetAudiencesQuery.refetch,
     deleteTargetAudience,
+    updateTargetAudience,
   };
 }

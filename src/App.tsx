@@ -1,3 +1,4 @@
+
 import React from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { ThemeProvider } from "@/components/theme-provider";
@@ -37,6 +38,8 @@ import GenerateDraftPage from "@/pages/GenerateDraftPage";
 import PersonalStoriesPage from "@/pages/PersonalStoriesPage";
 import CallToActionsPage from "@/pages/CallToActionsPage";
 import ContentPipelinePage from "@/pages/ContentPipelinePage";
+import StrategyOverviewPage from "@/pages/StrategyOverviewPage";
+import PillarAudienceLinkPage from "@/pages/PillarAudienceLinkPage";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -85,10 +88,19 @@ function App() {
                   <Route path="/documents" element={<DocumentsPage />} />
                   <Route path="/personal-stories" element={<PersonalStoriesPage />} />
                   
-                  <Route path="/content-pillars" element={<ContentPillarsPage />} />
-                  <Route path="/target-audiences" element={<TargetAudiencesPage />} />
-                  <Route path="/writing-style" element={<WritingStylePage />} />
-                  <Route path="/call-to-actions" element={<CallToActionsPage />} />
+                  {/* Strategy Section Routes */}
+                  <Route path="/strategy" element={<StrategyOverviewPage />} />
+                  <Route path="/strategy/content-pillars" element={<ContentPillarsPage />} />
+                  <Route path="/strategy/target-audiences" element={<TargetAudiencesPage />} />
+                  <Route path="/strategy/call-to-actions" element={<CallToActionsPage />} />
+                  <Route path="/strategy/writing-style" element={<WritingStylePage />} />
+                  <Route path="/strategy/audience-mapping" element={<PillarAudienceLinkPage />} />
+                  
+                  {/* Legacy Routes - to be redirected */}
+                  <Route path="/content-pillars" element={<Navigate to="/strategy/content-pillars" replace />} />
+                  <Route path="/target-audiences" element={<Navigate to="/strategy/target-audiences" replace />} />
+                  <Route path="/writing-style" element={<Navigate to="/strategy/writing-style" replace />} />
+                  <Route path="/call-to-actions" element={<Navigate to="/strategy/call-to-actions" replace />} />
                   
                   <Route path="/marketing-examples" element={<MarketingExamplesPage />} />
                   <Route path="/newsletter-examples" element={<NewsletterExamplesPage />} />

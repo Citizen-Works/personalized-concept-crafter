@@ -16,6 +16,9 @@ export interface ContentPillar {
   name: string;
   description: string;
   createdAt: Date;
+  displayOrder?: number;
+  isArchived?: boolean;
+  usageCount?: number;
 }
 
 export interface TargetAudience {
@@ -26,6 +29,8 @@ export interface TargetAudience {
   painPoints: string[];
   goals: string[];
   createdAt: Date;
+  isArchived?: boolean;
+  usageCount?: number;
 }
 
 export interface LinkedinPost {
@@ -163,4 +168,28 @@ export interface MarketingExample {
 export interface ExampleInput {
   title: string;
   content: string;
+}
+
+// Call to Action types
+export interface CallToAction {
+  id: string;
+  userId: string;
+  text: string;
+  description: string | null;
+  type: string;
+  url: string | null;
+  usageCount: number;
+  isArchived: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+// Strategy types
+export interface PillarAudienceLink {
+  id: string;
+  pillarId: string;
+  audienceId: string;
+  relationshipStrength: number;
+  userId: string;
+  createdAt: Date;
 }

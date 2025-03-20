@@ -16,6 +16,7 @@ export function useContentPillars() {
       .from("content_pillars")
       .select("*")
       .eq("user_id", user.id)
+      .order("display_order", { ascending: true })
       .order("created_at", { ascending: false });
 
     if (error) {
@@ -29,6 +30,9 @@ export function useContentPillars() {
       name: pillar.name,
       description: pillar.description || "",
       createdAt: new Date(pillar.created_at),
+      displayOrder: pillar.display_order || 0,
+      isArchived: pillar.is_archived || false,
+      usageCount: pillar.usage_count || 0,
     }));
   };
 
@@ -57,6 +61,51 @@ export function useContentPillars() {
     },
   });
 
+  const updateContentPillar = useMutation({
+    mutationFn: async (params: { id: string; [key: string]: any }) => {
+      const { id, ...updates } = params;
+      
+      const { error } = await supabase
+        .from("content_pillars")
+        .update(updates)
+        .eq("id", id);
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["contentPillars"] });
+      toast.success("Content pillar updated successfully!");
+    },
+    onError: (error) => {
+      console.error("Error updating content pillar:", error);
+      toast.error("Failed to update content pillar");
+    },
+  });
+
+  const updatePillarOrder = useMutation({
+    mutationFn: async (pillarOrders: { id: string; displayOrder: number }[]) => {
+      // Create a batch of updates to send to Supabase
+      const updates = pillarOrders.map(({ id, displayOrder }) => ({
+        id,
+        display_order: displayOrder,
+      }));
+      
+      const { error } = await supabase
+        .from("content_pillars")
+        .upsert(updates);
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["contentPillars"] });
+      toast.success("Pillar order updated successfully!");
+    },
+    onError: (error) => {
+      console.error("Error updating pillar order:", error);
+      toast.error("Failed to update pillar order");
+    },
+  });
+
   return {
     contentPillars: contentPillarsQuery.data || [],
     isLoading: contentPillarsQuery.isLoading,
@@ -64,5 +113,7 @@ export function useContentPillars() {
     error: contentPillarsQuery.error,
     refetch: contentPillarsQuery.refetch,
     deleteContentPillar,
+    updateContentPillar,
+    updatePillarOrder,
   };
 }

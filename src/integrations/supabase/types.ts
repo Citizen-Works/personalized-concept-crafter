@@ -9,6 +9,45 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      call_to_actions: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          is_archived: boolean | null
+          text: string
+          type: string
+          updated_at: string
+          url: string | null
+          usage_count: number | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_archived?: boolean | null
+          text: string
+          type: string
+          updated_at?: string
+          url?: string | null
+          usage_count?: number | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_archived?: boolean | null
+          text?: string
+          type?: string
+          updated_at?: string
+          url?: string | null
+          usage_count?: number | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       content_drafts: {
         Row: {
           content: string
@@ -108,25 +147,34 @@ export type Database = {
         Row: {
           created_at: string
           description: string | null
+          display_order: number | null
           id: string
+          is_archived: boolean | null
           name: string
           updated_at: string
+          usage_count: number | null
           user_id: string
         }
         Insert: {
           created_at?: string
           description?: string | null
+          display_order?: number | null
           id?: string
+          is_archived?: boolean | null
           name: string
           updated_at?: string
+          usage_count?: number | null
           user_id: string
         }
         Update: {
           created_at?: string
           description?: string | null
+          display_order?: number | null
           id?: string
+          is_archived?: boolean | null
           name?: string
           updated_at?: string
+          usage_count?: number | null
           user_id?: string
         }
         Relationships: []
@@ -203,6 +251,48 @@ export type Database = {
         }
         Relationships: []
       }
+      pillar_audience_links: {
+        Row: {
+          audience_id: string | null
+          created_at: string
+          id: string
+          pillar_id: string | null
+          relationship_strength: number | null
+          user_id: string
+        }
+        Insert: {
+          audience_id?: string | null
+          created_at?: string
+          id?: string
+          pillar_id?: string | null
+          relationship_strength?: number | null
+          user_id: string
+        }
+        Update: {
+          audience_id?: string | null
+          created_at?: string
+          id?: string
+          pillar_id?: string | null
+          relationship_strength?: number | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pillar_audience_links_audience_id_fkey"
+            columns: ["audience_id"]
+            isOneToOne: false
+            referencedRelation: "target_audiences"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pillar_audience_links_pillar_id_fkey"
+            columns: ["pillar_id"]
+            isOneToOne: false
+            referencedRelation: "content_pillars"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           business_description: string | null
@@ -242,9 +332,11 @@ export type Database = {
           description: string | null
           goals: string[] | null
           id: string
+          is_archived: boolean | null
           name: string
           pain_points: string[] | null
           updated_at: string
+          usage_count: number | null
           user_id: string
         }
         Insert: {
@@ -252,9 +344,11 @@ export type Database = {
           description?: string | null
           goals?: string[] | null
           id?: string
+          is_archived?: boolean | null
           name: string
           pain_points?: string[] | null
           updated_at?: string
+          usage_count?: number | null
           user_id: string
         }
         Update: {
@@ -262,9 +356,11 @@ export type Database = {
           description?: string | null
           goals?: string[] | null
           id?: string
+          is_archived?: boolean | null
           name?: string
           pain_points?: string[] | null
           updated_at?: string
+          usage_count?: number | null
           user_id?: string
         }
         Relationships: []

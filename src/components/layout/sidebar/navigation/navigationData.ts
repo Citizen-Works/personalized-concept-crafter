@@ -1,3 +1,4 @@
+
 import {
   Gauge,
   Settings,
@@ -16,6 +17,10 @@ import {
   Lightbulb,
   Check,
   GitMerge,
+  Compass,
+  Users,
+  FilePenLine,
+  MessageSquareShare,
 } from "lucide-react";
 import { NavItem } from "./types";
 
@@ -58,6 +63,38 @@ export const getNavigationItems = (): NavItem[] => [
     ],
   },
   {
+    title: "Strategy",
+    href: "/strategy",
+    icon: Compass,
+    subItems: [
+      {
+        title: "Overview",
+        href: "/strategy",
+        icon: Compass,
+      },
+      {
+        title: "Content Pillars",
+        href: "/strategy/content-pillars",
+        icon: Target,
+      },
+      {
+        title: "Target Audiences",
+        href: "/strategy/target-audiences",
+        icon: Users,
+      },
+      {
+        title: "Call To Actions",
+        href: "/strategy/call-to-actions",
+        icon: MessageSquareShare,
+      },
+      {
+        title: "Writing Style",
+        href: "/strategy/writing-style",
+        icon: FilePenLine,
+      },
+    ],
+  },
+  {
     title: "Ideas",
     href: "/ideas",
     icon: Lightbulb,
@@ -86,26 +123,6 @@ export const getNavigationItems = (): NavItem[] => [
     title: "Personal Stories",
     href: "/personal-stories",
     icon: BookMarked,
-  },
-  {
-    title: "Content Pillars",
-    href: "/content-pillars",
-    icon: Target,
-  },
-  {
-    title: "Target Audiences",
-    href: "/target-audiences",
-    icon: Target,
-  },
-  {
-    title: "Writing Style",
-    href: "/writing-style",
-    icon: PenTool,
-  },
-  {
-    title: "Call To Actions",
-    href: "/call-to-actions",
-    icon: ThumbsUp,
   },
   {
     title: "Marketing Examples",
