@@ -23,7 +23,8 @@ export const fetchDocument = async (userId: string, documentId: string): Promise
 
   // Handle decryption if the document is encrypted
   let content = data.content || "";
-  const isEncrypted = data.is_encrypted === true;
+  // Check if is_encrypted exists on the data object before accessing it
+  const isEncrypted = 'is_encrypted' in data ? data.is_encrypted === true : false;
   
   if (isEncrypted) {
     try {
