@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { 
@@ -25,8 +24,8 @@ import WebhookTester from '@/components/admin/WebhookTester';
 import { Separator } from '@/components/ui/separator';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 
-// This is a placeholder for future implementation
 const NotImplementedSection: React.FC<{ title: string }> = ({ title }) => {
   return (
     <div className="p-8 text-center">
@@ -40,7 +39,6 @@ const NotImplementedSection: React.FC<{ title: string }> = ({ title }) => {
   );
 };
 
-// Quick access cards for the dashboard
 const QuickAccessCard: React.FC<{
   title: string;
   description: string;
@@ -74,7 +72,6 @@ const AdminPage: React.FC = () => {
   const { isAdmin } = useAuth();
   const [activeTab, setActiveTab] = useState('dashboard');
 
-  // This will be used in a real implementation to manage which section is expanded
   const quickAccessItems = [
     {
       title: "Landing Page Content",
