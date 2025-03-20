@@ -1,3 +1,4 @@
+
 import React from 'react';
 import TranscriptList from '@/components/transcripts/TranscriptList';
 import TranscriptActions from '@/components/transcripts/TranscriptActions';
@@ -33,7 +34,8 @@ const TranscriptsPage = () => {
     handleUploadDocument,
     handleAddText,
     handleAddRecording,
-    handleExportTranscripts
+    handleExportTranscripts,
+    cancelProcessing
   } = useTranscripts();
 
   const hasTranscripts = documents && documents.length > 0;
@@ -57,6 +59,7 @@ const TranscriptsPage = () => {
         isDocumentProcessing={isDocumentProcessing}
         onView={handleViewTranscript}
         onProcess={handleProcessTranscript}
+        onCancelProcessing={cancelProcessing}
       />
 
       <TranscriptViewDialog 

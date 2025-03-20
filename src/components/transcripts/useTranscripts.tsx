@@ -21,7 +21,8 @@ export const useTranscripts = () => {
     processingDocuments,
     ideas,
     handleProcessTranscript,
-    isDocumentProcessing
+    isDocumentProcessing,
+    cancelProcessing
   } = useTranscriptProcessing(documents);
 
   const {
@@ -97,6 +98,7 @@ export const useTranscripts = () => {
     handleUploadDocument,
     handleAddText,
     handleAddRecording,
-    handleExportTranscripts
+    handleExportTranscripts,
+    cancelProcessing
   };
 };

@@ -4,6 +4,8 @@ import { Document } from '@/types';
 import { toast } from 'sonner';
 import { useProcessingStorage } from './useProcessingStorage';
 
+const MAX_PROCESSING_TIME = 5 * 60 * 1000; // 5 minutes maximum processing time
+
 /**
  * Hook for managing document processing state and actions
  */
@@ -14,12 +16,75 @@ export const useDocumentProcessing = (
   const [isProcessing, setIsProcessing] = useState(false);
   const [ideas, setIdeas] = useState<any>(null);
   const { processingDocuments, updateProcessingDocuments } = useProcessingStorage();
+  const [processingTimeouts, setProcessingTimeouts] = useState<Record<string, number>>({});
   
   // Check if a document is currently being processed
   const isDocumentProcessing = useCallback((id: string) => {
     const doc = documents.find(d => d.id === id);
     return processingDocuments.has(id) || (doc && doc.processing_status === 'processing');
   }, [processingDocuments, documents]);
+  
+  // Clear timeout for a specific document
+  const clearDocumentTimeout = useCallback((docId: string) => {
+    if (processingTimeouts[docId]) {
+      window.clearTimeout(processingTimeouts[docId]);
+      setProcessingTimeouts(prev => {
+        const updated = { ...prev };
+        delete updated[docId];
+        return updated;
+      });
+    }
+  }, [processingTimeouts]);
+  
+  // Setup timeout monitoring for processing documents
+  useEffect(() => {
+    // Setup timeouts for documents that don't have them yet
+    processingDocuments.forEach(docId => {
+      if (!processingTimeouts[docId]) {
+        const timeoutId = window.setTimeout(() => {
+          // If still processing after timeout, auto-cancel
+          if (processingDocuments.has(docId)) {
+            toast.error("Processing timed out", {
+              description: "The document processing took too long and was canceled"
+            });
+            
+            updateProcessingDocuments(prev => {
+              const updated = new Set<string>([...prev]);
+              updated.delete(docId);
+              return updated;
+            });
+          }
+          
+          // Clear this timeout from state
+          setProcessingTimeouts(prev => {
+            const updated = { ...prev };
+            delete updated[docId];
+            return updated;
+          });
+        }, MAX_PROCESSING_TIME);
+        
+        // Store the timeout ID
+        setProcessingTimeouts(prev => ({
+          ...prev,
+          [docId]: timeoutId
+        }));
+      }
+    });
+    
+    // Cleanup timeouts for documents no longer processing
+    Object.keys(processingTimeouts).forEach(docId => {
+      if (!processingDocuments.has(docId)) {
+        clearDocumentTimeout(docId);
+      }
+    });
+    
+    // Cleanup on unmount
+    return () => {
+      Object.values(processingTimeouts).forEach(timeoutId => {
+        window.clearTimeout(timeoutId);
+      });
+    };
+  }, [processingDocuments, processingTimeouts, clearDocumentTimeout, updateProcessingDocuments]);
   
   // Handle processing a transcript
   const handleProcessTranscript = useCallback(async (id: string, isRetry = false): Promise<void> => {
@@ -69,6 +134,23 @@ export const useDocumentProcessing = (
     }
   }, [processTranscript, updateProcessingDocuments]);
   
+  // Cancel processing for a specific document
+  const cancelProcessing = useCallback((docId: string) => {
+    if (processingDocuments.has(docId)) {
+      clearDocumentTimeout(docId);
+      
+      updateProcessingDocuments(prev => {
+        const updated = new Set<string>([...prev]);
+        updated.delete(docId);
+        return updated;
+      });
+      
+      toast.info("Processing canceled", {
+        description: "Document processing has been canceled"
+      });
+    }
+  }, [processingDocuments, clearDocumentTimeout, updateProcessingDocuments]);
+  
   return {
     isProcessing,
     ideas,
@@ -76,6 +158,7 @@ export const useDocumentProcessing = (
     handleProcessTranscript,
     isDocumentProcessing,
     setIdeas,
-    updateProcessingDocuments
+    updateProcessingDocuments,
+    cancelProcessing
   };
 };

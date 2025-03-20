@@ -2,7 +2,7 @@
 import React from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { FileText, Calendar, AlignLeft, BrainCircuit, PlusCircle, Upload, Mic, Loader2 } from "lucide-react";
+import { FileText, Calendar, AlignLeft, BrainCircuit, PlusCircle, Upload, Mic, Loader2, XCircle } from "lucide-react";
 import { format } from "date-fns";
 import { Document } from "@/types";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -17,6 +17,7 @@ interface TranscriptListProps {
   isDocumentProcessing?: (id: string) => boolean;
   onView: (content: string) => void;
   onProcess: (id: string) => void;
+  onCancelProcessing?: (id: string) => void;
 }
 
 const TranscriptList: React.FC<TranscriptListProps> = ({
@@ -28,6 +29,7 @@ const TranscriptList: React.FC<TranscriptListProps> = ({
   isDocumentProcessing = (id) => processingDocuments.has(id),
   onView,
   onProcess,
+  onCancelProcessing
 }) => {
   if (isLoading) {
     return (
@@ -85,24 +87,35 @@ const TranscriptList: React.FC<TranscriptListProps> = ({
                 <AlignLeft className="h-4 w-4 mr-1" />
                 View
               </Button>
-              <Button 
-                variant="default" 
-                size="sm"
-                onClick={() => onProcess(doc.id)}
-                disabled={isCurrentlyProcessing || (isProcessing && selectedTranscript === doc.id)}
-              >
-                {isCurrentlyProcessing ? (
-                  <>
-                    <Loader2 className="h-4 w-4 mr-1 animate-spin" />
-                    Processing...
-                  </>
-                ) : (
-                  <>
-                    <BrainCircuit className="h-4 w-4 mr-1" />
-                    {doc.has_ideas ? "View Ideas" : "Extract Ideas"}
-                  </>
-                )}
-              </Button>
+              {isCurrentlyProcessing && onCancelProcessing ? (
+                <Button 
+                  variant="destructive" 
+                  size="sm"
+                  onClick={() => onCancelProcessing(doc.id)}
+                >
+                  <XCircle className="h-4 w-4 mr-1" />
+                  Cancel
+                </Button>
+              ) : (
+                <Button 
+                  variant="default" 
+                  size="sm"
+                  onClick={() => onProcess(doc.id)}
+                  disabled={isCurrentlyProcessing || (isProcessing && selectedTranscript === doc.id)}
+                >
+                  {isCurrentlyProcessing ? (
+                    <>
+                      <Loader2 className="h-4 w-4 mr-1 animate-spin" />
+                      Processing...
+                    </>
+                  ) : (
+                    <>
+                      <BrainCircuit className="h-4 w-4 mr-1" />
+                      {doc.has_ideas ? "View Ideas" : "Extract Ideas"}
+                    </>
+                  )}
+                </Button>
+              )}
             </CardFooter>
           </Card>
         );

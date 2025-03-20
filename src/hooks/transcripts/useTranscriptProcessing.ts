@@ -29,7 +29,8 @@ export const useTranscriptProcessing = (documents: Document[] = []) => {
     processingDocuments,
     handleProcessTranscript,
     isDocumentProcessing,
-    updateProcessingDocuments
+    updateProcessingDocuments,
+    cancelProcessing
   } = useDocumentProcessing(documents, processTranscript);
   
   // Use the status monitor to track document status changes
@@ -46,13 +47,15 @@ export const useTranscriptProcessing = (documents: Document[] = []) => {
     ideas,
     handleProcessTranscript,
     isDocumentProcessing,
-    retryCount: (id: string) => getRetryCount(id)
+    retryCount: (id: string) => getRetryCount(id),
+    cancelProcessing
   }), [
     isProcessing,
     processingDocuments,
     ideas,
     handleProcessTranscript,
     isDocumentProcessing,
-    getRetryCount
+    getRetryCount,
+    cancelProcessing
   ]);
 };

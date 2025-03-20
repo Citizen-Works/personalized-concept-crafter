@@ -1,7 +1,8 @@
 
 import React from 'react';
 import { Button } from "@/components/ui/button";
-import { Upload, PlusCircle, FileText, Download, Mic } from "lucide-react";
+import { PlusCircle, Upload, FileText, Download, Mic } from "lucide-react";
+import AdminLink from './AdminLink';
 
 interface TranscriptActionsProps {
   onOpenUpload: () => void;
@@ -11,57 +12,40 @@ interface TranscriptActionsProps {
   hasTranscripts: boolean;
 }
 
-const TranscriptActions: React.FC<TranscriptActionsProps> = ({ 
-  onOpenUpload, 
+const TranscriptActions: React.FC<TranscriptActionsProps> = ({
+  onOpenUpload,
   onOpenAddText,
   onOpenRecording,
   onExport,
   hasTranscripts
 }) => {
   return (
-    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
-      <div className="flex items-center gap-2">
-        <FileText className="h-6 w-6 text-primary" />
-        <h1 className="text-2xl sm:text-3xl font-bold">Meeting Transcripts</h1>
+    <div className="flex flex-col md:flex-row items-center mb-8 gap-4">
+      <div className="flex items-center gap-2 flex-1">
+        <FileText className="h-7 w-7" />
+        <h1 className="text-2xl font-bold">Meeting Transcripts</h1>
       </div>
-      <div className="flex flex-wrap gap-2 w-full sm:w-auto">
-        <Button 
-          onClick={onOpenAddText} 
-          variant="outline" 
-          className="flex-1 sm:flex-initial"
-          aria-label="Add text content"
-        >
+      
+      <div className="flex flex-wrap gap-2 w-full md:w-auto justify-center md:justify-end">
+        <Button variant="outline" onClick={onOpenAddText}>
           <PlusCircle className="h-4 w-4 mr-2" />
           Add Text
         </Button>
-        <Button 
-          onClick={onOpenRecording}
-          variant="outline"
-          className="flex-1 sm:flex-initial"
-          aria-label="Record voice"
-        >
+        <Button variant="outline" onClick={onOpenRecording}>
           <Mic className="h-4 w-4 mr-2" />
           Record Voice
         </Button>
-        <Button 
-          onClick={onOpenUpload} 
-          className="flex-1 sm:flex-initial"
-          aria-label="Upload transcript document"
-        >
+        <Button onClick={onOpenUpload}>
           <Upload className="h-4 w-4 mr-2" />
           Upload
         </Button>
         {hasTranscripts && (
-          <Button
-            onClick={onExport}
-            variant="secondary"
-            className="flex-1 sm:flex-initial"
-            aria-label="Export transcripts"
-          >
+          <Button variant="outline" onClick={onExport}>
             <Download className="h-4 w-4 mr-2" />
             Export
           </Button>
         )}
+        <AdminLink />
       </div>
     </div>
   );
