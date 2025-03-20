@@ -1,5 +1,5 @@
 
-type WebhookService = "otter" | "fathom" | "read" | "fireflies" | "zapier";
+type WebhookService = "otter" | "fathom" | "read" | "fireflies" | "zapier" | "make";
 
 // Process transcript data based on service type
 export function processTranscriptData(serviceName: WebhookService, requestData: any, userId: string): any {
@@ -135,6 +135,49 @@ export function processTranscriptData(serviceName: WebhookService, requestData: 
         ...baseTranscript,
         title: zapierTitle,
         content: zapierTranscript
+      };
+    
+    case 'make':
+      // Handle data coming from Make.com (Integromat)
+      console.log("Processing Make.com payload with keys:", Object.keys(requestData));
+      
+      let makeTranscript = "";
+      let makeTitle = "Make.com Integration";
+      
+      // Try to extract the transcript content based on common field patterns
+      if (requestData.transcript || requestData.content || requestData.text || requestData.meeting_transcript) {
+        makeTranscript = requestData.transcript || requestData.content || requestData.text || requestData.meeting_transcript;
+      } 
+      // Make.com often nests data under a "body" or "data" key
+      else if (requestData.body) {
+        const body = typeof requestData.body === 'string' ? JSON.parse(requestData.body) : requestData.body;
+        makeTranscript = body.transcript || body.content || body.text || JSON.stringify(body);
+      }
+      else if (requestData.data && typeof requestData.data === 'object') {
+        const data = requestData.data;
+        makeTranscript = data.transcript || data.content || data.text || JSON.stringify(data);
+      }
+      // If nothing extractable, use entire payload as string
+      else {
+        makeTranscript = JSON.stringify(requestData);
+      }
+      
+      // Extract title if available
+      makeTitle = 
+        requestData.title || 
+        requestData.meeting_title || 
+        requestData.meeting_name ||
+        (requestData.data?.title) ||
+        (requestData.data?.meeting_title) ||
+        (requestData.data?.meeting_name) ||
+        `Meeting Transcript from Make.com (${new Date().toLocaleString()})`;
+        
+      console.log(`Extracted Make.com title: "${makeTitle}", transcript length: ${makeTranscript.length} characters`);
+      
+      return {
+        ...baseTranscript,
+        title: makeTitle,
+        content: makeTranscript
       };
       
     default:

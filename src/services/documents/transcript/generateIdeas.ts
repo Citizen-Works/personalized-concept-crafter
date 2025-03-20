@@ -3,6 +3,51 @@ import { supabase } from "@/integrations/supabase/client";
 import { ContentIdea } from "./types";
 
 /**
+ * Splits a long transcript into smaller chunks that won't exceed token limits
+ * @param text - The transcript text to chunk
+ * @param maxChunkLength - Maximum characters per chunk (default 6000)
+ * @returns Array of text chunks
+ */
+function chunkTranscript(text: string, maxChunkLength: number = 6000): string[] {
+  // If text is already small enough, return as single chunk
+  if (text.length <= maxChunkLength) {
+    return [text];
+  }
+
+  const chunks: string[] = [];
+  let startIndex = 0;
+
+  while (startIndex < text.length) {
+    // Calculate end index for this chunk
+    let endIndex = startIndex + maxChunkLength;
+    
+    // Try to end at a sentence or paragraph boundary if possible
+    if (endIndex < text.length) {
+      // Look for paragraph break
+      const paragraphBreak = text.lastIndexOf('\n\n', endIndex);
+      if (paragraphBreak > startIndex + maxChunkLength * 0.7) {
+        endIndex = paragraphBreak + 2; // Include the newlines
+      } else {
+        // Look for sentence break (period followed by space)
+        const sentenceBreak = text.lastIndexOf('. ', endIndex);
+        if (sentenceBreak > startIndex + maxChunkLength * 0.7) {
+          endIndex = sentenceBreak + 2; // Include the period and space
+        }
+      }
+    } else {
+      endIndex = text.length;
+    }
+
+    // Extract chunk and add to array
+    chunks.push(text.substring(startIndex, endIndex));
+    startIndex = endIndex;
+  }
+
+  console.log(`Split transcript into ${chunks.length} chunks for processing`);
+  return chunks;
+}
+
+/**
  * Calls the Claude AI service to generate content ideas from transcript text
  */
 export const generateIdeas = async (
@@ -10,74 +55,105 @@ export const generateIdeas = async (
   businessContext: string,
   documentTitle: string
 ): Promise<ContentIdea[]> => {
-  console.log("Calling Claude function via Supabase invocation");
+  console.log(`Processing transcript with length: ${sanitizedContent.length} characters`);
 
-  // Use supabase.functions.invoke to call the edge function
-  const { data, error } = await supabase.functions.invoke("generate-with-claude", {
-    body: {
-      prompt: `You are an elite content strategist who transforms meeting insights into standout content.
+  // Split long transcripts into manageable chunks
+  const chunks = chunkTranscript(sanitizedContent);
+  console.log(`Processing transcript in ${chunks.length} chunks`);
 
-      YOUR OBJECTIVE: Analyze the provided meeting transcript and extract the MOST VALUABLE content ideas. Format your response as a JSON array of content ideas.
-      
-      ${businessContext}
-      
-      OUTPUT INSTRUCTIONS:
-      Generate 3 EXCEPTIONAL content ideas from the transcript, formatted as JSON objects with these detailed keys:
-      
-      [
-        {
-          "topic": "Compelling headline that captures the essence of the idea",
-          "topicDetails": {
-            "targetIcp": "Primary audience for this content (Operations, Marketing, Sales Leaders, etc)",
-            "contentPillar": "Which content category this fits into (Strategic Automation, Employee Empowerment, Case Studies, etc)",
-            "coreInsight": "The valuable perspective that addresses a specific pain point",
-            "businessImpact": "The measurable outcomes this content addresses (time/cost/efficiency)",
-            "employeeImpact": "How this affects team members and their work experience",
-            "strategicImpact": "Longer-term competitive or operational advantages",
-            "keyPoints": ["3-5 substantive points with actual value (including specific metrics)"],
-            "specificExamples": "Real-world scenarios that demonstrate implementation",
-            "uniqueAngle": "What makes this perspective different from standard advice",
-            "practicalTakeaway": "The immediate, actionable step readers can implement",
-            "ctaSuggestion": "A natural next step aligned with the target audience's goals"
-          },
-          "transcriptExcerpt": "Brief excerpt from the transcript that inspired this idea"
+  let allIdeas: ContentIdea[] = [];
+
+  // Process each chunk separately
+  for (let i = 0; i < chunks.length; i++) {
+    console.log(`Processing chunk ${i+1} of ${chunks.length}, length: ${chunks[i].length} characters`);
+    
+    try {
+      // Create a modified prompt that includes chunk context if using multiple chunks
+      const chunkContext = chunks.length > 1 
+        ? `NOTE: This is part ${i+1} of ${chunks.length} from the full transcript.` 
+        : '';
+
+      // Call Claude function via Supabase invocation
+      const { data, error } = await supabase.functions.invoke("generate-with-claude", {
+        body: {
+          prompt: `You are an elite content strategist who transforms meeting insights into standout content.
+
+          YOUR OBJECTIVE: Analyze the provided meeting transcript and extract the MOST VALUABLE content ideas. Format your response as a JSON array of content ideas.
+          
+          ${businessContext}
+          
+          ${chunkContext}
+          
+          OUTPUT INSTRUCTIONS:
+          Generate ${chunks.length > 1 ? '1-2' : '3'} EXCEPTIONAL content ideas from the transcript, formatted as JSON objects with these detailed keys:
+          
+          [
+            {
+              "topic": "Compelling headline that captures the essence of the idea",
+              "topicDetails": {
+                "targetIcp": "Primary audience for this content (Operations, Marketing, Sales Leaders, etc)",
+                "contentPillar": "Which content category this fits into (Strategic Automation, Employee Empowerment, Case Studies, etc)",
+                "coreInsight": "The valuable perspective that addresses a specific pain point",
+                "businessImpact": "The measurable outcomes this content addresses (time/cost/efficiency)",
+                "employeeImpact": "How this affects team members and their work experience",
+                "strategicImpact": "Longer-term competitive or operational advantages",
+                "keyPoints": ["3-5 substantive points with actual value (including specific metrics)"],
+                "specificExamples": "Real-world scenarios that demonstrate implementation",
+                "uniqueAngle": "What makes this perspective different from standard advice",
+                "practicalTakeaway": "The immediate, actionable step readers can implement",
+                "ctaSuggestion": "A natural next step aligned with the target audience's goals"
+              },
+              "transcriptExcerpt": "Brief excerpt from the transcript that inspired this idea"
+            }
+          ]
+          
+          If the transcript doesn't contain any valuable content ideas, respond with an empty array: []
+          
+          VERY IMPORTANT: Your response MUST be valid JSON that can be parsed directly. DO NOT include any text before or after the JSON array.
+          
+          Meeting Transcript:
+          ${chunks[i]}`,
+          contentType: "structured_content_ideas",
+          idea: { title: documentTitle },
+          task: "transcript_analysis"
         }
-      ]
-      
-      If the transcript doesn't contain any valuable content ideas, respond with an empty array: []
-      
-      VERY IMPORTANT: Your response MUST be valid JSON that can be parsed directly. DO NOT include any text before or after the JSON array.
-      
-      Meeting Transcript:
-      ${sanitizedContent}`,
-      contentType: "structured_content_ideas",
-      idea: { title: documentTitle },
-      task: "transcript_analysis"
+      });
+
+      if (error) {
+        console.error(`Error from Claude function for chunk ${i+1}:`, error);
+        continue; // Skip to next chunk on error but don't fail completely
+      }
+
+      if (!data || !data.content) {
+        console.error(`Invalid response structure for chunk ${i+1}:`, data);
+        continue;
+      }
+
+      // Parse the ideas from the JSON response
+      let chunkIdeas: ContentIdea[];
+      try {
+        chunkIdeas = JSON.parse(data.content);
+        if (!Array.isArray(chunkIdeas)) {
+          throw new Error("Response is not a valid array");
+        }
+        console.log(`Extracted ${chunkIdeas.length} ideas from chunk ${i+1}`);
+        allIdeas = [...allIdeas, ...chunkIdeas];
+      } catch (parseError) {
+        console.error(`Failed to parse content ideas from chunk ${i+1}:`, parseError);
+        console.error("Raw content:", data.content);
+      }
+    } catch (chunkError) {
+      console.error(`Error processing chunk ${i+1}:`, chunkError);
+      // Continue with other chunks even if one fails
     }
-  });
-
-  if (error) {
-    console.error("Error from Claude function:", error);
-    throw new Error(`Failed to process transcript: ${error.message}`);
   }
 
-  if (!data || !data.content) {
-    console.error("Invalid response structure:", data);
-    throw new Error("Invalid response from AI service");
+  // Ensure we don't return too many ideas (limit to the 5 most valuable)
+  if (allIdeas.length > 5) {
+    console.log(`Found ${allIdeas.length} ideas total, filtering to top 5`);
+    allIdeas = allIdeas.slice(0, 5);
   }
 
-  // Parse the ideas from the JSON response
-  let contentIdeas: ContentIdea[];
-  try {
-    contentIdeas = JSON.parse(data.content);
-    if (!Array.isArray(contentIdeas)) {
-      throw new Error("Response is not a valid array");
-    }
-  } catch (parseError) {
-    console.error("Failed to parse content ideas:", parseError);
-    console.error("Raw content:", data.content);
-    return [];
-  }
-
-  return contentIdeas;
+  console.log(`Returning ${allIdeas.length} ideas from full transcript analysis`);
+  return allIdeas;
 };
