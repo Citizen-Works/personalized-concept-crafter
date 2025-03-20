@@ -107,14 +107,22 @@ serve(async (req) => {
   
   try {
     const url = new URL(req.url);
+    console.log("Webhook request received at path:", url.pathname);
+    
+    // Extract the token from the URL path
+    // The format expected is /api/webhook/{token} or /{token}
     const pathParts = url.pathname.split('/');
     const serviceToken = pathParts[pathParts.length - 1];
+    
+    console.log("Extracted token:", serviceToken);
     
     // Enhanced security: Validate token and check rate limiting
     let config;
     try {
       config = await validateWebhookToken(supabaseAdmin, serviceToken);
+      console.log("Token validated successfully for service:", config.service_name);
     } catch (error) {
+      console.error("Token validation failed:", error.message);
       return new Response(
         JSON.stringify({ error: error.message }),
         { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
@@ -122,7 +130,18 @@ serve(async (req) => {
     }
     
     // Parse incoming data
-    const requestData = await req.json();
+    let requestData;
+    try {
+      requestData = await req.json();
+      console.log("Request data parsed successfully");
+    } catch (error) {
+      console.error("Failed to parse request data:", error);
+      return new Response(
+        JSON.stringify({ error: "Invalid request data" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+    
     const userId = config.user_id;
     const serviceName = config.service_name as WebhookService;
     
@@ -140,6 +159,8 @@ serve(async (req) => {
         }
       }
     });
+    
+    console.log(`Processing webhook from ${serviceName} for user ${userId}`);
     
     // Extract transcript data based on service
     let processedTranscript: any = {
@@ -162,8 +183,9 @@ serve(async (req) => {
         processedTranscript.content = requestData.transcript_text || "";
         break;
       case 'read':
-        processedTranscript.title = requestData.meeting_title || "Read.AI Transcript";
-        processedTranscript.content = requestData.content || "";
+        console.log("Processing Read.AI webhook data:", JSON.stringify(requestData).substring(0, 200) + "...");
+        processedTranscript.title = requestData.meeting_title || requestData.title || "Read.AI Transcript";
+        processedTranscript.content = requestData.content || requestData.transcript || "";
         break;
       case 'fireflies':
         processedTranscript.title = requestData.title || "Fireflies.ai Transcript";
@@ -173,6 +195,8 @@ serve(async (req) => {
         processedTranscript.title = "Meeting Transcript";
         processedTranscript.content = JSON.stringify(requestData);
     }
+    
+    console.log(`Extracted transcript with title: ${processedTranscript.title}, content length: ${processedTranscript.content.length} characters`);
     
     // Enhanced security: Encrypt transcript content
     processedTranscript.content = await encryptContent(processedTranscript.content, userId);
@@ -195,6 +219,8 @@ serve(async (req) => {
       );
     }
     
+    console.log("Transcript stored successfully with ID:", document.id);
+    
     // Update the log to mark as processed
     await supabaseAdmin
       .from('webhook_logs')
@@ -215,7 +241,7 @@ serve(async (req) => {
     console.error("Webhook processing error:", error);
     
     return new Response(
-      JSON.stringify({ error: "Internal server error" }),
+      JSON.stringify({ error: "Internal server error", details: error.message }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }
