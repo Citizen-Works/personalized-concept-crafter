@@ -62,7 +62,7 @@ export type Database = {
           meeting_transcript_excerpt: string | null
           notes: string | null
           published_at: string | null
-          source: string
+          source: string | null
           source_url: string | null
           status: string
           status_changed_at: string | null
@@ -78,7 +78,7 @@ export type Database = {
           meeting_transcript_excerpt?: string | null
           notes?: string | null
           published_at?: string | null
-          source?: string
+          source?: string | null
           source_url?: string | null
           status?: string
           status_changed_at?: string | null
@@ -94,7 +94,7 @@ export type Database = {
           meeting_transcript_excerpt?: string | null
           notes?: string | null
           published_at?: string | null
-          source?: string
+          source?: string | null
           source_url?: string | null
           status?: string
           status_changed_at?: string | null

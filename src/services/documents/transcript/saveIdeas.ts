@@ -29,10 +29,10 @@ export const saveIdeas = async (
           practicalTakeaway: idea.topicDetails.practicalTakeaway,
           ctaSuggestion: idea.topicDetails.ctaSuggestion,
         }),
-        source: "transcript" as ContentSource,
+        source: "transcript" as ContentSource | null,
         meetingTranscriptExcerpt: idea.transcriptExcerpt || "",
         sourceUrl: "",
-        status: "idea" as ContentStatus,
+        status: "unreviewed" as ContentStatus,
         contentType: null, // Set contentType to null explicitly
       };
 
