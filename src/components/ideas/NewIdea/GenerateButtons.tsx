@@ -1,8 +1,9 @@
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Lightbulb, Loader2 } from 'lucide-react';
 import { ContentType } from '@/types';
+import { Progress } from "@/components/ui/progress";
 
 type GenerateButtonsProps = {
   isSubmitting: boolean;
@@ -15,6 +16,45 @@ const GenerateButtons: React.FC<GenerateButtonsProps> = ({
   generatingType, 
   onSaveAndGenerate 
 }) => {
+  const [progress, setProgress] = useState(0);
+  
+  // Progress animation effect when generating content
+  useEffect(() => {
+    let progressInterval: ReturnType<typeof setInterval>;
+    
+    if (generatingType) {
+      // Reset progress when starting generation
+      setProgress(0);
+      
+      // Create a realistic-looking progress animation
+      progressInterval = setInterval(() => {
+        setProgress(currentProgress => {
+          // Move quickly to 70%, then slow down to simulate waiting for the API
+          if (currentProgress < 70) {
+            return currentProgress + 2;
+          } else {
+            // Slow down as we approach 90%
+            return Math.min(currentProgress + 0.5, 90);
+          }
+        });
+      }, 150);
+    } else if (progress > 0) {
+      // When generation completes, jump to 100%
+      setProgress(100);
+      
+      // Reset progress after a delay
+      const resetTimeout = setTimeout(() => {
+        setProgress(0);
+      }, 1000);
+      
+      return () => clearTimeout(resetTimeout);
+    }
+    
+    return () => {
+      if (progressInterval) clearInterval(progressInterval);
+    };
+  }, [generatingType, progress]);
+  
   return (
     <div className="w-full border-t pt-4">
       <h3 className="text-sm font-medium mb-2">Save & Generate Content</h3>
@@ -77,6 +117,16 @@ const GenerateButtons: React.FC<GenerateButtonsProps> = ({
           )}
         </Button>
       </div>
+      
+      {generatingType && (
+        <div className="mt-4 space-y-2">
+          <Progress value={progress} className="h-2" />
+          <p className="text-xs text-muted-foreground text-center">
+            {progress < 100 ? 'Creating and saving your content...' : 'Complete!'}
+          </p>
+        </div>
+      )}
+      
       <p className="text-xs text-muted-foreground mt-2">
         Save your idea and immediately generate a draft for the selected content type
       </p>
