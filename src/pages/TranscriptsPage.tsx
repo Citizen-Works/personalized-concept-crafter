@@ -1,5 +1,4 @@
-
-import React, { useEffect } from 'react';
+import React from 'react';
 import TranscriptList from '@/components/transcripts/TranscriptList';
 import TranscriptActions from '@/components/transcripts/TranscriptActions';
 import TranscriptViewDialog from '@/components/transcripts/TranscriptViewDialog';
@@ -36,23 +35,6 @@ const TranscriptsPage = () => {
     handleAddRecording,
     handleExportTranscripts
   } = useTranscripts();
-
-  // Handle custom events for empty state buttons
-  useEffect(() => {
-    const handleOpenUploadDialog = () => setIsUploadDialogOpen(true);
-    const handleOpenAddTextDialog = () => setIsAddTextDialogOpen(true);
-    const handleOpenRecordingDialog = () => setIsRecordingDialogOpen(true);
-    
-    window.addEventListener('open-upload-dialog', handleOpenUploadDialog);
-    window.addEventListener('open-add-text-dialog', handleOpenAddTextDialog);
-    window.addEventListener('open-recording-dialog', handleOpenRecordingDialog);
-    
-    return () => {
-      window.removeEventListener('open-upload-dialog', handleOpenUploadDialog);
-      window.removeEventListener('open-add-text-dialog', handleOpenAddTextDialog);
-      window.removeEventListener('open-recording-dialog', handleOpenRecordingDialog);
-    };
-  }, [setIsUploadDialogOpen, setIsAddTextDialogOpen, setIsRecordingDialogOpen]);
 
   const hasTranscripts = documents && documents.length > 0;
 
