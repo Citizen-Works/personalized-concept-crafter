@@ -60,14 +60,19 @@ function App() {
             <ThemeProvider defaultTheme="system" storageKey="ui-theme">
               <Toaster position="top-right" richColors />
               <Routes>
-                {/* Public route that doesn't redirect */}
-                <Route path="/" element={<WaitlistPage />} />
+                {/* Public routes - waitlist is the default landing page */}
+                <Route path="/" element={<Navigate to="/waitlist" replace />} />
                 <Route path="/waitlist" element={<WaitlistPage />} />
                 
                 {/* Auth routes - redirect to dashboard if logged in */}
                 <Route element={<ProtectedRoute requireAuth={false} />}>
-                  <Route path="/register" element={<RegisterPage />} />
                   <Route path="/login" element={<LoginPage />} />
+                  {/* Registration page is only accessible to admins */}
+                  <Route path="/register" element={
+                    <ProtectedRoute requireAuth={true} requireAdmin={true} redirectPath="/waitlist">
+                      <RegisterPage />
+                    </ProtectedRoute>
+                  } />
                 </Route>
                 
                 {/* Protected onboarding route */}

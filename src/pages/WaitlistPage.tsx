@@ -1,130 +1,65 @@
 
-import { useState, useEffect, useRef } from "react";
-import { Loading } from "@/components/ui/loading";
-import { useIsMobile } from "@/hooks/use-mobile";
-import { 
-  HeroSection, 
-  PainPointsSection, 
-  SolutionSection, 
-  CTASection
-} from "@/components/waitlist";
-import SEO from "@/components/SEO";
-import StructuredData from "@/components/waitlist/StructuredData";
+import React from 'react';
+import HeroSection from '@/components/waitlist/HeroSection';
+import PainPointsSection from '@/components/waitlist/PainPointsSection';
+import SolutionSection from '@/components/waitlist/SolutionSection';
+import BenefitsList from '@/components/waitlist/BenefitsList';
+import CTASection from '@/components/waitlist/CTASection';
+import TrustedBySection from '@/components/waitlist/TrustedBySection';
+import ScreenshotsCarousel from '@/components/waitlist/ScreenshotsCarousel';
+import StructuredData from '@/components/waitlist/StructuredData';
+import { Helmet } from 'react-helmet-async';
+import { Link } from 'react-router-dom';
+import { AlertCircle } from 'lucide-react';
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 const WaitlistPage = () => {
-  // Refs for scrolling
-  const painPointsRef = useRef<HTMLDivElement>(null);
-  const solutionRef = useRef<HTMLDivElement>(null);
-  const ctaRef = useRef<HTMLDivElement>(null);
-  
-  // Used to track if the component has mounted
-  const [mounted, setMounted] = useState(false);
-  const isMobile = useIsMobile();
-
-  // Initialize component and handle animations
-  useEffect(() => {
-    setMounted(true);
-    
-    // Setup intersection observer after component mounts
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach(entry => {
-          if (entry.isIntersecting) {
-            // First add the base fade-in animation to the section itself
-            entry.target.classList.add('animate-fade-in');
-            entry.target.classList.remove('opacity-0');
-            
-            // Then animate child elements with slide/fade effects with staggered timing
-            const animatedElements = entry.target.querySelectorAll(
-              '.transform.transition-all.opacity-0'
-            );
-            
-            // Apply staggered animations to each element
-            animatedElements.forEach((element, index) => {
-              // Apply a staggered delay based on the element's position
-              setTimeout(() => {
-                element.classList.remove('opacity-0');
-                
-                // Remove transform classes that create the initial offset
-                if (element.classList.contains('-translate-x-8')) {
-                  element.classList.remove('-translate-x-8');
-                }
-                if (element.classList.contains('translate-x-8')) {
-                  element.classList.remove('translate-x-8');
-                }
-                if (element.classList.contains('translate-y-8')) {
-                  element.classList.remove('translate-y-8');
-                }
-              }, 100 + (index * 150)); // 150ms staggered delay between elements
-            });
-          }
-        });
-      },
-      { 
-        threshold: isMobile ? 0.05 : 0.1, 
-        rootMargin: isMobile ? "0px 0px -50px 0px" : "0px 0px -100px 0px" 
-      }
-    );
-
-    // Get all sections that should be animated on scroll
-    const sections = document.querySelectorAll('.opacity-0');
-    
-    // Observe each section
-    sections.forEach(section => {
-      observer.observe(section);
-    });
-
-    return () => {
-      sections.forEach(section => {
-        observer.unobserve(section);
-      });
-    };
-  }, [mounted, isMobile]);
-
-  const scrollToSection = (ref: React.RefObject<HTMLDivElement>) => {
-    ref.current?.scrollIntoView({ 
-      behavior: 'smooth',
-      block: isMobile ? 'start' : 'center'
-    });
-  };
-
-  // Apply initial animation classes
-  if (!mounted) {
-    return (
-      <div className="h-screen flex items-center justify-center">
-        <Loading fullScreen size="lg" />
-      </div>
-    );
-  }
-
   return (
     <>
-      <SEO 
-        title="Content Engine - Turn Your Meeting Insights Into Valuable Content"
-        description="Our AI learns your unique voice and extracts the best insights from your meeting transcripts, turning your expertise into LinkedIn posts and newsletters that grow your audience."
-        canonical="https://yourcontentengine.ai/"
-      />
-      <StructuredData />
-      <div className="min-h-screen flex flex-col overflow-x-hidden">
-        <HeroSection 
-          scrollToSection={scrollToSection} 
-          painPointsRef={painPointsRef} 
+      <Helmet>
+        <title>Content Engine | AI-Powered Content Creation for Consultants & Business Owners</title>
+        <meta 
+          name="description" 
+          content="Join the waitlist for Content Engine - the AI-powered content creation platform designed specifically for consultants and business owners. Generate personalized LinkedIn posts, newsletters, and marketing material that matches your unique voice and expertise."
         />
-        
-        <div ref={painPointsRef}>
-          <PainPointsSection 
-            scrollToSection={scrollToSection} 
-            solutionRef={solutionRef} 
-          />
+      </Helmet>
+      <StructuredData />
+      
+      <div className="relative bg-gradient-to-b from-background to-background/80 min-h-screen">
+        <div className="container mx-auto px-4 pt-6">
+          <div className="flex justify-between items-center mb-8">
+            <div className="flex items-center gap-2">
+              <img src="/logo.svg" alt="Content Engine Logo" className="h-8 w-8" />
+              <span className="font-bold text-xl">Content Engine</span>
+            </div>
+            <div className="flex items-center gap-4">
+              <Link to="/login" className="text-sm font-medium hover:underline">
+                Sign In
+              </Link>
+            </div>
+          </div>
+          
+          <Alert className="my-4 bg-amber-100 dark:bg-amber-900/30 border-amber-300 dark:border-amber-800">
+            <AlertCircle className="h-4 w-4 text-amber-800 dark:text-amber-500" />
+            <AlertDescription className="text-amber-800 dark:text-amber-500">
+              Public registration is currently restricted. Please join our waitlist to be notified when registration opens.
+            </AlertDescription>
+          </Alert>
         </div>
         
-        <div ref={solutionRef}>
-          <SolutionSection />
-        </div>
+        <HeroSection />
+        <PainPointsSection />
+        <SolutionSection />
+        <BenefitsList />
+        <ScreenshotsCarousel />
+        <TrustedBySection />
+        <CTASection />
         
-        <div ref={ctaRef}>
-          <CTASection />
-        </div>
+        <footer className="bg-muted/30 border-t border-border mt-24 py-8">
+          <div className="container mx-auto px-4 text-center text-sm text-muted-foreground">
+            <p>© {new Date().getFullYear()} Content Engine. All rights reserved.</p>
+          </div>
+        </footer>
       </div>
     </>
   );

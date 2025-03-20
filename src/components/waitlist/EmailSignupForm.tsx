@@ -3,8 +3,9 @@ import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
-import { useToast } from "@/components/ui/use-toast";
+import { toast } from "sonner";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { supabase } from "@/integrations/supabase/client";
 
 interface EmailSignupFormProps {
   className?: string;
@@ -13,35 +14,40 @@ interface EmailSignupFormProps {
 const EmailSignupForm = ({ className }: EmailSignupFormProps) => {
   const [email, setEmail] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { toast } = useToast();
   const isMobile = useIsMobile();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      toast({
-        title: "Please enter a valid email",
-        description: "We need your email to add you to the waitlist.",
-        variant: "destructive",
+      toast.error("Please enter a valid email", {
+        description: "We need your email to add you to the waitlist."
       });
       return;
     }
     
     setIsSubmitting(true);
     
-    // Simulate submission - in a real app, this would call an API
-    setTimeout(() => {
-      toast({
-        title: "Welcome to the waitlist!",
-        description: "You're in! We'll notify you when Content Engine launches.",
+    try {
+      // Store the email in the waitlist table (this will be created via SQL later)
+      const { error } = await supabase
+        .from('waitlist')
+        .insert([{ email }]);
+      
+      if (error) throw error;
+      
+      toast.success("Welcome to the waitlist!", {
+        description: "You're in! We'll notify you when Content Engine launches."
       });
       setEmail("");
+    } catch (error) {
+      console.error("Error adding to waitlist:", error);
+      toast.error("Failed to join waitlist", {
+        description: "Please try again later."
+      });
+    } finally {
       setIsSubmitting(false);
-      
-      // In a real implementation, you would save the email to your database
-      console.log("Email submitted:", email);
-    }, 1000);
+    }
   };
 
   return (

@@ -1,28 +1,40 @@
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, Navigate, useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
-import { PenTool } from 'lucide-react';
+import { PenTool, AlertCircle } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { toast } from 'sonner';
 import { Separator } from "@/components/ui/separator";
 import { ThemeToggle } from '@/components/ui/theme-toggle';
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 const RegisterPage = () => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const { signUp, signInWithGoogle, loading, user } = useAuth();
+  const { signUp, signInWithGoogle, loading, user, isAdmin } = useAuth();
   const navigate = useNavigate();
   
   // If user is already logged in, redirect to dashboard
   if (user) {
     // Redirect to onboarding instead of dashboard for new users
     return <Navigate to="/onboarding" replace />;
+  }
+  
+  // If registrations are disabled and not admin, redirect to waitlist
+  useEffect(() => {
+    if (!isAdmin) {
+      navigate('/waitlist');
+    }
+  }, [isAdmin, navigate]);
+
+  // If not admin, show a message and redirect
+  if (!isAdmin) {
+    return null; // Will redirect via useEffect
   }
   
   const handleSubmit = async (e: React.FormEvent) => {
@@ -71,8 +83,18 @@ const RegisterPage = () => {
         <Card>
           <CardHeader className="space-y-1">
             <CardTitle className="text-2xl font-bold">Create an account</CardTitle>
-            <CardDescription>Enter your information to create an account</CardDescription>
+            <CardDescription>
+              Admin mode: Create accounts for new users
+            </CardDescription>
           </CardHeader>
+
+          <Alert className="mx-6 mb-4 bg-amber-100 dark:bg-amber-900/30 border-amber-300 dark:border-amber-800">
+            <AlertCircle className="h-4 w-4 text-amber-800 dark:text-amber-500" />
+            <AlertDescription className="text-amber-800 dark:text-amber-500">
+              Public registration is currently restricted. Only admins can create new accounts.
+            </AlertDescription>
+          </Alert>
+
           <form onSubmit={handleSubmit}>
             <CardContent className="space-y-4">
               <div className="space-y-2">
