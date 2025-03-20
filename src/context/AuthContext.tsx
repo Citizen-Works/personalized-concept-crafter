@@ -5,10 +5,13 @@ import { supabase } from '@/integrations/supabase/client';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { toast } from "sonner";
 
+type UserRole = 'admin' | 'user';
+
 type AuthContextType = {
   session: Session | null;
   user: User | null;
   loading: boolean;
+  isAdmin: boolean;
   signIn: (email: string, password: string) => Promise<void>;
   signInWithGoogle: () => Promise<void>;
   signUp: (email: string, password: string, name: string) => Promise<void>;
@@ -24,12 +27,37 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  // Check if current user has admin role
+  const checkUserRole = async (userId: string) => {
+    try {
+      const { data, error } = await supabase
+        .rpc('has_role', { _role: 'admin' });
+      
+      if (error) {
+        console.error('Error checking user role:', error);
+        return false;
+      }
+      
+      setIsAdmin(!!data);
+      return !!data;
+    } catch (error) {
+      console.error('Error in checkUserRole:', error);
+      return false;
+    }
+  };
 
   useEffect(() => {
     // Get initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
+      
+      if (session?.user) {
+        checkUserRole(session.user.id);
+      }
+      
       setLoading(false);
       
       // Only redirect to dashboard if on login page and already logged in
@@ -44,6 +72,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       (event, session) => {
         setSession(session);
         setUser(session?.user ?? null);
+        
+        if (session?.user) {
+          checkUserRole(session.user.id);
+        } else {
+          setIsAdmin(false);
+        }
+        
         setLoading(false);
         
         // Only redirect to dashboard when signed in from auth pages
@@ -153,6 +188,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       session, 
       user, 
       loading, 
+      isAdmin,
       signIn, 
       signInWithGoogle,
       signUp, 

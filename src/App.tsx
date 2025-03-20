@@ -29,6 +29,7 @@ import { AuthProvider } from "./context/AuthContext";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import TranscriptsPage from "./pages/TranscriptsPage";
 import { MainLayout } from "./components/layout/MainLayout";
+import AdminPage from "./pages/AdminPage";
 
 import ReviewQueuePage from "@/pages/ReviewQueuePage";
 import ReadyToPublishPage from "@/pages/ReadyToPublishPage";
@@ -102,6 +103,16 @@ function App() {
                   <Route path="/transcripts" element={<TranscriptsPage />} />
                   <Route path="/documents" element={<DocumentsPage />} />
                   <Route path="/personal-stories" element={<PersonalStoriesPage />} />
+                  
+                  {/* Admin page - protected with requireAdmin */}
+                  <Route 
+                    path="/admin" 
+                    element={
+                      <ProtectedRoute requireAuth={true} requireAdmin={true} redirectPath="/dashboard">
+                        <AdminPage />
+                      </ProtectedRoute>
+                    } 
+                  />
                   
                   {/* Strategy Section Routes */}
                   <Route path="/strategy" element={<StrategyOverviewPage />} />
