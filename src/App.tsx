@@ -41,6 +41,7 @@ import CallToActionsPage from "@/pages/CallToActionsPage";
 import ContentPipelinePage from "@/pages/ContentPipelinePage";
 import StrategyOverviewPage from "@/pages/StrategyOverviewPage";
 import PillarAudienceLinkPage from "@/pages/PillarAudienceLinkPage";
+import { usePromptTemplateInitializer } from "@/hooks/admin/usePromptTemplateInitializer";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -51,6 +52,12 @@ const queryClient = new QueryClient({
   },
 });
 
+// TemplateInitializer component to use the hook
+const TemplateInitializer: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  usePromptTemplateInitializer();
+  return <>{children}</>;
+};
+
 function App() {
   return (
     <HelmetProvider>
@@ -58,88 +65,90 @@ function App() {
         <BrowserRouter>
           <AuthProvider>
             <ThemeProvider defaultTheme="system" storageKey="ui-theme">
-              <Toaster position="top-right" richColors />
-              <Routes>
-                {/* Public routes - waitlist is the default landing page */}
-                <Route path="/" element={<Navigate to="/waitlist" replace />} />
-                <Route path="/waitlist" element={<WaitlistPage />} />
-                
-                {/* Auth routes - redirect to dashboard if logged in */}
-                <Route element={<ProtectedRoute requireAuth={false} />}>
-                  <Route path="/login" element={<LoginPage />} />
-                  {/* Registration page is only accessible to admins */}
-                  <Route path="/register" element={
-                    <ProtectedRoute requireAuth={true} requireAdmin={true} redirectPath="/waitlist">
-                      <RegisterPage />
+              <TemplateInitializer>
+                <Toaster position="top-right" richColors />
+                <Routes>
+                  {/* Public routes - waitlist is the default landing page */}
+                  <Route path="/" element={<Navigate to="/waitlist" replace />} />
+                  <Route path="/waitlist" element={<WaitlistPage />} />
+                  
+                  {/* Auth routes - redirect to dashboard if logged in */}
+                  <Route element={<ProtectedRoute requireAuth={false} />}>
+                    <Route path="/login" element={<LoginPage />} />
+                    {/* Registration page is only accessible to admins */}
+                    <Route path="/register" element={
+                      <ProtectedRoute requireAuth={true} requireAdmin={true} redirectPath="/waitlist">
+                        <RegisterPage />
+                      </ProtectedRoute>
+                    } />
+                  </Route>
+                  
+                  {/* Protected onboarding route */}
+                  <Route path="/onboarding" element={
+                    <ProtectedRoute redirectPath="/login">
+                      <OnboardingPage />
                     </ProtectedRoute>
                   } />
-                </Route>
-                
-                {/* Protected onboarding route */}
-                <Route path="/onboarding" element={
-                  <ProtectedRoute redirectPath="/login">
-                    <OnboardingPage />
-                  </ProtectedRoute>
-                } />
-                
-                {/* Protected app routes with main layout */}
-                <Route element={
-                  <ProtectedRoute redirectPath="/login">
-                    <MainLayout />
-                  </ProtectedRoute>
-                }>
-                  <Route path="/dashboard" element={<Dashboard />} />
                   
-                  <Route path="/pipeline" element={<ContentPipelinePage />} />
-                  
-                  <Route path="/review-queue" element={<ReviewQueuePage />} />
-                  <Route path="/ideas" element={<IdeasPage />} />
-                  <Route path="/ideas/:id" element={<IdeaDetailPage />} />
-                  <Route path="/ideas/new" element={<NewIdeaPage />} />
-                  <Route path="/drafts" element={<DraftsPage />} />
-                  <Route path="/drafts/:id" element={<DraftDetailPage />} />
-                  <Route path="/ready-to-publish" element={<ReadyToPublishPage />} />
-                  <Route path="/published" element={<PublishedPage />} />
-                  
-                  <Route path="/new-content-idea" element={<NewContentIdeaPage />} />
-                  <Route path="/generate-draft" element={<GenerateDraftPage />} />
-                  
-                  <Route path="/linkedin-posts" element={<LinkedinPostsPage />} />
-                  <Route path="/transcripts" element={<TranscriptsPage />} />
-                  <Route path="/documents" element={<DocumentsPage />} />
-                  <Route path="/personal-stories" element={<PersonalStoriesPage />} />
-                  
-                  {/* Admin page - protected with requireAdmin */}
-                  <Route 
-                    path="/admin" 
-                    element={
-                      <ProtectedRoute requireAuth={true} requireAdmin={true} redirectPath="/dashboard">
-                        <AdminPage />
-                      </ProtectedRoute>
-                    } 
-                  />
-                  
-                  {/* Strategy Section Routes */}
-                  <Route path="/strategy" element={<StrategyOverviewPage />} />
-                  <Route path="/strategy/content-pillars" element={<ContentPillarsPage />} />
-                  <Route path="/strategy/target-audiences" element={<TargetAudiencesPage />} />
-                  <Route path="/strategy/call-to-actions" element={<CallToActionsPage />} />
-                  <Route path="/strategy/writing-style" element={<WritingStylePage />} />
-                  <Route path="/strategy/audience-mapping" element={<PillarAudienceLinkPage />} />
-                  
-                  {/* Legacy Routes - to be redirected */}
-                  <Route path="/content-pillars" element={<Navigate to="/strategy/content-pillars" replace />} />
-                  <Route path="/target-audiences" element={<Navigate to="/strategy/target-audiences" replace />} />
-                  <Route path="/writing-style" element={<Navigate to="/strategy/writing-style" replace />} />
-                  <Route path="/call-to-actions" element={<Navigate to="/strategy/call-to-actions" replace />} />
-                  
-                  <Route path="/marketing-examples" element={<MarketingExamplesPage />} />
-                  <Route path="/newsletter-examples" element={<NewsletterExamplesPage />} />
-                  
-                  <Route path="/settings/*" element={<Settings />} />
-                  <Route path="*" element={<NotFound />} />
-                </Route>
-              </Routes>
+                  {/* Protected app routes with main layout */}
+                  <Route element={
+                    <ProtectedRoute redirectPath="/login">
+                      <MainLayout />
+                    </ProtectedRoute>
+                  }>
+                    <Route path="/dashboard" element={<Dashboard />} />
+                    
+                    <Route path="/pipeline" element={<ContentPipelinePage />} />
+                    
+                    <Route path="/review-queue" element={<ReviewQueuePage />} />
+                    <Route path="/ideas" element={<IdeasPage />} />
+                    <Route path="/ideas/:id" element={<IdeaDetailPage />} />
+                    <Route path="/ideas/new" element={<NewIdeaPage />} />
+                    <Route path="/drafts" element={<DraftsPage />} />
+                    <Route path="/drafts/:id" element={<DraftDetailPage />} />
+                    <Route path="/ready-to-publish" element={<ReadyToPublishPage />} />
+                    <Route path="/published" element={<PublishedPage />} />
+                    
+                    <Route path="/new-content-idea" element={<NewContentIdeaPage />} />
+                    <Route path="/generate-draft" element={<GenerateDraftPage />} />
+                    
+                    <Route path="/linkedin-posts" element={<LinkedinPostsPage />} />
+                    <Route path="/transcripts" element={<TranscriptsPage />} />
+                    <Route path="/documents" element={<DocumentsPage />} />
+                    <Route path="/personal-stories" element={<PersonalStoriesPage />} />
+                    
+                    {/* Admin page - protected with requireAdmin */}
+                    <Route 
+                      path="/admin" 
+                      element={
+                        <ProtectedRoute requireAuth={true} requireAdmin={true} redirectPath="/dashboard">
+                          <AdminPage />
+                        </ProtectedRoute>
+                      } 
+                    />
+                    
+                    {/* Strategy Section Routes */}
+                    <Route path="/strategy" element={<StrategyOverviewPage />} />
+                    <Route path="/strategy/content-pillars" element={<ContentPillarsPage />} />
+                    <Route path="/strategy/target-audiences" element={<TargetAudiencesPage />} />
+                    <Route path="/strategy/call-to-actions" element={<CallToActionsPage />} />
+                    <Route path="/strategy/writing-style" element={<WritingStylePage />} />
+                    <Route path="/strategy/audience-mapping" element={<PillarAudienceLinkPage />} />
+                    
+                    {/* Legacy Routes - to be redirected */}
+                    <Route path="/content-pillars" element={<Navigate to="/strategy/content-pillars" replace />} />
+                    <Route path="/target-audiences" element={<Navigate to="/strategy/target-audiences" replace />} />
+                    <Route path="/writing-style" element={<Navigate to="/strategy/writing-style" replace />} />
+                    <Route path="/call-to-actions" element={<Navigate to="/strategy/call-to-actions" replace />} />
+                    
+                    <Route path="/marketing-examples" element={<MarketingExamplesPage />} />
+                    <Route path="/newsletter-examples" element={<NewsletterExamplesPage />} />
+                    
+                    <Route path="/settings/*" element={<Settings />} />
+                    <Route path="*" element={<NotFound />} />
+                  </Route>
+                </Routes>
+              </TemplateInitializer>
             </ThemeProvider>
           </AuthProvider>
         </BrowserRouter>
