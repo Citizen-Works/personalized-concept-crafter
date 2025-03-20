@@ -32,7 +32,7 @@ export const saveIdeas = async (
         source: "transcript" as ContentSource | null,
         meetingTranscriptExcerpt: idea.transcriptExcerpt || "",
         sourceUrl: "",
-        status: "unreviewed" as ContentStatus,
+        status: "unreviewed" as ContentStatus,  // Explicitly set to "unreviewed"
         contentType: null, // Set contentType to null explicitly
       };
 

@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useIdeas } from '@/hooks/ideas';
 import { toast } from 'sonner';
@@ -14,6 +13,7 @@ const IdeasPage = () => {
   const [typeFilter, setTypeFilter] = useState<ContentType | 'all'>('all');
   
   const filteredIdeas = ideas.filter((idea) => {
+    // Make sure to include "unreviewed" ideas in the filter
     const matchesSearch = (idea.title?.toLowerCase().includes(searchQuery.toLowerCase()) || 
                           (idea.description && idea.description.toLowerCase().includes(searchQuery.toLowerCase()))) || false;
     const matchesStatus = statusFilter === 'all' || idea.status === statusFilter;
