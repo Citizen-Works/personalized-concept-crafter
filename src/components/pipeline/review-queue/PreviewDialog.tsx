@@ -4,7 +4,7 @@ import { ContentIdea } from '@/types';
 import { formatDistanceToNow } from 'date-fns';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Check, X } from "lucide-react";
+import { Check, X, Loader2 } from "lucide-react";
 
 interface PreviewDialogProps {
   previewIdea: ContentIdea | null;
@@ -12,6 +12,7 @@ interface PreviewDialogProps {
   onClose: () => void;
   onApprove: (id: string) => Promise<void>;
   onArchive: (id: string) => Promise<void>;
+  isUpdating: boolean;
 }
 
 export const PreviewDialog: React.FC<PreviewDialogProps> = ({
@@ -19,7 +20,8 @@ export const PreviewDialog: React.FC<PreviewDialogProps> = ({
   isOpen,
   onClose,
   onApprove,
-  onArchive
+  onArchive,
+  isUpdating
 }) => {
   if (!previewIdea) return null;
 
@@ -56,7 +58,7 @@ export const PreviewDialog: React.FC<PreviewDialogProps> = ({
           )}
           
           <div className="flex justify-end gap-2 pt-4">
-            <Button variant="outline" onClick={onClose}>
+            <Button variant="outline" onClick={onClose} disabled={isUpdating}>
               Close
             </Button>
             <Button 
@@ -65,8 +67,13 @@ export const PreviewDialog: React.FC<PreviewDialogProps> = ({
                 onApprove(previewIdea.id);
                 onClose();
               }}
+              disabled={isUpdating}
             >
-              <Check className="h-4 w-4 mr-1" />
+              {isUpdating ? (
+                <Loader2 className="h-4 w-4 mr-1 animate-spin" />
+              ) : (
+                <Check className="h-4 w-4 mr-1" />
+              )}
               Approve
             </Button>
             <Button 
@@ -75,8 +82,13 @@ export const PreviewDialog: React.FC<PreviewDialogProps> = ({
                 onArchive(previewIdea.id);
                 onClose();
               }}
+              disabled={isUpdating}
             >
-              <X className="h-4 w-4 mr-1" />
+              {isUpdating ? (
+                <Loader2 className="h-4 w-4 mr-1 animate-spin" />
+              ) : (
+                <X className="h-4 w-4 mr-1" />
+              )}
               Archive
             </Button>
           </div>

@@ -16,6 +16,7 @@ export const useReviewQueue = ({ searchQuery, dateRange, contentTypeFilter }: Us
   const [previewItem, setPreviewItem] = useState<string | null>(null);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [itemToDelete, setItemToDelete] = useState<string | null>(null);
+  const [isUpdating, setIsUpdating] = useState(false);
   
   // Filter ideas based on search, date range, and content type
   const filteredIdeas = useMemo(() => {
@@ -73,23 +74,55 @@ export const useReviewQueue = ({ searchQuery, dateRange, contentTypeFilter }: Us
   
   // Handle approve idea
   const handleApprove = async (id: string) => {
+    if (isUpdating) return; // Prevent multiple requests
+    
     try {
+      setIsUpdating(true);
       await updateIdea({ id, status: 'approved' });
+      
+      // Remove from selected items if it was selected
+      if (selectedItems.includes(id)) {
+        setSelectedItems(prev => prev.filter(itemId => itemId !== id));
+      }
+      
+      // Close preview if this item was being previewed
+      if (previewItem === id) {
+        setPreviewItem(null);
+      }
+      
       toast.success("Content idea approved");
     } catch (error) {
       console.error("Error approving idea:", error);
       toast.error("Failed to approve content idea");
+    } finally {
+      setIsUpdating(false);
     }
   };
   
   // Handle archive idea
   const handleArchive = async (id: string) => {
+    if (isUpdating) return; // Prevent multiple requests
+    
     try {
+      setIsUpdating(true);
       await updateIdea({ id, status: 'archived' });
+      
+      // Remove from selected items if it was selected
+      if (selectedItems.includes(id)) {
+        setSelectedItems(prev => prev.filter(itemId => itemId !== id));
+      }
+      
+      // Close preview if this item was being previewed
+      if (previewItem === id) {
+        setPreviewItem(null);
+      }
+      
       toast.success("Content idea archived");
     } catch (error) {
       console.error("Error archiving idea:", error);
       toast.error("Failed to archive content idea");
+    } finally {
+      setIsUpdating(false);
     }
   };
   
@@ -101,22 +134,39 @@ export const useReviewQueue = ({ searchQuery, dateRange, contentTypeFilter }: Us
 
   // Handle confirm delete
   const handleConfirmDelete = async () => {
-    if (!itemToDelete) return;
+    if (!itemToDelete || isUpdating) return;
     
     try {
+      setIsUpdating(true);
       await deleteIdea(itemToDelete);
+      
+      // Remove from selected items if it was selected
+      if (selectedItems.includes(itemToDelete)) {
+        setSelectedItems(prev => prev.filter(itemId => itemId !== itemToDelete));
+      }
+      
+      // Close preview if this item was being previewed
+      if (previewItem === itemToDelete) {
+        setPreviewItem(null);
+      }
+      
       toast.success("Content idea deleted");
       setDeleteConfirmOpen(false);
       setItemToDelete(null);
     } catch (error) {
       console.error("Error deleting idea:", error);
       toast.error("Failed to delete content idea");
+    } finally {
+      setIsUpdating(false);
     }
   };
   
   // Handle batch approve
   const handleBatchApprove = async () => {
+    if (isUpdating || selectedItems.length === 0) return;
+    
     try {
+      setIsUpdating(true);
       const promises = selectedItems.map(id => updateIdea({ id, status: 'approved' }));
       await Promise.all(promises);
       toast.success(`${selectedItems.length} items approved`);
@@ -124,12 +174,17 @@ export const useReviewQueue = ({ searchQuery, dateRange, contentTypeFilter }: Us
     } catch (error) {
       console.error("Error batch approving ideas:", error);
       toast.error("Failed to approve selected items");
+    } finally {
+      setIsUpdating(false);
     }
   };
   
   // Handle batch archive
   const handleBatchArchive = async () => {
+    if (isUpdating || selectedItems.length === 0) return;
+    
     try {
+      setIsUpdating(true);
       const promises = selectedItems.map(id => updateIdea({ id, status: 'archived' }));
       await Promise.all(promises);
       toast.success(`${selectedItems.length} items archived`);
@@ -137,12 +192,15 @@ export const useReviewQueue = ({ searchQuery, dateRange, contentTypeFilter }: Us
     } catch (error) {
       console.error("Error batch archiving ideas:", error);
       toast.error("Failed to archive selected items");
+    } finally {
+      setIsUpdating(false);
     }
   };
 
   return {
     filteredIdeas,
     isLoading,
+    isUpdating,
     selectedItems,
     previewIdea,
     previewItem,

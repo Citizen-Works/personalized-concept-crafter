@@ -6,12 +6,14 @@ interface SelectAllProps {
   hasItems: boolean;
   allSelected: boolean;
   onSelectAll: () => void;
+  isDisabled?: boolean;
 }
 
 export const SelectAll: React.FC<SelectAllProps> = ({ 
   hasItems, 
   allSelected, 
-  onSelectAll 
+  onSelectAll,
+  isDisabled = false
 }) => {
   if (!hasItems) return null;
   
@@ -21,8 +23,12 @@ export const SelectAll: React.FC<SelectAllProps> = ({
         id="select-all" 
         checked={allSelected}
         onCheckedChange={onSelectAll}
+        disabled={isDisabled}
       />
-      <label htmlFor="select-all" className="text-sm font-medium ml-2 cursor-pointer">
+      <label 
+        htmlFor="select-all" 
+        className={`text-sm font-medium ml-2 ${isDisabled ? 'cursor-not-allowed opacity-60' : 'cursor-pointer'}`}
+      >
         Select All
       </label>
     </div>

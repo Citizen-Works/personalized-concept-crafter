@@ -6,12 +6,13 @@ import { Card, CardHeader, CardContent, CardFooter, CardTitle, CardDescription }
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
-import { Eye, Check, X, ArrowUpRight, Trash } from "lucide-react";
+import { Eye, Check, X, ArrowUpRight, Trash, Loader2 } from "lucide-react";
 import { getTypeBadgeClasses } from '@/components/ideas/BadgeUtils';
 
 interface ReviewQueueItemProps {
   idea: ContentIdea;
   isSelected: boolean;
+  isUpdating: boolean;
   onToggleSelect: (id: string) => void;
   onPreview: (id: string) => void;
   onApprove: (id: string) => Promise<void>;
@@ -22,12 +23,26 @@ interface ReviewQueueItemProps {
 export const ReviewQueueItem: React.FC<ReviewQueueItemProps> = ({
   idea,
   isSelected,
+  isUpdating,
   onToggleSelect,
   onPreview,
   onApprove,
   onArchive,
   onDelete
 }) => {
+  const displaySource = () => {
+    switch (idea.source) {
+      case 'meeting':
+        return 'From meeting transcript';
+      case 'manual':
+        return 'Manually created';
+      case 'transcript':
+        return 'From transcript';
+      default:
+        return idea.source ? `From ${idea.source}` : 'Manually created';
+    }
+  };
+
   return (
     <Card key={idea.id} className="overflow-hidden transition-all duration-200">
       <CardHeader className="pb-2">
@@ -37,11 +52,12 @@ export const ReviewQueueItem: React.FC<ReviewQueueItemProps> = ({
             className="mr-2 mt-1"
             checked={isSelected}
             onCheckedChange={() => onToggleSelect(idea.id)}
+            disabled={isUpdating}
           />
           <div>
             <CardTitle className="text-base">{idea.title}</CardTitle>
             <CardDescription>
-              {idea.source === 'meeting' ? 'From meeting transcript' : 'Manually created'} • {formatDistanceToNow(new Date(idea.createdAt), { addSuffix: true })}
+              {displaySource()} • {formatDistanceToNow(new Date(idea.createdAt), { addSuffix: true })}
             </CardDescription>
           </div>
         </div>
@@ -71,6 +87,7 @@ export const ReviewQueueItem: React.FC<ReviewQueueItemProps> = ({
             size="icon" 
             onClick={() => onPreview(idea.id)}
             title="Quick View"
+            disabled={isUpdating}
           >
             <Eye className="h-4 w-4" />
           </Button>
@@ -79,16 +96,18 @@ export const ReviewQueueItem: React.FC<ReviewQueueItemProps> = ({
             size="icon" 
             onClick={() => onApprove(idea.id)}
             title="Approve"
+            disabled={isUpdating}
           >
-            <Check className="h-4 w-4" />
+            {isUpdating ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}
           </Button>
           <Button 
             variant="outline" 
             size="icon" 
             onClick={() => onArchive(idea.id)}
             title="Archive"
+            disabled={isUpdating}
           >
-            <X className="h-4 w-4" />
+            {isUpdating ? <Loader2 className="h-4 w-4 animate-spin" /> : <X className="h-4 w-4" />}
           </Button>
           <Button 
             variant="outline" 
@@ -96,8 +115,9 @@ export const ReviewQueueItem: React.FC<ReviewQueueItemProps> = ({
             className="text-destructive hover:text-destructive"
             onClick={() => onDelete(idea.id)}
             title="Delete"
+            disabled={isUpdating}
           >
-            <Trash className="h-4 w-4" />
+            {isUpdating ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash className="h-4 w-4" />}
           </Button>
         </div>
       </CardFooter>

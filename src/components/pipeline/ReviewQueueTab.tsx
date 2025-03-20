@@ -27,6 +27,7 @@ export const ReviewQueueTab: React.FC<ReviewQueueTabProps> = ({
   const {
     filteredIdeas,
     isLoading,
+    isUpdating,
     selectedItems,
     previewIdea,
     previewItem,
@@ -59,6 +60,7 @@ export const ReviewQueueTab: React.FC<ReviewQueueTabProps> = ({
         selectedItems={selectedItems}
         onBatchApprove={handleBatchApprove}
         onBatchArchive={handleBatchArchive}
+        isUpdating={isUpdating}
       />
       
       {/* Select all */}
@@ -66,6 +68,7 @@ export const ReviewQueueTab: React.FC<ReviewQueueTabProps> = ({
         hasItems={filteredIdeas.length > 0}
         allSelected={filteredIdeas.length > 0 && selectedItems.length === filteredIdeas.length}
         onSelectAll={handleSelectAll}
+        isDisabled={isUpdating}
       />
       
       {/* Review items */}
@@ -74,6 +77,7 @@ export const ReviewQueueTab: React.FC<ReviewQueueTabProps> = ({
           key={idea.id}
           idea={idea}
           isSelected={selectedItems.includes(idea.id)}
+          isUpdating={isUpdating}
           onToggleSelect={handleToggleSelect}
           onPreview={() => setPreviewItem(idea.id)}
           onApprove={handleApprove}
@@ -89,6 +93,7 @@ export const ReviewQueueTab: React.FC<ReviewQueueTabProps> = ({
         onClose={() => setPreviewItem(null)}
         onApprove={handleApprove}
         onArchive={handleArchive}
+        isUpdating={isUpdating}
       />
       
       {/* Delete confirmation */}
@@ -97,6 +102,7 @@ export const ReviewQueueTab: React.FC<ReviewQueueTabProps> = ({
         onOpenChange={setDeleteConfirmOpen}
         onConfirm={handleConfirmDelete}
         onCancel={() => setItemToDelete(null)}
+        isLoading={isUpdating}
       />
     </div>
   );
