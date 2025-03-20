@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Navigate, Outlet } from 'react-router-dom';
+import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import { Loading } from '@/components/ui/loading';
 
@@ -18,6 +18,7 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   redirectPath = "/login"
 }) => {
   const { user, loading, isAdmin } = useAuth();
+  const location = useLocation();
   
   if (loading) {
     return <Loading fullScreen size="lg" />;
@@ -39,6 +40,7 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   
   // For admin-only routes, redirect to dashboard if not an admin
   if (requireAdmin && !isAdmin) {
+    console.log('User is not an admin, redirecting from:', location.pathname);
     return <Navigate to="/dashboard" replace />;
   }
   

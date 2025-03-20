@@ -13,13 +13,15 @@ import {
   FileText,
   Settings,
   ChevronRight,
-  LayoutDashboardIcon
+  LayoutDashboardIcon,
+  Webhook
 } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Skeleton } from '@/components/ui/skeleton';
 import AdminStats from '@/components/admin/AdminStats';
 import ActivityLog from '@/components/admin/ActivityLog';
 import SystemHealth from '@/components/admin/SystemHealth';
+import WebhookTester from '@/components/admin/WebhookTester';
 import { Separator } from '@/components/ui/separator';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
@@ -91,6 +93,12 @@ const AdminPage: React.FC = () => {
       description: "Manage API keys and system settings",
       icon: <Settings className="h-5 w-5" />,
       linkTo: "#system-config"
+    },
+    {
+      title: "Webhook Testing",
+      description: "Test transcript processing via webhooks",
+      icon: <Webhook className="h-5 w-5" />,
+      linkTo: "#webhooks"
     }
   ];
 
@@ -123,19 +131,20 @@ const AdminPage: React.FC = () => {
           <TabsTrigger value="landing-page">Landing Page</TabsTrigger>
           <TabsTrigger value="prompt-templates">Prompt Templates</TabsTrigger>
           <TabsTrigger value="system-config">System Config</TabsTrigger>
+          <TabsTrigger value="webhooks">Webhooks</TabsTrigger>
         </TabsList>
 
         <TabsContent value="dashboard" className="space-y-6">
           <AdminStats />
           
-          <div className="grid gap-6 md:grid-cols-3">
+          <div className="grid gap-6 md:grid-cols-2">
             <ActivityLog />
             <SystemHealth />
           </div>
           
           <div className="mt-8">
             <h2 className="text-xl font-semibold mb-4">Quick Access</h2>
-            <div className="grid gap-4 md:grid-cols-3">
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
               {quickAccessItems.map((item, index) => (
                 <QuickAccessCard
                   key={index}
@@ -159,6 +168,37 @@ const AdminPage: React.FC = () => {
 
         <TabsContent value="system-config">
           <NotImplementedSection title="System Configuration" />
+        </TabsContent>
+        
+        <TabsContent value="webhooks" className="space-y-6">
+          <h2 className="text-xl font-semibold mb-4">Webhook Testing</h2>
+          <div className="grid gap-6 md:grid-cols-2">
+            <WebhookTester />
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg font-medium">Webhook Documentation</CardTitle>
+                <CardDescription>
+                  How to integrate with our webhook endpoints
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <p className="text-sm text-muted-foreground">
+                  Our webhook API allows third-party services to send transcripts directly to your account.
+                  The system will automatically process them and generate content ideas.
+                </p>
+                
+                <div className="p-4 rounded-md bg-muted text-sm font-mono">
+                  <p>POST /api/webhook/transcript</p>
+                  <p className="mt-2">Required fields:</p>
+                  <ul className="ml-4 list-disc">
+                    <li>service: string</li>
+                    <li>content: string</li>
+                    <li>userId: string (optional if webhook is registered)</li>
+                  </ul>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
         </TabsContent>
       </Tabs>
     </div>
