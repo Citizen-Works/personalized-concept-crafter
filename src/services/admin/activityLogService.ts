@@ -19,27 +19,44 @@ export interface AdminActivityLog {
 
 export async function fetchAdminActivityLogs(limit = 50): Promise<AdminActivityLog[]> {
   try {
-    // Use proper table name from the migration
+    // First, get activity logs
     const { data, error } = await supabase
       .from('admin_activity_logs')
-      .select(`
-        *,
-        user:profiles!admin_activity_logs_user_id_fkey(
-          email:id,
-          name
-        )
-      `)
+      .select('*')
       .order('created_at', { ascending: false })
       .limit(limit);
     
     if (error) throw error;
     
-    // Format the user data
+    // Then fetch user details for each unique user_id
+    const userIds = [...new Set(data.map(log => log.user_id))];
+    const userDetailsPromises = userIds.map(userId => 
+      supabase
+        .from('profiles')
+        .select('id, name')
+        .eq('id', userId)
+        .single()
+    );
+    
+    const userResponses = await Promise.all(userDetailsPromises);
+    
+    // Create a map of user details
+    const userMap = new Map();
+    userResponses.forEach(response => {
+      if (!response.error && response.data) {
+        userMap.set(response.data.id, {
+          email: response.data.id,  // Using ID as email since we don't have direct email access
+          name: response.data.name || 'Unknown'
+        });
+      }
+    });
+    
+    // Attach user details to logs
     return data.map(log => ({
       ...log,
-      user: {
-        email: log.user?.email || 'Unknown',
-        name: log.user?.name || 'Unknown'
+      user: userMap.get(log.user_id) || {
+        email: log.user_id,
+        name: 'Unknown'
       }
     })) as AdminActivityLog[];
   } catch (error) {
@@ -51,27 +68,45 @@ export async function fetchAdminActivityLogs(limit = 50): Promise<AdminActivityL
 
 export async function fetchAdminActivityLogsByEntity(entityType: string, entityId: string): Promise<AdminActivityLog[]> {
   try {
+    // First, get activity logs
     const { data, error } = await supabase
       .from('admin_activity_logs')
-      .select(`
-        *,
-        user:profiles!admin_activity_logs_user_id_fkey(
-          email:id,
-          name
-        )
-      `)
+      .select('*')
       .eq('entity_type', entityType)
       .eq('entity_id', entityId)
       .order('created_at', { ascending: false });
     
     if (error) throw error;
     
-    // Format the user data
+    // Then fetch user details for each unique user_id
+    const userIds = [...new Set(data.map(log => log.user_id))];
+    const userDetailsPromises = userIds.map(userId => 
+      supabase
+        .from('profiles')
+        .select('id, name')
+        .eq('id', userId)
+        .single()
+    );
+    
+    const userResponses = await Promise.all(userDetailsPromises);
+    
+    // Create a map of user details
+    const userMap = new Map();
+    userResponses.forEach(response => {
+      if (!response.error && response.data) {
+        userMap.set(response.data.id, {
+          email: response.data.id,  // Using ID as email since we don't have direct email access
+          name: response.data.name || 'Unknown'
+        });
+      }
+    });
+    
+    // Attach user details to logs
     return data.map(log => ({
       ...log,
-      user: {
-        email: log.user?.email || 'Unknown',
-        name: log.user?.name || 'Unknown'
+      user: userMap.get(log.user_id) || {
+        email: log.user_id,
+        name: 'Unknown'
       }
     })) as AdminActivityLog[];
   } catch (error) {

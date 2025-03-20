@@ -1,9 +1,12 @@
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { 
-  buildBaseTemplate,
-  getContentTypeSpecificSections,
-  getBestPractices 
+  buildBasePromptStructure,
+  getBestPracticesSection,
+  buildBusinessContextSection,
+  buildContentPillarsSection,
+  buildTargetAudiencesSection,
+  buildWritingStyleSections
 } from '@/utils/promptBuilder';
 import { PromptTemplate } from './promptTemplateService';
 
@@ -30,7 +33,7 @@ export async function checkPromptTemplatesExist(): Promise<boolean> {
   }
 }
 
-// Generate base templates from code files and store in the database
+// Extract base templates from available functions and store in the database
 export async function extractAndGenerateBaseTemplates(): Promise<boolean> {
   try {
     // Check if templates already exist
@@ -45,10 +48,36 @@ export async function extractAndGenerateBaseTemplates(): Promise<boolean> {
     const currentUser = await supabase.auth.getUser();
     const userId = currentUser.data.user?.id;
     
-    // Extract base templates
-    const baseTemplates = buildBaseTemplate();
-    const contentTypeTemplates = getContentTypeSpecificSections();
-    const bestPracticesTemplates = getBestPractices();
+    // Create dummy data for testing functions
+    const dummyUser = { id: 'dummy', name: 'Dummy User', businessName: 'Dummy Business', businessDescription: 'A test business' };
+    const dummyPillars = [{ id: '1', name: 'Test Pillar', description: 'Test description' }];
+    const dummyAudiences = [{ id: '1', name: 'Test Audience', description: 'Test audience', painPoints: ['pain'], goals: ['goal'] }];
+    const dummyStyleProfile = { voiceAnalysis: 'Test voice', generalStyleGuide: 'Test style' };
+    
+    // Extract different parts of the prompt structure as templates
+    // Base templates
+    const baseTemplates = {
+      'business_context': buildBusinessContextSection(dummyUser).content,
+      'content_pillars': buildContentPillarsSection(dummyPillars).content,
+      'target_audiences': buildTargetAudiencesSection(dummyAudiences).content,
+    };
+    
+    // Content type specific style guides
+    const contentTypes = ['linkedin', 'newsletter', 'marketing'];
+    const contentTypeTemplates = {};
+    
+    for (const contentType of contentTypes) {
+      const styleSections = buildWritingStyleSections(dummyStyleProfile, contentType as any);
+      contentTypeTemplates[contentType] = {
+        'style_guide': styleSections[0].content, // Use first section as example
+      };
+    }
+    
+    // Best practices for different content types
+    const bestPracticesTemplates = {};
+    for (const contentType of contentTypes) {
+      bestPracticesTemplates[contentType] = getBestPracticesSection(contentType as any).content;
+    }
     
     // Prepare templates for database
     const baseTemplateEntries = Object.entries(baseTemplates).map(([key, content]) => ({
@@ -83,7 +112,7 @@ export async function extractAndGenerateBaseTemplates(): Promise<boolean> {
       content: content,
       description: `Best practices for ${key}`,
       category: TEMPLATE_CATEGORIES.BEST_PRACTICES,
-      content_type: null,
+      content_type: key,
       is_active: true,
       updated_by: userId
     }));
@@ -133,26 +162,18 @@ export async function getPromptTemplate(templateKey: string): Promise<string> {
     }
     
     // Otherwise fall back to code-based templates
-    // This would need custom logic based on the template key to extract from code
     console.log(`Template ${templateKey} not found in database, falling back to code`);
     
     // Example fallback logic based on template key
-    if (templateKey.startsWith('base_')) {
-      const key = templateKey.replace('base_', '');
-      const templates = buildBaseTemplate();
-      return templates[key] || '';
+    if (templateKey.startsWith('base_business_context')) {
+      return buildBusinessContextSection(null).content;
+    } else if (templateKey.startsWith('base_content_pillars')) {
+      return buildContentPillarsSection([]).content;
+    } else if (templateKey.startsWith('base_target_audiences')) {
+      return buildTargetAudiencesSection([]).content;
     } else if (templateKey.startsWith('best_practices_')) {
-      const key = templateKey.replace('best_practices_', '');
-      const templates = getBestPractices();
-      return templates[key] || '';
-    } else if (templateKey.startsWith('content_type_')) {
-      // Parse content_type_linkedin_intro -> [linkedin, intro]
-      const parts = templateKey.replace('content_type_', '').split('_');
-      const contentType = parts[0];
-      const sectionKey = parts.slice(1).join('_');
-      
-      const templates = getContentTypeSpecificSections();
-      return templates[contentType]?.[sectionKey] || '';
+      const contentType = templateKey.replace('best_practices_', '');
+      return getBestPracticesSection(contentType as any).content;
     }
     
     return '';
