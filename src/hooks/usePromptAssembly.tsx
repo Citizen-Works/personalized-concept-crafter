@@ -30,7 +30,9 @@ import {
   invalidateUserCache as invalidateCache 
 } from '@/utils/promptCache';
 import { WritingStyleProfile } from '@/types/writingStyle';
-import { usePersonalStories } from "@/hooks/usePersonalStories";
+
+// Import the service function directly instead of the hook
+import { fetchPersonalStories } from '@/services/profile';
 
 export const usePromptAssembly = () => {
   // Function to get a cached prompt or create a new one
@@ -178,7 +180,8 @@ export const usePromptAssembly = () => {
     }
     
     // Add relevant personal stories (if available)
-    const { stories } = usePersonalStories();
+    // Instead of using the hook, use the service function directly
+    const stories = await fetchPersonalStories(userId);
     const relevantStories = selectRelevantStories(stories, idea, contentType);
     if (relevantStories.length > 0) {
       finalPrompt = addPersonalStoriesToPrompt(finalPrompt, relevantStories);
