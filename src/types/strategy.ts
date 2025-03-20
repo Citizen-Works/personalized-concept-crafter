@@ -57,3 +57,16 @@ export interface StoryUsage {
   usageDate: Date;
   createdAt: Date;
 }
+
+export interface CallToAction {
+  id: string;
+  userId: string;
+  text: string;
+  description: string | null;
+  type: string;
+  url: string | null;
+  usageCount: number;
+  isArchived: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
