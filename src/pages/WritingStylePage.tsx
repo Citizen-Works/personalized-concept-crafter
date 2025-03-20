@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { WritingStyleHeader } from '@/components/writing-style/WritingStyleHeader';
@@ -18,7 +19,7 @@ import { Link } from 'react-router-dom';
 
 const WritingStylePage = () => {
   const { user } = useAuth();
-  const { profile, isLoading, saveProfile, handleChange } = useWritingStyle();
+  const { profile, isLoading, saveProfile, handleChange, writingStyle, refetch } = useWritingStyle();
   const [activeTab, setActiveTab] = useState("general");
   
   const [formState, setFormState] = useState<Partial<WritingStyleProfile>>({
@@ -102,6 +103,47 @@ const WritingStylePage = () => {
     } finally {
       setIsSaving(false);
     }
+  };
+
+  // Create a complete WritingStyleProfile object with both camelCase and snake_case properties
+  const getCompleteProfile = (): WritingStyleProfile => {
+    return {
+      id: profile?.id || '',
+      userId: user?.id || '',
+      user_id: user?.id || '',
+      
+      // Both camelCase and snake_case versions
+      voiceAnalysis: formState.voiceAnalysis || '',
+      voice_analysis: formState.voiceAnalysis || '',
+      
+      generalStyleGuide: formState.generalStyleGuide || '',
+      general_style_guide: formState.generalStyleGuide || '',
+      
+      linkedinStyleGuide: formState.linkedinStyleGuide || '',
+      linkedin_style_guide: formState.linkedinStyleGuide || '',
+      
+      newsletterStyleGuide: formState.newsletterStyleGuide || '',
+      newsletter_style_guide: formState.newsletterStyleGuide || '',
+      
+      marketingStyleGuide: formState.marketingStyleGuide || '',
+      marketing_style_guide: formState.marketingStyleGuide || '',
+      
+      vocabularyPatterns: formState.vocabularyPatterns || '',
+      vocabulary_patterns: formState.vocabularyPatterns || '',
+      
+      avoidPatterns: formState.avoidPatterns || '',
+      avoid_patterns: formState.avoidPatterns || '',
+      
+      // Empty arrays for examples
+      exampleQuotes: [],
+      linkedinExamples: [],
+      newsletterExamples: [],
+      marketingExamples: [],
+      
+      // Set default dates
+      createdAt: profile?.createdAt || new Date(),
+      updatedAt: profile?.updatedAt || new Date()
+    };
   };
 
   return (
@@ -196,7 +238,7 @@ const WritingStylePage = () => {
           </TabsContent>
           
           <TabsContent value="preview">
-            <WritingStylePreview writingStyle={formState as WritingStyleProfile} />
+            <WritingStylePreview writingStyle={getCompleteProfile()} />
           </TabsContent>
         </Tabs>
       </div>
@@ -212,3 +254,4 @@ const WritingStylePage = () => {
 };
 
 export default WritingStylePage;
+
