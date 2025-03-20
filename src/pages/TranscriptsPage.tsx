@@ -17,6 +17,8 @@ const TranscriptsPage = () => {
     selectedTranscript,
     transcriptContent,
     ideas,
+    processingDocuments,
+    isDocumentProcessing,
     isViewOpen,
     isIdeasDialogOpen,
     isUploadDialogOpen,
@@ -69,6 +71,8 @@ const TranscriptsPage = () => {
         isLoading={isLoading}
         isProcessing={isProcessing}
         selectedTranscript={selectedTranscript}
+        processingDocuments={processingDocuments}
+        isDocumentProcessing={isDocumentProcessing}
         onView={handleViewTranscript}
         onProcess={handleProcessTranscript}
       />

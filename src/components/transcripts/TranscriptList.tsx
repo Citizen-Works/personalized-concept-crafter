@@ -2,16 +2,19 @@
 import React from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { FileText, Calendar, AlignLeft, BrainCircuit, PlusCircle, Upload, Mic } from "lucide-react";
+import { FileText, Calendar, AlignLeft, BrainCircuit, PlusCircle, Upload, Mic, Loader2 } from "lucide-react";
 import { format } from "date-fns";
 import { Document } from "@/types";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Badge } from "@/components/ui/badge";
 
 interface TranscriptListProps {
   documents: Document[];
   isLoading: boolean;
   isProcessing: boolean;
   selectedTranscript: string | null;
+  processingDocuments?: Set<string>;
+  isDocumentProcessing?: (id: string) => boolean;
   onView: (content: string) => void;
   onProcess: (id: string) => void;
 }
@@ -21,6 +24,8 @@ const TranscriptList: React.FC<TranscriptListProps> = ({
   isLoading,
   isProcessing,
   selectedTranscript,
+  processingDocuments = new Set(),
+  isDocumentProcessing = (id) => processingDocuments.has(id),
   onView,
   onProcess,
 }) => {
@@ -40,47 +45,62 @@ const TranscriptList: React.FC<TranscriptListProps> = ({
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-      {documents.map((doc) => (
-        <Card key={doc.id} className="overflow-hidden">
-          <CardHeader>
-            <CardTitle className="line-clamp-1 text-lg">{doc.title}</CardTitle>
-            <CardDescription className="flex items-center gap-1">
-              <Calendar className="h-3 w-3" />
-              {format(doc.createdAt, "MMM d, yyyy")}
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <p className="text-sm text-muted-foreground line-clamp-3">
-              {doc.content.substring(0, 150)}...
-            </p>
-          </CardContent>
-          <CardFooter className="flex justify-between gap-2">
-            <Button 
-              variant="outline" 
-              size="sm"
-              onClick={() => onView(doc.content)}
-            >
-              <AlignLeft className="h-4 w-4 mr-1" />
-              View
-            </Button>
-            <Button 
-              variant="default" 
-              size="sm"
-              onClick={() => onProcess(doc.id)}
-              disabled={isProcessing && selectedTranscript === doc.id}
-            >
-              {isProcessing && selectedTranscript === doc.id ? (
-                "Processing..."
-              ) : (
-                <>
-                  <BrainCircuit className="h-4 w-4 mr-1" />
-                  Extract Ideas
-                </>
-              )}
-            </Button>
-          </CardFooter>
-        </Card>
-      ))}
+      {documents.map((doc) => {
+        const isCurrentlyProcessing = isDocumentProcessing(doc.id);
+        
+        return (
+          <Card key={doc.id} className="overflow-hidden">
+            <CardHeader>
+              <div className="flex justify-between items-start">
+                <CardTitle className="line-clamp-1 text-lg">{doc.title}</CardTitle>
+                {doc.processing_status === 'processing' || isCurrentlyProcessing ? (
+                  <Badge variant="outline" className="bg-yellow-50 text-yellow-700 border-yellow-300 flex items-center gap-1">
+                    <Loader2 className="h-3 w-3 animate-spin" />
+                    Processing
+                  </Badge>
+                ) : null}
+              </div>
+              <CardDescription className="flex items-center gap-1">
+                <Calendar className="h-3 w-3" />
+                {format(doc.createdAt, "MMM d, yyyy")}
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-muted-foreground line-clamp-3">
+                {doc.content.substring(0, 150)}...
+              </p>
+            </CardContent>
+            <CardFooter className="flex justify-between gap-2">
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => onView(doc.content)}
+              >
+                <AlignLeft className="h-4 w-4 mr-1" />
+                View
+              </Button>
+              <Button 
+                variant="default" 
+                size="sm"
+                onClick={() => onProcess(doc.id)}
+                disabled={(isProcessing && selectedTranscript === doc.id) || isCurrentlyProcessing}
+              >
+                {isCurrentlyProcessing ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-1 animate-spin" />
+                    Processing...
+                  </>
+                ) : (
+                  <>
+                    <BrainCircuit className="h-4 w-4 mr-1" />
+                    Extract Ideas
+                  </>
+                )}
+              </Button>
+            </CardFooter>
+          </Card>
+        );
+      })}
     </div>
   );
 };

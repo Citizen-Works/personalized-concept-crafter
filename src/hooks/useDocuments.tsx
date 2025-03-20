@@ -61,7 +61,12 @@ export const useDocuments = (filters?: DocumentFilterOptions) => {
 
   // Mutation for processing transcripts
   const processTranscriptMutation = useMutation({
-    mutationFn: (documentId: string) => processTranscriptForIdeas(user?.id || "", documentId),
+    mutationFn: (params: { documentId: string; backgroundMode?: boolean }) => 
+      processTranscriptForIdeas(
+        user?.id || "", 
+        params.documentId, 
+        params.backgroundMode
+      ),
   });
 
   // Memoized create function to prevent unnecessary rerenders
@@ -85,6 +90,17 @@ export const useDocuments = (filters?: DocumentFilterOptions) => {
     updateDocumentStatusMutation.mutate({ id, status });
   }, [updateDocumentStatusMutation]);
 
+  // Process transcript with optional background mode
+  const processTranscriptCallback = useCallback((
+    documentId: string, 
+    backgroundMode: boolean = false
+  ) => {
+    return processTranscriptMutation.mutateAsync({ 
+      documentId, 
+      backgroundMode 
+    });
+  }, [processTranscriptMutation]);
+
   // Return memoized value to prevent downstream rerenders
   return useMemo(() => ({
     documents: documentsQuery.data || [],
@@ -93,7 +109,7 @@ export const useDocuments = (filters?: DocumentFilterOptions) => {
     createDocument: createDocumentCallback,
     uploadDocument: uploadDocumentCallback,
     updateDocumentStatus: updateDocumentStatusCallback,
-    processTranscript: processTranscriptMutation.mutateAsync,
+    processTranscript: processTranscriptCallback,
     uploadProgress,
   }), [
     documentsQuery.data,
@@ -102,7 +118,7 @@ export const useDocuments = (filters?: DocumentFilterOptions) => {
     createDocumentCallback,
     uploadDocumentCallback,
     updateDocumentStatusCallback,
-    processTranscriptMutation.mutateAsync,
+    processTranscriptCallback,
     uploadProgress
   ]);
 };

@@ -1,7 +1,9 @@
-import { useState } from 'react';
+
+import { useState, useCallback, useEffect } from 'react';
 import { useDocuments } from '@/hooks/useDocuments';
 import { toast } from 'sonner';
 import { DocumentType } from '@/types';
+import { useNavigate } from 'react-router-dom';
 
 // Interface for idea items returned from the API
 interface IdeaItem {
@@ -17,6 +19,8 @@ interface IdeasResponse {
 }
 
 export const useTranscripts = () => {
+  const navigate = useNavigate();
+  
   // Use the correct document type for the query
   const { documents, isLoading, processTranscript, uploadDocument } = useDocuments({ 
     type: "transcript" as DocumentType,
@@ -27,6 +31,7 @@ export const useTranscripts = () => {
   const [transcriptContent, setTranscriptContent] = useState<string>("");
   const [isViewOpen, setIsViewOpen] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [processingDocuments, setProcessingDocuments] = useState<Set<string>>(new Set());
   const [ideas, setIdeas] = useState<IdeasResponse | string | null>(null);
   const [isIdeasDialogOpen, setIsIdeasDialogOpen] = useState(false);
   
@@ -34,26 +39,64 @@ export const useTranscripts = () => {
   const [isAddTextDialogOpen, setIsAddTextDialogOpen] = useState(false);
   const [isRecordingDialogOpen, setIsRecordingDialogOpen] = useState(false);
 
+  // Check for processing documents in local storage on initial load
+  useEffect(() => {
+    const storedProcessingDocs = localStorage.getItem('processingDocuments');
+    if (storedProcessingDocs) {
+      try {
+        setProcessingDocuments(new Set(JSON.parse(storedProcessingDocs)));
+      } catch (e) {
+        console.error('Error parsing processing documents from localStorage:', e);
+      }
+    }
+  }, []);
+
+  // Update local storage when processing documents change
+  useEffect(() => {
+    if (processingDocuments.size > 0) {
+      localStorage.setItem('processingDocuments', JSON.stringify([...processingDocuments]));
+    } else {
+      localStorage.removeItem('processingDocuments');
+    }
+  }, [processingDocuments]);
+
   const handleViewTranscript = (content: string) => {
     setTranscriptContent(content);
     setIsViewOpen(true);
   };
 
   const handleProcessTranscript = async (id: string) => {
-    setIsProcessing(true);
-    setSelectedTranscript(id);
-    
     try {
-      const result = await processTranscript(id);
-      setIdeas(result);
-      setIsIdeasDialogOpen(true);
-      toast.success("Transcript processed successfully");
+      // Mark as processing in UI
+      setProcessingDocuments(prev => new Set([...prev, id]));
+      
+      // Start background processing
+      toast.info("Starting idea extraction in the background. You can continue using the app.", {
+        duration: 5000,
+        description: "You'll be notified when it's complete."
+      });
+      
+      // Process in background mode
+      await processTranscript(id, true);
+      
+      // We don't show the results directly anymore, just notify the user
+      toast.success("Transcript is being processed. You'll be notified when it's complete.", {
+        duration: 5000,
+        action: {
+          label: "View Ideas",
+          onClick: () => navigate('/ideas')
+        }
+      });
     } catch (error) {
       console.error("Failed to process transcript:", error);
-      toast.error("Failed to process transcript");
-    } finally {
-      setIsProcessing(false);
-      setSelectedTranscript(null);
+      toast.error("Failed to start idea extraction");
+      
+      // Remove from processing list
+      setProcessingDocuments(prev => {
+        const next = new Set([...prev]);
+        next.delete(id);
+        return next;
+      });
     }
   };
   
@@ -149,6 +192,11 @@ export const useTranscripts = () => {
     }
   };
 
+  // Check if a document is currently being processed
+  const isDocumentProcessing = useCallback((id: string) => {
+    return processingDocuments.has(id);
+  }, [processingDocuments]);
+
   return {
     documents,
     isLoading,
@@ -156,6 +204,8 @@ export const useTranscripts = () => {
     selectedTranscript,
     transcriptContent,
     ideas,
+    processingDocuments,
+    isDocumentProcessing,
     
     isViewOpen,
     isIdeasDialogOpen,
