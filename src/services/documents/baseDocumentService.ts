@@ -44,8 +44,7 @@ export const fetchDocuments = async (
   const documentsWithDecryptedContent = await Promise.all(
     data.map(async (item) => {
       // Check if the document is a transcript and might be encrypted
-      const isEncrypted = 'is_encrypted' in item ? item.is_encrypted === true : 
-                         (item.type === 'transcript' && item.content?.length > 100);
+      const isEncrypted = item.is_encrypted === true;
       
       let content = item.content || "";
       

@@ -185,6 +185,7 @@ export type Database = {
           content_type: string | null
           created_at: string
           id: string
+          is_encrypted: boolean | null
           purpose: string
           status: string
           title: string
@@ -197,6 +198,7 @@ export type Database = {
           content_type?: string | null
           created_at?: string
           id?: string
+          is_encrypted?: boolean | null
           purpose?: string
           status?: string
           title: string
@@ -209,6 +211,7 @@ export type Database = {
           content_type?: string | null
           created_at?: string
           id?: string
+          is_encrypted?: boolean | null
           purpose?: string
           status?: string
           title?: string

@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -11,7 +12,7 @@ export interface WebhookConfiguration {
   id: string;
   user_id: string;
   service_name: WebhookService;
-  is_active: boolean;
+  is_active: boolean | null;
   webhook_url: string | null;
   api_key: string | null;
   created_at: string;
@@ -62,7 +63,7 @@ export const useWebhookConfig = () => {
       return existingConfig.webhook_url;
     }
 
-    // Generate secure token instead of UUID
+    // Generate secure token
     const webhookUrl = generateSecureToken();
 
     // Create or update configuration
