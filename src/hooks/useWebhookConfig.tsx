@@ -64,14 +64,14 @@ export const useWebhookConfig = () => {
     }
 
     // Generate secure token
-    const webhookUrl = generateSecureToken();
+    const webhookToken = generateSecureToken();
 
     // Create or update configuration
     if (existingConfig) {
       const { error: updateError } = await supabase
         .from("webhook_configurations")
         .update({ 
-          webhook_url: webhookUrl,
+          webhook_url: webhookToken,
           updated_at: new Date().toISOString() 
         })
         .eq("id", existingConfig.id);
@@ -86,7 +86,7 @@ export const useWebhookConfig = () => {
         .insert({
           user_id: user.id,
           service_name: serviceName,
-          webhook_url: webhookUrl,
+          webhook_url: webhookToken,
           is_active: true,
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString()
@@ -101,7 +101,7 @@ export const useWebhookConfig = () => {
     // Invalidate queries to refresh data
     queryClient.invalidateQueries({ queryKey: ["webhook-configurations"] });
     
-    return webhookUrl;
+    return webhookToken;
   };
 
   const toggleServiceConnection = async (serviceName: WebhookService, isActive: boolean) => {
@@ -135,13 +135,13 @@ export const useWebhookConfig = () => {
       }
     } else {
       // Create new configuration with webhook URL
-      const webhookUrl = generateSecureToken();
+      const webhookToken = generateSecureToken();
       const { error: insertError } = await supabase
         .from("webhook_configurations")
         .insert({
           user_id: user.id,
           service_name: serviceName,
-          webhook_url: webhookUrl,
+          webhook_url: webhookToken,
           is_active: isActive,
           last_connected: isActive ? new Date().toISOString() : null
         });
@@ -159,7 +159,12 @@ export const useWebhookConfig = () => {
   const copyWebhookUrl = async (webhookUrl: string) => {
     try {
       setCopying(true);
-      await navigator.clipboard.writeText(`${window.location.origin}/api/webhook/${webhookUrl}`);
+      // Ensure we're copying the full URL
+      const fullUrl = webhookUrl.includes('/api/webhook/') 
+        ? webhookUrl 
+        : `${window.location.origin}/api/webhook/${webhookUrl}`;
+        
+      await navigator.clipboard.writeText(fullUrl);
       toast.success("Webhook URL copied to clipboard");
     } catch (error) {
       toast.error("Failed to copy webhook URL");

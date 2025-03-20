@@ -43,7 +43,8 @@ export interface LinkedinPost {
   tag: string;
 }
 
-export interface CallToAction {
+// Renamed to ContentCallToAction to avoid conflict with strategy.ts CallToAction
+export interface ContentCallToAction {
   id: string;
   userId: string;
   text: string;

@@ -24,6 +24,8 @@ serve(async (req) => {
   try {
     const url = new URL(req.url);
     console.log("Webhook request received at path:", url.pathname);
+    console.log("Request method:", req.method);
+    console.log("Request headers:", Object.fromEntries(req.headers.entries()));
     
     // Extract the token from the URL path
     // The format expected is /api/webhook/{token} or /{token}
@@ -47,13 +49,37 @@ serve(async (req) => {
     
     // Parse incoming data
     let requestData;
+    let rawBody = "";
     try {
-      requestData = await req.json();
-      console.log("Request data parsed successfully");
+      rawBody = await req.text();
+      console.log("Raw request body:", rawBody.substring(0, 500) + (rawBody.length > 500 ? "..." : ""));
+      
+      try {
+        requestData = JSON.parse(rawBody);
+        console.log("Request data parsed successfully as JSON");
+      } catch (jsonError) {
+        console.log("Not valid JSON, trying to handle as form data or other format");
+        
+        // Try to handle as form data if not valid JSON
+        const formData = new URLSearchParams(rawBody);
+        if (formData.has("payload")) {
+          try {
+            requestData = JSON.parse(formData.get("payload") || "{}");
+            console.log("Parsed as form data with payload parameter");
+          } catch (e) {
+            requestData = Object.fromEntries(formData.entries());
+            console.log("Using form data as object");
+          }
+        } else {
+          // If not form data with payload, just use as is
+          requestData = Object.fromEntries(formData.entries());
+          console.log("Using raw form data");
+        }
+      }
     } catch (error) {
       console.error("Failed to parse request data:", error);
       return new Response(
-        JSON.stringify({ error: "Invalid request data" }),
+        JSON.stringify({ error: "Invalid request data", details: error.message }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
@@ -72,7 +98,8 @@ serve(async (req) => {
           ip: clientIP,
           timestamp: new Date().toISOString(),
           headers: Object.fromEntries(req.headers.entries())
-        }
+        },
+        data: requestData
       }
     });
     
@@ -99,7 +126,7 @@ serve(async (req) => {
     if (documentError) {
       console.error("Error storing transcript:", documentError);
       return new Response(
-        JSON.stringify({ error: "Failed to store transcript" }),
+        JSON.stringify({ error: "Failed to store transcript", details: documentError }),
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }

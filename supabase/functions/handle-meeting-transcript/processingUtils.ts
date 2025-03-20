@@ -31,10 +31,14 @@ export function processTranscriptData(serviceName: WebhookService, requestData: 
       };
       
     case 'read':
+      // Enhanced read.ai handler with more flexible field mapping
       return {
         ...baseTranscript,
-        title: requestData.meeting_title || requestData.title || "Read.AI Transcript",
-        content: requestData.content || requestData.transcript || requestData.transcript_text || ""
+        title: requestData.meeting_title || requestData.title || requestData.name || 
+               requestData.metadata?.meeting_title || requestData.meta?.title || "Read.AI Transcript",
+        content: requestData.content || requestData.transcript || requestData.transcript_text || 
+                requestData.text || requestData.transcript_content || 
+                (requestData.body?.transcript) || (requestData.data?.transcript) || ""
       };
       
     case 'fireflies':

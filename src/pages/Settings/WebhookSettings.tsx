@@ -63,6 +63,10 @@ const WebhookSettings = () => {
     return config?.last_connected ? new Date(config.last_connected).toLocaleDateString() : null;
   };
 
+  const getFullWebhookUrl = (token: string) => {
+    return `${window.location.origin}/api/webhook/${token}`;
+  };
+
   return (
     <div className="space-y-6">
       <Card>
@@ -80,7 +84,7 @@ const WebhookSettings = () => {
                 <Input 
                   id="webhook-url" 
                   readOnly
-                  value={`${window.location.origin}/api/webhook/${webhookUrl}`}
+                  value={getFullWebhookUrl(webhookUrl)}
                   className="flex-1 font-mono text-sm"
                 />
               )}
@@ -89,7 +93,7 @@ const WebhookSettings = () => {
                   <TooltipTrigger asChild>
                     <Button 
                       variant="outline" 
-                      onClick={() => copyWebhookUrl(`${window.location.origin}/api/webhook/${webhookUrl}`)}
+                      onClick={() => copyWebhookUrl(getFullWebhookUrl(webhookUrl))}
                       disabled={loadingUrl || copying}
                     >
                       {copying ? <Check className="h-4 w-4" /> : <Clipboard className="h-4 w-4" />}

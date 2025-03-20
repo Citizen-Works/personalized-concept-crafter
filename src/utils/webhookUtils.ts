@@ -5,6 +5,7 @@
  * @returns Full webhook URL including domain 
  */
 export const getFullWebhookUrl = (token: string): string => {
+  // Ensure the URL has the /api/webhook/ path prefix
   return `${window.location.origin}/api/webhook/${token}`;
 };
 
@@ -14,6 +15,7 @@ export const getFullWebhookUrl = (token: string): string => {
  * @returns The token part of the URL
  */
 export const parseWebhookToken = (url: string): string | null => {
+  // Extract token from the end of the URL
   const parts = url.split('/');
   return parts[parts.length - 1] || null;
 };
