@@ -48,7 +48,7 @@ export const fetchDocument = async (userId: string, documentId: string): Promise
     content_type: data.content_type as DocumentContentType,
     createdAt: new Date(data.created_at),
     isEncrypted: isEncrypted,
-    processing_status: data.processing_status as DocumentProcessingStatus || 'idle',
+    processing_status: (data.processing_status || 'idle') as DocumentProcessingStatus,
     has_ideas: data.has_ideas || false,
     ideas_count: data.ideas_count || 0
   };

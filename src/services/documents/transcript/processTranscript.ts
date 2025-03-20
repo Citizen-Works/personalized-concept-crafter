@@ -6,6 +6,7 @@ import { generateIdeas } from "./generateIdeas";
 import { saveIdeas } from "./saveIdeas";
 import { IdeaResponse } from "./types";
 import { supabase } from "@/integrations/supabase/client";
+import { DocumentProcessingStatus } from "@/types/documents";
 
 /**
  * Processes a transcript to extract content ideas - can run in background
@@ -21,7 +22,7 @@ export const processTranscriptForIdeas = async (
   if (backgroundMode) {
     await supabase
       .from("documents")
-      .update({ processing_status: 'processing' })
+      .update({ processing_status: 'processing' as DocumentProcessingStatus })
       .eq("id", documentId)
       .eq("user_id", userId);
   }
@@ -47,7 +48,10 @@ export const processTranscriptForIdeas = async (
       if (backgroundMode) {
         await supabase
           .from("documents")
-          .update({ processing_status: 'completed', has_ideas: false })
+          .update({ 
+            processing_status: 'completed' as DocumentProcessingStatus, 
+            has_ideas: false 
+          })
           .eq("id", documentId)
           .eq("user_id", userId);
       }
@@ -66,7 +70,7 @@ export const processTranscriptForIdeas = async (
       await supabase
         .from("documents")
         .update({ 
-          processing_status: 'completed', 
+          processing_status: 'completed' as DocumentProcessingStatus, 
           has_ideas: true,
           ideas_count: savedIdeas.length
         })
@@ -86,7 +90,7 @@ export const processTranscriptForIdeas = async (
     if (backgroundMode) {
       await supabase
         .from("documents")
-        .update({ processing_status: 'failed' })
+        .update({ processing_status: 'failed' as DocumentProcessingStatus })
         .eq("id", documentId)
         .eq("user_id", userId);
     } else {
@@ -104,7 +108,7 @@ export const checkProcessingStatus = async (
   userId: string,
   documentId: string
 ): Promise<{
-  status: 'idle' | 'processing' | 'completed' | 'failed';
+  status: DocumentProcessingStatus;
   hasIdeas: boolean;
   ideasCount: number;
 }> => {
@@ -121,14 +125,14 @@ export const checkProcessingStatus = async (
     if (error) throw error;
     
     return {
-      status: data.processing_status || 'idle',
+      status: (data.processing_status || 'idle') as DocumentProcessingStatus,
       hasIdeas: data.has_ideas || false,
       ideasCount: data.ideas_count || 0
     };
   } catch (error) {
     console.error("Error checking processing status:", error);
     return {
-      status: 'idle',
+      status: 'idle' as DocumentProcessingStatus,
       hasIdeas: false,
       ideasCount: 0
     };

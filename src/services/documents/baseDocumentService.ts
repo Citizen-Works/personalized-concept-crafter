@@ -1,6 +1,6 @@
 
 import { supabase } from "@/integrations/supabase/client";
-import { Document, DocumentFilterOptions } from "@/types/documents";
+import { Document, DocumentFilterOptions, DocumentProcessingStatus } from "@/types/documents";
 import { toast } from "sonner";
 import { decryptContent } from "@/utils/encryptionUtils";
 
@@ -69,7 +69,7 @@ export const fetchDocuments = async (
         content_type: item.content_type as Document["content_type"],
         createdAt: new Date(item.created_at),
         isEncrypted: isEncrypted,
-        processing_status: item.processing_status || 'idle',
+        processing_status: (item.processing_status || 'idle') as DocumentProcessingStatus,
         has_ideas: item.has_ideas || false,
         ideas_count: item.ideas_count || 0
       };
