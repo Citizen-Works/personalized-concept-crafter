@@ -26,7 +26,7 @@ export const LanguagePatternsCard: React.FC<LanguagePatternsCardProps> = ({
         <div>
           <label className="text-sm font-medium mb-2 block">Vocabulary & Phrases to Use</label>
           <Textarea
-            name="vocabulary_patterns"
+            name="vocabularyPatterns"
             value={vocabularyValue}
             onChange={onChange}
             placeholder="Words, phrases or expressions you frequently use"
@@ -37,7 +37,7 @@ export const LanguagePatternsCard: React.FC<LanguagePatternsCardProps> = ({
         <div>
           <label className="text-sm font-medium mb-2 block">Patterns to Avoid</label>
           <Textarea
-            name="avoid_patterns"
+            name="avoidPatterns"
             value={avoidValue}
             onChange={onChange}
             placeholder="Words, phrases or structures you never use"

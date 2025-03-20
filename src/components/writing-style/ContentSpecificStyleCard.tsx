@@ -10,28 +10,28 @@ interface ContentSpecificStyleCardProps {
   onChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
 }
 
-export const ContentSpecificStyleCard: React.FC<ContentSpecificStyleCardProps> = ({ 
-  linkedinValue, 
-  newsletterValue, 
-  marketingValue, 
-  onChange 
+export const ContentSpecificStyleCard: React.FC<ContentSpecificStyleCardProps> = ({
+  linkedinValue,
+  newsletterValue,
+  marketingValue,
+  onChange,
 }) => {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Content-Specific Style Guides</CardTitle>
+        <CardTitle>Platform-Specific Writing Styles</CardTitle>
         <CardDescription>
-          Customize your style for different content types
+          Define how your voice adapts across different platforms
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         <div>
           <label className="text-sm font-medium mb-2 block">LinkedIn Style</label>
           <Textarea
-            name="linkedin_style_guide"
+            name="linkedinStyleGuide"
             value={linkedinValue}
             onChange={onChange}
-            placeholder="How you write LinkedIn posts (e.g., storytelling approach, use of emojis, post structure)"
+            placeholder="How you write specifically for LinkedIn"
             className="min-h-24"
           />
         </div>
@@ -39,10 +39,10 @@ export const ContentSpecificStyleCard: React.FC<ContentSpecificStyleCardProps> =
         <div>
           <label className="text-sm font-medium mb-2 block">Newsletter Style</label>
           <Textarea
-            name="newsletter_style_guide"
+            name="newsletterStyleGuide"
             value={newsletterValue}
             onChange={onChange}
-            placeholder="How you write newsletters (e.g., section structure, introduction style, sign-off)"
+            placeholder="How you write for email newsletters"
             className="min-h-24"
           />
         </div>
@@ -50,10 +50,10 @@ export const ContentSpecificStyleCard: React.FC<ContentSpecificStyleCardProps> =
         <div>
           <label className="text-sm font-medium mb-2 block">Marketing Style</label>
           <Textarea
-            name="marketing_style_guide"
+            name="marketingStyleGuide"
             value={marketingValue}
             onChange={onChange}
-            placeholder="How you write marketing content (e.g., call-to-actions, value proposition style)"
+            placeholder="How you write for marketing materials"
             className="min-h-24"
           />
         </div>

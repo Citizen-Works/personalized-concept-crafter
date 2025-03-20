@@ -19,7 +19,7 @@ export const GeneralStyleCard: React.FC<GeneralStyleCardProps> = ({ value, onCha
       </CardHeader>
       <CardContent>
         <Textarea
-          name="general_style_guide"
+          name="generalStyleGuide"
           value={value}
           onChange={onChange}
           placeholder="General writing preferences (e.g., sentence length, paragraph structure, use of jargon)"

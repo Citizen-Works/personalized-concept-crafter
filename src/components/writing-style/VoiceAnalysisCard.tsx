@@ -19,7 +19,7 @@ export const VoiceAnalysisCard: React.FC<VoiceAnalysisCardProps> = ({ value, onC
       </CardHeader>
       <CardContent>
         <Textarea
-          name="voice_analysis"
+          name="voiceAnalysis"
           value={value}
           onChange={onChange}
           placeholder="Describe your writing voice (e.g., professional but approachable, conversational with technical expertise)"

@@ -22,13 +22,13 @@ export const useWritingStyleForm = (initialProfile?: Partial<WritingStyleProfile
   useEffect(() => {
     if (initialProfile) {
       setFormState({
-        voiceAnalysis: initialProfile.voiceAnalysis || initialProfile.voice_analysis || '',
-        generalStyleGuide: initialProfile.generalStyleGuide || initialProfile.general_style_guide || '',
-        vocabularyPatterns: initialProfile.vocabularyPatterns || initialProfile.vocabulary_patterns || '',
-        avoidPatterns: initialProfile.avoidPatterns || initialProfile.avoid_patterns || '',
-        linkedinStyleGuide: initialProfile.linkedinStyleGuide || initialProfile.linkedin_style_guide || '',
-        newsletterStyleGuide: initialProfile.newsletterStyleGuide || initialProfile.newsletter_style_guide || '',
-        marketingStyleGuide: initialProfile.marketingStyleGuide || initialProfile.marketing_style_guide || '',
+        voiceAnalysis: initialProfile.voiceAnalysis || '',
+        generalStyleGuide: initialProfile.generalStyleGuide || '',
+        vocabularyPatterns: initialProfile.vocabularyPatterns || '',
+        avoidPatterns: initialProfile.avoidPatterns || '',
+        linkedinStyleGuide: initialProfile.linkedinStyleGuide || '',
+        newsletterStyleGuide: initialProfile.newsletterStyleGuide || '',
+        marketingStyleGuide: initialProfile.marketingStyleGuide || '',
       });
     }
   }, [initialProfile]);
@@ -103,7 +103,8 @@ export const useWritingStyleForm = (initialProfile?: Partial<WritingStyleProfile
       vocabularyPatterns: formState.vocabularyPatterns || '',
       avoidPatterns: formState.avoidPatterns || '',
       
-      // Include the snake_case aliases for backward compatibility
+      // Include the snake_case aliases for database operations
+      user_id: user?.id || '',
       voice_analysis: formState.voiceAnalysis || '',
       general_style_guide: formState.generalStyleGuide || '',
       linkedin_style_guide: formState.linkedinStyleGuide || '',
