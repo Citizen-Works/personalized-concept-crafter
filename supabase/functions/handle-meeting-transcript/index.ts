@@ -47,33 +47,65 @@ serve(async (req) => {
       );
     }
     
-    // Parse incoming data
+    // Parse incoming data with improved error handling and payload detection
     let requestData;
     let rawBody = "";
     try {
       rawBody = await req.text();
-      console.log("Raw request body:", rawBody.substring(0, 500) + (rawBody.length > 500 ? "..." : ""));
+      console.log(`Raw request body (first 500 chars): ${rawBody.substring(0, 500)}${rawBody.length > 500 ? "..." : ""}`);
       
+      // First try to parse as JSON
       try {
         requestData = JSON.parse(rawBody);
-        console.log("Request data parsed successfully as JSON");
+        console.log("Successfully parsed request body as JSON with keys:", Object.keys(requestData));
       } catch (jsonError) {
-        console.log("Not valid JSON, trying to handle as form data or other format");
+        console.log("Not valid JSON, trying alternate formats:", jsonError.message);
         
-        // Try to handle as form data if not valid JSON
-        const formData = new URLSearchParams(rawBody);
-        if (formData.has("payload")) {
+        // Look for JSON embedded in other formats like form data
+        const jsonMatch = rawBody.match(/(\{.*\})/s);
+        if (jsonMatch && jsonMatch[0]) {
           try {
-            requestData = JSON.parse(formData.get("payload") || "{}");
-            console.log("Parsed as form data with payload parameter");
-          } catch (e) {
-            requestData = Object.fromEntries(formData.entries());
-            console.log("Using form data as object");
+            console.log("Found JSON-like structure in the payload, attempting to parse");
+            requestData = JSON.parse(jsonMatch[0]);
+            console.log("Successfully extracted embedded JSON with keys:", Object.keys(requestData));
+          } catch (embeddedJsonError) {
+            console.log("Failed to parse embedded JSON:", embeddedJsonError.message);
           }
-        } else {
-          // If not form data with payload, just use as is
-          requestData = Object.fromEntries(formData.entries());
-          console.log("Using raw form data");
+        }
+        
+        // If still not parsed, try form data
+        if (!requestData) {
+          try {
+            console.log("Trying to parse as form data");
+            const formData = new URLSearchParams(rawBody);
+            
+            // Check for a payload parameter which might contain the actual JSON
+            if (formData.has("payload")) {
+              const payloadStr = formData.get("payload") || "{}";
+              try {
+                requestData = JSON.parse(payloadStr);
+                console.log("Successfully parsed payload parameter as JSON with keys:", Object.keys(requestData));
+              } catch (payloadJsonError) {
+                console.log("Failed to parse payload as JSON:", payloadJsonError.message);
+                requestData = { rawPayload: payloadStr };
+              }
+            } else {
+              // Use the form data directly
+              requestData = Object.fromEntries(formData.entries());
+              console.log("Using form data as object with keys:", Object.keys(requestData));
+            }
+          } catch (formDataError) {
+            console.log("Failed to parse as form data:", formDataError.message);
+          }
+        }
+        
+        // Last resort, treat the entire body as a raw string
+        if (!requestData) {
+          console.log("Using raw body as a text payload");
+          requestData = { 
+            content: rawBody,
+            rawText: true 
+          };
         }
       }
     } catch (error) {

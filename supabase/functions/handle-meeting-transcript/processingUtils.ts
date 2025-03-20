@@ -31,14 +31,64 @@ export function processTranscriptData(serviceName: WebhookService, requestData: 
       };
       
     case 'read':
-      // Enhanced read.ai handler with more flexible field mapping
+      // Enhanced Read.ai handler with specific field mapping based on their documentation
+      console.log("Processing Read.ai payload with keys:", Object.keys(requestData));
+      
+      // Attempt to extract transcript from various possible locations in the payload structure
+      let transcript = "";
+      
+      // First try the direct transcript field
+      if (requestData.transcript) {
+        console.log("Found direct transcript field");
+        transcript = requestData.transcript;
+      } 
+      // Try transcript within session data
+      else if (requestData.session_id && requestData.transcript) {
+        console.log("Found transcript in session data");
+        transcript = requestData.transcript;
+      }
+      // Try as part of a nested structure
+      else if (requestData.data?.transcript) {
+        console.log("Found transcript in data.transcript");
+        transcript = requestData.data.transcript;
+      }
+      // Try in deeper nested structures
+      else if (requestData.payload?.transcript) {
+        console.log("Found transcript in payload.transcript");
+        transcript = requestData.payload.transcript;
+      }
+      // Try other common locations
+      else if (requestData.content) {
+        console.log("Using content field as transcript");
+        transcript = requestData.content;
+      }
+      else if (requestData.text) {
+        console.log("Using text field as transcript");
+        transcript = requestData.text;
+      }
+      else {
+        // If we still can't find it, log the full payload for debugging
+        console.log("Could not locate transcript in Read.ai payload. Full payload:", JSON.stringify(requestData));
+        
+        // As a fallback, convert the entire payload to a string
+        transcript = JSON.stringify(requestData);
+      }
+      
+      // For title, try multiple possible locations
+      const title = 
+        requestData.title || 
+        requestData.meeting_title || 
+        (requestData.metadata?.title) || 
+        (requestData.metadata?.meeting_title) || 
+        (requestData.meta?.title) || 
+        `Read.ai Meeting (${new Date().toLocaleString()})`;
+      
+      console.log(`Extracted title: "${title}", transcript length: ${transcript.length} characters`);
+      
       return {
         ...baseTranscript,
-        title: requestData.meeting_title || requestData.title || requestData.name || 
-               requestData.metadata?.meeting_title || requestData.meta?.title || "Read.AI Transcript",
-        content: requestData.content || requestData.transcript || requestData.transcript_text || 
-                requestData.text || requestData.transcript_content || 
-                (requestData.body?.transcript) || (requestData.data?.transcript) || ""
+        title: title,
+        content: transcript
       };
       
     case 'fireflies':

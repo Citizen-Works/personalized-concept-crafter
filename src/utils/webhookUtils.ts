@@ -5,8 +5,16 @@
  * @returns Full webhook URL including domain 
  */
 export const getFullWebhookUrl = (token: string): string => {
-  // Ensure the URL has the /api/webhook/ path prefix
-  return `${window.location.origin}/api/webhook/${token}`;
+  // Check if token already contains the full URL
+  if (token.includes('http')) {
+    return token;
+  }
+  
+  // Ensure the token is clean (no slashes)
+  const cleanToken = token.replace(/^\/+|\/+$/g, '');
+  
+  // Build the full URL
+  return `${window.location.origin}/api/webhook/${cleanToken}`;
 };
 
 /**
@@ -15,9 +23,19 @@ export const getFullWebhookUrl = (token: string): string => {
  * @returns The token part of the URL
  */
 export const parseWebhookToken = (url: string): string | null => {
-  // Extract token from the end of the URL
-  const parts = url.split('/');
-  return parts[parts.length - 1] || null;
+  if (!url) return null;
+  
+  try {
+    // Try to parse as a URL first
+    const urlObj = new URL(url);
+    // Extract token from the end of the pathname
+    const pathParts = urlObj.pathname.split('/');
+    return pathParts[pathParts.length - 1] || null;
+  } catch (e) {
+    // If not a valid URL, try extracting from string directly
+    const parts = url.split('/');
+    return parts[parts.length - 1] || null;
+  }
 };
 
 /**
