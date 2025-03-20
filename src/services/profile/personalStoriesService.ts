@@ -32,6 +32,7 @@ export const fetchPersonalStories = async (userId: string): Promise<PersonalStor
     contentPillarIds: item.content_pillar_ids || [],
     targetAudienceIds: item.target_audience_ids || [],
     tags: item.tags || [],
+    lesson: item.lesson || "",  // Added the missing 'lesson' property
     usageGuidance: item.usage_guidance || "",
     createdAt: new Date(item.created_at),
     updatedAt: new Date(item.updated_at),
