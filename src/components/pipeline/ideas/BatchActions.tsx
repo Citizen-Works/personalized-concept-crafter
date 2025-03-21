@@ -1,18 +1,16 @@
 
 import React from 'react';
 import { Button } from "@/components/ui/button";
-import { Check, Loader2 } from "lucide-react";
+import { Trash, Loader2 } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 
 interface BatchActionsProps {
   selectedItems: string[];
-  onBatchApprove: () => Promise<void>;
   isUpdating: boolean;
 }
 
 export const BatchActions: React.FC<BatchActionsProps> = ({ 
   selectedItems, 
-  onBatchApprove,
   isUpdating
 }) => {
   if (selectedItems.length === 0) return null;
@@ -25,13 +23,13 @@ export const BatchActions: React.FC<BatchActionsProps> = ({
       <div className="flex items-center justify-between">
         <span className="text-sm font-medium">{selectedItems.length} items selected</span>
         <div className="flex gap-2">
-          <Button size="sm" onClick={onBatchApprove} disabled={isUpdating}>
+          <Button variant="destructive" size="sm" disabled={isUpdating}>
             {isUpdating ? (
               <Loader2 className="h-4 w-4 mr-1 animate-spin" />
             ) : (
-              <Check className="h-4 w-4 mr-1" />
+              <Trash className="h-4 w-4 mr-1" />
             )}
-            Set All as Active
+            Delete All
           </Button>
         </div>
       </div>

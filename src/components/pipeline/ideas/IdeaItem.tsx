@@ -6,7 +6,7 @@ import { Card, CardHeader, CardContent, CardFooter, CardTitle, CardDescription }
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
-import { ArrowUpRight, Check, Trash, Loader2 } from "lucide-react";
+import { ArrowUpRight, Trash, Loader2, Lightbulb } from "lucide-react";
 
 interface IdeaItemProps {
   idea: ContentIdea;
@@ -14,7 +14,6 @@ interface IdeaItemProps {
   isUpdating: boolean;
   onToggleSelect: (id: string) => void;
   onDelete: (id: string) => void;
-  onApprove: (id: string) => Promise<void>;
   getStatusBadgeClasses: (status: string) => string;
   getTypeBadgeClasses: (type: ContentType | null) => string;
 }
@@ -25,7 +24,6 @@ export const IdeaItem: React.FC<IdeaItemProps> = ({
   isUpdating,
   onToggleSelect,
   onDelete,
-  onApprove,
   getStatusBadgeClasses,
   getTypeBadgeClasses
 }) => {
@@ -78,12 +76,14 @@ export const IdeaItem: React.FC<IdeaItemProps> = ({
         <div className="flex gap-2">
           <Button 
             variant="default" 
-            size="icon" 
-            onClick={() => onApprove(idea.id)}
-            title="Set as Active"
-            disabled={isUpdating}
+            size="sm" 
+            asChild
+            title="Generate Content"
           >
-            {isUpdating ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}
+            <a href={`/ideas/${idea.id}`} target="_blank" rel="noopener noreferrer">
+              <Lightbulb className="h-4 w-4 mr-1" />
+              Generate Content
+            </a>
           </Button>
           <Button 
             variant="outline" 

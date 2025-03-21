@@ -11,14 +11,14 @@ interface UseIdeasListProps {
 }
 
 export const useIdeasList = ({ searchQuery, dateRange, contentTypeFilter }: UseIdeasListProps) => {
-  const { ideas, isLoading, deleteIdea, updateIdea } = useIdeas();
+  const { ideas, isLoading, deleteIdea } = useIdeas();
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [itemToDelete, setItemToDelete] = useState<string | null>(null);
   const [sortOrder, setSortOrder] = useState<'newest' | 'oldest' | 'alphabetical'>('newest');
   const [isDeleting, setIsDeleting] = useState(false);
   
-  // Filter ideas based on search and date range (not content type anymore)
+  // Filter ideas based on search and date range and content type if specified
   const filteredIdeas = useMemo(() => {
     return ideas.filter(idea => {
       // Filter to only show approved ideas (not unreviewed)
@@ -27,6 +27,11 @@ export const useIdeasList = ({ searchQuery, dateRange, contentTypeFilter }: UseI
       // Filter by search query
       if (searchQuery && !idea.title.toLowerCase().includes(searchQuery.toLowerCase()) &&
           !idea.description?.toLowerCase().includes(searchQuery.toLowerCase())) {
+        return false;
+      }
+      
+      // Filter by content type if not "all"
+      if (contentTypeFilter !== "all" && idea.contentType !== contentTypeFilter) {
         return false;
       }
       
@@ -41,7 +46,7 @@ export const useIdeasList = ({ searchQuery, dateRange, contentTypeFilter }: UseI
       
       return true;
     });
-  }, [ideas, searchQuery, dateRange]);
+  }, [ideas, searchQuery, dateRange, contentTypeFilter]);
   
   // Sort filtered ideas
   const sortedIdeas = useMemo(() => {
@@ -115,42 +120,6 @@ export const useIdeasList = ({ searchQuery, dateRange, contentTypeFilter }: UseI
     }
   };
 
-  // Handle set idea as active
-  const handleApprove = async (id: string) => {
-    if (isDeleting) return;
-    
-    try {
-      setIsDeleting(true);
-      // Fix: Using 'approved' status which is a valid ContentStatus value
-      await updateIdea({ id, status: 'approved' });
-      toast.success("Idea set as active");
-    } catch (error) {
-      console.error("Error updating idea:", error);
-      toast.error("Failed to update idea status");
-    } finally {
-      setIsDeleting(false);
-    }
-  };
-  
-  // Handle batch approve
-  const handleBatchApprove = async () => {
-    if (isDeleting || selectedItems.length === 0) return;
-    
-    try {
-      setIsDeleting(true);
-      // Fix: Using 'approved' status which is a valid ContentStatus value
-      const promises = selectedItems.map(id => updateIdea({ id, status: 'approved' }));
-      await Promise.all(promises);
-      toast.success(`${selectedItems.length} ideas set as active`);
-      setSelectedItems([]);
-    } catch (error) {
-      console.error("Error batch updating ideas:", error);
-      toast.error("Failed to update selected items");
-    } finally {
-      setIsDeleting(false);
-    }
-  };
-
   // Handle delete confirmation
   const handleDeleteConfirm = () => {
     if (itemToDelete) {
@@ -173,8 +142,6 @@ export const useIdeasList = ({ searchQuery, dateRange, contentTypeFilter }: UseI
     handleToggleSelect,
     handleSelectAll,
     handleDeleteConfirm,
-    handleApprove,
-    handleBatchApprove,
     isDeleting,
   };
 };

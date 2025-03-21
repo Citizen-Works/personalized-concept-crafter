@@ -37,8 +37,6 @@ export const IdeasTab: React.FC<IdeasTabProps> = ({
     handleSelectAll,
     handleDeleteConfirm,
     isDeleting,
-    handleApprove,
-    handleBatchApprove,
   } = useIdeasList({ searchQuery, dateRange, contentTypeFilter });
   
   if (isLoading) {
@@ -54,7 +52,6 @@ export const IdeasTab: React.FC<IdeasTabProps> = ({
       {/* Batch actions */}
       <BatchActions 
         selectedItems={selectedItems}
-        onBatchApprove={handleBatchApprove}
         isUpdating={isDeleting}
       />
       
@@ -78,7 +75,6 @@ export const IdeasTab: React.FC<IdeasTabProps> = ({
             setItemToDelete(id);
             setDeleteConfirmOpen(true);
           }}
-          onApprove={handleApprove}
           getStatusBadgeClasses={getStatusBadgeClasses}
           getTypeBadgeClasses={getTypeBadgeClasses}
         />
