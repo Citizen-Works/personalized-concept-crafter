@@ -11,7 +11,7 @@ import { toast } from 'sonner';
 import AssignAdminRole from '@/components/admin/AssignAdminRole';
 
 const ProfileSettings = () => {
-  const { user, logout } = useAuth();
+  const { user, logout, isAdmin } = useAuth();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [jobTitle, setJobTitle] = useState('');
@@ -181,7 +181,8 @@ const ProfileSettings = () => {
         </CardContent>
       </Card>
       
-      <AssignAdminRole />
+      {/* Only render the AssignAdminRole component if the user is an admin */}
+      {isAdmin && <AssignAdminRole />}
     </div>
   );
 };
