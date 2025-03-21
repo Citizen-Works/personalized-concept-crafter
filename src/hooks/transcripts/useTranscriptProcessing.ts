@@ -42,17 +42,17 @@ export const useTranscriptProcessing = (documents: Document[] = []) => {
     cancelProcessing
   } = useDocumentProcessing(documents, processTranscriptWrapper);
   
-  // Convert the Set<string> to string[] for the status monitor
+  // Convert the array to Set<string> for the status monitor
   const processingDocumentsSet = useMemo(() => 
-    new Set(processingDocuments), [processingDocuments]
+    new Set<string>(processingDocuments), [processingDocuments]
   );
   
-  // Create a wrapper function to convert between Set and array
+  // Create a proper wrapper function to handle the type conversions
   const updateProcessingDocumentsWrapper = useCallback(
     (updater: (prev: Set<string>) => Set<string>) => {
-      updateProcessingDocuments((prevArray) => {
+      updateProcessingDocuments((prevArray: string[]) => {
         // Convert array to Set, apply updater, convert back to array
-        const prevSet = new Set(prevArray);
+        const prevSet = new Set<string>(prevArray);
         const updatedSet = updater(prevSet);
         return Array.from(updatedSet);
       });

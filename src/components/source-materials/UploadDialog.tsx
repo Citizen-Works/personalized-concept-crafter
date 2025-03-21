@@ -28,7 +28,8 @@ const UploadDialog: React.FC<UploadDialogProps> = ({
   const [file, setFile] = useState<File | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [type] = useState<DocumentType>("document");
+  // Use a valid DocumentType from the enum
+  const [type, setType] = useState<DocumentType>("document");
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
