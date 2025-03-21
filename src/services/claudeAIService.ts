@@ -3,17 +3,91 @@ import { supabase } from '@/integrations/supabase/client';
 import { ContentIdea, ContentType } from '@/types';
 import { WritingStyleProfile } from '@/types/writingStyle';
 
+// Enum for error categories to enable consistent handling
+export enum ClaudeErrorCategory {
+  RATE_LIMIT = 'rate_limit',
+  CONTENT_POLICY = 'content_policy',
+  AUTHORIZATION = 'authorization',
+  SERVER_ERROR = 'server_error',
+  NETWORK_ERROR = 'network_error',
+  TIMEOUT = 'timeout',
+  UNKNOWN = 'unknown'
+}
+
+// Interface for structured error responses
+export interface ClaudeErrorResponse {
+  message: string;
+  category: ClaudeErrorCategory;
+  requestId?: string;
+  timestamp?: string;
+  retryable: boolean;
+}
+
+/**
+ * Parses error responses from Claude API to provide structured error information
+ */
+function parseClaudeError(error: any): ClaudeErrorResponse {
+  // Default error structure
+  const defaultError: ClaudeErrorResponse = {
+    message: 'An unknown error occurred when generating content',
+    category: ClaudeErrorCategory.UNKNOWN,
+    retryable: false
+  };
+  
+  // No error data
+  if (!error) return defaultError;
+  
+  // Extract error message
+  const message = error.message || error.error || 
+    (typeof error === 'string' ? error : 'Unknown error');
+  
+  // Determine error category based on message patterns
+  let category = ClaudeErrorCategory.UNKNOWN;
+  let retryable = false;
+  
+  if (message.includes('rate limit') || message.includes('429')) {
+    category = ClaudeErrorCategory.RATE_LIMIT;
+    retryable = true;
+  } else if (message.includes('content policy') || message.includes('content filter')) {
+    category = ClaudeErrorCategory.CONTENT_POLICY;
+    retryable = false;
+  } else if (message.includes('API key') || message.includes('403') || message.includes('authentication')) {
+    category = ClaudeErrorCategory.AUTHORIZATION;
+    retryable = false;
+  } else if (message.includes('500') || message.includes('502') || message.includes('503')) {
+    category = ClaudeErrorCategory.SERVER_ERROR;
+    retryable = true;
+  } else if (message.includes('network') || message.includes('connection')) {
+    category = ClaudeErrorCategory.NETWORK_ERROR;
+    retryable = true;
+  } else if (message.includes('timeout')) {
+    category = ClaudeErrorCategory.TIMEOUT;
+    retryable = true;
+  }
+  
+  return {
+    message,
+    category,
+    requestId: error.requestId,
+    timestamp: error.timestamp || new Date().toISOString(),
+    retryable
+  };
+}
+
 /**
  * Calls the Supabase Edge Function to generate content with Claude AI
+ * Enhanced with better error handling and tenant tracking
  */
 export async function generateContentWithClaude(
   prompt: string,
   contentType: ContentType,
-  idea: ContentIdea
+  idea: ContentIdea,
+  tenantId?: string
 ): Promise<string> {
   try {
     console.log(`Generating ${contentType} content for idea: ${idea.id}`);
     
+    // Include tenant information for multi-tenant tracking
     const { data, error } = await supabase.functions.invoke("generate-with-claude", {
       body: {
         prompt,
@@ -23,18 +97,23 @@ export async function generateContentWithClaude(
           title: idea.title,
           description: idea.description
         },
-        task: "content_generation"
+        task: "content_generation",
+        userId: idea.userId,
+        tenantId
       }
     });
 
     if (error) {
       console.error('Edge function error:', error);
-      throw new Error(error.message || 'Failed to generate content');
+      throw parseClaudeError(error);
     }
 
     if (!data?.content) {
       console.error('No content in response:', data);
-      throw new Error('No content generated');
+      throw parseClaudeError({
+        message: 'No content generated',
+        category: ClaudeErrorCategory.UNKNOWN
+      });
     }
     
     console.log(`Content generated successfully (${contentType})`);
@@ -43,18 +122,26 @@ export async function generateContentWithClaude(
     return String(data.content);
   } catch (error) {
     console.error('Error in generateContentWithClaude:', error);
+    
+    // Transform to structured error if needed
+    if (!(error as ClaudeErrorResponse).category) {
+      throw parseClaudeError(error);
+    }
+    
     throw error;
   }
 }
 
 /**
  * Generates a writing style preview based on the user's style profile and business information
+ * Enhanced with better error handling and tenant tracking
  */
 export async function generatePreviewWithClaude(
   styleProfile: WritingStyleProfile,
   contentType: ContentType = 'linkedin',
   businessName: string = '',
-  businessDescription: string = ''
+  businessDescription: string = '',
+  tenantId?: string
 ): Promise<string> {
   // Get the content-specific style guide based on the content type
   let contentSpecificGuide = '';
@@ -101,22 +188,28 @@ ONLY include the writing sample. Do NOT include any extra comments or notes. Onl
   try {
     console.log(`Generating writing style preview for ${contentType}`);
     
+    // Include tenant information for multi-tenant tracking
     const { data, error } = await supabase.functions.invoke("generate-with-claude", {
       body: {
         prompt,
         task: "writing_style_preview",
-        contentType
+        contentType,
+        userId: styleProfile.user_id,
+        tenantId
       }
     });
 
     if (error) {
       console.error('Edge function error in preview generation:', error);
-      throw new Error(error.message || 'Failed to generate preview');
+      throw parseClaudeError(error);
     }
 
     if (!data?.content) {
       console.error('No preview content in response:', data);
-      throw new Error('No preview generated');
+      throw parseClaudeError({
+        message: 'No preview generated',
+        category: ClaudeErrorCategory.UNKNOWN
+      });
     }
     
     console.log('Writing style preview generated successfully');
@@ -125,6 +218,12 @@ ONLY include the writing sample. Do NOT include any extra comments or notes. Onl
     return String(data.content);
   } catch (error) {
     console.error('Error in generatePreviewWithClaude:', error);
+    
+    // Transform to structured error if needed
+    if (!(error as ClaudeErrorResponse).category) {
+      throw parseClaudeError(error);
+    }
+    
     throw error;
   }
 }
