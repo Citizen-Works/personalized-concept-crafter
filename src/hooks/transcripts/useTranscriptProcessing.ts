@@ -47,18 +47,19 @@ export const useTranscriptProcessing = (documents: Document[] = []) => {
     new Set<string>(processingDocuments), [processingDocuments]
   );
   
-  // Fixed: Create a proper wrapper function to handle the type conversions
+  // Complete rewrite of updateProcessingDocumentsWrapper to fix the type issue
   const updateProcessingDocumentsWrapper = useCallback(
     (updater: (prev: Set<string>) => Set<string>) => {
-      // The issue is here - we need to directly update with an array, not a function
-      updateProcessingDocuments((prevArray) => {
-        // Convert array to Set, apply updater, convert back to array
-        const prevSet = new Set<string>(prevArray);
-        const newSet = updater(prevSet);
-        return Array.from(newSet);
-      });
+      // Get the current processingDocuments as a Set
+      const currentSet = new Set<string>(processingDocuments);
+      // Apply the updater function to get the new Set
+      const updatedSet = updater(currentSet);
+      // Convert the Set back to an array and update
+      const updatedArray = Array.from(updatedSet);
+      // Call updateProcessingDocuments with the new array directly
+      updateProcessingDocuments(updatedArray);
     },
-    [updateProcessingDocuments]
+    [processingDocuments, updateProcessingDocuments]
   );
   
   // Use the status monitor to track document status changes
