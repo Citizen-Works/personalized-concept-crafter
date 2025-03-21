@@ -1,40 +1,98 @@
 
-import { useState, useEffect } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { useAuth } from '@/context/auth';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 
-export interface UserSettings {
-  custom_instructions: string | null;
-  default_content_type: string | null;
-  content_length_preference: string;
-  use_personal_examples: boolean;
-}
+type UserSettings = {
+  id?: string;
+  user_id?: string;
+  custom_instructions?: string;
+  api_key?: string;
+  webhook_url?: string;
+  notification_email?: boolean;
+  notification_app?: boolean;
+  created_at?: string;
+  updated_at?: string;
+};
 
 export const useUserSettings = () => {
-  const { user } = useAuth();
+  const [settings, setSettings] = useState<UserSettings | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [settings, setSettings] = useState<UserSettings>({
-    custom_instructions: null,
-    default_content_type: 'linkedin',
-    content_length_preference: 'medium',
-    use_personal_examples: true
-  });
+  const [isSaving, setIsSaving] = useState(false);
+  const { user } = useAuth();
 
-  // For now this is a simple hook with default values
-  // In a real implementation, this would fetch settings from the database
-  useEffect(() => {
-    if (user) {
+  const fetchSettings = useCallback(async () => {
+    if (!user) return;
+    
+    try {
+      setIsLoading(true);
+      const { data, error } = await supabase
+        .from('user_settings')
+        .select('*')
+        .eq('user_id', user.id)
+        .single();
+      
+      if (error && error.code !== 'PGRST116') {
+        throw error;
+      }
+      
+      setSettings(data || { user_id: user.id });
+    } catch (error) {
+      console.error('Error fetching user settings:', error);
+      toast.error('Failed to load settings');
+    } finally {
       setIsLoading(false);
     }
   }, [user]);
 
-  const updateSettings = async (newSettings: Partial<UserSettings>) => {
-    setSettings(prev => ({ ...prev, ...newSettings }));
-    return true;
-  };
+  const saveSettings = useCallback(async (updatedSettings: Partial<UserSettings>) => {
+    if (!user) return;
+    
+    try {
+      setIsSaving(true);
+      
+      const settingsData = {
+        ...updatedSettings,
+        user_id: user.id,
+      };
+      
+      let response;
+      
+      if (settings?.id) {
+        response = await supabase
+          .from('user_settings')
+          .update(settingsData)
+          .eq('id', settings.id);
+      } else {
+        response = await supabase
+          .from('user_settings')
+          .insert([settingsData]);
+      }
+      
+      if (response.error) throw response.error;
+      
+      toast.success('Settings saved successfully');
+      await fetchSettings();
+    } catch (error) {
+      console.error('Error saving settings:', error);
+      toast.error('Failed to save settings');
+    } finally {
+      setIsSaving(false);
+    }
+  }, [user, settings, fetchSettings]);
+
+  useEffect(() => {
+    if (user) {
+      fetchSettings();
+    }
+  }, [user, fetchSettings]);
 
   return {
     settings,
     isLoading,
-    updateSettings
+    isSaving,
+    saveSettings,
+    refetch: fetchSettings
   };
 };

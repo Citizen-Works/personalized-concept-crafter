@@ -1,5 +1,8 @@
 
-import { Document, DocumentFilterOptions, DocumentCreateInput, DocumentUpdateInput } from '@/types';
+import { Document, DocumentFilterOptions, DocumentCreateInput } from '@/types';
+
+// Define DocumentUpdateInput since it's missing from @/types
+type DocumentUpdateInput = Partial<DocumentCreateInput> & { id: string };
 
 // Mock implementation for getting documents
 export const fetchDocuments = async (

@@ -17,6 +17,7 @@ import {
   addPatternsToAvoidToPrompt,
   addPersonalStoriesToPrompt
 } from '@/utils/promptBuilder';
+import { WritingStyleProfile } from '@/types/writingStyle';
 import { User } from '@/types/user';
 
 /**
@@ -63,7 +64,7 @@ export function usePromptAssembly() {
       userProfile, 
       contentPillars, 
       targetAudiences, 
-      profile,
+      profile as any, // Type cast to resolve the WritingStyleProfile incompatibility
       contentType
     );
     
@@ -78,7 +79,7 @@ export function usePromptAssembly() {
     }
     
     // Step 4: Add patterns to avoid from writing style
-    prompt = addPatternsToAvoidToPrompt(prompt, profile);
+    prompt = addPatternsToAvoidToPrompt(prompt, profile as any); // Type cast here as well
     
     // Step 5: Add content idea details
     prompt = addContentIdeaToPrompt(prompt, idea);
