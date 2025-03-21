@@ -1,20 +1,22 @@
+
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Save } from 'lucide-react';
+import { Save, LogOut } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import AssignAdminRole from '@/components/admin/AssignAdminRole';
 
 const ProfileSettings = () => {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [jobTitle, setJobTitle] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -65,8 +67,41 @@ const ProfileSettings = () => {
     }
   };
 
+  const handleLogout = async () => {
+    try {
+      setIsLoggingOut(true);
+      await logout();
+      // No need to navigate here as the AuthContext will handle it
+      toast.success('Logged out successfully');
+    } catch (error) {
+      console.error('Error logging out:', error);
+      toast.error('Failed to log out');
+      setIsLoggingOut(false);
+    }
+  };
+
   return (
     <div className="space-y-6">
+      {/* User Actions Card */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Account Actions</CardTitle>
+          <CardDescription>Manage your account session</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Button 
+            variant="destructive" 
+            className="gap-1" 
+            onClick={handleLogout}
+            disabled={isLoggingOut}
+          >
+            <LogOut className="h-4 w-4" />
+            {isLoggingOut ? 'Logging out...' : 'Sign Out'}
+          </Button>
+        </CardContent>
+      </Card>
+
+      {/* Personal Information Card */}
       <Card>
         <CardHeader>
           <CardTitle>Personal Information</CardTitle>
