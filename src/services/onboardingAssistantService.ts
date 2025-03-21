@@ -41,13 +41,21 @@ export type ProfileData = {
   };
 };
 
+// Metadata to provide context for different onboarding paths and modules
+export type OnboardingContextMetadata = {
+  onboardingPath?: string;
+  currentModule?: string;
+  moduleTitle?: string;
+};
+
 /**
  * Sends a message to the onboarding assistant
  */
 export async function sendMessageToAssistant(
   userId: string,
   messages: ChatMessage[],
-  existingProfileData?: ProfileData
+  existingProfileData?: ProfileData,
+  contextMetadata?: OnboardingContextMetadata
 ): Promise<string> {
   try {
     const { data, error } = await supabase.functions.invoke("onboarding-assistant", {
@@ -55,7 +63,8 @@ export async function sendMessageToAssistant(
         userId,
         messages,
         existingProfileData,
-        extractProfile: false
+        extractProfile: false,
+        contextMetadata
       }
     });
 

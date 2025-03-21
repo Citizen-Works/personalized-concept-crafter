@@ -6,8 +6,8 @@ import {
   MAX_TOKENS,
   corsHeaders 
 } from "./config.ts";
-import { ChatMessage, ClaudeResponse, ProfileData } from "./types.ts";
-import { getConsultantPrompt, getExtractionPrompt, getProfileContext } from "./prompts.ts";
+import { ChatMessage, ClaudeResponse, ProfileData, OnboardingContextMetadata } from "./types.ts";
+import { getConsultantPrompt, getExtractionPrompt, getProfileContext, getModulePrompt } from "./prompts.ts";
 
 /**
  * Makes a request to Claude API with the given messages and system prompt
@@ -46,14 +46,30 @@ export async function callClaude(
  */
 export async function processChat(
   messages: ChatMessage[], 
-  existingProfileData: ProfileData | null = null
+  existingProfileData: ProfileData | null = null,
+  contextMetadata: OnboardingContextMetadata | undefined = undefined
 ): Promise<string> {
+  // Start with base consultant prompt
   let systemPrompt = getConsultantPrompt();
   
   // Add context about existing profile data if available
   if (existingProfileData) {
     systemPrompt += '\n\n' + getProfileContext(existingProfileData);
   }
+  
+  // Add module-specific guidance if module context is provided
+  if (contextMetadata?.currentModule) {
+    const modulePrompt = getModulePrompt(
+      contextMetadata.currentModule, 
+      contextMetadata.onboardingPath || 'guided'
+    );
+    
+    if (modulePrompt) {
+      systemPrompt += '\n\n' + modulePrompt;
+    }
+  }
+  
+  console.log('Using system prompt:', systemPrompt);
   
   return await callClaude(messages, systemPrompt);
 }

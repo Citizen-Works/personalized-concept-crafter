@@ -1,13 +1,19 @@
 
-import React, { useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '@/context/auth';
 import OnboardingAssistant from '@/components/onboarding/OnboardingAssistant';
+import OnboardingWelcome from '@/components/onboarding/OnboardingWelcome';
 import { useIsMobile } from '@/hooks/use-mobile';
+
+// Different onboarding paths with their estimated times
+export type OnboardingPath = 'express' | 'guided' | 'discovery';
 
 const OnboardingPage = () => {
   const { user, loading } = useAuth();
   const isMobile = useIsMobile();
+  const [showWelcome, setShowWelcome] = useState(true);
+  const [selectedPath, setSelectedPath] = useState<OnboardingPath>('guided');
   
   // If authentication is loading, show loading state
   if (loading) {
@@ -25,7 +31,8 @@ const OnboardingPage = () => {
   if (!user) {
     return <Navigate to="/login" replace />;
   }
-  
+
+  // Show welcome screen first, then the onboarding assistant
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-2 sm:p-4 bg-background">
       <div className="w-full max-w-4xl mb-6 sm:mb-8">
@@ -35,7 +42,19 @@ const OnboardingPage = () => {
         </p>
       </div>
       
-      <OnboardingAssistant showCloseButton={false} />
+      {showWelcome ? (
+        <OnboardingWelcome 
+          onStart={(path) => {
+            setSelectedPath(path);
+            setShowWelcome(false);
+          }} 
+        />
+      ) : (
+        <OnboardingAssistant 
+          showCloseButton={false} 
+          onboardingPath={selectedPath}
+        />
+      )}
     </div>
   );
 };

@@ -43,11 +43,18 @@ export type ChatMessage = {
   content: string;
 };
 
+export type OnboardingContextMetadata = {
+  onboardingPath?: string;
+  currentModule?: string;
+  moduleTitle?: string;
+};
+
 export type RequestData = {
   messages: ChatMessage[];
   userId: string;
   existingProfileData?: ProfileData;
   extractProfile: boolean;
+  contextMetadata?: OnboardingContextMetadata;
 };
 
 export type ClaudeResponse = {

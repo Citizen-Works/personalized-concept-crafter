@@ -1,3 +1,4 @@
+
 import { corsHeaders, validateConfig } from "./config.ts";
 import { RequestData, ProfileData } from "./types.ts";
 import { processChat, extractProfileData } from "./claudeService.ts";
@@ -25,10 +26,11 @@ export async function handleRequest(req: Request): Promise<Response> {
     console.log('Request data received:', JSON.stringify(requestData, null, 2));
 
     // Extract the needed data
-    const { messages, userId, existingProfileData, extractProfile } = requestData;
+    const { messages, userId, existingProfileData, extractProfile, contextMetadata } = requestData;
 
     console.log(`Processing onboarding assistant request for user ${userId}`);
     console.log(`Extract profile: ${extractProfile}`);
+    console.log(`Context metadata:`, contextMetadata);
     console.log(`Sending ${messages.length} messages to Claude`);
 
     // Handle the request based on the mode
@@ -53,7 +55,7 @@ export async function handleRequest(req: Request): Promise<Response> {
     } else {
       // Regular chat response
       try {
-        const message = await processChat(messages, existingProfileData || null);
+        const message = await processChat(messages, existingProfileData || null, contextMetadata);
         
         result = {
           message

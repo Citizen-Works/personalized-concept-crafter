@@ -4,22 +4,24 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Loader2, SendIcon, UserIcon, Bot } from 'lucide-react';
-
+import { Loader2, SendIcon, UserIcon, Bot, Info } from 'lucide-react';
 import { ChatMessage } from '@/services/onboardingAssistantService';
+import { OnboardingModule } from '@/hooks/onboarding/useOnboardingModules';
 
 interface OnboardingChatProps {
   messages: ChatMessage[];
   isLoading: boolean;
   onSendMessage: (message: string) => Promise<void>;
   onFinishChat: () => void;
+  currentModule?: OnboardingModule;
 }
 
 const OnboardingChat: React.FC<OnboardingChatProps> = ({
   messages,
   isLoading,
   onSendMessage,
-  onFinishChat
+  onFinishChat,
+  currentModule
 }) => {
   const [input, setInput] = useState('');
   const scrollAreaRef = useRef<HTMLDivElement>(null);
@@ -46,6 +48,14 @@ const OnboardingChat: React.FC<OnboardingChatProps> = ({
       textareaRef.current.focus();
     }
   };
+
+  // Quick responses for multiple choice options
+  const handleQuickResponse = async (response: string) => {
+    if (isLoading) return;
+    
+    setInput('');
+    await onSendMessage(response);
+  };
   
   // Handle textarea height adjustment
   const handleTextareaChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -61,6 +71,26 @@ const OnboardingChat: React.FC<OnboardingChatProps> = ({
       handleSubmit(e);
     }
   };
+
+  // Extract quick reply options from the last assistant message if available
+  const getQuickReplyOptions = (): string[] => {
+    if (messages.length === 0) return [];
+    
+    const lastMessage = messages[messages.length - 1];
+    if (lastMessage.role !== 'assistant') return [];
+    
+    // Look for options formatted as numbered or bulleted lists
+    const optionsMatch = lastMessage.content.match(/(?:^\d+\.\s*(.+)$|^\*\s*(.+)$|^-\s*(.+)$)/gm);
+    if (!optionsMatch) return [];
+    
+    return optionsMatch.map(option => 
+      option.replace(/^(?:\d+\.\s*|\*\s*|-\s*)/, '').trim()
+    ).filter(option => 
+      option.length > 0 && option.length < 50
+    ).slice(0, 4); // Limit to 4 options for UI clarity
+  };
+
+  const quickReplyOptions = getQuickReplyOptions();
   
   return (
     <Card className="flex flex-col h-full">
@@ -68,6 +98,11 @@ const OnboardingChat: React.FC<OnboardingChatProps> = ({
         <CardTitle className="flex items-center">
           <Bot className="mr-2 h-5 w-5" />
           Content Strategy Assistant
+          {currentModule && (
+            <span className="ml-2 text-sm text-muted-foreground font-normal">
+              • {currentModule.title}
+            </span>
+          )}
         </CardTitle>
       </CardHeader>
       
@@ -79,7 +114,7 @@ const OnboardingChat: React.FC<OnboardingChatProps> = ({
               className={`flex ${message.role === 'assistant' ? 'justify-start' : 'justify-end'}`}
             >
               <div
-                className={`max-w-[80%] rounded-lg p-3 ${
+                className={`max-w-[85%] rounded-lg p-3 ${
                   message.role === 'assistant'
                     ? 'bg-muted text-muted-foreground'
                     : 'bg-primary text-primary-foreground'
@@ -92,7 +127,7 @@ const OnboardingChat: React.FC<OnboardingChatProps> = ({
                     <UserIcon className="h-4 w-4" />
                   )}
                   <div className="text-xs font-medium">
-                    {message.role === 'assistant' ? 'Assistant' : 'You'}
+                    {message.role === 'assistant' ? 'Consultant' : 'You'}
                   </div>
                 </div>
                 <div className="whitespace-pre-wrap text-sm">
@@ -107,7 +142,7 @@ const OnboardingChat: React.FC<OnboardingChatProps> = ({
               <div className="max-w-[80%] rounded-lg p-3 bg-muted text-muted-foreground">
                 <div className="flex items-center gap-2">
                   <Bot className="h-4 w-4" />
-                  <div className="text-xs font-medium">Assistant</div>
+                  <div className="text-xs font-medium">Consultant</div>
                 </div>
                 <div className="flex items-center mt-2 text-sm">
                   <Loader2 className="h-4 w-4 animate-spin mr-2" />
@@ -119,7 +154,37 @@ const OnboardingChat: React.FC<OnboardingChatProps> = ({
         </div>
       </ScrollArea>
       
+      {currentModule && (
+        <div className="px-4 py-2 border-t border-b bg-muted/50">
+          <div className="flex items-start gap-2">
+            <Info className="h-4 w-4 text-muted-foreground mt-0.5" />
+            <div className="text-xs text-muted-foreground">
+              <p className="font-medium">{currentModule.title}</p>
+              <p>{currentModule.hint}</p>
+            </div>
+          </div>
+        </div>
+      )}
+      
       <CardFooter className="p-4 border-t">
+        {/* Quick reply options */}
+        {quickReplyOptions.length > 0 && (
+          <div className="mb-3 flex flex-wrap gap-2 w-full">
+            {quickReplyOptions.map((option, index) => (
+              <Button
+                key={index}
+                variant="outline"
+                size="sm"
+                className="text-xs"
+                onClick={() => handleQuickResponse(option)}
+                disabled={isLoading}
+              >
+                {option}
+              </Button>
+            ))}
+          </div>
+        )}
+        
         <form onSubmit={handleSubmit} className="flex flex-col w-full space-y-2">
           <div className="flex">
             <Textarea
