@@ -115,7 +115,7 @@ export const IdeaCard: React.FC<IdeaCardProps> = ({
             </Link>
           </Button>
           <Button asChild size="sm">
-            <Link to={`/ideas/${idea.id}/generate-draft`}>
+            <Link to={`/ideas/${idea.id}`}>
               Generate Content
             </Link>
           </Button>

@@ -3,6 +3,7 @@ import React from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Plus, MessageSquareShare } from 'lucide-react';
+import { useDialogOpen } from '@/hooks/useDialogOpen'; // If this hook doesn't exist, we'll implement it
 
 interface EmptyCallToActionsStateProps {
   onClick: () => void;

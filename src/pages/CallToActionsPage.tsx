@@ -12,6 +12,7 @@ import { AddCallToActionDialog } from '@/components/CallToAction/AddCallToAction
 
 const CallToActionsPage = () => {
   const [activeTab, setActiveTab] = useState<string>("all");
+  const [dialogOpen, setDialogOpen] = useState(false);
   const { 
     callToActions, 
     isLoading, 
@@ -20,12 +21,17 @@ const CallToActionsPage = () => {
     deleteCallToAction
   } = useCallToActions();
 
-  const handleAdd = () => {
-    // Open dialog will be handled by the component
+  const handleOpenDialog = () => {
+    setDialogOpen(true);
+  };
+
+  const handleDialogOpenChange = (open: boolean) => {
+    setDialogOpen(open);
   };
 
   const handleCallToActionAdded = () => {
     refetch();
+    setDialogOpen(false);
   };
 
   const handleDeleteCallToAction = (id: string) => {
@@ -52,7 +58,15 @@ const CallToActionsPage = () => {
       </div>
 
       <div className="flex justify-end">
-        <AddCallToActionDialog onCallToActionAdded={handleCallToActionAdded} />
+        <AddCallToActionDialog 
+          open={dialogOpen} 
+          onOpenChange={handleDialogOpenChange}
+          onCallToActionAdded={handleCallToActionAdded} 
+        />
+        <Button onClick={handleOpenDialog} className="gap-1">
+          <Plus className="h-4 w-4" />
+          Add Call To Action
+        </Button>
       </div>
       
       <Tabs defaultValue="all" value={activeTab} onValueChange={setActiveTab}>
@@ -95,18 +109,18 @@ const CallToActionsPage = () => {
                 <CallToActionCard
                   key={cta.id}
                   callToAction={cta}
-                  onEdit={handleCallToActionAdded}
+                  onEdit={() => refetch()}
                   onDelete={() => handleDeleteCallToAction(cta.id)}
-                  onArchive={handleCallToActionAdded}
+                  onArchive={() => refetch()}
                 />
               ))}
               {!isLoading && activeTab !== "archived" && (
-                <EmptyCallToActionsState onClick={handleAdd} />
+                <EmptyCallToActionsState onClick={handleOpenDialog} />
               )}
             </div>
           ) : (
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-              <EmptyCallToActionsState onClick={handleAdd} />
+              <EmptyCallToActionsState onClick={handleOpenDialog} />
             </div>
           )}
         </TabsContent>

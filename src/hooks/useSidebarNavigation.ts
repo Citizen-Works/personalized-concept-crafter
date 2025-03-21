@@ -26,11 +26,22 @@ export function useSidebarNavigation() {
         return pathData.fullPath === path;
       }
       
-      // For pipeline tab routes which use query parameters like /pipeline?tab=review
+      // Special handling for review queue and ideas in pipeline
+      if (path === '/pipeline?tab=review') {
+        // Only match this exact tab, prevent matching with other tabs
+        return pathData.pathname === '/pipeline' && pathData.params.get('tab') === 'review';
+      }
+      
+      if (path === '/pipeline?tab=ideas') {
+        // Only match this exact tab
+        return pathData.pathname === '/pipeline' && pathData.params.get('tab') === 'ideas';
+      }
+      
+      // For other pipeline tab routes which use query parameters
       if (path.includes('?')) {
         const [basePath, queryString] = path.split('?');
         
-        // If not on the base path, return false immediately (performance optimization)
+        // If not on the base path, return false immediately
         if (!pathData.pathname.startsWith(basePath)) {
           return false;
         }
@@ -38,18 +49,11 @@ export function useSidebarNavigation() {
         // Parse the query parameters from the path
         const pathParams = new URLSearchParams(queryString);
         
-        // Get the tab parameter value from both the current URL and requested path
+        // For specific tabs, ensure exact tab parameter matching
         const currentTab = pathData.params.get('tab');
         const requestedTab = pathParams.get('tab');
         
-        // For specific pipeline tabs, ensure exact tab parameter matching
         if (requestedTab && currentTab) {
-          // Prevent false matches between tabs like "review" and "review-queue"
-          if ((requestedTab === 'review' && currentTab !== 'review') || 
-              (currentTab === 'review' && requestedTab !== 'review')) {
-            return false;
-          }
-          
           return requestedTab === currentTab;
         }
         
@@ -64,18 +68,24 @@ export function useSidebarNavigation() {
         return true;
       }
       
-      // Special case for review-queue standalone page 
+      // Handle /review-queue standalone page more precisely
       if (path === '/review-queue' && pathData.pathname === '/review-queue') {
         return true;
       }
       
-      // Handle nested routes with care
+      // Special case for the ideas page
+      if (path === '/ideas' && pathData.pathname === '/ideas') {
+        return true;
+      }
+      
+      // Handle pipeline with special care
       if (path === '/pipeline' && pathData.pathname === '/pipeline') {
         // If we're on /pipeline with no query params, it's active
         if (pathData.search === '') {
           return true;
         }
         // If there's a tab param, the base /pipeline shouldn't be considered active
+        // This helps prevent the glitching issue
         if (pathData.params.has('tab')) {
           return false;
         }

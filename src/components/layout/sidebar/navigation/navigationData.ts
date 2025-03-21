@@ -21,6 +21,7 @@ import {
   Users,
   FilePenLine,
   MessageSquareShare,
+  Network,
 } from "lucide-react";
 import { NavItem } from "./types";
 
@@ -91,6 +92,11 @@ export const getNavigationItems = (): NavItem[] => [
         title: "Writing Style",
         href: "/strategy/writing-style",
         icon: FilePenLine,
+      },
+      {
+        title: "Audience Mapping",
+        href: "/strategy/audience-mapping",
+        icon: Network,
       },
     ],
   },
