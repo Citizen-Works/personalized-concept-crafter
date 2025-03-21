@@ -44,5 +44,18 @@ export async function callClaudeApi(userPrompt: string, temperature = DEFAULT_TE
     throw new Error(errorMessage);
   }
 
-  return await response.json();
+  const data = await response.json();
+  
+  // Ensure we return a string, not an object
+  if (data.content && Array.isArray(data.content) && data.content.length > 0) {
+    // Handle the case where content might be an array of content objects
+    const contentItem = data.content[0];
+    if (typeof contentItem === 'object' && contentItem.text) {
+      // If content has a text property, return that
+      return { content: contentItem.text };
+    }
+  }
+  
+  // Return the data as is if we couldn't extract text
+  return data;
 }

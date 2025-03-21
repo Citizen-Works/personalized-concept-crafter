@@ -30,6 +30,18 @@ export async function generateContentWithClaude(
   if (!data?.content) {
     throw new Error('No content generated');
   }
+  
+  // Ensure we're returning a string
+  if (typeof data.content === 'object') {
+    // If we somehow got an object instead of a string, extract the text property
+    // This is a fallback in case the edge function didn't properly process the response
+    if (data.content.text) {
+      return data.content.text;
+    } else {
+      console.error('Received object instead of string from Claude API:', data.content);
+      throw new Error('Invalid content format received from API');
+    }
+  }
 
   return data.content;
 }
@@ -99,6 +111,17 @@ ONLY include the writing sample. Do NOT include any extra comments or notes. Onl
 
   if (!data?.content) {
     throw new Error('No preview generated');
+  }
+  
+  // Ensure we're returning a string
+  if (typeof data.content === 'object') {
+    // If we somehow got an object instead of a string, extract the text property
+    if (data.content.text) {
+      return data.content.text;
+    } else {
+      console.error('Received object instead of string from Claude API:', data.content);
+      throw new Error('Invalid content format received from API');
+    }
   }
 
   return data.content;
