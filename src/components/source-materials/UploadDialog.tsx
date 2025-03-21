@@ -29,7 +29,7 @@ const UploadDialog: React.FC<UploadDialogProps> = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   // Use a string literal type that matches valid DocumentType values
-  const [type, setType] = useState<DocumentType>("document");
+  const [type, setType] = useState<DocumentType>("document" as DocumentType);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {

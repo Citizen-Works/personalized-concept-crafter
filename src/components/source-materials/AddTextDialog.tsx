@@ -30,7 +30,7 @@ const AddTextDialog: React.FC<AddTextDialogProps> = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   // Use a string literal type that matches valid DocumentType values
-  const [type, setType] = useState<DocumentType>("document");
+  const [type, setType] = useState<DocumentType>("document" as DocumentType);
 
   const handleAddText = async () => {
     if (!content.trim()) {
