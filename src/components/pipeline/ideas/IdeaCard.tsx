@@ -24,7 +24,7 @@ interface IdeaCardProps {
   hideTypeBadge?: boolean;
 }
 
-const IdeaCard: React.FC<IdeaCardProps> = ({ 
+export const IdeaCard: React.FC<IdeaCardProps> = ({ 
   idea, 
   isSelected = false,
   onToggleSelect,
