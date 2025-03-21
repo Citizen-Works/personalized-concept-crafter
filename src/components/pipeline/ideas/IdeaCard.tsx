@@ -32,7 +32,7 @@ const IdeaCard: React.FC<IdeaCardProps> = ({
   getStatusBadgeClasses,
   getTypeBadgeClasses,
   hideStatusBadge = false,
-  hideTypeBadge = true // Set default to true to hide content type badges
+  hideTypeBadge = true
 }) => {
   return (
     <Card key={idea.id} className={`overflow-hidden transition-all duration-200 hover:shadow-md ${isSelected ? 'border-primary' : ''}`}>
