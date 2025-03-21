@@ -34,6 +34,7 @@ interface DraftListProps {
   onToggleSelect: (id: string) => void;
   onToggleSelectAll: () => void;
   onDelete: (id: string) => void;
+  isMobile?: boolean;
 }
 
 export const DraftList: React.FC<DraftListProps> = ({ 
@@ -41,7 +42,8 @@ export const DraftList: React.FC<DraftListProps> = ({
   selectedDrafts, 
   onToggleSelect, 
   onToggleSelectAll,
-  onDelete 
+  onDelete,
+  isMobile
 }) => {
   const allSelected = drafts.length > 0 && selectedDrafts.length === drafts.length;
   
@@ -54,6 +56,77 @@ export const DraftList: React.FC<DraftListProps> = ({
     }
   };
 
+  // Mobile list view
+  if (isMobile) {
+    return (
+      <div className="space-y-3">
+        {drafts.map((draft) => (
+          <div 
+            key={draft.id}
+            className="border rounded-md p-3 relative"
+          >
+            <div className="flex items-start gap-3">
+              <Checkbox
+                checked={selectedDrafts.includes(draft.id)}
+                onCheckedChange={() => onToggleSelect(draft.id)}
+                aria-label={`Select draft ${draft.ideaTitle}`}
+                className="mt-1"
+              />
+              <div className="flex-1">
+                <Link to={`/drafts/${draft.id}`} className="block">
+                  <h3 className="font-medium line-clamp-1">{draft.ideaTitle}</h3>
+                  <p className="text-sm text-muted-foreground line-clamp-2 mt-1">
+                    {draft.content}
+                  </p>
+                  <div className="flex flex-wrap items-center gap-2 mt-2">
+                    <Badge className={getTypeBadgeClasses(draft.contentType)}>
+                      {draft.contentType.charAt(0).toUpperCase() + draft.contentType.slice(1)}
+                    </Badge>
+                    <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
+                      v{draft.version}
+                    </Badge>
+                    <span className="text-xs text-muted-foreground">
+                      {formatDistanceToNow(draft.createdAt, { addSuffix: true })}
+                    </span>
+                  </div>
+                </Link>
+              </div>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="icon" className="h-8 w-8">
+                    <MoreHorizontal className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem asChild>
+                    <Link to={`/drafts/${draft.id}`}>
+                      <ArrowRight className="h-4 w-4 mr-2" />
+                      View
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link to={`/drafts/${draft.id}`}>
+                      <Edit className="h-4 w-4 mr-2" />
+                      Edit
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem 
+                    onClick={(e) => handleDeleteDraft(draft.id, e)}
+                    className="text-destructive"
+                  >
+                    <Trash className="h-4 w-4 mr-2" />
+                    Delete
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  // Desktop table view
   return (
     <div className="border rounded-md overflow-hidden">
       <Table>

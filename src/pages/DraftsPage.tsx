@@ -9,12 +9,14 @@ import { ContentType, DraftStatus } from '@/types';
 import { useDrafts } from '@/hooks/useDrafts';
 import { Skeleton } from '@/components/ui/skeleton';
 import { toast } from 'sonner';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 const DraftsPage = () => {
   const { drafts, isLoading, isError, deleteDraft, updateDraft } = useDrafts();
   const [searchQuery, setSearchQuery] = useState('');
   const [typeFilter, setTypeFilter] = useState<ContentType | 'all'>('all');
   const [selectedDrafts, setSelectedDrafts] = useState<string[]>([]);
+  const isMobile = useIsMobile();
   
   // Filter drafts based on search query and filters
   const filteredDrafts = drafts.filter((draft) => {
@@ -146,6 +148,7 @@ const DraftsPage = () => {
           onToggleSelect={toggleSelectDraft}
           onToggleSelectAll={toggleSelectAll}
           onDelete={deleteDraft}
+          isMobile={isMobile}
         />
       ) : (
         <DraftsEmptyState hasFilters={hasFilters} />

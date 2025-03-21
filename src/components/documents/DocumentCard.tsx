@@ -3,24 +3,48 @@ import React, { useState } from "react";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { MoreHorizontal, FileText } from "lucide-react";
+import { MoreHorizontal, FileText, Edit, BrainCircuit, Loader2 } from "lucide-react";
 import { Document } from "@/types";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { formatDistanceToNow } from "date-fns";
 import { useDocuments } from "@/hooks/useDocuments";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { toast } from "sonner";
 
 interface DocumentCardProps {
   document: Document;
 }
 
 const DocumentCard: React.FC<DocumentCardProps> = ({ document }) => {
-  const { updateDocumentStatus } = useDocuments();
+  const { updateDocumentStatus, processTranscript } = useDocuments();
   const [isViewOpen, setIsViewOpen] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const isMobile = useIsMobile();
   
   const handleToggleStatus = () => {
     const newStatus = document.status === "active" ? "archived" : "active";
     updateDocumentStatus({ id: document.id, status: newStatus });
+  };
+
+  const handleExtractIdeas = async () => {
+    if (isProcessing) return;
+    
+    try {
+      setIsProcessing(true);
+      toast.info("Starting idea extraction...");
+      
+      await processTranscript(document.id, true); // Process in background mode
+      
+      toast.success("Ideas are being extracted. This may take a moment.");
+      // We don't set isProcessing to false here since it's a background process
+      // The user can check status in the transcripts page
+    } catch (error) {
+      console.error("Error extracting ideas:", error);
+      toast.error("Failed to extract ideas");
+      setIsProcessing(false);
+    }
   };
 
   return (
@@ -45,6 +69,14 @@ const DocumentCard: React.FC<DocumentCardProps> = ({ document }) => {
                 <DropdownMenuItem onClick={handleToggleStatus}>
                   {document.status === "active" ? "Archive" : "Unarchive"}
                 </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setIsEditing(true)}>
+                  <Edit className="h-4 w-4 mr-2" />
+                  Edit Tags
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={handleExtractIdeas} disabled={isProcessing}>
+                  <BrainCircuit className="h-4 w-4 mr-2" />
+                  Extract Ideas
+                </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
@@ -66,16 +98,38 @@ const DocumentCard: React.FC<DocumentCardProps> = ({ document }) => {
             {document.content || "No content"}
           </p>
         </CardContent>
-        <CardFooter className="pt-4 pb-4">
+        <CardFooter className="pt-4 pb-4 flex gap-2">
           <Button 
             variant="outline" 
             size="sm" 
-            className="w-full text-xs sm:text-sm"
+            className={isMobile ? "flex-1" : "w-full"}
             onClick={() => setIsViewOpen(true)}
           >
             <FileText className="mr-2 h-3 w-3 sm:h-4 sm:w-4" />
-            View Document
+            View
           </Button>
+          
+          {isMobile && (
+            <Button
+              variant="default"
+              size="sm"
+              className="flex-1"
+              onClick={handleExtractIdeas}
+              disabled={isProcessing}
+            >
+              {isProcessing ? (
+                <>
+                  <Loader2 className="mr-2 h-3 w-3 sm:h-4 sm:w-4 animate-spin" />
+                  Processing
+                </>
+              ) : (
+                <>
+                  <BrainCircuit className="mr-2 h-3 w-3 sm:h-4 sm:w-4" />
+                  Extract
+                </>
+              )}
+            </Button>
+          )}
         </CardFooter>
       </Card>
 
@@ -106,9 +160,45 @@ const DocumentCard: React.FC<DocumentCardProps> = ({ document }) => {
                 <div className="text-muted-foreground italic">No content available</div>
               )}
             </div>
+            
+            <div className="flex justify-between mt-4">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setIsViewOpen(false);
+                  setIsEditing(true);
+                }}
+              >
+                <Edit className="mr-2 h-4 w-4" />
+                Edit Tags
+              </Button>
+              
+              <Button
+                variant="default"
+                onClick={() => {
+                  setIsViewOpen(false);
+                  handleExtractIdeas();
+                }}
+                disabled={isProcessing}
+              >
+                {isProcessing ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Processing
+                  </>
+                ) : (
+                  <>
+                    <BrainCircuit className="mr-2 h-4 w-4" />
+                    Extract Ideas
+                  </>
+                )}
+              </Button>
+            </div>
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Add Edit Tags Dialog here - this would be implemented in a follow-up */}
     </>
   );
 };
