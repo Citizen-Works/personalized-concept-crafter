@@ -38,7 +38,7 @@ export const ONBOARDING_MODULES: OnboardingModule[] = [
     description: 'Plan your content approach',
     estimatedTime: '10-15 min',
     order: 3,
-    hint: 'Define your content pillars and key topics you'll create content about.',
+    hint: 'Define your content pillars and key topics you\'ll create content about.',
     initialPrompt: 'content_strategy'
   },
   {
