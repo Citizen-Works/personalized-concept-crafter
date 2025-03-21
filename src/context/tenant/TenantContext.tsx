@@ -54,7 +54,8 @@ export const TenantProvider: React.FC<{ children: React.ReactNode }> = ({ childr
           name: data.name,
           domain: data.domain,
           isActive: data.is_active,
-          settings: data.settings || {}
+          // Fix the type issue by explicitly casting the settings
+          settings: data.settings as Record<string, any> || {}
         });
       }
     } catch (err) {

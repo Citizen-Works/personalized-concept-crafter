@@ -2,6 +2,7 @@
 import { useState, useCallback } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/context/auth';
+import { useTenant } from '@/context/tenant/TenantContext';
 import { Document, DocumentFilterOptions, DocumentCreateInput } from '@/types';
 import { 
   fetchDocuments, 
@@ -16,18 +17,19 @@ import { useDocumentUpload } from './documents/useDocumentUpload';
 
 export const useDocuments = (filters?: DocumentFilterOptions) => {
   const { user } = useAuth();
+  const { currentTenant } = useTenant();
   const queryClient = useQueryClient();
   const [processingDocumentIds, setProcessingDocumentIds] = useState<string[]>([]);
   const { uploadDocument, uploadProgress } = useDocumentUpload(user?.id);
 
-  // Query documents
+  // Query documents with tenant awareness
   const { 
     data = [], 
     isLoading, 
     error, 
     refetch 
   } = useQuery({
-    queryKey: ['documents', filters, user?.id],
+    queryKey: ['documents', filters, user?.id, currentTenant?.id],
     queryFn: async () => {
       if (!user?.id) return [];
       return await fetchDocuments(user.id, filters);
@@ -48,7 +50,7 @@ export const useDocuments = (filters?: DocumentFilterOptions) => {
       return await createDocument(user.id, newDocument);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['documents'] });
+      queryClient.invalidateQueries({ queryKey: ['documents', user?.id, currentTenant?.id] });
     },
   });
 
@@ -59,7 +61,7 @@ export const useDocuments = (filters?: DocumentFilterOptions) => {
       await updateDocumentStatus(user.id, id, status);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['documents'] });
+      queryClient.invalidateQueries({ queryKey: ['documents', user?.id, currentTenant?.id] });
     },
   });
 
@@ -70,7 +72,7 @@ export const useDocuments = (filters?: DocumentFilterOptions) => {
       await updateDocument(user.id, docUpdates);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['documents'] });
+      queryClient.invalidateQueries({ queryKey: ['documents', user?.id, currentTenant?.id] });
     },
   });
 
@@ -89,6 +91,9 @@ export const useDocuments = (filters?: DocumentFilterOptions) => {
         toast.success(`Found ${result.ideas.length} content ideas`);
       }
       
+      // Invalidate queries to ensure tenant-aware cache is updated
+      queryClient.invalidateQueries({ queryKey: ['documents', user?.id, currentTenant?.id] });
+      
       return result;
     } catch (error) {
       console.error("Error processing transcript:", error);
@@ -97,7 +102,7 @@ export const useDocuments = (filters?: DocumentFilterOptions) => {
     } finally {
       setProcessingDocumentIds(prev => prev.filter(id => id !== documentId));
     }
-  }, [user?.id]);
+  }, [user?.id, currentTenant?.id, queryClient]);
 
   // Check if a document is currently being processed
   const isDocumentProcessing = useCallback((documentId: string) => {

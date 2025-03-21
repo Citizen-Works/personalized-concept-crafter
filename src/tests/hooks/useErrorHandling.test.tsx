@@ -2,18 +2,19 @@
 import { renderHook, act } from '@testing-library/react';
 import { useErrorHandling } from '@/hooks/useErrorHandling';
 import { toast } from 'sonner';
+import { vi, describe, it, expect, beforeEach, beforeAll, afterAll } from 'vitest';
 
 // Mock the toast library
-jest.mock('sonner', () => ({
-  error: jest.fn(),
-  warning: jest.fn(),
-  info: jest.fn(),
+vi.mock('sonner', () => ({
+  error: vi.fn(),
+  warning: vi.fn(),
+  info: vi.fn(),
 }));
 
 // Mock console.error to prevent test noise
 const originalConsoleError = console.error;
 beforeAll(() => {
-  console.error = jest.fn();
+  console.error = vi.fn();
 });
 afterAll(() => {
   console.error = originalConsoleError;
@@ -21,7 +22,7 @@ afterAll(() => {
 
 describe('useErrorHandling', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it('should handle errors with the correct severity', () => {
@@ -49,8 +50,8 @@ describe('useErrorHandling', () => {
   it('should wrap async functions with error handling', async () => {
     const { result } = renderHook(() => useErrorHandling('TestComponent'));
     
-    const successFn = jest.fn().mockResolvedValue('success');
-    const failureFn = jest.fn().mockRejectedValue(new Error('Async error'));
+    const successFn = vi.fn().mockResolvedValue('success');
+    const failureFn = vi.fn().mockRejectedValue(new Error('Async error'));
     
     // Test successful function
     const wrappedSuccess = result.current.withErrorHandling(successFn, 'success action');

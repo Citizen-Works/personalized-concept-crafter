@@ -1,20 +1,20 @@
 
 // Import jest-dom additions
 import '@testing-library/jest-dom';
+import { vi } from 'vitest';
 
 // Mock the matchMedia function for tests
-window.matchMedia = window.matchMedia || function() {
-  return {
+Object.defineProperty(window, 'matchMedia', {
+  writable: true,
+  value: () => ({
     matches: false,
-    addListener: function() {},
-    removeListener: function() {},
-    addEventListener: function() {},
-    removeEventListener: function() {},
-    dispatchEvent: function() {
-      return true;
-    },
-  };
-};
+    addListener: () => {},
+    removeListener: () => {},
+    addEventListener: () => {},
+    removeEventListener: () => {},
+    dispatchEvent: () => true,
+  }),
+});
 
-// Mock global fetch if needed
-global.fetch = jest.fn();
+// Mock global fetch
+global.fetch = vi.fn();
