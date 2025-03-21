@@ -9,10 +9,12 @@ import { ReadyToPublishTab } from "@/components/pipeline/ReadyToPublishTab";
 import { PublishedTab } from "@/components/pipeline/PublishedTab";
 import { ContentFilterBar } from "@/components/pipeline/ContentFilterBar";
 import { ContentType } from "@/types";
+import { useIsMobile } from '@/hooks/use-mobile';
 
 const ContentPipelinePage = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const isMobile = useIsMobile();
   const [activeTab, setActiveTab] = useState("ideas");
   const [searchQuery, setSearchQuery] = useState("");
   const [dateRange, setDateRange] = useState<[Date | undefined, Date | undefined]>([undefined, undefined]);
@@ -87,12 +89,21 @@ const ContentPipelinePage = () => {
       />
       
       <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
-        <TabsList className="grid grid-cols-5">
-          <TabsTrigger value="review">Review Queue</TabsTrigger>
+        <TabsList className={`${isMobile ? 'grid-cols-3 mb-2' : 'grid-cols-5'} grid`}>
+          <TabsTrigger value="review">Review</TabsTrigger>
           <TabsTrigger value="ideas">Ideas</TabsTrigger>
           <TabsTrigger value="drafts">Drafts</TabsTrigger>
-          <TabsTrigger value="ready">Ready to Publish</TabsTrigger>
-          <TabsTrigger value="published">Published</TabsTrigger>
+          {isMobile ? (
+            <TabsList className="grid grid-cols-2 mt-2">
+              <TabsTrigger value="ready">Ready</TabsTrigger>
+              <TabsTrigger value="published">Published</TabsTrigger>
+            </TabsList>
+          ) : (
+            <>
+              <TabsTrigger value="ready">Ready to Publish</TabsTrigger>
+              <TabsTrigger value="published">Published</TabsTrigger>
+            </>
+          )}
         </TabsList>
         
         <TabsContent value="review" className="mt-6">
