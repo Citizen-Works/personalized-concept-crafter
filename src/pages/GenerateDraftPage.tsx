@@ -284,12 +284,12 @@ const GenerateDraftPage = () => {
               {/* Optional Parameters */}
               <div className="space-y-2">
                 <Label>Content Goal (Optional)</Label>
-                <Select value={contentGoal || ""} onValueChange={(value) => setContentGoal(value as ContentGoal || null)}>
+                <Select value={contentGoal || "none"} onValueChange={(value) => setContentGoal(value === "none" ? null : value as ContentGoal)}>
                   <SelectTrigger>
                     <SelectValue placeholder="Select a goal (optional)" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">No specific goal</SelectItem>
+                    <SelectItem value="none">No specific goal</SelectItem>
                     <SelectItem value="audience_building">Audience Building</SelectItem>
                     <SelectItem value="lead_generation">Lead Generation</SelectItem>
                     <SelectItem value="nurturing">Nurturing</SelectItem>
@@ -307,7 +307,7 @@ const GenerateDraftPage = () => {
                     <SelectValue placeholder="Select a CTA (optional)" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">No call to action</SelectItem>
+                    <SelectItem value="none">No call to action</SelectItem>
                     {callToActions.map((cta) => (
                       <SelectItem key={cta.id} value={cta.text}>
                         {cta.text}
