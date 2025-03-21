@@ -61,9 +61,9 @@ export const PillarAudienceMatrix: React.FC<PillarAudienceMatrixProps> = ({
                       <div key={`${pillar.id}-${audience.id}`} className="flex items-center justify-between p-2 border-b">
                         <span className="text-sm">{audience.name}</span>
                         <Select
-                          value={strength?.toString() || ""}
+                          value={strength?.toString() || "none"}
                           onValueChange={(value) => {
-                            const newStrength = value === "" ? null : parseInt(value);
+                            const newStrength = value === "none" ? null : parseInt(value);
                             onLinkChange(pillar.id, audience.id, newStrength);
                           }}
                         >
@@ -71,7 +71,7 @@ export const PillarAudienceMatrix: React.FC<PillarAudienceMatrixProps> = ({
                             <SelectValue placeholder="None" />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="">None</SelectItem>
+                            <SelectItem value="none">None</SelectItem>
                             <SelectItem value="10">10 - Strongest</SelectItem>
                             <SelectItem value="9">9</SelectItem>
                             <SelectItem value="8">8</SelectItem>
@@ -130,9 +130,9 @@ export const PillarAudienceMatrix: React.FC<PillarAudienceMatrixProps> = ({
                         className={`p-2 border text-center ${getStrengthColor(strength)}`}
                       >
                         <Select
-                          value={strength?.toString() || ""}
+                          value={strength?.toString() || "none"}
                           onValueChange={(value) => {
-                            const newStrength = value === "" ? null : parseInt(value);
+                            const newStrength = value === "none" ? null : parseInt(value);
                             onLinkChange(pillar.id, audience.id, newStrength);
                           }}
                         >
@@ -140,7 +140,7 @@ export const PillarAudienceMatrix: React.FC<PillarAudienceMatrixProps> = ({
                             <SelectValue placeholder="None" />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="">None</SelectItem>
+                            <SelectItem value="none">None</SelectItem>
                             <SelectItem value="10">10 - Strongest</SelectItem>
                             <SelectItem value="9">9</SelectItem>
                             <SelectItem value="8">8</SelectItem>
