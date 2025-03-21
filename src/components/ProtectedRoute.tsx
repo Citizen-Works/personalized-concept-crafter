@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import { Loading } from '@/components/ui/loading';
@@ -17,10 +17,30 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   requireAdmin = false,
   redirectPath = "/login"
 }) => {
-  const { user, loading, isAdmin } = useAuth();
+  const { user, loading, isAdmin, refreshAdminStatus } = useAuth();
   const location = useLocation();
+  const [isChecking, setIsChecking] = useState(requireAdmin);
   
-  if (loading) {
+  // Refresh admin status when requiring admin access
+  useEffect(() => {
+    const checkAdminStatus = async () => {
+      if (requireAdmin && user) {
+        await refreshAdminStatus();
+        setIsChecking(false);
+      } else {
+        setIsChecking(false);
+      }
+    };
+    
+    if (requireAdmin && user && !loading) {
+      checkAdminStatus();
+    } else {
+      setIsChecking(false);
+    }
+  }, [requireAdmin, user, loading, refreshAdminStatus]);
+  
+  // Show loading state while checking auth or admin status
+  if (loading || isChecking) {
     return <Loading fullScreen size="lg" />;
   }
   

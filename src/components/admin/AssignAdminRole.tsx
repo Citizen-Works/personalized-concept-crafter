@@ -8,7 +8,7 @@ import { ShieldCheck } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 
 const AssignAdminRole: React.FC = () => {
-  const { user } = useAuth();
+  const { user, refreshAdminStatus } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   
   const handleAssignAdmin = async () => {
@@ -20,7 +20,7 @@ const AssignAdminRole: React.FC = () => {
     setIsLoading(true);
     
     try {
-      // I've added a temporary policy to allow users to insert their own roles
+      // Insert the admin role for the current user
       const { error } = await supabase
         .from('user_roles')
         .insert({ user_id: user.id, role: 'admin' })
@@ -34,7 +34,9 @@ const AssignAdminRole: React.FC = () => {
           console.error("Error:", error);
         }
       } else {
-        toast.success("Admin role assigned successfully. Please sign out and sign back in for changes to take effect.");
+        // Refresh the admin status immediately
+        await refreshAdminStatus();
+        toast.success("Admin role assigned successfully! You can now access the admin dashboard.");
       }
     } catch (error) {
       console.error("An unexpected error occurred:", error);
@@ -54,7 +56,7 @@ const AssignAdminRole: React.FC = () => {
       </CardHeader>
       <CardContent>
         <p className="text-sm text-muted-foreground mb-4">
-          Use this button to assign yourself the admin role. After clicking, you'll need to sign out and sign back in for changes to take effect.
+          Use this button to assign yourself the admin role. After clicking, you'll be able to access the admin dashboard immediately.
         </p>
         <Button 
           variant="default" 
