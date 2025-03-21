@@ -1,4 +1,3 @@
-
 import type { Config } from "tailwindcss";
 
 export default {
@@ -38,14 +37,6 @@ export default {
 				ring: 'hsl(var(--ring))',
 				background: 'hsl(var(--background))',
 				foreground: 'hsl(var(--foreground))',
-				
-				// Custom colors
-				fandango: 'hsl(var(--fandango))',
-				'fluorescent-cyan': 'hsl(var(--fluorescent-cyan))',
-				cerise: 'hsl(var(--cerise))',
-				night: 'hsl(var(--night))',
-				teal: 'hsl(var(--teal))',
-				
 				primary: {
 					DEFAULT: 'hsl(var(--primary))',
 					foreground: 'hsl(var(--primary-foreground))'

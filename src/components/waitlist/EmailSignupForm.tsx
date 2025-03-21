@@ -61,13 +61,13 @@ const EmailSignupForm = ({ className }: EmailSignupFormProps) => {
               placeholder="Enter your email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className={`${isMobile ? 'py-4' : 'py-6'} text-base md:text-lg bg-white/10 border-white/20 text-white`}
+              className={`${isMobile ? 'py-4' : 'py-6'} text-base md:text-lg bg-white/10 border-white/20`}
               required
             />
             <Button 
               type="submit" 
               size={isMobile ? "default" : "lg"} 
-              className={`${isMobile ? 'py-4 mt-2' : 'py-6'} text-base md:text-lg bg-gradient-to-r from-fandango via-cerise to-teal hover:from-fandango/90 hover:via-cerise/90 hover:to-teal/90`}
+              className={`${isMobile ? 'py-4 mt-2' : 'py-6'} text-base md:text-lg bg-gradient-to-r from-purple-600 via-pink-500 to-orange-400 hover:from-purple-700 hover:via-pink-600 hover:to-orange-500`}
               disabled={isSubmitting}
             >
               {isSubmitting ? (
@@ -77,18 +77,18 @@ const EmailSignupForm = ({ className }: EmailSignupFormProps) => {
               )}
             </Button>
           </div>
-          <p className="text-xs md:text-sm text-fluorescent-cyan mt-3 text-center">
+          <p className="text-xs md:text-sm text-gray-400 mt-3 text-center">
             🔒 No credit card required. Join 500+ professionals already on the waitlist.
           </p>
         </>
       ) : (
         <div className="py-6 flex flex-col items-center space-y-4 text-center bg-white/5 rounded-lg border border-white/10 p-6">
-          <div className="h-16 w-16 rounded-full bg-gradient-to-r from-fandango via-cerise to-teal flex items-center justify-center">
+          <div className="h-16 w-16 rounded-full bg-gradient-to-r from-purple-600 via-pink-500 to-orange-400 flex items-center justify-center">
             <Check className="h-8 w-8 text-white" />
           </div>
           <div className="space-y-2">
             <h3 className="text-2xl font-semibold text-white">Thank You!</h3>
-            <p className="text-white max-w-md mx-auto">
+            <p className="text-gray-300 max-w-md mx-auto">
               You're on the list! We'll notify you when we launch Content Engine.
             </p>
           </div>

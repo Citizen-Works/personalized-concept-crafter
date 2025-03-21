@@ -39,23 +39,23 @@ const WaitlistPage = () => {
       </Helmet>
       <StructuredData />
       
-      <div className="relative bg-gradient-to-b from-night to-night/90 min-h-screen text-white">
+      <div className="relative bg-gradient-to-b from-background to-background/80 min-h-screen">
         <div className="container mx-auto px-4 pt-6">
           <div className="flex justify-between items-center mb-8">
             <div className="flex items-center gap-2">
               <img src="/logo.svg" alt="Content Engine Logo" className="h-8 w-8" />
-              <span className="font-bold text-xl text-white">Content Engine</span>
+              <span className="font-bold text-xl">Content Engine</span>
             </div>
             <div className="flex items-center gap-4">
-              <Link to="/login" className="text-sm font-medium text-white hover:text-fluorescent-cyan hover:underline">
+              <Link to="/login" className="text-sm font-medium hover:underline">
                 Sign In
               </Link>
             </div>
           </div>
           
-          <Alert className="my-4 bg-fandango/20 border-fandango">
-            <AlertCircle className="h-4 w-4 text-fluorescent-cyan" />
-            <AlertDescription className="text-white">
+          <Alert className="my-4 bg-amber-100 dark:bg-amber-900/30 border-amber-300 dark:border-amber-800">
+            <AlertCircle className="h-4 w-4 text-amber-800 dark:text-amber-500" />
+            <AlertDescription className="text-amber-800 dark:text-amber-500">
               Public registration is currently restricted. Please join our waitlist to be notified when registration opens.
             </AlertDescription>
           </Alert>
@@ -69,8 +69,8 @@ const WaitlistPage = () => {
         <TrustedBySection />
         <CTASection />
         
-        <footer className="bg-night/80 border-t border-white/10 mt-24 py-8">
-          <div className="container mx-auto px-4 text-center text-sm text-white">
+        <footer className="bg-muted/30 border-t border-border mt-24 py-8">
+          <div className="container mx-auto px-4 text-center text-sm text-muted-foreground">
             <p>© {new Date().getFullYear()} Content Engine. All rights reserved.</p>
           </div>
         </footer>

@@ -22,7 +22,7 @@ const TrustedBySection = ({ className }: TrustedBySectionProps) => {
         <CarouselContent>
           {companies.map((company, index) => (
             <CarouselItem key={index} className="basis-1/3 md:basis-1/4 lg:basis-1/5 flex justify-center">
-              <div className="text-fluorescent-cyan font-semibold text-center py-2">{company}</div>
+              <div className="text-white/80 font-semibold text-center py-2">{company}</div>
             </CarouselItem>
           ))}
         </CarouselContent>

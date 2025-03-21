@@ -20,8 +20,8 @@ const OnboardingPage = () => {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center p-4 bg-background">
         <div className="animate-pulse text-center">
-          <div className="h-8 w-48 bg-fandango/30 rounded mx-auto"></div>
-          <div className="h-4 w-64 bg-fandango/20 rounded mx-auto mt-4"></div>
+          <div className="h-8 w-48 bg-muted rounded mx-auto"></div>
+          <div className="h-4 w-64 bg-muted rounded mx-auto mt-4"></div>
         </div>
       </div>
     );
@@ -36,7 +36,7 @@ const OnboardingPage = () => {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-2 sm:p-4 bg-background">
       <div className="w-full max-w-4xl mb-6 sm:mb-8">
-        <h1 className="text-2xl sm:text-3xl font-bold text-center text-fandango">Welcome to Content Engine</h1>
+        <h1 className="text-2xl sm:text-3xl font-bold text-center">Welcome to Content Engine</h1>
         <p className="text-center text-muted-foreground mt-2 px-2">
           Let's set up your profile to help generate better content for your business.
         </p>
