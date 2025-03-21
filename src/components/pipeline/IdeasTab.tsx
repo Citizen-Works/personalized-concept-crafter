@@ -58,21 +58,24 @@ export const IdeasTab: React.FC<IdeasTabProps> = ({
         onChangeSortOrder={setSortOrder}
       />
       
-      {/* Ideas list */}
-      {sortedIdeas.map((idea) => (
-        <IdeaCard
-          key={idea.id}
-          idea={idea}
-          isSelected={selectedItems.includes(idea.id)}
-          onToggleSelect={handleToggleSelect}
-          onDeleteClick={(id) => {
-            setItemToDelete(id);
-            setDeleteConfirmOpen(true);
-          }}
-          getStatusBadgeClasses={getStatusBadgeClasses}
-          getTypeBadgeClasses={getTypeBadgeClasses}
-        />
-      ))}
+      {/* Ideas list - now hiding content type badges by default */}
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {sortedIdeas.map((idea) => (
+          <IdeaCard
+            key={idea.id}
+            idea={idea}
+            isSelected={selectedItems.includes(idea.id)}
+            onToggleSelect={handleToggleSelect}
+            onDeleteClick={(id) => {
+              setItemToDelete(id);
+              setDeleteConfirmOpen(true);
+            }}
+            getStatusBadgeClasses={getStatusBadgeClasses}
+            getTypeBadgeClasses={getTypeBadgeClasses}
+            hideTypeBadge={true} // Hide content type badges
+          />
+        ))}
+      </div>
       
       {/* Delete confirmation */}
       <IdeasDeleteDialog

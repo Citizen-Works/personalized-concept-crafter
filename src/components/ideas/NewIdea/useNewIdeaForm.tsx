@@ -18,17 +18,15 @@ export const useNewIdeaForm = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [generatingType, setGeneratingType] = useState<ContentType | null>(null);
   
-  // Initialize form
+  // Initialize form with simplified schema
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       title: "",
       description: "",
       notes: "",
-      contentType: "linkedin",
       source: "manual",
       sourceUrl: "",
-      contentGoal: "audience_building",
       callToAction: "",
     },
   });
@@ -37,11 +35,8 @@ export const useNewIdeaForm = () => {
     setIsSubmitting(true);
     
     try {
-      // Format notes to include content goal and CTA if provided
+      // Format notes to include CTA if provided
       let formattedNotes = values.notes || "";
-      
-      // Add content goal at the beginning
-      formattedNotes = `Content Goal: ${values.contentGoal.replace('_', ' ')}\n\n${formattedNotes}`;
       
       // Add CTA if provided
       if (values.callToAction) {
@@ -52,10 +47,10 @@ export const useNewIdeaForm = () => {
         title: values.title,
         description: values.description || "",
         notes: formattedNotes,
-        contentType: values.contentType,
+        contentType: null, // No longer required
         source: values.source,
         sourceUrl: values.sourceUrl || null,
-        status: 'approved', // Changed from 'unreviewed' to 'approved'
+        status: 'approved',
         meetingTranscriptExcerpt: null
       });
       
@@ -85,11 +80,8 @@ export const useNewIdeaForm = () => {
       // Get form values
       const values = form.getValues();
       
-      // Format notes to include content goal and CTA if provided
+      // Format notes to include CTA if provided
       let formattedNotes = values.notes || "";
-      
-      // Add content goal at the beginning
-      formattedNotes = `Content Goal: ${values.contentGoal.replace('_', ' ')}\n\n${formattedNotes}`;
       
       // Add CTA if provided
       if (values.callToAction) {
@@ -101,10 +93,10 @@ export const useNewIdeaForm = () => {
         title: values.title,
         description: values.description || "",
         notes: formattedNotes,
-        contentType: contentType, // Use the selected content type
+        contentType: contentType, // Still need to specify content type for generation
         source: values.source,
         sourceUrl: values.sourceUrl || null,
-        status: 'approved', // Changed from 'unreviewed' to 'approved'
+        status: 'approved',
         meetingTranscriptExcerpt: null
       });
       
@@ -123,7 +115,7 @@ export const useNewIdeaForm = () => {
             feedback: '',
           });
           
-          // 4. Update the idea status to approved instead of drafted
+          // 4. Update the idea status to approved
           await updateIdea({
             id: savedIdea.id,
             status: 'approved'

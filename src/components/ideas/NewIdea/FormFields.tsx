@@ -10,36 +10,16 @@ import {
   SelectTrigger, 
   SelectValue 
 } from "@/components/ui/select";
-import { ContentType } from '@/types';
 import { UseFormReturn } from 'react-hook-form';
 import { z } from 'zod';
 
-// Define the content type descriptions
-export const contentTypeDescription = {
-  linkedin: "Professional content for your LinkedIn audience",
-  newsletter: "Engaging content for your email subscribers",
-  marketing: "Persuasive content to promote products/services"
-};
-
-// Define the goal descriptions
-export const goalDescriptions = {
-  audience_building: "Grow your audience and increase visibility",
-  lead_generation: "Attract new potential customers",
-  nurturing: "Build relationships with existing leads",
-  conversion: "Turn prospects into customers",
-  retention: "Keep existing customers engaged",
-  other: "Custom goal"
-};
-
-// Form schema for type safety
+// Form schema for type safety - removed contentType and contentGoal
 export const formSchema = z.object({
   title: z.string().min(2, "Title must be at least 2 characters."),
   description: z.string().optional(),
   notes: z.string().optional(),
-  contentType: z.enum(["linkedin", "newsletter", "marketing"]),
   source: z.enum(["manual", "meeting", "other"]),
   sourceUrl: z.string().optional(),
-  contentGoal: z.enum(["audience_building", "lead_generation", "nurturing", "conversion", "retention", "other"]),
   callToAction: z.string().optional(),
 });
 
@@ -64,67 +44,6 @@ const FormFields: React.FC<FormFieldsProps> = ({ form }) => {
           </FormItem>
         )}
       />
-      
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-        <FormField
-          control={form.control}
-          name="contentType"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Content Type</FormLabel>
-              <Select 
-                onValueChange={field.onChange} 
-                defaultValue={field.value}
-              >
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select content type" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  <SelectItem value="linkedin">LinkedIn</SelectItem>
-                  <SelectItem value="newsletter">Newsletter</SelectItem>
-                  <SelectItem value="marketing">Marketing</SelectItem>
-                </SelectContent>
-              </Select>
-              <FormDescription>
-                {contentTypeDescription[field.value as keyof typeof contentTypeDescription]}
-              </FormDescription>
-            </FormItem>
-          )}
-        />
-        
-        <FormField
-          control={form.control}
-          name="contentGoal"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Content Goal</FormLabel>
-              <Select 
-                onValueChange={field.onChange} 
-                defaultValue={field.value}
-              >
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select content goal" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  <SelectItem value="audience_building">Audience Building</SelectItem>
-                  <SelectItem value="lead_generation">Lead Generation</SelectItem>
-                  <SelectItem value="nurturing">Nurturing</SelectItem>
-                  <SelectItem value="conversion">Conversion</SelectItem>
-                  <SelectItem value="retention">Retention</SelectItem>
-                  <SelectItem value="other">Other</SelectItem>
-                </SelectContent>
-              </Select>
-              <FormDescription>
-                {goalDescriptions[field.value as keyof typeof goalDescriptions]}
-              </FormDescription>
-            </FormItem>
-          )}
-        />
-      </div>
       
       <FormField
         control={form.control}
