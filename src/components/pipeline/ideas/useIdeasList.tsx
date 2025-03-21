@@ -121,8 +121,8 @@ export const useIdeasList = ({ searchQuery, dateRange, contentTypeFilter }: UseI
     
     try {
       setIsDeleting(true);
-      // Assuming updateIdea takes an id and partial idea object to update
-      await updateIdea(id, { status: 'active' });
+      // FIX: Need to pass an object with id and the update properties
+      await updateIdea({ id, status: 'active' });
       toast.success("Idea set as active");
     } catch (error) {
       console.error("Error updating idea:", error);
@@ -138,7 +138,8 @@ export const useIdeasList = ({ searchQuery, dateRange, contentTypeFilter }: UseI
     
     try {
       setIsDeleting(true);
-      const promises = selectedItems.map(id => updateIdea(id, { status: 'active' }));
+      // FIX: Need to map each ID to an object with id and status properties
+      const promises = selectedItems.map(id => updateIdea({ id, status: 'active' }));
       await Promise.all(promises);
       toast.success(`${selectedItems.length} ideas set as active`);
       setSelectedItems([]);
