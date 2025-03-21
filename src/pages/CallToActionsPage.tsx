@@ -58,11 +58,6 @@ const CallToActionsPage = () => {
       </div>
 
       <div className="flex justify-end">
-        <AddCallToActionDialog 
-          open={dialogOpen} 
-          onOpenChange={handleDialogOpenChange}
-          onCallToActionAdded={handleCallToActionAdded} 
-        />
         <Button onClick={handleOpenDialog} className="gap-1">
           <Plus className="h-4 w-4" />
           Add Call To Action
@@ -125,6 +120,13 @@ const CallToActionsPage = () => {
           )}
         </TabsContent>
       </Tabs>
+      
+      {/* Render dialog conditionally based on dialogOpen state */}
+      {dialogOpen && (
+        <AddCallToActionDialog 
+          onCallToActionAdded={handleCallToActionAdded} 
+        />
+      )}
     </div>
   );
 };
