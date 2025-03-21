@@ -434,6 +434,7 @@ export type Database = {
           job_title: string | null
           linkedin_url: string | null
           name: string | null
+          tenant_id: string | null
           updated_at: string
         }
         Insert: {
@@ -444,6 +445,7 @@ export type Database = {
           job_title?: string | null
           linkedin_url?: string | null
           name?: string | null
+          tenant_id?: string | null
           updated_at?: string
         }
         Update: {
@@ -454,9 +456,18 @@ export type Database = {
           job_title?: string | null
           linkedin_url?: string | null
           name?: string | null
+          tenant_id?: string | null
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "profiles_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       prompt_templates: {
         Row: {
@@ -582,6 +593,36 @@ export type Database = {
           updated_at?: string
           usage_count?: number | null
           user_id?: string
+        }
+        Relationships: []
+      }
+      tenants: {
+        Row: {
+          created_at: string
+          domain: string
+          id: string
+          is_active: boolean
+          name: string
+          settings: Json | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          domain: string
+          id?: string
+          is_active?: boolean
+          name: string
+          settings?: Json | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          domain?: string
+          id?: string
+          is_active?: boolean
+          name?: string
+          settings?: Json | null
+          updated_at?: string
         }
         Relationships: []
       }
@@ -794,6 +835,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_user_tenant_id: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]

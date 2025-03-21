@@ -3,16 +3,18 @@ import { useQuery } from "@tanstack/react-query";
 import { fetchDraftsByIdeaId } from "@/services/draftService";
 import { useAuth } from "@/context/auth";
 import { useErrorHandling } from "@/hooks/useErrorHandling";
+import { useTenant } from "@/context/tenant/TenantContext";
 
 /**
- * Hook to fetch drafts by idea ID with improved error handling and multi-tenant awareness
+ * Hook to fetch drafts by idea ID with multi-tenant awareness and error handling
  */
 export const useDraftsByIdeaId = (ideaId: string) => {
   const { user } = useAuth();
   const { handleError } = useErrorHandling('DraftsByIdeaId');
+  const { tenantDomain, currentTenant } = useTenant();
   
-  // Extract tenant ID from user email domain (simple approach)
-  const tenantId = user?.email ? user.email.split('@')[1] : undefined;
+  // Use formal tenant ID if available, otherwise fall back to domain
+  const tenantId = currentTenant?.id || tenantDomain;
   
   return useQuery({
     queryKey: ["drafts", "idea", ideaId, user?.id, tenantId],
