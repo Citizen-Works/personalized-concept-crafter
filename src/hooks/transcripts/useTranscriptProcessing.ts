@@ -53,8 +53,8 @@ export const useTranscriptProcessing = (documents: Document[] = []) => {
       updateProcessingDocuments((prevArray: string[]) => {
         // Convert array to Set, apply updater, convert back to array
         const prevSet = new Set<string>(prevArray);
-        const updatedSet = updater(prevSet);
-        return Array.from(updatedSet);
+        const newSet = updater(prevSet);
+        return Array.from(newSet);
       });
     },
     [updateProcessingDocuments]
