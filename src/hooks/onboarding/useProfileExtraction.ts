@@ -1,6 +1,6 @@
 
 import { useState, useCallback } from 'react';
-import { useAuth } from '@/context/AuthContext';
+import { useAuth } from '@/context/auth';
 import { ChatMessage, ProfileData, extractProfileFromConversation } from '@/services/onboardingAssistantService';
 import { toast } from 'sonner';
 

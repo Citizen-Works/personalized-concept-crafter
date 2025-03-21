@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { ContentIdea, ContentType } from '@/types';
 import { toast } from 'sonner';
 import { usePromptAssembly } from './usePromptAssembly';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '@/context/auth';
 import { generateContentWithClaude } from '../services/claudeAIService';
 
 /**

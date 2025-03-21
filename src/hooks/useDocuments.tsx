@@ -1,14 +1,14 @@
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Document, DocumentCreateInput, DocumentFilterOptions } from "@/types";
-import { useAuth } from "@/context/AuthContext";
+import { useAuth } from '@/context/auth';
 import { 
   fetchDocuments, 
   createDocument, 
   updateDocumentStatus, 
   processTranscriptForIdeas,
   IdeaResponse 
-} from "@/services/documents"; // Updated import path with IdeaResponse type
+} from "@/services/documents"; 
 import { useDocumentUpload } from "./documents/useDocumentUpload";
 import { useMemo, useCallback } from "react";
 

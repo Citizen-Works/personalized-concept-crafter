@@ -1,9 +1,8 @@
-
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { LinkedinPost } from '@/types';
-import { useAuth } from '@/context/AuthContext';
+import { useAuth } from '@/context/auth';
 
 type PostInput = {
   content: string;

@@ -12,7 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { CallToActionForm } from "./CallToActionForm";
 import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/context/AuthContext";
+import { useAuth } from '@/context/auth';
 import { toast } from "sonner";
 
 interface AddCallToActionDialogProps {

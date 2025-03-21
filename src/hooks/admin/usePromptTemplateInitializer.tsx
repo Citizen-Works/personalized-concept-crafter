@@ -1,6 +1,6 @@
 
 import { useEffect } from 'react';
-import { useAuth } from '@/context/AuthContext';
+import { useAuth } from '@/context/auth';
 import { extractAndGenerateBaseTemplates } from '@/services/admin/promptGeneratorService';
 
 // This hook should be used once at app initialization to ensure prompt templates exist

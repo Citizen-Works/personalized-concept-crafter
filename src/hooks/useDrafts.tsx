@@ -1,5 +1,5 @@
 
-import { useAuth } from "@/context/AuthContext";
+import { useAuth } from "@/context/auth";
 import { useDraftsQuery, useDraftByIdQuery } from "@/hooks/draft/useDraftQueries";
 import { useDraftMutations } from "@/hooks/draft/useDraftMutations";
 import { DraftWithIdea } from "@/services/draftService";
