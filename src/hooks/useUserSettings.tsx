@@ -28,10 +28,12 @@ export const useUserSettings = () => {
     try {
       setIsLoading(true);
       
-      // Instead of using .from('user_settings'), we'll use a more direct query
-      // since user_settings is not in the Supabase schema types
+      // Use standard query instead of RPC
       const { data, error } = await supabase
-        .rpc('get_user_settings', { user_id_param: user.id });
+        .from('user_settings')
+        .select('*')
+        .eq('user_id', user.id)
+        .maybeSingle();
       
       if (error) {
         console.error('Error fetching user settings:', error);
@@ -60,12 +62,21 @@ export const useUserSettings = () => {
         user_id: user.id,
       };
       
-      // Use RPC for update operations as well
-      const response = await supabase
-        .rpc('save_user_settings', { 
-          settings_data: settingsData,
-          user_id_param: user.id
-        });
+      // Use standard query operations instead of RPC
+      let response;
+      
+      if (settings?.id) {
+        // Update existing record
+        response = await supabase
+          .from('user_settings')
+          .update(settingsData)
+          .eq('id', settings.id);
+      } else {
+        // Insert new record
+        response = await supabase
+          .from('user_settings')
+          .insert([settingsData]);
+      }
       
       if (response.error) throw response.error;
       
@@ -77,7 +88,7 @@ export const useUserSettings = () => {
     } finally {
       setIsSaving(false);
     }
-  }, [user, fetchSettings]);
+  }, [user, settings, fetchSettings]);
 
   useEffect(() => {
     if (user) {
