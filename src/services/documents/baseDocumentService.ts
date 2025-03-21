@@ -1,7 +1,7 @@
 
 import { Document, DocumentFilterOptions, DocumentCreateInput } from '@/types';
 
-// Define DocumentUpdateInput since it's missing from @/types
+// Define DocumentUpdateInput type
 type DocumentUpdateInput = Partial<DocumentCreateInput> & { id: string };
 
 // Mock implementation for getting documents

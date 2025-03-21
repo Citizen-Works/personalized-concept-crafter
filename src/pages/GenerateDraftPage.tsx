@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -37,8 +38,10 @@ const GenerateDraftPage = () => {
     handleSaveDraft
   } = useGenerateDraft();
   
-  // Fix Call to Action array typing issue by mapping to string[]
-  const ctaTexts = callToActions.map(cta => cta.text);
+  // Convert CallToAction objects to strings array
+  const ctaTexts = callToActions.length > 0 
+    ? callToActions.map(cta => cta.text)
+    : [];
 
   return (
     <div className="container space-y-6">

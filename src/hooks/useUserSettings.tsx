@@ -27,20 +27,23 @@ export const useUserSettings = () => {
     
     try {
       setIsLoading(true);
+      
+      // Instead of using .from('user_settings'), we'll use a more direct query
+      // since user_settings is not in the Supabase schema types
       const { data, error } = await supabase
-        .from('user_settings')
-        .select('*')
-        .eq('user_id', user.id)
-        .single();
+        .rpc('get_user_settings', { user_id_param: user.id });
       
-      if (error && error.code !== 'PGRST116') {
-        throw error;
+      if (error) {
+        console.error('Error fetching user settings:', error);
+        toast.error('Failed to load settings');
+        setSettings({ user_id: user.id });
+      } else {
+        setSettings(data || { user_id: user.id });
       }
-      
-      setSettings(data || { user_id: user.id });
     } catch (error) {
       console.error('Error fetching user settings:', error);
       toast.error('Failed to load settings');
+      setSettings({ user_id: user.id });
     } finally {
       setIsLoading(false);
     }
@@ -57,18 +60,12 @@ export const useUserSettings = () => {
         user_id: user.id,
       };
       
-      let response;
-      
-      if (settings?.id) {
-        response = await supabase
-          .from('user_settings')
-          .update(settingsData)
-          .eq('id', settings.id);
-      } else {
-        response = await supabase
-          .from('user_settings')
-          .insert([settingsData]);
-      }
+      // Use RPC for update operations as well
+      const response = await supabase
+        .rpc('save_user_settings', { 
+          settings_data: settingsData,
+          user_id_param: user.id
+        });
       
       if (response.error) throw response.error;
       
@@ -80,7 +77,7 @@ export const useUserSettings = () => {
     } finally {
       setIsSaving(false);
     }
-  }, [user, settings, fetchSettings]);
+  }, [user, fetchSettings]);
 
   useEffect(() => {
     if (user) {

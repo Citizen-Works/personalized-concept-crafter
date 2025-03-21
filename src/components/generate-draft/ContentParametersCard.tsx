@@ -83,7 +83,7 @@ const ContentParametersCard: React.FC<ContentParametersCardProps> = ({
               <SelectValue placeholder="Select a call to action" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">None</SelectItem>
+              <SelectItem value="none">None</SelectItem>
               {callToActions.map((cta) => (
                 <SelectItem key={cta} value={cta}>
                   {cta}
