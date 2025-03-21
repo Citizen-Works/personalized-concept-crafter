@@ -1,19 +1,46 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/context/AuthContext';
 import { toast } from 'sonner';
-import { ShieldCheck } from 'lucide-react';
+import { ShieldCheck, LockKeyhole } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+
+// List of authorized email addresses that can become admins
+// In a production app, this would be stored in the database or environment variables
+const AUTHORIZED_ADMIN_EMAILS = [
+  // Add your email here to allow only yourself to become admin
+];
 
 const AssignAdminRole: React.FC = () => {
-  const { user } = useAuth();
+  const { user, isAdmin } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
+  const [securityCode, setSecurityCode] = useState('');
+  const [isAuthorized, setIsAuthorized] = useState(false);
+  
+  // The security code would typically be a secret code only shared with authorized users
+  // For this demo, we'll use "admin123" as an example
+  const ADMIN_SECURITY_CODE = "admin123";
+  
+  useEffect(() => {
+    // Check if the current user is authorized to become an admin
+    if (user) {
+      const isAuthorizedEmail = AUTHORIZED_ADMIN_EMAILS.includes(user.email || '');
+      setIsAuthorized(isAuthorizedEmail || isAdmin);
+    }
+  }, [user, isAdmin]);
   
   const handleAssignAdmin = async () => {
     if (!user) {
       toast.error("You must be logged in to perform this action");
+      return;
+    }
+    
+    // Verify security code if the user is not pre-authorized
+    if (!isAuthorized && securityCode !== ADMIN_SECURITY_CODE) {
+      toast.error("Invalid security code");
       return;
     }
     
@@ -49,20 +76,34 @@ const AssignAdminRole: React.FC = () => {
       <CardHeader>
         <CardTitle className="text-lg font-medium">Admin Access</CardTitle>
         <CardDescription>
-          Grant yourself admin privileges to access the admin dashboard
+          Admin privileges are required to access the admin dashboard
         </CardDescription>
       </CardHeader>
-      <CardContent>
-        <p className="text-sm text-muted-foreground mb-4">
-          Use this button to assign yourself the admin role. After clicking, you'll need to sign out and sign back in for changes to take effect.
+      <CardContent className="space-y-4">
+        <p className="text-sm text-muted-foreground mb-2">
+          {isAuthorized 
+            ? "You are authorized to become an admin. After clicking the button, you'll need to sign out and sign back in for changes to take effect."
+            : "Admin access requires authorization. Please enter the security code to proceed."}
         </p>
+        
+        {!isAuthorized && (
+          <div className="space-y-2">
+            <Input
+              type="password"
+              placeholder="Enter security code"
+              value={securityCode}
+              onChange={(e) => setSecurityCode(e.target.value)}
+            />
+          </div>
+        )}
+        
         <Button 
           variant="default" 
           onClick={handleAssignAdmin} 
-          disabled={isLoading}
+          disabled={isLoading || (!isAuthorized && !securityCode)}
           className="gap-2"
         >
-          <ShieldCheck className="h-4 w-4" />
+          {isAuthorized ? <ShieldCheck className="h-4 w-4" /> : <LockKeyhole className="h-4 w-4" />}
           {isLoading ? "Assigning..." : "Make Me an Admin"}
         </Button>
       </CardContent>
