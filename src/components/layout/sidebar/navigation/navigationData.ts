@@ -30,15 +30,20 @@ import {
 import { NavItem } from "./types";
 
 export const getNavigationItems = (): NavItem[] => [
+  // Main Pages
   {
     title: "Dashboard",
     href: "/dashboard",
     icon: LayoutDashboard,
+    section: "main"
   },
+  
+  // Content Pipeline Section
   {
     title: "Content Pipeline",
     href: "/pipeline",
     icon: GitMerge,
+    section: "content-pipeline",
     subItems: [
       {
         title: "Review Queue",
@@ -67,10 +72,13 @@ export const getNavigationItems = (): NavItem[] => [
       },
     ],
   },
+  
+  // Source Materials Section
   {
     title: "Source Materials",
     href: "/source-materials",
     icon: Files,
+    section: "source-materials",
     subItems: [
       {
         title: "All Materials",
@@ -84,10 +92,13 @@ export const getNavigationItems = (): NavItem[] => [
       }
     ],
   },
+  
+  // Strategy Section
   {
     title: "Strategy",
     href: "/strategy",
     icon: Compass,
+    section: "strategy",
     subItems: [
       {
         title: "Overview",
@@ -121,10 +132,13 @@ export const getNavigationItems = (): NavItem[] => [
       },
     ],
   },
+  
+  // Examples Section
   {
     title: "Examples",
     href: "/examples",
     icon: BookText,
+    section: "examples",
     subItems: [
       {
         title: "LinkedIn Posts",
@@ -143,9 +157,12 @@ export const getNavigationItems = (): NavItem[] => [
       },
     ],
   },
+  
+  // Settings
   {
     title: "Settings",
     href: "/settings",
     icon: Settings,
+    section: "settings"
   },
 ];

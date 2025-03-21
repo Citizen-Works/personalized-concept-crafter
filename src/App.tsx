@@ -28,6 +28,7 @@ import ReviewQueuePage from "@/pages/ReviewQueuePage";
 import ReadyToPublishPage from "@/pages/ReadyToPublishPage";
 import PublishedPage from "@/pages/PublishedPage";
 import NewContentIdeaPage from "@/pages/NewContentIdeaPage";
+import NewIdeaPage from "@/pages/NewIdeaPage";
 import GenerateDraftPage from "@/pages/GenerateDraftPage";
 import CallToActionsPage from "@/pages/CallToActionsPage";
 import ContentPipelinePage from "@/pages/ContentPipelinePage";
@@ -100,6 +101,7 @@ function App() {
                     {/* Content Pipeline - moved these to only be accessible through the pipeline */}
                     <Route path="/review-queue" element={<Navigate to="/pipeline?tab=review" replace />} />
                     <Route path="/ideas" element={<Navigate to="/pipeline?tab=ideas" replace />} />
+                    <Route path="/ideas/new" element={<NewIdeaPage />} />
                     <Route path="/drafts" element={<Navigate to="/pipeline?tab=drafts" replace />} />
                     <Route path="/ready-to-publish" element={<Navigate to="/pipeline?tab=ready" replace />} />
                     <Route path="/published" element={<Navigate to="/pipeline?tab=published" replace />} />

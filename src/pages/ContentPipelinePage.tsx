@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { ReviewQueueTab } from "@/components/pipeline/ReviewQueueTab";
@@ -15,48 +15,47 @@ const ContentPipelinePage = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const isMobile = useIsMobile();
-  const [activeTab, setActiveTab] = useState("ideas");
+  const [activeTab, setActiveTab] = useState<string>("");
   const [searchQuery, setSearchQuery] = useState("");
   const [dateRange, setDateRange] = useState<[Date | undefined, Date | undefined]>([undefined, undefined]);
   const [contentTypeFilter, setContentTypeFilter] = useState<ContentType | "all">("all");
   
-  // Use useEffect with cleaner dependency handling
-  useEffect(() => {
+  // Get tab from URL once on initial render and when URL changes
+  const getTabFromUrl = useCallback(() => {
     const urlParams = new URLSearchParams(location.search);
-    const tabParam = urlParams.get("tab");
+    return urlParams.get("tab") || "";
+  }, [location.search]);
+  
+  // Initialize tab state from URL or localStorage
+  useEffect(() => {
+    const urlTab = getTabFromUrl();
     
-    if (tabParam) {
-      // This prevents unwanted state changes if we're already on the correct tab
-      if (tabParam !== activeTab) {
-        setActiveTab(tabParam);
-      }
+    if (urlTab) {
+      setActiveTab(urlTab);
     } else {
       // If no tab in URL, set from localStorage or default to "ideas"
-      const storedTab = localStorage.getItem("contentPipelineActiveTab");
-      const tabToSet = storedTab || "ideas";
+      const storedTab = localStorage.getItem("contentPipelineActiveTab") || "ideas";
+      setActiveTab(storedTab);
       
-      if (tabToSet !== activeTab) {
-        setActiveTab(tabToSet);
-        
-        // Update URL to match the tab without triggering navigation
-        const currentParams = new URLSearchParams(location.search);
-        currentParams.set("tab", tabToSet);
-        navigate(`${location.pathname}?${currentParams.toString()}`, { replace: true });
-      }
+      // Update URL without triggering a navigation effect
+      const newSearch = new URLSearchParams(location.search);
+      newSearch.set("tab", storedTab);
+      navigate(`${location.pathname}?${newSearch.toString()}`, { replace: true });
     }
-  }, [location.search, navigate, activeTab]);
+  }, [location.pathname, getTabFromUrl, navigate]);
   
-  // Separate effect for saving to localStorage when tab changes
-  useEffect(() => {
-    localStorage.setItem("contentPipelineActiveTab", activeTab);
+  // Update localStorage and URL when tab changes
+  const handleTabChange = useCallback((value: string) => {
+    if (value === activeTab) return; // Prevent unnecessary updates
     
-    // Update URL params without full navigation
-    const currentParams = new URLSearchParams(location.search);
-    if (currentParams.get("tab") !== activeTab) {
-      currentParams.set("tab", activeTab);
-      navigate(`${location.pathname}?${currentParams.toString()}`, { replace: true });
-    }
-  }, [activeTab, navigate]);
+    setActiveTab(value);
+    localStorage.setItem("contentPipelineActiveTab", value);
+    
+    // Update URL params without triggering navigation events
+    const newParams = new URLSearchParams(location.search);
+    newParams.set("tab", value);
+    navigate(`${location.pathname}?${newParams.toString()}`, { replace: true });
+  }, [activeTab, location.search, navigate]);
   
   // Memoize the filter props to prevent unnecessary re-renders
   const filterProps = useMemo(() => ({
@@ -65,19 +64,18 @@ const ContentPipelinePage = () => {
     contentTypeFilter
   }), [searchQuery, dateRange, contentTypeFilter]);
   
-  // Handle tab change with debounce to prevent rapid state changes
-  const handleTabChange = (value: string) => {
-    if (value !== activeTab) {
-      setActiveTab(value);
-    }
-  };
-  
   // Reset filters
-  const handleResetFilters = () => {
+  const handleResetFilters = useCallback(() => {
     setSearchQuery("");
     setDateRange([undefined, undefined]);
     setContentTypeFilter("all");
-  };
+  }, []);
+  
+  if (!activeTab) {
+    return <div className="flex items-center justify-center h-64">
+      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+    </div>;
+  }
   
   return (
     <div className="space-y-6">
@@ -98,7 +96,12 @@ const ContentPipelinePage = () => {
         onResetFilters={handleResetFilters}
       />
       
-      <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
+      <Tabs 
+        value={activeTab} 
+        onValueChange={handleTabChange} 
+        className="w-full"
+        defaultValue={activeTab}
+      >
         <TabsList className={`${isMobile ? 'grid-cols-3 mb-2' : 'grid-cols-5'} grid`}>
           <TabsTrigger value="review">Review</TabsTrigger>
           <TabsTrigger value="ideas">Ideas</TabsTrigger>

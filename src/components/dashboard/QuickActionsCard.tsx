@@ -26,7 +26,7 @@ export const QuickActionsCard = () => {
           </Link>
         </Button>
         <Button variant="secondary" className="w-full justify-start" asChild>
-          <Link to="/review-queue" className="flex items-center gap-2">
+          <Link to="/pipeline?tab=review" className="flex items-center gap-2">
             <ClipboardList className="h-4 w-4" />
             <span>Review Queue</span>
           </Link>
