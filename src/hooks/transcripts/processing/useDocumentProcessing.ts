@@ -139,15 +139,43 @@ export const useDocumentProcessing = (
     if (processingDocuments.has(docId)) {
       clearDocumentTimeout(docId);
       
-      updateProcessingDocuments(prev => {
-        const updated = new Set<string>([...prev]);
-        updated.delete(docId);
-        return updated;
-      });
-      
-      toast.info("Processing canceled", {
-        description: "Document processing has been canceled"
-      });
+      // Update the document status in Supabase to "idle"
+      try {
+        const { supabase } = require('@/integrations/supabase/client');
+        supabase
+          .from("documents")
+          .update({ processing_status: 'idle' })
+          .eq("id", docId)
+          .then(() => {
+            // After updating the status, remove from processing list
+            updateProcessingDocuments(prev => {
+              const updated = new Set<string>([...prev]);
+              updated.delete(docId);
+              return updated;
+            });
+            
+            toast.info("Processing canceled", {
+              description: "Document processing has been canceled"
+            });
+          })
+          .catch(error => {
+            console.error("Error updating document status:", error);
+            toast.error("Error canceling processing");
+          });
+      } catch (error) {
+        console.error("Error in cancelProcessing:", error);
+        
+        // If there's an error with Supabase, still remove from processing list
+        updateProcessingDocuments(prev => {
+          const updated = new Set<string>([...prev]);
+          updated.delete(docId);
+          return updated;
+        });
+        
+        toast.info("Processing canceled locally", {
+          description: "Document processing state has been reset"
+        });
+      }
     }
   }, [processingDocuments, clearDocumentTimeout, updateProcessingDocuments]);
   

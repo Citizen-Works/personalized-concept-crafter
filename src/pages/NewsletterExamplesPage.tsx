@@ -1,13 +1,16 @@
 
 import React, { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Plus, MailIcon, Trash2 } from 'lucide-react';
+import { Plus, MailIcon, Trash2, Calendar, FileText } from 'lucide-react';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { useNewsletterExamples } from '@/hooks/useNewsletterExamples';
 import { toast } from 'sonner';
+import { format } from 'date-fns';
+import { Card, CardContent } from '@/components/ui/card';
 
 const NewsletterExamplesPage = () => {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
@@ -106,46 +109,58 @@ const NewsletterExamplesPage = () => {
       </div>
       
       {isLoading ? (
-        <div className="grid gap-4 sm:grid-cols-1 md:grid-cols-2">
-          {[1, 2].map((i) => (
-            <Card key={i} className="animate-pulse">
-              <CardHeader className="bg-muted/20 h-12"></CardHeader>
-              <CardContent className="pt-6">
-                <div className="space-y-2">
-                  <div className="h-4 bg-muted/20 rounded"></div>
-                  <div className="h-4 bg-muted/20 rounded w-3/4"></div>
-                  <div className="h-4 bg-muted/20 rounded w-1/2"></div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+        <Card className="p-8">
+          <CardContent className="flex items-center justify-center p-6">
+            <div className="animate-pulse space-y-4 w-full">
+              <div className="h-4 bg-muted/50 rounded w-3/4"></div>
+              <div className="h-4 bg-muted/50 rounded"></div>
+              <div className="h-4 bg-muted/50 rounded w-1/2"></div>
+            </div>
+          </CardContent>
+        </Card>
       ) : examples && examples.length > 0 ? (
-        <div className="grid gap-4 sm:grid-cols-1 md:grid-cols-2">
-          {examples.map((example) => (
-            <Card key={example.id} className="overflow-hidden">
-              <CardHeader className="pb-2 flex flex-row items-start justify-between">
-                <div className="overflow-hidden">
-                  <CardTitle className="text-lg truncate-text">{example.title}</CardTitle>
-                  <CardDescription className="text-xs sm:text-sm">
-                    {new Date(example.createdAt).toLocaleDateString()}
-                  </CardDescription>
-                </div>
-                <Button 
-                  variant="ghost" 
-                  size="icon" 
-                  className="h-8 w-8 flex-shrink-0" 
-                  onClick={() => handleDeleteExample(example.id)}
-                >
-                  <Trash2 className="h-4 w-4" />
-                </Button>
-              </CardHeader>
-              <CardContent className="max-h-[200px] overflow-y-auto">
-                <p className="whitespace-pre-line text-sm">{example.content}</p>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+        <ScrollArea className="h-[calc(100vh-230px)] border rounded-md">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="w-[150px]">Date</TableHead>
+                <TableHead>Title & Content</TableHead>
+                <TableHead className="w-[80px] text-right">Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {examples.map((example) => (
+                <TableRow key={example.id}>
+                  <TableCell>
+                    <div className="flex items-center gap-2">
+                      <Calendar className="h-4 w-4 text-muted-foreground" />
+                      <span className="whitespace-nowrap">
+                        {format(new Date(example.createdAt), "MMM d, yyyy")}
+                      </span>
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex flex-col gap-1">
+                      <div className="font-medium">{example.title}</div>
+                      <p className="text-sm text-muted-foreground line-clamp-2">
+                        {example.content}
+                      </p>
+                    </div>
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <Button 
+                      variant="ghost" 
+                      size="icon" 
+                      onClick={() => handleDeleteExample(example.id)}
+                    >
+                      <Trash2 className="h-4 w-4 text-muted-foreground hover:text-destructive" />
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </ScrollArea>
       ) : (
         <div className="flex flex-col items-center justify-center p-6 sm:p-12 text-center border rounded-lg bg-muted/10">
           <MailIcon className="h-8 w-8 sm:h-12 sm:w-12 text-muted-foreground mb-4" />
