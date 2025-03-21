@@ -22,6 +22,10 @@ import {
   FilePenLine,
   MessageSquareShare,
   Network,
+  LayoutDashboard,
+  Files,
+  FileUp,
+  BookText,
 } from "lucide-react";
 import { NavItem } from "./types";
 
@@ -29,7 +33,7 @@ export const getNavigationItems = (): NavItem[] => [
   {
     title: "Dashboard",
     href: "/dashboard",
-    icon: Gauge,
+    icon: LayoutDashboard,
   },
   {
     title: "Content Pipeline",
@@ -61,6 +65,23 @@ export const getNavigationItems = (): NavItem[] => [
         href: "/pipeline?tab=published",
         icon: SendHorizontal,
       },
+    ],
+  },
+  {
+    title: "Source Materials",
+    href: "/source-materials",
+    icon: Files,
+    subItems: [
+      {
+        title: "All Materials",
+        href: "/source-materials",
+        icon: Folder,
+      },
+      {
+        title: "Upload New",
+        href: "/source-materials/upload",
+        icon: FileUp,
+      }
     ],
   },
   {
@@ -101,44 +122,26 @@ export const getNavigationItems = (): NavItem[] => [
     ],
   },
   {
-    title: "Ideas",
-    href: "/ideas",
-    icon: Lightbulb,
-  },
-  {
-    title: "Drafts",
-    href: "/drafts",
-    icon: FileEdit,
-  },
-  {
-    title: "LinkedIn Posts",
-    href: "/linkedin-posts",
-    icon: Linkedin,
-  },
-  {
-    title: "Transcripts",
-    href: "/transcripts",
-    icon: FileText,
-  },
-  {
-    title: "Documents",
-    href: "/documents",
-    icon: Folder,
-  },
-  {
-    title: "Personal Stories",
-    href: "/personal-stories",
-    icon: BookMarked,
-  },
-  {
-    title: "Marketing Examples",
-    href: "/marketing-examples",
-    icon: Briefcase,
-  },
-  {
-    title: "Newsletter Examples",
-    href: "/newsletter-examples",
-    icon: MessagesSquare,
+    title: "Examples",
+    href: "/examples",
+    icon: BookText,
+    subItems: [
+      {
+        title: "LinkedIn Posts",
+        href: "/linkedin-posts",
+        icon: Linkedin,
+      },
+      {
+        title: "Marketing Examples",
+        href: "/marketing-examples",
+        icon: Briefcase,
+      },
+      {
+        title: "Newsletter Examples",
+        href: "/newsletter-examples",
+        icon: MessagesSquare,
+      },
+    ],
   },
   {
     title: "Settings",

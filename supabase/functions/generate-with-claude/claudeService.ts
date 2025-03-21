@@ -1,10 +1,10 @@
 
-import { CLAUDE_API_KEY, CLAUDE_API_URL, MODEL_NAME, MAX_TOKENS } from "./config.ts";
+import { CLAUDE_API_KEY, CLAUDE_API_URL, MODEL_NAME, MAX_TOKENS, DEFAULT_TEMPERATURE } from "./config.ts";
 
 /**
  * Makes a request to the Claude API
  */
-export async function callClaudeApi(systemPrompt: string, userPrompt: string) {
+export async function callClaudeApi(systemPrompt: string, userPrompt: string, temperature = DEFAULT_TEMPERATURE) {
   if (!CLAUDE_API_KEY) {
     throw new Error('CLAUDE_API_KEY is not set');
   }
@@ -19,7 +19,7 @@ export async function callClaudeApi(systemPrompt: string, userPrompt: string) {
     body: JSON.stringify({
       model: MODEL_NAME,
       max_tokens: MAX_TOKENS,
-      temperature: 0.7, // Slightly more creative but still focused
+      temperature: temperature, // Use the provided temperature
       system: systemPrompt,
       messages: [
         {

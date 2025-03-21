@@ -11,23 +11,16 @@ import RegisterPage from "@/pages/RegisterPage";
 import LoginPage from "@/pages/LoginPage";
 import OnboardingPage from "@/pages/OnboardingPage";
 import Dashboard from "@/pages/Dashboard";
-import IdeasPage from "@/pages/IdeasPage";
-import IdeaDetailPage from "@/pages/IdeaDetailPage";
-import NewIdeaPage from "@/pages/NewIdeaPage";
-import DraftsPage from "@/pages/DraftsPage";
-import DraftDetailPage from "@/pages/DraftDetailPage";
 import Settings from "@/pages/Settings";
 import ContentPillarsPage from "@/pages/ContentPillarsPage";
 import TargetAudiencesPage from "@/pages/TargetAudiencesPage";
 import WritingStylePage from "@/pages/WritingStylePage";
 import LinkedinPostsPage from "@/pages/LinkedinPostsPage";
-import DocumentsPage from "@/pages/DocumentsPage";
 import MarketingExamplesPage from "@/pages/MarketingExamplesPage";
 import NewsletterExamplesPage from "@/pages/NewsletterExamplesPage";
 import NotFound from "@/pages/NotFound";
 import { AuthProvider } from "./context/auth";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
-import TranscriptsPage from "./pages/TranscriptsPage";
 import { MainLayout } from "./components/layout/MainLayout";
 import AdminPage from "./pages/AdminPage";
 
@@ -36,12 +29,16 @@ import ReadyToPublishPage from "@/pages/ReadyToPublishPage";
 import PublishedPage from "@/pages/PublishedPage";
 import NewContentIdeaPage from "@/pages/NewContentIdeaPage";
 import GenerateDraftPage from "@/pages/GenerateDraftPage";
-import PersonalStoriesPage from "@/pages/PersonalStoriesPage";
 import CallToActionsPage from "@/pages/CallToActionsPage";
 import ContentPipelinePage from "@/pages/ContentPipelinePage";
 import StrategyOverviewPage from "@/pages/StrategyOverviewPage";
 import PillarAudienceLinkPage from "@/pages/PillarAudienceLinkPage";
 import { usePromptTemplateInitializer } from "@/hooks/admin/usePromptTemplateInitializer";
+
+// New Source Materials Pages
+import SourceMaterialsPage from "@/pages/SourceMaterialsPage";
+import SourceMaterialDetailPage from "@/pages/SourceMaterialDetailPage";
+import SourceMaterialsUploadPage from "@/pages/SourceMaterialsUploadPage";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -100,22 +97,25 @@ function App() {
                     
                     <Route path="/pipeline" element={<ContentPipelinePage />} />
                     
-                    <Route path="/review-queue" element={<ReviewQueuePage />} />
-                    <Route path="/ideas" element={<IdeasPage />} />
-                    <Route path="/ideas/:id" element={<IdeaDetailPage />} />
-                    <Route path="/ideas/new" element={<NewIdeaPage />} />
-                    <Route path="/drafts" element={<DraftsPage />} />
-                    <Route path="/drafts/:id" element={<DraftDetailPage />} />
-                    <Route path="/ready-to-publish" element={<ReadyToPublishPage />} />
-                    <Route path="/published" element={<PublishedPage />} />
+                    {/* Content Pipeline - moved these to only be accessible through the pipeline */}
+                    <Route path="/review-queue" element={<Navigate to="/pipeline?tab=review" replace />} />
+                    <Route path="/ideas" element={<Navigate to="/pipeline?tab=ideas" replace />} />
+                    <Route path="/drafts" element={<Navigate to="/pipeline?tab=drafts" replace />} />
+                    <Route path="/ready-to-publish" element={<Navigate to="/pipeline?tab=ready" replace />} />
+                    <Route path="/published" element={<Navigate to="/pipeline?tab=published" replace />} />
                     
                     <Route path="/new-content-idea" element={<NewContentIdeaPage />} />
                     <Route path="/generate-draft" element={<GenerateDraftPage />} />
                     
+                    {/* Source Materials Section */}
+                    <Route path="/source-materials" element={<SourceMaterialsPage />} />
+                    <Route path="/source-materials/:id" element={<SourceMaterialDetailPage />} />
+                    <Route path="/source-materials/upload" element={<SourceMaterialsUploadPage />} />
+                    
+                    {/* Examples Section */}
                     <Route path="/linkedin-posts" element={<LinkedinPostsPage />} />
-                    <Route path="/transcripts" element={<TranscriptsPage />} />
-                    <Route path="/documents" element={<DocumentsPage />} />
-                    <Route path="/personal-stories" element={<PersonalStoriesPage />} />
+                    <Route path="/marketing-examples" element={<MarketingExamplesPage />} />
+                    <Route path="/newsletter-examples" element={<NewsletterExamplesPage />} />
                     
                     {/* Admin page - protected with requireAdmin */}
                     <Route 
@@ -140,12 +140,11 @@ function App() {
                     <Route path="/target-audiences" element={<Navigate to="/strategy/target-audiences" replace />} />
                     <Route path="/writing-style" element={<Navigate to="/strategy/writing-style" replace />} />
                     <Route path="/call-to-actions" element={<Navigate to="/strategy/call-to-actions" replace />} />
+                    <Route path="/transcripts" element={<Navigate to="/source-materials" replace />} />
+                    <Route path="/documents" element={<Navigate to="/source-materials" replace />} />
                     
-                    {/* This route is causing 404 errors on mobile, let's add it directly */}
-                    <Route path="strategy/call-to-actions" element={<CallToActionsPage />} />
-                    
-                    <Route path="/marketing-examples" element={<MarketingExamplesPage />} />
-                    <Route path="/newsletter-examples" element={<NewsletterExamplesPage />} />
+                    {/* Remove personal-stories route - it's no longer needed */}
+                    <Route path="/personal-stories" element={<Navigate to="/source-materials" replace />} />
                     
                     <Route path="/settings/*" element={<Settings />} />
                     <Route path="*" element={<NotFound />} />
