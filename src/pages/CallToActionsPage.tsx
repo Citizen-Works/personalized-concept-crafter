@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Plus, MessageSquareShare } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import { useCallToActions } from '@/hooks/useCallToActions';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -12,7 +12,6 @@ import { AddCallToActionDialog } from '@/components/CallToAction/AddCallToAction
 
 const CallToActionsPage = () => {
   const [activeTab, setActiveTab] = useState<string>("all");
-  const [dialogOpen, setDialogOpen] = useState(false);
   const { 
     callToActions, 
     isLoading, 
@@ -22,16 +21,8 @@ const CallToActionsPage = () => {
   } = useCallToActions();
 
   const handleOpenDialog = () => {
-    setDialogOpen(true);
-  };
-
-  const handleDialogOpenChange = (open: boolean) => {
-    setDialogOpen(open);
-  };
-
-  const handleCallToActionAdded = () => {
+    // We'll handle the dialog visibility directly through the AddCallToActionDialog component
     refetch();
-    setDialogOpen(false);
   };
 
   const handleDeleteCallToAction = (id: string) => {
@@ -58,10 +49,7 @@ const CallToActionsPage = () => {
       </div>
 
       <div className="flex justify-end">
-        <Button onClick={handleOpenDialog} className="gap-1">
-          <Plus className="h-4 w-4" />
-          Add Call To Action
-        </Button>
+        <AddCallToActionDialog onCallToActionAdded={refetch} />
       </div>
       
       <Tabs defaultValue="all" value={activeTab} onValueChange={setActiveTab}>
@@ -120,13 +108,6 @@ const CallToActionsPage = () => {
           )}
         </TabsContent>
       </Tabs>
-      
-      {/* Render dialog conditionally based on dialogOpen state */}
-      {dialogOpen && (
-        <AddCallToActionDialog 
-          onCallToActionAdded={handleCallToActionAdded} 
-        />
-      )}
     </div>
   );
 };
