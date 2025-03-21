@@ -81,7 +81,7 @@ export const IdeaItem: React.FC<IdeaItemProps> = ({
             asChild
             title="Generate Content"
           >
-            <Link to={`/ideas/${idea.id}`}>
+            <Link to={`/generate-draft`}>
               <Lightbulb className="h-4 w-4 mr-1" />
               Generate Content
             </Link>

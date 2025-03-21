@@ -41,7 +41,7 @@ export const getNavigationItems = (): NavItem[] => [
   // Content Pipeline Section
   {
     title: "Content Pipeline",
-    href: "/pipeline",
+    href: "/pipeline?tab=ideas", // Change to first subtab instead of parent path
     icon: GitMerge,
     section: "content-pipeline",
     subItems: [
@@ -76,7 +76,7 @@ export const getNavigationItems = (): NavItem[] => [
   // Source Materials Section
   {
     title: "Source Materials",
-    href: "/source-materials",
+    href: "/source-materials", // Non-functional parent
     icon: Files,
     section: "source-materials",
     subItems: [
@@ -96,7 +96,7 @@ export const getNavigationItems = (): NavItem[] => [
   // Strategy Section
   {
     title: "Strategy",
-    href: "/strategy",
+    href: "/strategy", // Non-functional parent
     icon: Compass,
     section: "strategy",
     subItems: [
@@ -136,7 +136,7 @@ export const getNavigationItems = (): NavItem[] => [
   // Examples Section
   {
     title: "Examples",
-    href: "/examples",
+    href: "/linkedin-posts", // Changed to first subtab instead of parent path
     icon: BookText,
     section: "examples",
     subItems: [

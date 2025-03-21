@@ -20,24 +20,18 @@ export const NavigationItemWithSub: React.FC<NavigationItemWithSubProps> = memo(
   item, 
   isActive 
 }) => {
-  // Memoize whether the parent item is active
-  const isParentActive = useMemo(() => 
-    isActive(item.href), 
-    [isActive, item.href]
-  );
-  
   // Memoize whether any child item is active
   const isAnyChildActive = useMemo(() => 
     item.subItems?.some(subItem => isActive(subItem.href)) || false, 
     [isActive, item.subItems]
   );
   
-  // Parent is active if either it or any of its children are active
-  const active = isParentActive || isAnyChildActive;
+  // Parent is active if any of its children are active
+  const active = isAnyChildActive;
   
   // Memoize the class name
   const buttonClassName = useMemo(() => 
-    cn(active && "bg-accent text-accent-foreground"),
+    cn(active && "bg-accent text-accent-foreground", "cursor-default"),
     [active]
   );
 

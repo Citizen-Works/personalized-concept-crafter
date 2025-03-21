@@ -1,4 +1,3 @@
-
 import React from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { ThemeProvider } from "@/components/theme-provider";
@@ -37,7 +36,6 @@ import PillarAudienceLinkPage from "@/pages/PillarAudienceLinkPage";
 import IdeaDetailPage from "@/pages/IdeaDetailPage";
 import { usePromptTemplateInitializer } from "@/hooks/admin/usePromptTemplateInitializer";
 
-// New Source Materials Pages
 import SourceMaterialsPage from "@/pages/SourceMaterialsPage";
 import SourceMaterialDetailPage from "@/pages/SourceMaterialDetailPage";
 import SourceMaterialsUploadPage from "@/pages/SourceMaterialsUploadPage";
@@ -51,7 +49,6 @@ const queryClient = new QueryClient({
   },
 });
 
-// TemplateInitializer component to use the hook
 const TemplateInitializer: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   usePromptTemplateInitializer();
   return <>{children}</>;
@@ -67,14 +64,11 @@ function App() {
               <TemplateInitializer>
                 <Toaster position="top-right" richColors />
                 <Routes>
-                  {/* Public routes - waitlist is the default landing page */}
                   <Route path="/" element={<Navigate to="/waitlist" replace />} />
                   <Route path="/waitlist" element={<WaitlistPage />} />
                   
-                  {/* Auth routes - redirect to dashboard if logged in */}
                   <Route element={<ProtectedRoute requireAuth={false} />}>
                     <Route path="/login" element={<LoginPage />} />
-                    {/* Registration page is only accessible to admins */}
                     <Route path="/register" element={
                       <ProtectedRoute requireAuth={true} requireAdmin={true} redirectPath="/waitlist">
                         <RegisterPage />
@@ -82,14 +76,12 @@ function App() {
                     } />
                   </Route>
                   
-                  {/* Protected onboarding route */}
                   <Route path="/onboarding" element={
                     <ProtectedRoute redirectPath="/login">
                       <OnboardingPage />
                     </ProtectedRoute>
                   } />
                   
-                  {/* Protected app routes with main layout */}
                   <Route element={
                     <ProtectedRoute redirectPath="/login">
                       <MainLayout />
@@ -99,7 +91,6 @@ function App() {
                     
                     <Route path="/pipeline" element={<ContentPipelinePage />} />
                     
-                    {/* Content Pipeline - moved these to only be accessible through the pipeline */}
                     <Route path="/review-queue" element={<Navigate to="/pipeline?tab=review" replace />} />
                     <Route path="/ideas" element={<Navigate to="/pipeline?tab=ideas" replace />} />
                     <Route path="/ideas/new" element={<NewIdeaPage />} />
@@ -111,17 +102,14 @@ function App() {
                     <Route path="/new-content-idea" element={<NewContentIdeaPage />} />
                     <Route path="/generate-draft" element={<GenerateDraftPage />} />
                     
-                    {/* Source Materials Section */}
                     <Route path="/source-materials" element={<SourceMaterialsPage />} />
                     <Route path="/source-materials/:id" element={<SourceMaterialDetailPage />} />
                     <Route path="/source-materials/upload" element={<SourceMaterialsUploadPage />} />
                     
-                    {/* Examples Section */}
                     <Route path="/linkedin-posts" element={<LinkedinPostsPage />} />
                     <Route path="/marketing-examples" element={<MarketingExamplesPage />} />
                     <Route path="/newsletter-examples" element={<NewsletterExamplesPage />} />
                     
-                    {/* Admin page - protected with requireAdmin */}
                     <Route 
                       path="/admin" 
                       element={
@@ -131,7 +119,6 @@ function App() {
                       } 
                     />
                     
-                    {/* Strategy Section Routes */}
                     <Route path="/strategy" element={<StrategyOverviewPage />} />
                     <Route path="/strategy/content-pillars" element={<ContentPillarsPage />} />
                     <Route path="/strategy/target-audiences" element={<TargetAudiencesPage />} />
@@ -139,7 +126,6 @@ function App() {
                     <Route path="/strategy/writing-style" element={<WritingStylePage />} />
                     <Route path="/strategy/audience-mapping" element={<PillarAudienceLinkPage />} />
                     
-                    {/* Legacy Routes - to be redirected */}
                     <Route path="/content-pillars" element={<Navigate to="/strategy/content-pillars" replace />} />
                     <Route path="/target-audiences" element={<Navigate to="/strategy/target-audiences" replace />} />
                     <Route path="/writing-style" element={<Navigate to="/strategy/writing-style" replace />} />
@@ -147,7 +133,6 @@ function App() {
                     <Route path="/transcripts" element={<Navigate to="/source-materials" replace />} />
                     <Route path="/documents" element={<Navigate to="/source-materials" replace />} />
                     
-                    {/* Remove personal-stories route - it's no longer needed */}
                     <Route path="/personal-stories" element={<Navigate to="/source-materials" replace />} />
                     
                     <Route path="/settings/*" element={<Settings />} />

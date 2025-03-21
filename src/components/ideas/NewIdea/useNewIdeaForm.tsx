@@ -35,7 +35,7 @@ export const useNewIdeaForm = () => {
     setIsSubmitting(true);
     
     try {
-      // Format notes to include CTA if provided
+      // Format notes to include CTA if provided, but no content goal
       let formattedNotes = values.notes || "";
       
       // Add CTA if provided
@@ -55,7 +55,7 @@ export const useNewIdeaForm = () => {
       });
       
       toast.success('Content idea created successfully');
-      navigate('/ideas');
+      navigate('/pipeline?tab=ideas');
     } catch (error) {
       console.error('Error creating content idea:', error);
       toast.error('Failed to create content idea');
@@ -80,7 +80,7 @@ export const useNewIdeaForm = () => {
       // Get form values
       const values = form.getValues();
       
-      // Format notes to include CTA if provided
+      // Format notes to include CTA if provided, but no content goal
       let formattedNotes = values.notes || "";
       
       // Add CTA if provided
@@ -93,7 +93,7 @@ export const useNewIdeaForm = () => {
         title: values.title,
         description: values.description || "",
         notes: formattedNotes,
-        contentType: contentType, // Still need to specify content type for generation
+        contentType: contentType, // Needed for generation
         source: values.source,
         sourceUrl: values.sourceUrl || null,
         status: 'approved',
@@ -115,10 +115,10 @@ export const useNewIdeaForm = () => {
             feedback: '',
           });
           
-          // 4. Update the idea status to approved
+          // 4. Update the idea status to drafted
           await updateIdea({
             id: savedIdea.id,
-            status: 'approved'
+            status: 'drafted'
           });
           
           toast.success(`Draft generated successfully for ${contentType} content`);
@@ -126,7 +126,7 @@ export const useNewIdeaForm = () => {
       }
       
       // Navigate to ideas page
-      navigate('/ideas');
+      navigate('/pipeline?tab=ideas');
     } catch (error) {
       console.error('Error in save and generate:', error);
       toast.error('Failed to save idea and generate draft');
@@ -142,6 +142,6 @@ export const useNewIdeaForm = () => {
     isGenerating,
     onSubmit,
     onSaveAndGenerate,
-    onCancel: () => navigate('/ideas')
+    onCancel: () => navigate('/pipeline?tab=ideas')
   };
 };
