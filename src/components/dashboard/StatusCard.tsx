@@ -19,12 +19,12 @@ export const StatusCard = ({ title, count, icon, route, color, isLoading }: Stat
   
   return (
     <Card 
-      className={`overflow-hidden transition-all duration-300 hover:shadow-md cursor-pointer ${color}`}
+      className="overflow-hidden transition-all duration-300 hover:shadow-md cursor-pointer"
       onClick={() => navigate(route)}
     >
-      <CardContent className="p-6 flex items-center justify-between">
-        <div className="flex items-center">
-          <div className={`${color} bg-opacity-10 p-4 rounded-full mr-4`}>
+      <CardContent className="p-6 flex items-center justify-between relative">
+        <div className="flex items-center z-10">
+          <div className={`${color} p-4 rounded-full mr-4`}>
             {icon}
           </div>
           <div>
@@ -34,6 +34,7 @@ export const StatusCard = ({ title, count, icon, route, color, isLoading }: Stat
             </h3>
           </div>
         </div>
+        <div className="absolute top-0 right-0 h-full w-24 bg-secondary/20 skew-x-[-20deg] transform translate-x-8 z-0"></div>
       </CardContent>
     </Card>
   );

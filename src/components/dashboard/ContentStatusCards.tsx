@@ -22,30 +22,30 @@ export const ContentStatusCards = ({
     {
       title: "Needs Review",
       count: needsReviewCount,
-      icon: <FileText className="h-6 w-6 text-blue-500" />,
+      icon: <FileText className="h-6 w-6 text-primary" />,
       route: "/review-queue",
-      color: "text-blue-500",
+      color: "bg-primary/10 text-primary",
     },
     {
       title: "In Progress",
       count: inProgressCount,
-      icon: <Edit className="h-6 w-6 text-orange-500" />,
+      icon: <Edit className="h-6 w-6 text-secondary" />,
       route: "/ideas",
-      color: "text-orange-500",
+      color: "bg-secondary/10 text-secondary",
     },
     {
       title: "Ready to Publish",
       count: readyToPublishCount,
-      icon: <Check className="h-6 w-6 text-green-500" />,
+      icon: <Check className="h-6 w-6 text-teal" />,
       route: "/ready-to-publish",
-      color: "text-green-500",
+      color: "bg-teal/10 text-teal",
     },
     {
       title: "Published",
       count: publishedCount,
-      icon: <SendHorizonal className="h-6 w-6 text-purple-500" />,
+      icon: <SendHorizonal className="h-6 w-6 text-accent" />,
       route: "/published",
-      color: "text-purple-500",
+      color: "bg-accent/10 text-accent",
     },
   ];
 

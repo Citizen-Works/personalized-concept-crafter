@@ -20,6 +20,12 @@ const alertVariants = cva(
           "border-accent/50 bg-accent/10 text-accent dark:border-accent [&>svg]:text-accent",
         teal:
           "border-teal/50 bg-teal/10 text-teal dark:border-teal [&>svg]:text-teal",
+        success:
+          "border-teal/50 bg-teal/10 text-teal dark:border-teal [&>svg]:text-teal",
+        warning:
+          "border-yellow-500/50 bg-yellow-500/10 text-yellow-700 dark:text-yellow-400 dark:border-yellow-400 [&>svg]:text-yellow-500",
+        info:
+          "border-blue-500/50 bg-blue-500/10 text-blue-700 dark:text-blue-400 dark:border-blue-400 [&>svg]:text-blue-500",
       },
     },
     defaultVariants: {

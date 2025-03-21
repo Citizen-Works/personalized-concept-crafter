@@ -18,24 +18,24 @@ const StatItem = ({ title, currentValue, previousValue, isLoading }: StatItemPro
   
   const getTrendIcon = () => {
     if (percentChange > 0) {
-      return <ArrowUp className="h-3 w-3 text-green-500" />;
+      return <ArrowUp className="h-3 w-3 text-teal" />;
     } else if (percentChange < 0) {
-      return <ArrowDown className="h-3 w-3 text-red-500" />;
+      return <ArrowDown className="h-3 w-3 text-accent" />;
     }
-    return <Minus className="h-3 w-3 text-gray-500" />;
+    return <Minus className="h-3 w-3 text-muted-foreground" />;
   };
   
   const getTrendColor = () => {
     if (percentChange > 0) {
-      return 'text-green-500';
+      return 'text-teal';
     } else if (percentChange < 0) {
-      return 'text-red-500';
+      return 'text-accent';
     }
-    return 'text-gray-500';
+    return 'text-muted-foreground';
   };
 
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col relative">
       <span className="text-sm text-muted-foreground">{title}</span>
       {isLoading ? (
         <div>
@@ -51,6 +51,11 @@ const StatItem = ({ title, currentValue, previousValue, isLoading }: StatItemPro
               {percentChange === 0 ? 'No change' : `${Math.abs(percentChange)}% ${percentChange > 0 ? 'increase' : 'decrease'}`}
             </span>
           </div>
+          {percentChange > 0 && (
+            <div className="absolute -bottom-3 left-0 right-0 h-1.5 bg-secondary/30 rounded-full overflow-hidden">
+              <div className="h-full bg-secondary rounded-full" style={{ width: `${Math.min(percentChange, 100)}%` }}></div>
+            </div>
+          )}
         </>
       )}
     </div>
@@ -76,7 +81,7 @@ export const WeeklyStats = ({
         <CardTitle className="text-base sm:text-lg">Weekly Stats</CardTitle>
         <CardDescription>Content metrics for this week</CardDescription>
       </CardHeader>
-      <CardContent className="grid grid-cols-3 gap-4">
+      <CardContent className="grid grid-cols-3 gap-4 pb-6">
         <StatItem 
           title="Ideas Created" 
           currentValue={ideasCreated.current} 

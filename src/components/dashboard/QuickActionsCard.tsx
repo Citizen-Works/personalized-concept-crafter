@@ -13,7 +13,7 @@ export const QuickActionsCard = () => {
         <CardDescription>Start creating content</CardDescription>
       </CardHeader>
       <CardContent className="grid gap-3">
-        <Button className="w-full justify-start" asChild>
+        <Button variant="primary" className="w-full justify-start" asChild>
           <Link to="/ideas/new" className="flex items-center gap-2">
             <Lightbulb className="h-4 w-4" />
             <span>New Content Idea</span>
