@@ -11,39 +11,45 @@ export async function generateContentWithClaude(
   contentType: ContentType,
   idea: ContentIdea
 ): Promise<string> {
-  const { data, error } = await supabase.functions.invoke("generate-with-claude", {
-    body: {
-      prompt,
-      contentType,
-      idea: {
-        id: idea.id,
-        title: idea.title,
-        description: idea.description
+  try {
+    const { data, error } = await supabase.functions.invoke("generate-with-claude", {
+      body: {
+        prompt,
+        contentType,
+        idea: {
+          id: idea.id,
+          title: idea.title,
+          description: idea.description
+        },
+        task: "content_generation"
+      }
+    });
+
+    if (error) {
+      console.error('Edge function error:', error);
+      throw new Error(error.message || 'Failed to generate content');
+    }
+
+    if (!data?.content) {
+      console.error('No content in response:', data);
+      throw new Error('No content generated');
+    }
+    
+    // Handle both string and object responses
+    if (typeof data.content === 'object') {
+      if (data.content.text) {
+        return data.content.text;
+      } else {
+        console.error('Invalid content format received from API:', data.content);
+        throw new Error('Invalid content format received from API');
       }
     }
-  });
 
-  if (error) {
-    throw new Error(error.message || 'Failed to generate content');
+    return data.content;
+  } catch (error) {
+    console.error('Error in generateContentWithClaude:', error);
+    throw error;
   }
-
-  if (!data?.content) {
-    throw new Error('No content generated');
-  }
-  
-  // Ensure we're returning a string
-  if (typeof data.content === 'object') {
-    // If we somehow got an object instead of a string, extract the text property
-    // This is a fallback in case the edge function didn't properly process the response
-    if (data.content.text) {
-      return data.content.text;
-    } else {
-      console.error('Received object instead of string from Claude API:', data.content);
-      throw new Error('Invalid content format received from API');
-    }
-  }
-
-  return data.content;
 }
 
 /**
@@ -97,32 +103,38 @@ If business information is provided, incorporate relevant elements into the samp
 ONLY include the writing sample. Do NOT include any extra comments or notes. Only the requested sample. Do not address the user.
 `;
 
-  const { data, error } = await supabase.functions.invoke("generate-with-claude", {
-    body: {
-      prompt,
-      task: "writing_style_preview",
-      contentType
+  try {
+    const { data, error } = await supabase.functions.invoke("generate-with-claude", {
+      body: {
+        prompt,
+        task: "writing_style_preview",
+        contentType
+      }
+    });
+
+    if (error) {
+      console.error('Edge function error in preview generation:', error);
+      throw new Error(error.message || 'Failed to generate preview');
     }
-  });
 
-  if (error) {
-    throw new Error(error.message || 'Failed to generate preview');
-  }
-
-  if (!data?.content) {
-    throw new Error('No preview generated');
-  }
-  
-  // Ensure we're returning a string
-  if (typeof data.content === 'object') {
-    // If we somehow got an object instead of a string, extract the text property
-    if (data.content.text) {
-      return data.content.text;
-    } else {
-      console.error('Received object instead of string from Claude API:', data.content);
-      throw new Error('Invalid content format received from API');
+    if (!data?.content) {
+      console.error('No preview content in response:', data);
+      throw new Error('No preview generated');
     }
-  }
+    
+    // Handle both string and object responses
+    if (typeof data.content === 'object') {
+      if (data.content.text) {
+        return data.content.text;
+      } else {
+        console.error('Invalid content format received from API:', data.content);
+        throw new Error('Invalid content format received from API');
+      }
+    }
 
-  return data.content;
+    return data.content;
+  } catch (error) {
+    console.error('Error in generatePreviewWithClaude:', error);
+    throw error;
+  }
 }

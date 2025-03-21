@@ -14,8 +14,24 @@ serve(async (req) => {
   }
   
   try {
+    // Log the request for debugging
+    console.log(`Received request: ${req.method} ${req.url}`);
+    
     // Parse the request body
-    const requestData = await req.json();
+    let requestData;
+    try {
+      requestData = await req.json();
+      console.log('Successfully parsed request JSON');
+    } catch (error) {
+      console.error('Error parsing request JSON:', error);
+      return new Response(
+        JSON.stringify({ error: 'Invalid JSON in request body' }),
+        { 
+          status: 400, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        }
+      );
+    }
     
     // Process the request and generate content
     const response = await processContentRequest(requestData);
@@ -31,6 +47,6 @@ serve(async (req) => {
       }
     );
   } catch (error) {
-    return handleError(error);
+    return handleError(error instanceof Error ? error : new Error(String(error)));
   }
 });
