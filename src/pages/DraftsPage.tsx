@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { DraftsHeader } from '@/components/drafts/DraftsHeader';
 import { DraftsFilters } from '@/components/drafts/DraftsFilters';
 import { DraftList } from '@/components/drafts/DraftList';
@@ -10,6 +10,7 @@ import { useDrafts } from '@/hooks/useDrafts';
 import { Skeleton } from '@/components/ui/skeleton';
 import { toast } from 'sonner';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { DraftError } from '@/components/drafts/DraftError';
 
 const DraftsPage = () => {
   const { drafts, isLoading, isError, deleteDraft, updateDraft } = useDrafts();
@@ -17,6 +18,12 @@ const DraftsPage = () => {
   const [typeFilter, setTypeFilter] = useState<ContentType | 'all'>('all');
   const [selectedDrafts, setSelectedDrafts] = useState<string[]>([]);
   const isMobile = useIsMobile();
+  const [isClientReady, setIsClientReady] = useState(false);
+  
+  // Ensure hydration is complete before rendering content that might differ between server and client
+  useEffect(() => {
+    setIsClientReady(true);
+  }, []);
   
   // Filter drafts based on search query and filters
   const filteredDrafts = drafts.filter((draft) => {
@@ -82,6 +89,20 @@ const DraftsPage = () => {
       toast.error('Failed to update drafts');
     }
   };
+
+  // Return early if client-side hydration isn't complete yet
+  if (!isClientReady) {
+    return (
+      <div className="space-y-8">
+        <DraftsHeader />
+        <div className="animate-pulse space-y-4">
+          <Skeleton className="h-10 w-full" />
+          <Skeleton className="h-32 w-full" />
+          <Skeleton className="h-32 w-full" />
+        </div>
+      </div>
+    );
+  }
   
   if (isLoading) {
     return (
@@ -109,17 +130,7 @@ const DraftsPage = () => {
   }
 
   if (isError) {
-    return (
-      <div className="space-y-8">
-        <DraftsHeader />
-        <div className="p-6 border rounded-lg bg-destructive/10 text-destructive">
-          <p className="font-medium">Error loading drafts</p>
-          <p className="text-sm mt-1">
-            There was an error loading your drafts. Please try again or contact support if the problem persists.
-          </p>
-        </div>
-      </div>
-    );
+    return <DraftError />;
   }
   
   return (

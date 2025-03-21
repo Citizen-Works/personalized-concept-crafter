@@ -1,8 +1,9 @@
 
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, AlertTriangle } from 'lucide-react';
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export const DraftError: React.FC = () => {
   return (
@@ -15,13 +16,30 @@ export const DraftError: React.FC = () => {
           </Link>
         </Button>
       </div>
-      <div className="text-center p-8">
-        <h2 className="text-2xl font-bold mb-2">Draft Not Found</h2>
-        <p className="text-muted-foreground mb-4">The draft you're looking for doesn't exist or you don't have permission to view it.</p>
-        <Button asChild>
-          <Link to="/drafts">Return to Drafts</Link>
-        </Button>
-      </div>
+      
+      <Card className="mx-auto max-w-md">
+        <CardHeader className="pb-2">
+          <CardTitle className="flex items-center gap-2 text-destructive">
+            <AlertTriangle className="h-5 w-5" />
+            Error Loading Drafts
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="text-muted-foreground mb-4">
+            We encountered a problem loading your drafts. This could be due to a network issue or a temporary server problem.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-2">
+            <Button onClick={() => window.location.reload()} className="w-full">
+              Try Again
+            </Button>
+            <Button variant="outline" asChild className="w-full">
+              <Link to="/dashboard">
+                Go to Dashboard
+              </Link>
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 };

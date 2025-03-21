@@ -16,7 +16,8 @@ import {
   Edit, 
   ArrowRight, 
   Trash,
-  MoreHorizontal 
+  MoreHorizontal,
+  Clock
 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { 
@@ -43,7 +44,7 @@ export const DraftList: React.FC<DraftListProps> = ({
   onToggleSelect, 
   onToggleSelectAll,
   onDelete,
-  isMobile
+  isMobile = false
 }) => {
   const allSelected = drafts.length > 0 && selectedDrafts.length === drafts.length;
   
@@ -63,14 +64,14 @@ export const DraftList: React.FC<DraftListProps> = ({
         {drafts.map((draft) => (
           <div 
             key={draft.id}
-            className="border rounded-md p-3 relative"
+            className="border rounded-md p-3 relative bg-card"
           >
             <div className="flex items-start gap-3">
               <Checkbox
                 checked={selectedDrafts.includes(draft.id)}
                 onCheckedChange={() => onToggleSelect(draft.id)}
                 aria-label={`Select draft ${draft.ideaTitle}`}
-                className="mt-1"
+                className="mt-1 h-5 w-5"
               />
               <div className="flex-1">
                 <Link to={`/drafts/${draft.id}`} className="block">
@@ -82,18 +83,19 @@ export const DraftList: React.FC<DraftListProps> = ({
                     <Badge className={getTypeBadgeClasses(draft.contentType)}>
                       {draft.contentType.charAt(0).toUpperCase() + draft.contentType.slice(1)}
                     </Badge>
-                    <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
+                    <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-950 dark:text-blue-300 dark:border-blue-800">
                       v{draft.version}
                     </Badge>
-                    <span className="text-xs text-muted-foreground">
-                      {formatDistanceToNow(draft.createdAt, { addSuffix: true })}
+                    <span className="text-xs text-muted-foreground flex items-center gap-1">
+                      <Clock className="h-3 w-3" />
+                      {formatDistanceToNow(new Date(draft.createdAt), { addSuffix: true })}
                     </span>
                   </div>
                 </Link>
               </div>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon" className="h-8 w-8">
+                  <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full">
                     <MoreHorizontal className="h-4 w-4" />
                   </Button>
                 </DropdownMenuTrigger>
@@ -175,12 +177,15 @@ export const DraftList: React.FC<DraftListProps> = ({
                 </Badge>
               </TableCell>
               <TableCell className="hidden md:table-cell p-4">
-                <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
+                <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-950 dark:text-blue-300 dark:border-blue-800">
                   v{draft.version}
                 </Badge>
               </TableCell>
               <TableCell className="hidden md:table-cell text-muted-foreground p-4">
-                {formatDistanceToNow(draft.createdAt, { addSuffix: true })}
+                <div className="flex items-center gap-1">
+                  <Clock className="h-4 w-4" />
+                  {formatDistanceToNow(new Date(draft.createdAt), { addSuffix: true })}
+                </div>
               </TableCell>
               <TableCell className="p-4">
                 <div className="flex items-center justify-end gap-2" onClick={(e) => e.stopPropagation()}>
@@ -197,9 +202,11 @@ export const DraftList: React.FC<DraftListProps> = ({
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
-                      <DropdownMenuItem>
-                        <Edit className="h-4 w-4 mr-2" />
-                        Edit
+                      <DropdownMenuItem asChild>
+                        <Link to={`/drafts/${draft.id}`}>
+                          <Edit className="h-4 w-4 mr-2" />
+                          Edit
+                        </Link>
                       </DropdownMenuItem>
                       <DropdownMenuItem 
                         onClick={(e) => handleDeleteDraft(draft.id, e)}
