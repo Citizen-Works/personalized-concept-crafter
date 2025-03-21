@@ -1,5 +1,5 @@
 
-export { default as ActivityLog } from './ActivityLog';
+export { ActivityLog } from './activity-log';
 export { default as AdminStats } from './AdminStats';
 export { default as AssignAdminRole } from './AssignAdminRole';
 export { default as SystemHealth } from './SystemHealth';
