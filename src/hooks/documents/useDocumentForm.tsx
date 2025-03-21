@@ -1,14 +1,14 @@
 
 import { useState } from "react";
-import { Document } from "@/types";
+import { Document, DocumentType, DocumentPurpose, DocumentContentType } from "@/types";
 import { useDocuments } from "@/hooks/useDocuments";
 
 export interface DocumentFormData {
   title: string;
   content: string;
-  type: Document["type"];
-  purpose: Document["purpose"];
-  contentType: Document["content_type"];
+  type: DocumentType;
+  purpose: DocumentPurpose;
+  contentType: DocumentContentType;
   file: File | null;
   inputMethod: "upload" | "manual";
 }
@@ -16,9 +16,9 @@ export interface DocumentFormData {
 export const useDocumentForm = (onClose: () => void) => {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
-  const [type, setType] = useState<Document["type"]>("blog");
-  const [purpose, setPurpose] = useState<Document["purpose"]>("business_context");
-  const [contentType, setContentType] = useState<Document["content_type"]>(null);
+  const [type, setType] = useState<DocumentType>("blog");
+  const [purpose, setPurpose] = useState<DocumentPurpose>("business_context");
+  const [contentType, setContentType] = useState<DocumentContentType>(null);
   const [file, setFile] = useState<File | null>(null);
   const [inputMethod, setInputMethod] = useState<"upload" | "manual">("manual");
   
@@ -45,12 +45,12 @@ export const useDocumentForm = (onClose: () => void) => {
 
     try {
       if (inputMethod === "upload" && file) {
-        uploadDocument({ 
+        await uploadDocument({ 
           file, 
-          documentData 
+          documentData
         });
       } else {
-        createDocument({
+        await createDocument({
           ...documentData,
           content
         });

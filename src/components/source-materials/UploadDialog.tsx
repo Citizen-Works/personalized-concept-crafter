@@ -1,178 +1,132 @@
 
-import React, { useState } from "react";
-import { 
+import React, { useState } from 'react';
+import {
   Dialog, 
   DialogContent, 
-  DialogDescription, 
-  DialogFooter, 
   DialogHeader, 
-  DialogTitle 
+  DialogTitle, 
+  DialogDescription, 
+  DialogFooter 
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { useDocuments } from "@/hooks/useDocuments";
-import { DocumentType } from "@/types";
-import { FileUp, Loader2 } from "lucide-react";
+import { DocumentType } from '@/types';
 
 interface UploadDialogProps {
-  open: boolean;
+  isOpen: boolean;
   onOpenChange: (open: boolean) => void;
-  onSuccess: () => void;
+  onUpload: (file: File, title: string) => Promise<void>;
 }
 
-export const UploadDialog: React.FC<UploadDialogProps> = ({
-  open,
+const UploadDialog: React.FC<UploadDialogProps> = ({
+  isOpen,
   onOpenChange,
-  onSuccess
+  onUpload,
 }) => {
-  const [file, setFile] = useState<File | null>(null);
   const [title, setTitle] = useState("");
-  const [documentType, setDocumentType] = useState<DocumentType>("document");
-  const [isUploading, setIsUploading] = useState(false);
-  const [uploadError, setUploadError] = useState<string | null>(null);
-  
-  const { uploadDocument } = useDocuments();
-  
+  const [file, setFile] = useState<File | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [type] = useState<DocumentType>("transcript");
+
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const selectedFile = e.target.files?.[0] || null;
-    setFile(selectedFile);
-    
-    // Auto-set title from filename if no title is set yet
-    if (selectedFile && !title) {
-      const fileName = selectedFile.name.split('.').slice(0, -1).join('.');
-      setTitle(fileName);
+    if (e.target.files && e.target.files[0]) {
+      const selectedFile = e.target.files[0];
+      setFile(selectedFile);
+      
+      // Use the file name (without extension) as the default title if no title is set
+      if (!title) {
+        const fileName = selectedFile.name.split('.')[0];
+        setTitle(fileName);
+      }
     }
   };
-  
+
   const handleUpload = async () => {
     if (!file) {
-      setUploadError("Please select a file to upload.");
+      setError("Please select a file to upload");
       return;
     }
-    
-    if (!title.trim()) {
-      setUploadError("Please enter a title for this document.");
-      return;
-    }
-    
-    setIsUploading(true);
-    setUploadError(null);
     
     try {
-      await uploadDocument({
-        file,
-        title: title.trim(),
-        type: documentType,
-      });
-      
-      onSuccess();
+      setError(null);
+      setIsSubmitting(true);
+      await onUpload(file, title || file.name);
       handleClose();
     } catch (error) {
-      console.error("Upload failed:", error);
-      setUploadError("Failed to upload document. Please try again.");
+      console.error("Error uploading file:", error);
+      setError("Failed to upload file. Please try again.");
+      // Error is already handled in the service
     } finally {
-      setIsUploading(false);
+      setIsSubmitting(false);
     }
   };
-  
+
   const handleClose = () => {
-    if (!isUploading) {
-      setFile(null);
+    if (!isSubmitting) {
       setTitle("");
-      setDocumentType("document");
-      setUploadError(null);
+      setFile(null);
+      setError(null);
       onOpenChange(false);
     }
   };
-  
+
   return (
-    <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="max-w-md">
+    <Dialog open={isOpen} onOpenChange={handleClose}>
+      <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
-          <DialogTitle>Upload File</DialogTitle>
+          <DialogTitle>Upload Document</DialogTitle>
           <DialogDescription>
-            Upload a file to your source materials library
+            Upload a file to add as a transcript
           </DialogDescription>
         </DialogHeader>
-        
-        <div className="space-y-4 my-2">
-          <div className="grid w-full max-w-sm items-center gap-1.5">
-            <Label htmlFor="file">File</Label>
-            <div className="flex items-center gap-2">
-              <Input
-                id="file"
-                type="file"
-                accept=".txt,.pdf,.doc,.docx,.md"
-                onChange={handleFileChange}
-              />
+        <div className="space-y-4 py-4">
+          {error && (
+            <div className="bg-destructive/15 text-destructive text-sm p-3 rounded-md">
+              {error}
             </div>
-            <p className="text-xs text-muted-foreground">
-              Supported formats: .txt, .pdf, .doc, .docx, .md
-            </p>
-          </div>
-          
-          <div className="grid w-full max-w-sm items-center gap-1.5">
+          )}
+          <div>
             <Label htmlFor="title">Title</Label>
-            <Input
-              id="title"
-              placeholder="Enter a title for this document"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
+            <Input 
+              id="title" 
+              value={title} 
+              onChange={(e) => setTitle(e.target.value)} 
+              placeholder="Document title" 
             />
           </div>
-          
-          <div className="grid w-full max-w-sm items-center gap-1.5">
-            <Label htmlFor="type">Material Type</Label>
-            <Select value={documentType} onValueChange={(value) => setDocumentType(value as DocumentType)}>
-              <SelectTrigger id="type">
-                <SelectValue placeholder="Select a type" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="document">Document</SelectItem>
-                <SelectItem value="transcript">Transcript</SelectItem>
-              </SelectContent>
-            </Select>
+          <div>
+            <Label htmlFor="file">File</Label>
+            <Input 
+              id="file" 
+              type="file" 
+              onChange={handleFileChange} 
+              className="cursor-pointer" 
+            />
+            <p className="text-xs text-muted-foreground mt-1">
+              Supported formats: .txt, .md, .doc, .docx, .pdf
+            </p>
           </div>
-          
-          {uploadError && (
-            <p className="text-sm text-destructive">{uploadError}</p>
-          )}
         </div>
-        
         <DialogFooter>
           <Button 
             variant="outline" 
             onClick={handleClose}
-            disabled={isUploading}
+            disabled={isSubmitting}
           >
             Cancel
           </Button>
           <Button 
             onClick={handleUpload}
-            disabled={isUploading}
+            disabled={isSubmitting || !file}
           >
-            {isUploading ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Uploading...
-              </>
-            ) : (
-              <>
-                <FileUp className="mr-2 h-4 w-4" />
-                Upload
-              </>
-            )}
+            {isSubmitting ? "Uploading..." : "Upload"}
           </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
   );
 };
+
+export default UploadDialog;

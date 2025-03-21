@@ -139,7 +139,7 @@ const TranscriptsPage = () => {
                           <Button 
                             variant="destructive" 
                             size="sm"
-                            onClick={() => cancelProcessing(doc.id)}
+                            onClick={() => cancelProcessing()}
                           >
                             <XCircle className="h-4 w-4 mr-1" />
                             Cancel
@@ -174,7 +174,7 @@ const TranscriptsPage = () => {
       <IdeasDialog 
         isOpen={isIdeasDialogOpen}
         onOpenChange={setIsIdeasDialogOpen}
-        ideas={ideas}
+        ideas={{ message: "Ideas extracted from transcript", ideas: ideas }}
       />
       
       <UploadDialog 
@@ -198,7 +198,13 @@ const TranscriptsPage = () => {
   );
 };
 
-const TranscriptEmptyState = ({ onOpenUpload, onOpenAddText, onOpenRecording }) => (
+interface TranscriptEmptyStateProps {
+  onOpenUpload: () => void;
+  onOpenAddText: () => void;
+  onOpenRecording: () => void;
+}
+
+const TranscriptEmptyState: React.FC<TranscriptEmptyStateProps> = ({ onOpenUpload, onOpenAddText, onOpenRecording }) => (
   <Card className="bg-muted/50">
     <CardContent className="flex flex-col items-center justify-center py-12">
       <FileText className="h-16 w-16 text-muted-foreground mb-4" />

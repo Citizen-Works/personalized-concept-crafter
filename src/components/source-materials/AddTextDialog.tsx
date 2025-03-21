@@ -1,138 +1,100 @@
 
-import React, { useState } from "react";
-import { 
+import React, { useState } from 'react';
+import {
   Dialog, 
   DialogContent, 
-  DialogDescription, 
-  DialogFooter, 
   DialogHeader, 
-  DialogTitle 
+  DialogTitle, 
+  DialogDescription, 
+  DialogFooter 
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { useDocuments } from "@/hooks/useDocuments";
-import { DocumentType } from "@/types";
-import { Loader2, Save, FileText } from "lucide-react";
+import { DocumentType } from '@/types';
 
 interface AddTextDialogProps {
-  open: boolean;
+  isOpen: boolean;
   onOpenChange: (open: boolean) => void;
-  onSuccess: () => void;
+  onAddText: (text: string, title: string) => Promise<void>;
 }
 
-export const AddTextDialog: React.FC<AddTextDialogProps> = ({
-  open,
+const AddTextDialog: React.FC<AddTextDialogProps> = ({
+  isOpen,
   onOpenChange,
-  onSuccess
+  onAddText,
 }) => {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
-  const [documentType, setDocumentType] = useState<DocumentType>("document");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  
-  const { addTextDocument } = useDocuments();
-  
-  const handleSubmit = async () => {
-    if (!title.trim()) {
-      setError("Please enter a title for this document.");
-      return;
-    }
-    
+  const [type] = useState<DocumentType>("transcript");
+
+  const handleAddText = async () => {
     if (!content.trim()) {
-      setError("Please enter content for this document.");
+      setError("Content cannot be empty");
       return;
     }
-    
-    setIsSubmitting(true);
-    setError(null);
     
     try {
-      await addTextDocument({
-        title: title.trim(),
-        content: content.trim(),
-        type: documentType,
-      });
-      
-      onSuccess();
+      setError(null);
+      setIsSubmitting(true);
+      await onAddText(content, title || "Text");
       handleClose();
     } catch (error) {
-      console.error("Adding text failed:", error);
-      setError("Failed to add document. Please try again.");
+      console.error("Error adding text:", error);
+      setError("Failed to add text. Please try again.");
+      // Error is already handled in the service
     } finally {
       setIsSubmitting(false);
     }
   };
-  
+
   const handleClose = () => {
     if (!isSubmitting) {
       setTitle("");
       setContent("");
-      setDocumentType("document");
       setError(null);
       onOpenChange(false);
     }
   };
-  
+
   return (
-    <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
+    <Dialog open={isOpen} onOpenChange={handleClose}>
+      <DialogContent className="sm:max-w-[550px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Add Text Material</DialogTitle>
+          <DialogTitle>Add Text</DialogTitle>
           <DialogDescription>
-            Add text content directly to your source materials library
+            Paste or type text content to add as a transcript
           </DialogDescription>
         </DialogHeader>
-        
-        <div className="space-y-4 my-2">
-          <div className="grid w-full items-center gap-1.5">
-            <Label htmlFor="title">Title</Label>
-            <Input
-              id="title"
-              placeholder="Enter a title for this document"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-            />
-          </div>
-          
-          <div className="grid w-full items-center gap-1.5">
-            <Label htmlFor="type">Material Type</Label>
-            <Select value={documentType} onValueChange={(value) => setDocumentType(value as DocumentType)}>
-              <SelectTrigger id="type">
-                <SelectValue placeholder="Select a type" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="document">Document</SelectItem>
-                <SelectItem value="transcript">Transcript</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-          
-          <div className="grid w-full items-center gap-1.5">
-            <Label htmlFor="content">Content</Label>
-            <Textarea
-              id="content"
-              placeholder="Enter document content here..."
-              value={content}
-              onChange={(e) => setContent(e.target.value)}
-              className="min-h-[300px] font-mono text-sm"
-            />
-          </div>
-          
+        <div className="space-y-4 py-4">
           {error && (
-            <p className="text-sm text-destructive">{error}</p>
+            <div className="bg-destructive/15 text-destructive text-sm p-3 rounded-md">
+              {error}
+            </div>
           )}
+          <div>
+            <Label htmlFor="title">Title</Label>
+            <Input 
+              id="title" 
+              value={title} 
+              onChange={(e) => setTitle(e.target.value)} 
+              placeholder="Text title" 
+            />
+          </div>
+          <div>
+            <Label htmlFor="content">Content</Label>
+            <Textarea 
+              id="content" 
+              value={content} 
+              onChange={(e) => setContent(e.target.value)} 
+              placeholder="Paste or type text here" 
+              className="min-h-[200px]" 
+            />
+          </div>
         </div>
-        
         <DialogFooter>
           <Button 
             variant="outline" 
@@ -142,23 +104,15 @@ export const AddTextDialog: React.FC<AddTextDialogProps> = ({
             Cancel
           </Button>
           <Button 
-            onClick={handleSubmit}
-            disabled={isSubmitting}
+            onClick={handleAddText}
+            disabled={isSubmitting || !content.trim()}
           >
-            {isSubmitting ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Saving...
-              </>
-            ) : (
-              <>
-                <Save className="mr-2 h-4 w-4" />
-                Save
-              </>
-            )}
+            {isSubmitting ? "Adding..." : "Add Text"}
           </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
   );
 };
+
+export default AddTextDialog;

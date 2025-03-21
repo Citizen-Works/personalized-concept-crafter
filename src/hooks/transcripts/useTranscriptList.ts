@@ -9,7 +9,7 @@ export const useTranscriptList = () => {
   const [transcriptContent, setTranscriptContent] = useState<string>("");
 
   // Use the correct document type for the query
-  const { documents, isLoading, updateDocumentStatus } = useDocuments({ 
+  const { documents, isLoading } = useDocuments({ 
     type: "transcript" as DocumentType,
     status: "active"
   });

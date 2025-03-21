@@ -1,5 +1,5 @@
 
-import { useMemo } from 'react';
+import { useMemo, useCallback } from 'react';
 import { useDocuments } from '@/hooks/useDocuments';
 import { Document } from '@/types';
 import { useNavigate } from 'react-router-dom';
@@ -22,6 +22,15 @@ export const useTranscriptProcessing = (documents: Document[] = []) => {
   const navigate = useNavigate();
   const { processTranscript } = useDocuments();
   
+  // Wrap processTranscript to match expected function signature (Promise<void> instead of Promise<boolean>)
+  const processTranscriptWrapper = useCallback(
+    async (id: string) => {
+      await processTranscript(id);
+      // Return void explicitly to match expected type
+    },
+    [processTranscript]
+  );
+  
   // Use the processing hook for core functionality
   const {
     isProcessing,
@@ -31,12 +40,12 @@ export const useTranscriptProcessing = (documents: Document[] = []) => {
     isDocumentProcessing,
     updateProcessingDocuments,
     cancelProcessing
-  } = useDocumentProcessing(documents, processTranscript);
+  } = useDocumentProcessing(documents, processTranscriptWrapper);
   
   // Use the status monitor to track document status changes
   const { retryAttempts, getRetryCount } = useDocumentStatusMonitor(
     documents,
-    processingDocuments,
+    new Set(processingDocuments),
     updateProcessingDocuments,
     handleProcessTranscript
   );

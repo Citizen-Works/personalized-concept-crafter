@@ -25,7 +25,7 @@ const DocumentCard: React.FC<DocumentCardProps> = ({ document }) => {
   
   const handleToggleStatus = () => {
     const newStatus = document.status === "active" ? "archived" : "active";
-    updateDocumentStatus({ id: document.id, status: newStatus });
+    updateDocumentStatus(document.id, newStatus);
   };
 
   const handleExtractIdeas = async () => {
@@ -35,7 +35,7 @@ const DocumentCard: React.FC<DocumentCardProps> = ({ document }) => {
       setIsProcessing(true);
       toast.info("Starting idea extraction...");
       
-      await processTranscript(document.id, true); // Process in background mode
+      await processTranscript(document.id);
       
       toast.success("Ideas are being extracted. This may take a moment.");
       // We don't set isProcessing to false here since it's a background process

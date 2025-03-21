@@ -5,7 +5,7 @@ import { toast } from 'sonner';
 import { DocumentType } from '@/types';
 
 export const useTranscriptUpload = () => {
-  const { uploadDocument } = useDocuments();
+  const { uploadDocument, createDocument } = useDocuments();
 
   const handleUploadDocument = useCallback(async (file: File, title: string) => {
     try {
@@ -34,15 +34,13 @@ export const useTranscriptUpload = () => {
     }
     
     try {
-      await uploadDocument({ 
-        file: new File([text], `${title}.txt`, { type: "text/plain" }),
-        documentData: {
-          title: title,
-          type: "transcript" as DocumentType,
-          purpose: "business_context" as const,
-          content_type: null,
-          status: "active" as const
-        }
+      await createDocument({
+        title: title,
+        content: text,
+        type: "transcript" as DocumentType,
+        purpose: "business_context" as const,
+        content_type: null,
+        status: "active" as const
       });
       
       toast.success("Text added successfully");
@@ -51,7 +49,7 @@ export const useTranscriptUpload = () => {
       toast.error("Failed to add text");
       throw error;
     }
-  }, [uploadDocument]);
+  }, [createDocument]);
 
   const handleAddRecording = useCallback(async (text: string, title: string): Promise<void> => {
     if (!text.trim()) {

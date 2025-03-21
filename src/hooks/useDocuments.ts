@@ -1,15 +1,14 @@
 
 import { useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Document, DocumentType, DocumentPurpose } from "@/types";
+import { Document, DocumentType, DocumentPurpose, DocumentCreateInput, DocumentFilterOptions } from "@/types";
 import { useAuth } from "@/context/auth";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { fetchDocument } from "@/services/documents/transcript/fetchDocument";
 
 interface DocumentUploadParams {
   file: File;
-  title: string;
-  type: DocumentType;
+  documentData: Omit<DocumentCreateInput, "content">;
 }
 
 interface AddTextDocumentParams {
@@ -31,12 +30,13 @@ const extractTextFromFile = async (file: File): Promise<string> => {
   return await file.text().catch(() => 'Content could not be extracted from this file type.');
 };
 
-export const useDocuments = () => {
+export const useDocuments = (filters?: DocumentFilterOptions) => {
   const { user } = useAuth();
   const userId = user?.id;
   const queryClient = useQueryClient();
 
   const [error, setError] = useState<Error | null>(null);
+  const [uploadProgress, setUploadProgress] = useState(0);
 
   // Fetch all documents
   const {
@@ -44,14 +44,24 @@ export const useDocuments = () => {
     isLoading,
     refetch,
   } = useQuery({
-    queryKey: ["documents", userId],
+    queryKey: ["documents", userId, filters],
     queryFn: async () => {
       if (!userId) throw new Error("User not authenticated");
 
-      const { data, error } = await supabase
+      let query = supabase
         .from("documents")
         .select("*")
         .eq("user_id", userId);
+      
+      // Apply filters if provided
+      if (filters) {
+        if (filters.type) query = query.eq("type", filters.type);
+        if (filters.purpose) query = query.eq("purpose", filters.purpose);
+        if (filters.status) query = query.eq("status", filters.status);
+        if (filters.content_type) query = query.eq("content_type", filters.content_type);
+      }
+
+      const { data, error } = await query;
 
       if (error) throw error;
 
@@ -76,28 +86,32 @@ export const useDocuments = () => {
 
   // Upload a document
   const uploadDocument = useCallback(
-    async ({ file, title, type }: DocumentUploadParams) => {
+    async ({ file, documentData }: DocumentUploadParams) => {
       if (!userId) throw new Error("User not authenticated");
 
       try {
+        setUploadProgress(10);
         // Extract text content from the file
         const content = await extractTextFromFile(file);
+        setUploadProgress(50);
 
         // Insert document in Supabase
         const { data, error } = await supabase
           .from("documents")
           .insert({
             user_id: userId,
-            title,
+            title: documentData.title,
             content,
-            type,
-            purpose: "business_context" as DocumentPurpose,
-            content_type: file.type,
+            type: documentData.type,
+            purpose: documentData.purpose,
+            content_type: documentData.content_type,
+            status: documentData.status,
           })
           .select()
           .single();
 
         if (error) throw error;
+        setUploadProgress(100);
 
         // Invalidate the documents query to refetch
         queryClient.invalidateQueries({ queryKey: ["documents", userId] });
@@ -106,14 +120,16 @@ export const useDocuments = () => {
       } catch (err) {
         setError(err instanceof Error ? err : new Error("Failed to upload document"));
         throw err;
+      } finally {
+        setTimeout(() => setUploadProgress(0), 1000);
       }
     },
     [userId, queryClient]
   );
 
-  // Add text document
-  const addTextDocument = useCallback(
-    async ({ title, content, type }: AddTextDocumentParams) => {
+  // Create document (direct content)
+  const createDocument = useCallback(
+    async (documentData: DocumentCreateInput) => {
       if (!userId) throw new Error("User not authenticated");
 
       try {
@@ -121,11 +137,12 @@ export const useDocuments = () => {
           .from("documents")
           .insert({
             user_id: userId,
-            title,
-            content,
-            type,
-            purpose: "business_context" as DocumentPurpose,
-            content_type: "text/plain",
+            title: documentData.title,
+            content: documentData.content,
+            type: documentData.type,
+            purpose: documentData.purpose,
+            content_type: documentData.content_type,
+            status: documentData.status,
           })
           .select()
           .single();
@@ -137,7 +154,32 @@ export const useDocuments = () => {
 
         return data;
       } catch (err) {
-        setError(err instanceof Error ? err : new Error("Failed to add text document"));
+        setError(err instanceof Error ? err : new Error("Failed to create document"));
+        throw err;
+      }
+    },
+    [userId, queryClient]
+  );
+
+  // Update document status
+  const updateDocumentStatus = useCallback(
+    async (id: string, status: 'active' | 'archived') => {
+      if (!userId) throw new Error("User not authenticated");
+
+      try {
+        const { error } = await supabase
+          .from("documents")
+          .update({ status })
+          .eq("id", id)
+          .eq("user_id", userId);
+
+        if (error) throw error;
+
+        // Invalidate the documents query to refetch
+        queryClient.invalidateQueries({ queryKey: ["documents", userId] });
+        return true;
+      } catch (err) {
+        setError(err instanceof Error ? err : new Error("Failed to update document status"));
         throw err;
       }
     },
@@ -201,8 +243,10 @@ export const useDocuments = () => {
     error,
     refetch,
     uploadDocument,
-    addTextDocument,
+    createDocument,
+    updateDocumentStatus,
     processTranscript,
+    uploadProgress,
     fetchDocument: useCallback((id: string) => fetchDocument(userId as string, id), [userId]),
   };
 };
