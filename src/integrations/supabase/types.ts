@@ -606,6 +606,42 @@ export type Database = {
         }
         Relationships: []
       }
+      user_settings: {
+        Row: {
+          api_key: string | null
+          created_at: string
+          custom_instructions: string | null
+          id: string
+          notification_app: boolean | null
+          notification_email: boolean | null
+          updated_at: string
+          user_id: string
+          webhook_url: string | null
+        }
+        Insert: {
+          api_key?: string | null
+          created_at?: string
+          custom_instructions?: string | null
+          id?: string
+          notification_app?: boolean | null
+          notification_email?: boolean | null
+          updated_at?: string
+          user_id: string
+          webhook_url?: string | null
+        }
+        Update: {
+          api_key?: string | null
+          created_at?: string
+          custom_instructions?: string | null
+          id?: string
+          notification_app?: boolean | null
+          notification_email?: boolean | null
+          updated_at?: string
+          user_id?: string
+          webhook_url?: string | null
+        }
+        Relationships: []
+      }
       waitlist: {
         Row: {
           created_at: string
