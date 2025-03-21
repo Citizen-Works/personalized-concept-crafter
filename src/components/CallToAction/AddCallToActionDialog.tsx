@@ -17,9 +17,13 @@ import { toast } from "sonner";
 
 interface AddCallToActionDialogProps {
   onCallToActionAdded: () => void;
+  buttonLabel?: string;
 }
 
-export function AddCallToActionDialog({ onCallToActionAdded }: AddCallToActionDialogProps) {
+export function AddCallToActionDialog({ 
+  onCallToActionAdded, 
+  buttonLabel = "Add Call To Action" 
+}: AddCallToActionDialogProps) {
   const [open, setOpen] = React.useState(false);
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const { user } = useAuth();
@@ -55,7 +59,7 @@ export function AddCallToActionDialog({ onCallToActionAdded }: AddCallToActionDi
       <DialogTrigger asChild>
         <Button className="gap-1">
           <Plus className="h-4 w-4" />
-          Add Call To Action
+          {buttonLabel}
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[500px]">

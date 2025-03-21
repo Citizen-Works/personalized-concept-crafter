@@ -2,7 +2,6 @@
 import React, { useState } from 'react';
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Plus } from 'lucide-react';
 import { useCallToActions } from '@/hooks/useCallToActions';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -19,11 +18,6 @@ const CallToActionsPage = () => {
     refetch, 
     deleteCallToAction
   } = useCallToActions();
-
-  const handleOpenDialog = () => {
-    // We'll handle the dialog visibility directly through the AddCallToActionDialog component
-    refetch();
-  };
 
   const handleDeleteCallToAction = (id: string) => {
     deleteCallToAction.mutate(id);
@@ -98,12 +92,12 @@ const CallToActionsPage = () => {
                 />
               ))}
               {!isLoading && activeTab !== "archived" && (
-                <EmptyCallToActionsState onClick={handleOpenDialog} />
+                <EmptyCallToActionsState onRefresh={refetch} />
               )}
             </div>
           ) : (
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-              <EmptyCallToActionsState onClick={handleOpenDialog} />
+              <EmptyCallToActionsState onRefresh={refetch} />
             </div>
           )}
         </TabsContent>
