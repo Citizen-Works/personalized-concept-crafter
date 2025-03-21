@@ -1,3 +1,4 @@
+
 import React from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { ThemeProvider } from "@/components/theme-provider";
@@ -34,6 +35,7 @@ import ContentPipelinePage from "@/pages/ContentPipelinePage";
 import StrategyOverviewPage from "@/pages/StrategyOverviewPage";
 import PillarAudienceLinkPage from "@/pages/PillarAudienceLinkPage";
 import IdeaDetailPage from "@/pages/IdeaDetailPage";
+import DraftDetailPage from "@/pages/DraftDetailPage";
 import { usePromptTemplateInitializer } from "@/hooks/admin/usePromptTemplateInitializer";
 
 import SourceMaterialsPage from "@/pages/SourceMaterialsPage";
@@ -96,6 +98,7 @@ function App() {
                     <Route path="/ideas/new" element={<NewIdeaPage />} />
                     <Route path="/ideas/:id" element={<IdeaDetailPage />} />
                     <Route path="/drafts" element={<Navigate to="/pipeline?tab=drafts" replace />} />
+                    <Route path="/drafts/:id" element={<DraftDetailPage />} />
                     <Route path="/ready-to-publish" element={<Navigate to="/pipeline?tab=ready" replace />} />
                     <Route path="/published" element={<Navigate to="/pipeline?tab=published" replace />} />
                     

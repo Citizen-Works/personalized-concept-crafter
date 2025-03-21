@@ -1,6 +1,7 @@
+
 import { useQuery } from "@tanstack/react-query";
 import { fetchDraftsByIdeaId } from "@/services/draftService";
-import { useAuth } from '@/context/auth';
+import { useAuth } from "@/context/auth";
 
 export const useDraftsByIdeaId = (ideaId: string) => {
   const { user } = useAuth();
@@ -8,6 +9,6 @@ export const useDraftsByIdeaId = (ideaId: string) => {
   return useQuery({
     queryKey: ["drafts", "idea", ideaId, user?.id],
     queryFn: () => fetchDraftsByIdeaId(ideaId, user?.id || ""),
-    enabled: !!user && !!ideaId,
+    enabled: !!user?.id && !!ideaId,
   });
 };
