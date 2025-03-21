@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -8,6 +7,7 @@ import { Save } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import AssignAdminRole from '@/components/admin/AssignAdminRole';
 
 const ProfileSettings = () => {
   const { user } = useAuth();
@@ -145,6 +145,8 @@ const ProfileSettings = () => {
           </div>
         </CardContent>
       </Card>
+      
+      <AssignAdminRole />
     </div>
   );
 };
