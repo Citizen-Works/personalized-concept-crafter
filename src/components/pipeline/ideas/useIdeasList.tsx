@@ -16,6 +16,7 @@ export const useIdeasList = ({ searchQuery, dateRange, contentTypeFilter }: UseI
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [itemToDelete, setItemToDelete] = useState<string | null>(null);
   const [sortOrder, setSortOrder] = useState<'newest' | 'oldest' | 'alphabetical'>('newest');
+  const [isDeleting, setIsDeleting] = useState(false);
   
   // Filter ideas based on search, date range, and content type
   const filteredIdeas = useMemo(() => {
@@ -81,27 +82,41 @@ export const useIdeasList = ({ searchQuery, dateRange, contentTypeFilter }: UseI
   
   // Handle delete idea
   const handleDelete = async (id: string) => {
+    if (isDeleting) return; // Prevent duplicate deletes
+    
     try {
+      setIsDeleting(true);
       await deleteIdea(id);
       toast.success("Content idea deleted");
+      
+      // Update UI state
+      setSelectedItems(prev => prev.filter(item => item !== id));
       setDeleteConfirmOpen(false);
       setItemToDelete(null);
     } catch (error) {
       console.error("Error deleting idea:", error);
       toast.error("Failed to delete content idea");
+    } finally {
+      setIsDeleting(false);
     }
   };
   
   // Handle batch delete
   const handleBatchDelete = async () => {
+    if (isDeleting || selectedItems.length === 0) return;
+    
     try {
+      setIsDeleting(true);
       const promises = selectedItems.map(id => deleteIdea(id));
       await Promise.all(promises);
       toast.success(`${selectedItems.length} items deleted`);
       setSelectedItems([]);
+      setDeleteConfirmOpen(false);
     } catch (error) {
       console.error("Error batch deleting ideas:", error);
       toast.error("Failed to delete selected items");
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -127,5 +142,6 @@ export const useIdeasList = ({ searchQuery, dateRange, contentTypeFilter }: UseI
     handleToggleSelect,
     handleSelectAll,
     handleDeleteConfirm,
+    isDeleting,
   };
 };

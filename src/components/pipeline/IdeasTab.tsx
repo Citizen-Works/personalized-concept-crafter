@@ -35,6 +35,7 @@ export const IdeasTab: React.FC<IdeasTabProps> = ({
     handleToggleSelect,
     handleSelectAll,
     handleDeleteConfirm,
+    isDeleting,
   } = useIdeasList({ searchQuery, dateRange, contentTypeFilter });
   
   if (isLoading) {
@@ -80,6 +81,7 @@ export const IdeasTab: React.FC<IdeasTabProps> = ({
         onConfirmDelete={handleDeleteConfirm}
         itemToDelete={itemToDelete}
         selectedItemsCount={selectedItems.length}
+        isLoading={isDeleting}
       />
     </div>
   );

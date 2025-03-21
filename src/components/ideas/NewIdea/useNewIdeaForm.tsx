@@ -55,7 +55,7 @@ export const useNewIdeaForm = () => {
         contentType: values.contentType,
         source: values.source,
         sourceUrl: values.sourceUrl || null,
-        status: 'unreviewed',
+        status: 'approved', // Changed from 'unreviewed' to 'approved'
         meetingTranscriptExcerpt: null
       });
       
@@ -104,7 +104,7 @@ export const useNewIdeaForm = () => {
         contentType: contentType, // Use the selected content type
         source: values.source,
         sourceUrl: values.sourceUrl || null,
-        status: 'unreviewed',
+        status: 'approved', // Changed from 'unreviewed' to 'approved'
         meetingTranscriptExcerpt: null
       });
       
