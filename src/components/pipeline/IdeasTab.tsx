@@ -3,11 +3,12 @@ import React from 'react';
 import { ContentType } from '@/types';
 import { getTypeBadgeClasses, getStatusBadgeClasses } from '@/components/ideas/BadgeUtils';
 import { 
-  IdeaCard, 
+  IdeaItem,
   IdeasEmptyState, 
   IdeasDeleteDialog,
-  IdeasListHeader,
   IdeasLoadingState,
+  BatchActions,
+  SelectAll,
   useIdeasList
 } from './ideas';
 
@@ -36,6 +37,8 @@ export const IdeasTab: React.FC<IdeasTabProps> = ({
     handleSelectAll,
     handleDeleteConfirm,
     isDeleting,
+    handleApprove,
+    handleBatchApprove,
   } = useIdeasList({ searchQuery, dateRange, contentTypeFilter });
   
   if (isLoading) {
@@ -48,34 +51,38 @@ export const IdeasTab: React.FC<IdeasTabProps> = ({
   
   return (
     <div className="space-y-4">
-      {/* Top controls */}
-      <IdeasListHeader 
+      {/* Batch actions */}
+      <BatchActions 
         selectedItems={selectedItems}
-        sortedIdeasLength={sortedIdeas.length}
-        sortOrder={sortOrder}
-        onToggleSelectAll={handleSelectAll}
-        onDeleteSelected={() => setDeleteConfirmOpen(true)}
-        onChangeSortOrder={setSortOrder}
+        onBatchApprove={handleBatchApprove}
+        isUpdating={isDeleting}
       />
       
-      {/* Ideas list - now hiding content type badges by default */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {sortedIdeas.map((idea) => (
-          <IdeaCard
-            key={idea.id}
-            idea={idea}
-            isSelected={selectedItems.includes(idea.id)}
-            onToggleSelect={handleToggleSelect}
-            onDeleteClick={(id) => {
-              setItemToDelete(id);
-              setDeleteConfirmOpen(true);
-            }}
-            getStatusBadgeClasses={getStatusBadgeClasses}
-            getTypeBadgeClasses={getTypeBadgeClasses}
-            hideTypeBadge={true} // Hide content type badges
-          />
-        ))}
-      </div>
+      {/* Select all */}
+      <SelectAll 
+        hasItems={sortedIdeas.length > 0}
+        allSelected={sortedIdeas.length > 0 && selectedItems.length === sortedIdeas.length}
+        onSelectAll={handleSelectAll}
+        isDisabled={isDeleting}
+      />
+      
+      {/* Ideas list */}
+      {sortedIdeas.map((idea) => (
+        <IdeaItem
+          key={idea.id}
+          idea={idea}
+          isSelected={selectedItems.includes(idea.id)}
+          isUpdating={isDeleting}
+          onToggleSelect={handleToggleSelect}
+          onDelete={(id) => {
+            setItemToDelete(id);
+            setDeleteConfirmOpen(true);
+          }}
+          onApprove={handleApprove}
+          getStatusBadgeClasses={getStatusBadgeClasses}
+          getTypeBadgeClasses={getTypeBadgeClasses}
+        />
+      ))}
       
       {/* Delete confirmation */}
       <IdeasDeleteDialog

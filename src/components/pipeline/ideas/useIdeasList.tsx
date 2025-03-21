@@ -11,7 +11,7 @@ interface UseIdeasListProps {
 }
 
 export const useIdeasList = ({ searchQuery, dateRange, contentTypeFilter }: UseIdeasListProps) => {
-  const { ideas, isLoading, deleteIdea } = useIdeas();
+  const { ideas, isLoading, deleteIdea, updateIdea } = useIdeas();
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [itemToDelete, setItemToDelete] = useState<string | null>(null);
@@ -115,6 +115,41 @@ export const useIdeasList = ({ searchQuery, dateRange, contentTypeFilter }: UseI
     }
   };
 
+  // Handle set idea as active
+  const handleApprove = async (id: string) => {
+    if (isDeleting) return;
+    
+    try {
+      setIsDeleting(true);
+      // Assuming updateIdea takes an id and partial idea object to update
+      await updateIdea(id, { status: 'active' });
+      toast.success("Idea set as active");
+    } catch (error) {
+      console.error("Error updating idea:", error);
+      toast.error("Failed to update idea status");
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+  
+  // Handle batch approve
+  const handleBatchApprove = async () => {
+    if (isDeleting || selectedItems.length === 0) return;
+    
+    try {
+      setIsDeleting(true);
+      const promises = selectedItems.map(id => updateIdea(id, { status: 'active' }));
+      await Promise.all(promises);
+      toast.success(`${selectedItems.length} ideas set as active`);
+      setSelectedItems([]);
+    } catch (error) {
+      console.error("Error batch updating ideas:", error);
+      toast.error("Failed to update selected items");
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
   // Handle delete confirmation
   const handleDeleteConfirm = () => {
     if (itemToDelete) {
@@ -137,6 +172,8 @@ export const useIdeasList = ({ searchQuery, dateRange, contentTypeFilter }: UseI
     handleToggleSelect,
     handleSelectAll,
     handleDeleteConfirm,
+    handleApprove,
+    handleBatchApprove,
     isDeleting,
   };
 };
