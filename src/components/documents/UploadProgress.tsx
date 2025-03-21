@@ -15,12 +15,17 @@ const UploadProgress: React.FC<UploadProgressProps> = ({
   const [displayValue, setDisplayValue] = useState(0);
   
   useEffect(() => {
-    // Only update if value has changed significantly (more than 1%)
-    if (Math.abs(value - displayValue) > 1) {
-      setDisplayValue(value);
-    } else if (value === 100 && displayValue !== 100) {
-      setDisplayValue(100);
-    }
+    // Add a small debounce to avoid rapid state updates 
+    // that can cause glitchy rendering
+    const timer = setTimeout(() => {
+      if (Math.abs(value - displayValue) > 1) {
+        setDisplayValue(value);
+      } else if (value === 100 && displayValue !== 100) {
+        setDisplayValue(100);
+      }
+    }, 50);
+    
+    return () => clearTimeout(timer);
   }, [value, displayValue]);
   
   if (value <= 0) return null;

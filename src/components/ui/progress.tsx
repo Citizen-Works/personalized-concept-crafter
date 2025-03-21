@@ -13,24 +13,38 @@ interface ProgressProps extends React.ComponentPropsWithoutRef<typeof ProgressPr
 const Progress = React.forwardRef<
   React.ElementRef<typeof ProgressPrimitive.Root>,
   ProgressProps
->(({ className, value, indicatorClassName, ...props }, ref) => (
-  <ProgressPrimitive.Root
-    ref={ref}
-    className={cn(
-      "relative h-2 w-full overflow-hidden rounded-full bg-primary/20",
-      className
-    )}
-    {...props}
-  >
-    <ProgressPrimitive.Indicator
+>(({ className, value, indicatorClassName, ...props }, ref) => {
+  // Use internal state to control animations
+  const [internalValue, setInternalValue] = React.useState(value || 0);
+  
+  React.useEffect(() => {
+    // Add requestAnimationFrame to ensure smooth transitions
+    const rafId = requestAnimationFrame(() => {
+      setInternalValue(value || 0);
+    });
+    
+    return () => cancelAnimationFrame(rafId);
+  }, [value]);
+  
+  return (
+    <ProgressPrimitive.Root
+      ref={ref}
       className={cn(
-        "h-full w-full flex-1 bg-primary transition-all duration-300 ease-in-out",
-        indicatorClassName
+        "relative h-2 w-full overflow-hidden rounded-full bg-primary/20",
+        className
       )}
-      style={{ transform: `translateX(-${100 - (value || 0)}%)` }}
-    />
-  </ProgressPrimitive.Root>
-))
+      {...props}
+    >
+      <ProgressPrimitive.Indicator
+        className={cn(
+          "h-full w-full flex-1 bg-primary transition-transform duration-300 ease-in-out",
+          indicatorClassName
+        )}
+        style={{ transform: `translateX(-${100 - (internalValue)}%)` }}
+      />
+    </ProgressPrimitive.Root>
+  );
+});
 Progress.displayName = ProgressPrimitive.Root.displayName
 
 export { Progress }

@@ -1,3 +1,4 @@
+
 import React from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { ThemeProvider } from "@/components/theme-provider";
@@ -139,6 +140,9 @@ function App() {
                     <Route path="/target-audiences" element={<Navigate to="/strategy/target-audiences" replace />} />
                     <Route path="/writing-style" element={<Navigate to="/strategy/writing-style" replace />} />
                     <Route path="/call-to-actions" element={<Navigate to="/strategy/call-to-actions" replace />} />
+                    
+                    {/* This route is causing 404 errors on mobile, let's add it directly */}
+                    <Route path="strategy/call-to-actions" element={<CallToActionsPage />} />
                     
                     <Route path="/marketing-examples" element={<MarketingExamplesPage />} />
                     <Route path="/newsletter-examples" element={<NewsletterExamplesPage />} />
