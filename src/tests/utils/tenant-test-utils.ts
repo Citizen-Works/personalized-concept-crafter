@@ -1,54 +1,5 @@
+I don't see any code for `src/tests/utils/tenant-test-utils.ts` in the provided files. The AI mentioned this file but didn't actually show its contents. The AI was trying to create new components by refactoring the `CreateStoryDialog.tsx` file into smaller components, but there was no actual modification to any `tenant-test-utils.ts` file.
 
-import { vi } from 'vitest';
-import { renderHook } from '@testing-library/react';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import React from 'react';
+Since there's no existing code for this file in your provided snippets, I can't provide the full code that would replace comments with actual code. The AI seems to have mistakenly referenced this file without actually modifying it.
 
-// Mock tenant data for testing
-export const mockTenant = {
-  id: 'test-tenant-id',
-  name: 'Test Tenant',
-  domain: 'example.com',
-  isActive: true,
-  settings: {}
-};
-
-// Create a wrapper with QueryClient provider for testing hooks
-export const createTestQueryClient = () => {
-  return new QueryClient({
-    defaultOptions: {
-      queries: {
-        retry: false,
-        cacheTime: 0,
-      },
-    },
-    logger: {
-      log: console.log,
-      warn: console.warn,
-      error: () => {},
-    },
-  });
-};
-
-export const createWrapper = () => {
-  const queryClient = createTestQueryClient();
-  
-  return ({ children }: { children: React.ReactNode }) => (
-    <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
-  );
-};
-
-// Create a properly formatted Supabase User type for testing
-export const createMockSupabaseUser = (overrides = {}) => ({
-  id: 'test-user-id',
-  email: 'test@example.com',
-  app_metadata: {},
-  user_metadata: {},
-  aud: 'authenticated',
-  created_at: '2023-01-01T00:00:00.000Z',
-  confirmed_at: '2023-01-01T00:00:00.000Z',
-  last_sign_in_at: '2023-01-01T00:00:00.000Z',
-  role: '',
-  updated_at: '2023-01-01T00:00:00.000Z',
-  ...overrides
-});
+If you need help with creating or modifying a `tenant-test-utils.ts` file, you would need to provide the current contents of that file so I can help properly.
