@@ -20,8 +20,8 @@ const OnboardingPage = () => {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center p-4 bg-background">
         <div className="animate-pulse text-center">
-          <div className="h-8 w-48 bg-muted rounded mx-auto"></div>
-          <div className="h-4 w-64 bg-muted rounded mx-auto mt-4"></div>
+          <div className="h-8 w-48 bg-primary/30 rounded mx-auto"></div>
+          <div className="h-4 w-64 bg-primary/20 rounded mx-auto mt-4"></div>
         </div>
       </div>
     );

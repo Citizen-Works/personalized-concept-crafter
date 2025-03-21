@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Link, Navigate, useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
@@ -75,8 +76,8 @@ const RegisterPage = () => {
       <div className="w-full max-w-md animate-scale-in">
         <div className="flex justify-center mb-8">
           <div className="flex items-center gap-2">
-            <PenTool className="h-8 w-8" />
-            <span className="font-bold text-2xl">Content Engine</span>
+            <PenTool className="h-8 w-8 text-primary" />
+            <span className="font-bold text-2xl rainbow-text">Content Engine</span>
           </div>
         </div>
         
@@ -88,9 +89,9 @@ const RegisterPage = () => {
             </CardDescription>
           </CardHeader>
 
-          <Alert className="mx-6 mb-4 bg-amber-100 dark:bg-amber-900/30 border-amber-300 dark:border-amber-800">
-            <AlertCircle className="h-4 w-4 text-amber-800 dark:text-amber-500" />
-            <AlertDescription className="text-amber-800 dark:text-amber-500">
+          <Alert className="mx-6 mb-4 bg-accent/10 border-accent/30">
+            <AlertCircle className="h-4 w-4 text-accent" />
+            <AlertDescription className="text-accent">
               Public registration is currently restricted. Only admins can create new accounts.
             </AlertDescription>
           </Alert>

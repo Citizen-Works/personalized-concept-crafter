@@ -1,5 +1,7 @@
+
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -7,66 +9,74 @@
 
 @layer base {
   :root {
+    /* Base colors */
+    --fandango: 311 51% 45%;
+    --fluorescent-cyan: 176 100% 47%;
+    --cerise: 350 57% 58%;
+    --night: 180 5% 4%;
+    --teal: 186 89% 29%;
+
+    /* Tailwind CSS Variables */
     --background: 0 0% 100%;
-    --foreground: 240 10% 3.9%;
+    --foreground: 180 5% 4%;
 
     --card: 0 0% 100%;
-    --card-foreground: 240 10% 3.9%;
+    --card-foreground: 180 5% 4%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 240 10% 3.9%;
+    --popover-foreground: 180 5% 4%;
 
-    --primary: 240 5.9% 10%;
-    --primary-foreground: 0 0% 98%;
+    --primary: 311 51% 45%;
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 240 4.8% 95.9%;
-    --secondary-foreground: 240 5.9% 10%;
+    --secondary: 176 100% 47%;
+    --secondary-foreground: 180 5% 4%;
 
-    --muted: 240 4.8% 95.9%;
+    --muted: 210 10% 96%;
     --muted-foreground: 240 3.8% 46.1%;
 
-    --accent: 240 4.8% 95.9%;
-    --accent-foreground: 240 5.9% 10%;
+    --accent: 350 57% 58%;
+    --accent-foreground: 0 0% 100%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
 
-    --border: 240 5.9% 90%;
-    --input: 240 5.9% 90%;
-    --ring: 240 5.9% 10%;
+    --border: 220 13% 91%;
+    --input: 220 13% 91%;
+    --ring: 311 51% 45%;
 
     --radius: 0.5rem;
 
-    --sidebar-background: 0 0% 98%;
-    --sidebar-foreground: 240 5.3% 26.1%;
-    --sidebar-primary: 240 5.9% 10%;
+    --sidebar-background: 180 5% 4%;
+    --sidebar-foreground: 0 0% 95%;
+    --sidebar-primary: 311 51% 45%;
     --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 240 4.8% 95.9%;
-    --sidebar-accent-foreground: 240 5.9% 10%;
-    --sidebar-border: 220 13% 91%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --sidebar-accent: 350 57% 58%;
+    --sidebar-accent-foreground: 0 0% 98%;
+    --sidebar-border: 240 3.7% 15.9%;
+    --sidebar-ring: 311 51% 45%;
   }
 
   .dark {
-    --background: 240 10% 3.9%;
+    --background: 180 5% 4%;
     --foreground: 0 0% 98%;
 
-    --card: 240 10% 3.9%;
+    --card: 180 5% 6%;
     --card-foreground: 0 0% 98%;
 
-    --popover: 240 10% 3.9%;
+    --popover: 180 5% 4%;
     --popover-foreground: 0 0% 98%;
 
-    --primary: 0 0% 98%;
-    --primary-foreground: 240 5.9% 10%;
+    --primary: 311 51% 45%;
+    --primary-foreground: 0 0% 98%;
 
-    --secondary: 240 3.7% 15.9%;
-    --secondary-foreground: 0 0% 98%;
+    --secondary: 176 100% 47%;
+    --secondary-foreground: 180 5% 4%;
 
-    --muted: 240 3.7% 15.9%;
+    --muted: 180 5% 15%;
     --muted-foreground: 240 5% 64.9%;
 
-    --accent: 240 3.7% 15.9%;
+    --accent: 350 57% 58%;
     --accent-foreground: 0 0% 98%;
 
     --destructive: 0 62.8% 30.6%;
@@ -74,16 +84,16 @@
 
     --border: 240 3.7% 15.9%;
     --input: 240 3.7% 15.9%;
-    --ring: 240 4.9% 83.9%;
+    --ring: 311 51% 45%;
 
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
+    --sidebar-background: 180 5% 4%;
+    --sidebar-foreground: 0 0% 95%;
+    --sidebar-primary: 311 51% 45%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
+    --sidebar-accent: 350 57% 58%;
+    --sidebar-accent-foreground: 0 0% 98%;
     --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --sidebar-ring: 311 51% 45%;
   }
 }
 
@@ -97,6 +107,14 @@
     font-feature-settings: "rlig" 1, "calt" 1;
     overflow-x: hidden;
   }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-heading font-bold;
+  }
+
+  button, .button {
+    @apply font-medium;
+  }
 }
 
 .glass-card {
@@ -105,6 +123,17 @@
 
 .text-balance {
   text-wrap: balance;
+}
+
+/* Rainbow gradient for headings - preserve this */
+.rainbow-text {
+  @apply bg-clip-text text-transparent;
+  background-image: linear-gradient(to right, 
+    #AE3899, /* Primary Purple */
+    #D15569, /* Coral */
+    #00EFDF, /* Bright Teal */
+    #087E8B  /* Teal Blue */
+  );
 }
 
 /* Animations for page transitions */

@@ -52,8 +52,8 @@ const LoginPage = () => {
       <div className="w-full max-w-md animate-scale-in">
         <div className="flex justify-center mb-8">
           <div className="flex items-center gap-2">
-            <PenTool className="h-8 w-8" />
-            <span className="font-bold text-2xl">Content Engine</span>
+            <PenTool className="h-8 w-8 text-primary" />
+            <span className="font-bold text-2xl rainbow-text">Content Engine</span>
           </div>
         </div>
         

@@ -44,18 +44,18 @@ const WaitlistPage = () => {
           <div className="flex justify-between items-center mb-8">
             <div className="flex items-center gap-2">
               <img src="/logo.svg" alt="Content Engine Logo" className="h-8 w-8" />
-              <span className="font-bold text-xl">Content Engine</span>
+              <span className="font-bold text-xl rainbow-text">Content Engine</span>
             </div>
             <div className="flex items-center gap-4">
-              <Link to="/login" className="text-sm font-medium hover:underline">
+              <Link to="/login" className="text-sm font-medium text-primary hover:underline">
                 Sign In
               </Link>
             </div>
           </div>
           
-          <Alert className="my-4 bg-amber-100 dark:bg-amber-900/30 border-amber-300 dark:border-amber-800">
-            <AlertCircle className="h-4 w-4 text-amber-800 dark:text-amber-500" />
-            <AlertDescription className="text-amber-800 dark:text-amber-500">
+          <Alert className="my-4 bg-accent/10 border-accent/30">
+            <AlertCircle className="h-4 w-4 text-accent" />
+            <AlertDescription className="text-accent-foreground">
               Public registration is currently restricted. Please join our waitlist to be notified when registration opens.
             </AlertDescription>
           </Alert>

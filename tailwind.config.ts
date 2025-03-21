@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -28,34 +29,90 @@ export default {
 		extend: {
 			fontFamily: {
 				sans: ['Inter', 'system-ui', 'sans-serif'],
+				heading: ['Poppins', 'Inter', 'system-ui', 'sans-serif'],
 				serif: ['Georgia', 'serif'],
 				cursive: ['Dancing Script', 'cursive'],
 			},
 			colors: {
+				// Brand colors
+				primary: {
+					DEFAULT: '#AE3899',
+					50: '#F9E6F5',
+					100: '#F3CEE9',
+					200: '#E7A8D7',
+					300: '#D779BD',
+					400: '#C14EA9',
+					500: '#AE3899',
+					600: '#872A77',
+					700: '#612056',
+					800: '#3B1534',
+					900: '#1D0B1A',
+					foreground: '#FFFFFF',
+				},
+				secondary: {
+					DEFAULT: '#00EFDF',
+					50: '#E6FDFB',
+					100: '#CCFBF8',
+					200: '#99F8F1',
+					300: '#66F4EA',
+					400: '#33F1E4',
+					500: '#00EFDF',
+					600: '#00BAB0',
+					700: '#008B84',
+					800: '#005B57',
+					900: '#002E2D',
+					foreground: '#0A0B0B',
+				},
+				accent: {
+					DEFAULT: '#D15569',
+					50: '#FBE8EB',
+					100: '#F7D2D8',
+					200: '#EEA5B1',
+					300: '#E5788A',
+					400: '#DB4A64',
+					500: '#D15569',
+					600: '#B62E44',
+					700: '#872232',
+					800: '#581720',
+					900: '#2C0B10',
+					foreground: '#FFFFFF',
+				},
+				teal: {
+					DEFAULT: '#087E8B',
+					50: '#E6F3F5',
+					100: '#CCE7EA',
+					200: '#99CFD5',
+					300: '#66B7C0',
+					400: '#339FAB',
+					500: '#087E8B',
+					600: '#06616C',
+					700: '#044954',
+					800: '#033037',
+					900: '#01181B',
+					foreground: '#FFFFFF',
+				},
+				dark: {
+					DEFAULT: '#0A0B0B',
+					50: '#F2F2F2',
+					100: '#E6E6E6',
+					200: '#CCCCCC',
+					300: '#B3B3B3',
+					400: '#999999',
+					500: '#808080',
+					600: '#666666',
+					700: '#4D4D4D',
+					800: '#333333',
+					900: '#0A0B0B',
+					foreground: '#FFFFFF',
+				},
 				border: 'hsl(var(--border))',
 				input: 'hsl(var(--input))',
 				ring: 'hsl(var(--ring))',
 				background: 'hsl(var(--background))',
 				foreground: 'hsl(var(--foreground))',
-				primary: {
-					DEFAULT: 'hsl(var(--primary))',
-					foreground: 'hsl(var(--primary-foreground))'
-				},
-				secondary: {
-					DEFAULT: 'hsl(var(--secondary))',
-					foreground: 'hsl(var(--secondary-foreground))'
-				},
-				destructive: {
-					DEFAULT: 'hsl(var(--destructive))',
-					foreground: 'hsl(var(--destructive-foreground))'
-				},
 				muted: {
 					DEFAULT: 'hsl(var(--muted))',
 					foreground: 'hsl(var(--muted-foreground))'
-				},
-				accent: {
-					DEFAULT: 'hsl(var(--accent))',
-					foreground: 'hsl(var(--accent-foreground))'
 				},
 				popover: {
 					DEFAULT: 'hsl(var(--popover))',
