@@ -22,7 +22,7 @@ export const useDocumentForm = (onClose: () => void) => {
   const [file, setFile] = useState<File | null>(null);
   const [inputMethod, setInputMethod] = useState<"upload" | "manual">("manual");
   
-  const { createDocument, uploadDocument, uploadProgress } = useDocuments();
+  const { createDocument, createDocumentAsync, uploadDocument, uploadProgress } = useDocuments();
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -47,7 +47,7 @@ export const useDocumentForm = (onClose: () => void) => {
       if (inputMethod === "upload" && file) {
         await uploadDocument(file, documentData);
       } else {
-        await createDocument({
+        await createDocumentAsync({
           ...documentData,
           content
         });

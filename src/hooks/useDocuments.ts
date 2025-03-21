@@ -7,8 +7,8 @@ import {
   fetchDocuments, 
   createDocument, 
   updateDocumentStatus,
-  updateDocument,
-  fetchDocument 
+  updateDocument, 
+  getDocumentById as fetchDocument
 } from '@/services/documents/baseDocumentService';
 import { processTranscriptForIdeas } from '@/services/documents/transcript/processTranscript';
 import { toast } from 'sonner';
