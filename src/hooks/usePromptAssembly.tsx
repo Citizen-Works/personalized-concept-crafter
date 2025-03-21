@@ -1,6 +1,6 @@
 
 import { useState, useEffect, useCallback } from 'react';
-import { ContentIdea, ContentType, User } from '@/types';
+import { ContentIdea, ContentType } from '@/types';
 import { useAuth } from '@/context/auth';
 import { useContentPillars } from './useContentPillars';
 import { useTargetAudiences } from './useTargetAudiences';
@@ -17,6 +17,7 @@ import {
   addPatternsToAvoidToPrompt,
   addPersonalStoriesToPrompt
 } from '@/utils/promptBuilder';
+import { User } from '@/types/user';
 
 /**
  * Hook for assembling prompts for AI content generation
@@ -26,16 +27,16 @@ export function usePromptAssembly() {
   const { contentPillars } = useContentPillars();
   const { targetAudiences } = useTargetAudiences();
   const { settings } = useUserSettings();
-  const { allPosts } = useLinkedinPosts();
-  const { styleProfile } = useWritingStyle();
+  const { posts } = useLinkedinPosts();
+  const { profile } = useWritingStyle();
   const { stories } = usePersonalStories();
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    if (!!user && !!contentPillars && !!targetAudiences && !!settings && !!styleProfile) {
+    if (!!user && !!contentPillars && !!targetAudiences && !!settings && !!profile) {
       setIsLoading(false);
     }
-  }, [user, contentPillars, targetAudiences, settings, styleProfile]);
+  }, [user, contentPillars, targetAudiences, settings, profile]);
 
   /**
    * Creates a final prompt by assembling all components
@@ -45,18 +46,30 @@ export function usePromptAssembly() {
     idea: ContentIdea,
     contentType: ContentType
   ): Promise<string> => {
+    // Get user profile or create a minimal one if not available
+    const userProfile: User = {
+      id: user?.id || userId,
+      email: user?.email || '',
+      name: user?.user_metadata?.name || '',
+      businessName: '',
+      businessDescription: '',
+      linkedinUrl: '',
+      jobTitle: '',
+      createdAt: new Date()
+    };
+    
     // Step 1: Build the base prompt with user context, content pillars, target audiences, and writing style
     let prompt = buildBasePrompt(
-      user, 
+      userProfile, 
       contentPillars, 
       targetAudiences, 
-      styleProfile,
+      profile,
       contentType
     );
     
     // Step 2: Add LinkedIn posts if generating LinkedIn content
-    if (contentType === 'linkedin' && allPosts.length > 0) {
-      prompt = addLinkedinPostsToPrompt(prompt, allPosts.slice(0, 5));
+    if (contentType === 'linkedin' && posts.length > 0) {
+      prompt = addLinkedinPostsToPrompt(prompt, posts.slice(0, 5));
     }
     
     // Step 3: Add personal stories if available
@@ -65,7 +78,7 @@ export function usePromptAssembly() {
     }
     
     // Step 4: Add patterns to avoid from writing style
-    prompt = addPatternsToAvoidToPrompt(prompt, styleProfile);
+    prompt = addPatternsToAvoidToPrompt(prompt, profile);
     
     // Step 5: Add content idea details
     prompt = addContentIdeaToPrompt(prompt, idea);
@@ -81,8 +94,8 @@ export function usePromptAssembly() {
     user, 
     contentPillars, 
     targetAudiences, 
-    styleProfile, 
-    allPosts, 
+    profile, 
+    posts, 
     settings?.custom_instructions,
     stories
   ]);

@@ -1,11 +1,10 @@
-
 import { useCallback } from 'react';
 import { useDocuments } from '@/hooks/useDocuments';
 import { toast } from 'sonner';
 import { DocumentType } from '@/types';
 
 export const useTranscriptUpload = () => {
-  const { uploadDocument, createDocument } = useDocuments();
+  const { createDocument, uploadDocument } = useDocuments();
 
   const handleUploadDocument = useCallback(async (file: File, title: string) => {
     try {
@@ -18,7 +17,7 @@ export const useTranscriptUpload = () => {
         status: "active" as const
       };
       
-      await uploadDocument({ file, documentData });
+      await uploadDocument(file, documentData);
       toast.success("Transcript uploaded successfully");
     } catch (error) {
       console.error("Error uploading document:", error);

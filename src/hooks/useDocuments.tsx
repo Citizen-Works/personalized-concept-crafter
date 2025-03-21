@@ -7,7 +7,8 @@ import {
   createDocument, 
   updateDocumentStatus, 
   processTranscriptForIdeas,
-  IdeaResponse 
+  IdeaResponse,
+  fetchDocument
 } from "@/services/documents"; 
 import { useDocumentUpload } from "./documents/useDocumentUpload";
 import { useMemo, useCallback } from "react";
@@ -30,21 +31,16 @@ export const useDocuments = (filters?: DocumentFilterOptions) => {
     enabled: !!user,
   });
 
+  // Function to fetch an individual document by ID
+  const fetchDocumentCallback = useCallback(async (documentId: string) => {
+    if (!user?.id) throw new Error("User not authenticated");
+    return await fetchDocument(user?.id, documentId);
+  }, [user?.id]);
+
   // Mutation for creating documents
   const createDocumentMutation = useMutation({
     mutationFn: (document: DocumentCreateInput) => 
       createDocument(user?.id || "", document),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey });
-    },
-  });
-
-  // Mutation for uploading documents
-  const uploadDocumentMutation = useMutation({
-    mutationFn: ({ file, documentData }: { 
-      file: File; 
-      documentData: Omit<DocumentCreateInput, "content"> 
-    }) => uploadDocument(file, documentData),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey });
     },
@@ -106,15 +102,22 @@ export const useDocuments = (filters?: DocumentFilterOptions) => {
     documents: documentsQuery.data || [],
     isLoading: documentsQuery.isLoading,
     isError: documentsQuery.isError,
+    error: documentsQuery.error,
+    refetch: documentsQuery.refetch,
+    fetchDocument: fetchDocumentCallback,
     createDocument: createDocumentCallback,
     uploadDocument: uploadDocumentCallback,
     updateDocumentStatus: updateDocumentStatusCallback,
     processTranscript: processTranscriptCallback,
     uploadProgress,
+    isDocumentProcessing: (id: string) => false, // Placeholder function for compatibility
   }), [
     documentsQuery.data,
     documentsQuery.isLoading,
     documentsQuery.isError,
+    documentsQuery.error,
+    documentsQuery.refetch,
+    fetchDocumentCallback,
     createDocumentCallback,
     uploadDocumentCallback,
     updateDocumentStatusCallback,

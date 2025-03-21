@@ -2,20 +2,23 @@
 import { useState, useCallback } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/context/auth';
-import { Document, DocumentFilterOptions } from '@/types';
+import { Document, DocumentFilterOptions, DocumentCreateInput } from '@/types';
 import { 
   fetchDocuments, 
   createDocument, 
   updateDocumentStatus,
-  updateDocument 
+  updateDocument,
+  fetchDocument 
 } from '@/services/documents/baseDocumentService';
 import { processTranscriptForIdeas } from '@/services/documents/transcript/processTranscript';
 import { toast } from 'sonner';
+import { useDocumentUpload } from './documents/useDocumentUpload';
 
 export const useDocuments = (filters?: DocumentFilterOptions) => {
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const [processingDocumentIds, setProcessingDocumentIds] = useState<string[]>([]);
+  const { uploadDocument, uploadProgress } = useDocumentUpload(user?.id);
 
   // Query documents
   const { 
@@ -32,9 +35,15 @@ export const useDocuments = (filters?: DocumentFilterOptions) => {
     enabled: !!user?.id,
   });
 
+  // Fetch a single document by ID
+  const fetchSingleDocument = useCallback(async (id: string) => {
+    if (!user?.id) throw new Error("User not authenticated");
+    return await fetchDocument(user.id, id);
+  }, [user?.id]);
+
   // Create document mutation
   const createDocumentMutation = useMutation({
-    mutationFn: async (newDocument: Omit<Document, "id" | "userId" | "createdAt">) => {
+    mutationFn: async (newDocument: DocumentCreateInput) => {
       if (!user?.id) throw new Error("User not authenticated");
       return await createDocument(user.id, newDocument);
     },
@@ -100,6 +109,7 @@ export const useDocuments = (filters?: DocumentFilterOptions) => {
     isLoading,
     error,
     refetch,
+    fetchDocument: fetchSingleDocument,
     createDocument: createDocumentMutation.mutate,
     createDocumentAsync: createDocumentMutation.mutateAsync,
     isCreating: createDocumentMutation.isPending,
@@ -110,5 +120,7 @@ export const useDocuments = (filters?: DocumentFilterOptions) => {
     processTranscript,
     processingDocuments: processingDocumentIds,
     isDocumentProcessing,
+    uploadDocument,
+    uploadProgress
   };
 };
