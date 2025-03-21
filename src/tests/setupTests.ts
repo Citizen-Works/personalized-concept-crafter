@@ -18,3 +18,6 @@ Object.defineProperty(window, 'matchMedia', {
 
 // Mock global fetch
 global.fetch = vi.fn();
+
+// Add any additional test setup here
+
