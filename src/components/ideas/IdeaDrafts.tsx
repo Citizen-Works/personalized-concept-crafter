@@ -7,6 +7,7 @@ import { ContentIdea, ContentType } from '@/types';
 import { useClaudeAI } from '@/hooks/useClaudeAI';
 import { toast } from 'sonner';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface IdeaDraftsProps {
   idea: ContentIdea;
@@ -16,14 +17,16 @@ interface IdeaDraftsProps {
 const IdeaDrafts: React.FC<IdeaDraftsProps> = ({ idea, onGenerateDraft }) => {
   const { generateContent, isGenerating, debugPrompt } = useClaudeAI();
   const [showDebugDialog, setShowDebugDialog] = useState(false);
+  const [selectedContentType, setSelectedContentType] = useState<ContentType>("linkedin");
   
   const handleGenerateDraft = async () => {
     try {
       console.log("Generating draft for idea:", idea.id);
-      const generatedContent = await generateContent(idea, idea.contentType as ContentType);
+      // Use the selected content type for generation
+      const generatedContent = await generateContent(idea, selectedContentType);
       
       if (generatedContent) {
-        await onGenerateDraft(idea.contentType, generatedContent);
+        await onGenerateDraft(selectedContentType, generatedContent);
         toast.success(`Draft generated successfully`);
       } else {
         toast.error('No content was generated');
@@ -36,7 +39,7 @@ const IdeaDrafts: React.FC<IdeaDraftsProps> = ({ idea, onGenerateDraft }) => {
   
   const handleDebugPrompt = async () => {
     try {
-      await generateContent(idea, idea.contentType as ContentType, true);
+      await generateContent(idea, selectedContentType, true);
       setShowDebugDialog(true);
     } catch (error) {
       console.error('Error debugging prompt:', error);
@@ -97,36 +100,58 @@ const IdeaDrafts: React.FC<IdeaDraftsProps> = ({ idea, onGenerateDraft }) => {
               </Button>
             </div>
           ) : (
-            <div className="p-8 text-center border rounded-lg bg-muted/10">
-              <p className="text-sm text-muted-foreground">
-                No drafts have been generated for this idea yet
-              </p>
-              <div className="flex justify-center gap-2 mt-4">
-                <Button 
-                  className="gap-1" 
-                  disabled={isGenerating}
-                  onClick={handleGenerateDraft}
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium mb-1">Content Type</label>
+                <Select 
+                  value={selectedContentType} 
+                  onValueChange={(value) => setSelectedContentType(value as ContentType)}
                 >
-                  {isGenerating ? (
-                    <>
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                      Generating...
-                    </>
-                  ) : (
-                    <>
-                      <Plus className="h-4 w-4" />
-                      Generate Draft
-                    </>
-                  )}
-                </Button>
-                <Button
-                  variant="outline"
-                  size="icon"
-                  onClick={handleDebugPrompt}
-                  title="Debug prompt"
-                >
-                  <Bug className="h-4 w-4" />
-                </Button>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Select content type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="linkedin">LinkedIn</SelectItem>
+                    <SelectItem value="newsletter">Newsletter</SelectItem>
+                    <SelectItem value="marketing">Marketing</SelectItem>
+                  </SelectContent>
+                </Select>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  Select the type of content to generate
+                </p>
+              </div>
+            
+              <div className="p-8 text-center border rounded-lg bg-muted/10">
+                <p className="text-sm text-muted-foreground">
+                  No drafts have been generated for this idea yet
+                </p>
+                <div className="flex justify-center gap-2 mt-4">
+                  <Button 
+                    className="gap-1" 
+                    disabled={isGenerating}
+                    onClick={handleGenerateDraft}
+                  >
+                    {isGenerating ? (
+                      <>
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                        Generating...
+                      </>
+                    ) : (
+                      <>
+                        <Plus className="h-4 w-4" />
+                        Generate Draft
+                      </>
+                    )}
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={handleDebugPrompt}
+                    title="Debug prompt"
+                  >
+                    <Bug className="h-4 w-4" />
+                  </Button>
+                </div>
               </div>
             </div>
           )}

@@ -1,3 +1,4 @@
+
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { ContentIdea, ContentStatus, ContentType, ContentSource } from "@/types";
@@ -78,7 +79,7 @@ export const createIdea = async (idea: IdeaCreateInput, userId: string): Promise
         meeting_transcript_excerpt: idea.meetingTranscriptExcerpt,
         source_url: idea.sourceUrl,
         status: idea.status,
-        content_type: idea.contentType || null,
+        content_type: idea.contentType,
         user_id: userId
       }
     ])

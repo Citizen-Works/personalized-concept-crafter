@@ -24,12 +24,8 @@ const IdeaEditor: React.FC<IdeaEditorProps> = ({ idea, isOpen, onClose }) => {
     setDescription,
     notes,
     setNotes,
-    contentGoal,
-    setContentGoal,
     callToAction,
     setCallToAction,
-    contentType,
-    setContentType,
     isSubmitting,
     handleSubmit
   } = useIdeaEditorForm(idea, onClose);
@@ -48,12 +44,8 @@ const IdeaEditor: React.FC<IdeaEditorProps> = ({ idea, isOpen, onClose }) => {
           setDescription={setDescription}
           notes={notes}
           setNotes={setNotes}
-          contentGoal={contentGoal}
-          setContentGoal={setContentGoal}
           callToAction={callToAction}
           setCallToAction={setCallToAction}
-          contentType={contentType}
-          setContentType={setContentType}
           isSubmitting={isSubmitting}
           onSubmit={handleSubmit}
           onClose={onClose}

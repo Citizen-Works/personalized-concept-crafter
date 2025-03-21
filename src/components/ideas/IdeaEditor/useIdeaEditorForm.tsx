@@ -1,41 +1,24 @@
 
 import { useState, useEffect } from 'react';
-import { ContentIdea, ContentType } from '@/types';
+import { ContentIdea } from '@/types';
 import { useIdeas } from '@/hooks/ideas';
 import { toast } from 'sonner';
-
-// Content goal types
-export type ContentGoal = 'audience_building' | 'lead_generation' | 'nurturing' | 'conversion' | 'retention' | 'other';
 
 export const useIdeaEditorForm = (idea: ContentIdea, onClose: () => void) => {
   const [title, setTitle] = useState(idea.title);
   const [description, setDescription] = useState("");
   const [notes, setNotes] = useState("");
-  const [contentGoal, setContentGoal] = useState<ContentGoal>("audience_building");
   const [callToAction, setCallToAction] = useState("");
-  const [contentType, setContentType] = useState<ContentType>(idea.contentType);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { updateIdeaAsync } = useIdeas();
 
-  // Parse existing content goal and description from the idea
+  // Parse existing call to action from the idea
   useEffect(() => {
     // Set description directly
     setDescription(idea.description || "");
     
-    // Set content type
-    setContentType(idea.contentType);
-    
-    // Extract content goal from notes if it exists
+    // Extract notes and call to action
     const notesText = idea.notes || "";
-    
-    // Extract content goal pattern if it exists
-    const goalMatch = notesText.match(/Content Goal: (.*?)(?:\n|$)/);
-    if (goalMatch && goalMatch[1]) {
-      const extractedGoal = goalMatch[1].trim().replace(' ', '_').toLowerCase();
-      if (['audience_building', 'lead_generation', 'nurturing', 'conversion', 'retention', 'other'].includes(extractedGoal)) {
-        setContentGoal(extractedGoal as ContentGoal);
-      }
-    }
     
     // Extract call to action from notes if it exists
     const ctaMatch = notesText.match(/Call to Action: (.*?)(?:\n|$)/);
@@ -44,10 +27,10 @@ export const useIdeaEditorForm = (idea: ContentIdea, onClose: () => void) => {
       setCallToAction(ctaMatch[1].trim());
     }
     
-    // Set notes without the CTA or content goal lines
+    // Set notes without the CTA line
     let cleanedNotes = notesText
       .replace(/Call to Action: .*?(?:\n|$)/, "")
-      .replace(/Content Goal: .*?(?:\n|$)/, "")
+      .replace(/Content Goal: .*?(?:\n|$)/, "") // Remove content goal too
       .trim();
       
     setNotes(cleanedNotes);
@@ -64,11 +47,8 @@ export const useIdeaEditorForm = (idea: ContentIdea, onClose: () => void) => {
     setIsSubmitting(true);
     
     try {
-      // Format notes to include content goal and CTA
+      // Format notes to include CTA if provided
       let formattedNotes = notes || "";
-      
-      // Add content goal at the beginning
-      formattedNotes = `Content Goal: ${contentGoal.replace('_', ' ')}\n\n${formattedNotes}`;
       
       // Add CTA if provided
       if (callToAction) {
@@ -80,8 +60,7 @@ export const useIdeaEditorForm = (idea: ContentIdea, onClose: () => void) => {
         id: idea.id,
         title,
         description,
-        notes: formattedNotes,
-        contentType // Include contentType in the update
+        notes: formattedNotes
       });
       
       toast.success('Idea updated successfully');
@@ -101,12 +80,8 @@ export const useIdeaEditorForm = (idea: ContentIdea, onClose: () => void) => {
     setDescription,
     notes,
     setNotes,
-    contentGoal,
-    setContentGoal,
     callToAction,
     setCallToAction,
-    contentType,
-    setContentType,
     isSubmitting,
     handleSubmit
   };
