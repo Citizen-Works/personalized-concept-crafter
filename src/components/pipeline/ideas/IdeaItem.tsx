@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { ArrowUpRight, Trash, Loader2, Lightbulb } from "lucide-react";
+import { Link } from "react-router-dom";
 
 interface IdeaItemProps {
   idea: ContentIdea;
@@ -68,10 +69,10 @@ export const IdeaItem: React.FC<IdeaItemProps> = ({
       </CardContent>
       <CardFooter className="flex justify-between">
         <Button variant="outline" size="sm" asChild>
-          <a href={`/ideas/${idea.id}`} target="_blank" rel="noopener noreferrer">
+          <Link to={`/ideas/${idea.id}`}>
             <ArrowUpRight className="h-4 w-4 mr-1" />
             View Details
-          </a>
+          </Link>
         </Button>
         <div className="flex gap-2">
           <Button 
@@ -80,10 +81,10 @@ export const IdeaItem: React.FC<IdeaItemProps> = ({
             asChild
             title="Generate Content"
           >
-            <a href={`/ideas/${idea.id}`} target="_blank" rel="noopener noreferrer">
+            <Link to={`/ideas/${idea.id}`}>
               <Lightbulb className="h-4 w-4 mr-1" />
               Generate Content
-            </a>
+            </Link>
           </Button>
           <Button 
             variant="outline" 

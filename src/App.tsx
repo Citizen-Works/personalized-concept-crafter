@@ -34,6 +34,7 @@ import CallToActionsPage from "@/pages/CallToActionsPage";
 import ContentPipelinePage from "@/pages/ContentPipelinePage";
 import StrategyOverviewPage from "@/pages/StrategyOverviewPage";
 import PillarAudienceLinkPage from "@/pages/PillarAudienceLinkPage";
+import IdeaDetailPage from "@/pages/IdeaDetailPage";
 import { usePromptTemplateInitializer } from "@/hooks/admin/usePromptTemplateInitializer";
 
 // New Source Materials Pages
@@ -102,6 +103,7 @@ function App() {
                     <Route path="/review-queue" element={<Navigate to="/pipeline?tab=review" replace />} />
                     <Route path="/ideas" element={<Navigate to="/pipeline?tab=ideas" replace />} />
                     <Route path="/ideas/new" element={<NewIdeaPage />} />
+                    <Route path="/ideas/:id" element={<IdeaDetailPage />} />
                     <Route path="/drafts" element={<Navigate to="/pipeline?tab=drafts" replace />} />
                     <Route path="/ready-to-publish" element={<Navigate to="/pipeline?tab=ready" replace />} />
                     <Route path="/published" element={<Navigate to="/pipeline?tab=published" replace />} />
