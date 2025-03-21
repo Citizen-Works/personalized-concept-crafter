@@ -41,8 +41,8 @@ import { formatDistanceToNow } from "date-fns";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { SourceMaterialCard } from "@/components/source-materials/SourceMaterialCard";
-import { UploadDialog } from "@/components/source-materials/UploadDialog";
-import { AddTextDialog } from "@/components/source-materials/AddTextDialog";
+import UploadDialog from "@/components/source-materials/UploadDialog";
+import AddTextDialog from "@/components/source-materials/AddTextDialog";
 import { EmptyState } from "@/components/source-materials/EmptyState";
 
 const SourceMaterialsPage = () => {

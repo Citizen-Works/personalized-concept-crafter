@@ -16,8 +16,8 @@ import {
   TabsTrigger,
 } from "@/components/ui/tabs";
 import { ChevronLeft, FileText, Upload } from "lucide-react";
-import { UploadDialog } from "@/components/source-materials/UploadDialog";
-import { AddTextDialog } from "@/components/source-materials/AddTextDialog";
+import UploadDialog from "@/components/source-materials/UploadDialog";
+import AddTextDialog from "@/components/source-materials/AddTextDialog";
 import { useDocuments } from "@/hooks/useDocuments";
 import { useToast } from "@/hooks/use-toast";
 

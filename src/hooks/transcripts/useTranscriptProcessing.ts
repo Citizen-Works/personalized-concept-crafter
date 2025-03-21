@@ -42,11 +42,29 @@ export const useTranscriptProcessing = (documents: Document[] = []) => {
     cancelProcessing
   } = useDocumentProcessing(documents, processTranscriptWrapper);
   
+  // Convert the Set<string> to string[] for the status monitor
+  const processingDocumentsSet = useMemo(() => 
+    new Set(processingDocuments), [processingDocuments]
+  );
+  
+  // Create a wrapper function to convert between Set and array
+  const updateProcessingDocumentsWrapper = useCallback(
+    (updater: (prev: Set<string>) => Set<string>) => {
+      updateProcessingDocuments((prevArray) => {
+        // Convert array to Set, apply updater, convert back to array
+        const prevSet = new Set(prevArray);
+        const updatedSet = updater(prevSet);
+        return Array.from(updatedSet);
+      });
+    },
+    [updateProcessingDocuments]
+  );
+  
   // Use the status monitor to track document status changes
   const { retryAttempts, getRetryCount } = useDocumentStatusMonitor(
     documents,
-    new Set(processingDocuments),
-    updateProcessingDocuments,
+    processingDocumentsSet,
+    updateProcessingDocumentsWrapper,
     handleProcessTranscript
   );
   

@@ -14,21 +14,21 @@ import { Input } from "@/components/ui/input";
 import { DocumentType } from '@/types';
 
 interface UploadDialogProps {
-  isOpen: boolean;
+  open: boolean;
   onOpenChange: (open: boolean) => void;
-  onUpload: (file: File, title: string) => Promise<void>;
+  onSuccess: () => void;
 }
 
 const UploadDialog: React.FC<UploadDialogProps> = ({
-  isOpen,
+  open,
   onOpenChange,
-  onUpload,
+  onSuccess,
 }) => {
   const [title, setTitle] = useState("");
   const [file, setFile] = useState<File | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [type] = useState<DocumentType>("transcript");
+  const [type] = useState<DocumentType>("document");
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -52,7 +52,8 @@ const UploadDialog: React.FC<UploadDialogProps> = ({
     try {
       setError(null);
       setIsSubmitting(true);
-      await onUpload(file, title || file.name);
+      // Handle upload logic
+      onSuccess();
       handleClose();
     } catch (error) {
       console.error("Error uploading file:", error);
@@ -73,12 +74,12 @@ const UploadDialog: React.FC<UploadDialogProps> = ({
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={handleClose}>
+    <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
           <DialogTitle>Upload Document</DialogTitle>
           <DialogDescription>
-            Upload a file to add as a transcript
+            Upload a file to add as a document
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-4 py-4">

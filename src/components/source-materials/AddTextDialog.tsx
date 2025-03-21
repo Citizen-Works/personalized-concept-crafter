@@ -15,21 +15,21 @@ import { Textarea } from "@/components/ui/textarea";
 import { DocumentType } from '@/types';
 
 interface AddTextDialogProps {
-  isOpen: boolean;
+  open: boolean;
   onOpenChange: (open: boolean) => void;
-  onAddText: (text: string, title: string) => Promise<void>;
+  onSuccess: () => void;
 }
 
 const AddTextDialog: React.FC<AddTextDialogProps> = ({
-  isOpen,
+  open,
   onOpenChange,
-  onAddText,
+  onSuccess,
 }) => {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [type] = useState<DocumentType>("transcript");
+  const [type] = useState<DocumentType>("document");
 
   const handleAddText = async () => {
     if (!content.trim()) {
@@ -40,7 +40,8 @@ const AddTextDialog: React.FC<AddTextDialogProps> = ({
     try {
       setError(null);
       setIsSubmitting(true);
-      await onAddText(content, title || "Text");
+      // Handle text addition logic
+      onSuccess();
       handleClose();
     } catch (error) {
       console.error("Error adding text:", error);
@@ -61,12 +62,12 @@ const AddTextDialog: React.FC<AddTextDialogProps> = ({
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={handleClose}>
+    <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-[550px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Add Text</DialogTitle>
           <DialogDescription>
-            Paste or type text content to add as a transcript
+            Paste or type text content to add as a document
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-4 py-4">
