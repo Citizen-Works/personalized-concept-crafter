@@ -12,6 +12,8 @@ export async function generateContentWithClaude(
   idea: ContentIdea
 ): Promise<string> {
   try {
+    console.log(`Generating ${contentType} content for idea: ${idea.id}`);
+    
     const { data, error } = await supabase.functions.invoke("generate-with-claude", {
       body: {
         prompt,
@@ -34,6 +36,8 @@ export async function generateContentWithClaude(
       console.error('No content in response:', data);
       throw new Error('No content generated');
     }
+    
+    console.log(`Content generated successfully (${contentType})`);
     
     // Handle response content (ensuring we return a string)
     return String(data.content);
@@ -95,6 +99,8 @@ ONLY include the writing sample. Do NOT include any extra comments or notes. Onl
 `;
 
   try {
+    console.log(`Generating writing style preview for ${contentType}`);
+    
     const { data, error } = await supabase.functions.invoke("generate-with-claude", {
       body: {
         prompt,
@@ -112,6 +118,8 @@ ONLY include the writing sample. Do NOT include any extra comments or notes. Onl
       console.error('No preview content in response:', data);
       throw new Error('No preview generated');
     }
+    
+    console.log('Writing style preview generated successfully');
     
     // Ensure we return a string
     return String(data.content);
