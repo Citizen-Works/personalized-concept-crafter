@@ -9,6 +9,8 @@ import SourceMaterialsLoading from "@/components/source-materials/SourceMaterial
 import SourceMaterialsError from "@/components/source-materials/SourceMaterialsError";
 import AddTextDialog from "@/components/source-materials/AddTextDialog";
 import UploadDialog from "@/components/source-materials/UploadDialog";
+import EditDocumentDialog from "@/components/documents/EditDocumentDialog";
+import { Document } from "@/types";
 
 const SourceMaterialsPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -17,6 +19,8 @@ const SourceMaterialsPage = () => {
   const [sortOrder, setSortOrder] = useState<string>("newest");
   const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
   const [addTextDialogOpen, setAddTextDialogOpen] = useState(false);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [selectedDocument, setSelectedDocument] = useState<Document | null>(null);
   
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -38,7 +42,8 @@ const SourceMaterialsPage = () => {
     isLoading, 
     error, 
     refetch,
-    processTranscript
+    processTranscript,
+    isDocumentProcessing
   } = useDocuments();
   
   // Update URL params when filters change
@@ -131,6 +136,11 @@ const SourceMaterialsPage = () => {
     navigate(`/source-materials/${id}`);
   };
   
+  const handleEditDocument = (document: Document) => {
+    setSelectedDocument(document);
+    setEditDialogOpen(true);
+  };
+  
   if (isLoading) {
     return <SourceMaterialsLoading />;
   }
@@ -159,6 +169,8 @@ const SourceMaterialsPage = () => {
         onProcessTranscript={handleProcessTranscript}
         onOpenUpload={handleOpenUpload}
         onOpenAddText={handleOpenAddText}
+        onEditDocument={handleEditDocument}
+        isDocumentProcessing={isDocumentProcessing}
       />
       
       <UploadDialog
@@ -183,6 +195,12 @@ const SourceMaterialsPage = () => {
             description: "Your text has been added to your materials.",
           });
         }}
+      />
+      
+      <EditDocumentDialog
+        open={editDialogOpen}
+        onOpenChange={setEditDialogOpen}
+        document={selectedDocument}
       />
     </div>
   );

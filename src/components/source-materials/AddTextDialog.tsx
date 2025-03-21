@@ -12,7 +12,8 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import type { DocumentType } from '@/types';
+import { Document, DocumentType } from '@/types';
+import { useDocuments } from '@/hooks/useDocuments';
 
 interface AddTextDialogProps {
   open: boolean;
@@ -31,6 +32,8 @@ const AddTextDialog: React.FC<AddTextDialogProps> = ({
   const [error, setError] = useState<string | null>(null);
   // Use a string literal type that matches valid DocumentType values
   const [type, setType] = useState<DocumentType>("document" as DocumentType);
+  
+  const { createDocument } = useDocuments();
 
   const handleAddText = async () => {
     if (!content.trim()) {
@@ -38,16 +41,30 @@ const AddTextDialog: React.FC<AddTextDialogProps> = ({
       return;
     }
     
+    if (!title.trim()) {
+      setError("Title cannot be empty");
+      return;
+    }
+    
     try {
       setError(null);
       setIsSubmitting(true);
-      // Handle text addition logic
+      
+      // Create the document
+      await createDocument({
+        title: title.trim(),
+        content: content.trim(),
+        type: "other", // Default type for text
+        purpose: "business_context", // Default purpose
+        status: "active",
+        content_type: null,
+      });
+      
       onSuccess();
       handleClose();
     } catch (error) {
       console.error("Error adding text:", error);
       setError("Failed to add text. Please try again.");
-      // Error is already handled in the service
     } finally {
       setIsSubmitting(false);
     }
@@ -107,7 +124,7 @@ const AddTextDialog: React.FC<AddTextDialogProps> = ({
           </Button>
           <Button 
             onClick={handleAddText}
-            disabled={isSubmitting || !content.trim()}
+            disabled={isSubmitting || !content.trim() || !title.trim()}
           >
             {isSubmitting ? "Adding..." : "Add Text"}
           </Button>

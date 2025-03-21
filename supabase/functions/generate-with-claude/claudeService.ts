@@ -4,10 +4,13 @@ import { CLAUDE_API_KEY, CLAUDE_API_URL, MODEL_NAME, MAX_TOKENS, DEFAULT_TEMPERA
 /**
  * Makes a request to the Claude API
  */
-export async function callClaudeApi(systemPrompt: string, userPrompt: string, temperature = DEFAULT_TEMPERATURE) {
+export async function callClaudeApi(userPrompt: string, temperature = DEFAULT_TEMPERATURE) {
   if (!CLAUDE_API_KEY) {
     throw new Error('CLAUDE_API_KEY is not set');
   }
+
+  // Create a system prompt that provides general guidance
+  const systemPrompt = 'You are an expert content creator that generates high-quality, engaging content based on specific instructions.';
 
   const response = await fetch(CLAUDE_API_URL, {
     method: 'POST',
@@ -19,7 +22,7 @@ export async function callClaudeApi(systemPrompt: string, userPrompt: string, te
     body: JSON.stringify({
       model: MODEL_NAME,
       max_tokens: MAX_TOKENS,
-      temperature: temperature, // Use the provided temperature
+      temperature: temperature,
       system: systemPrompt,
       messages: [
         {

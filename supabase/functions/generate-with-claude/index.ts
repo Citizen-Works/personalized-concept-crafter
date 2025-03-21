@@ -1,5 +1,4 @@
 
-// Update the import to include the new temperature settings
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { callClaudeApi } from "./claudeService.ts";
 import { DEFAULT_TEMPERATURE, IDEAS_TEMPERATURE } from "./config.ts";
@@ -18,17 +17,25 @@ serve(async (req) => {
   
   // Parse the request body
   const requestData = await req.json();
-  const { systemPrompt, userPrompt, userId, docId, type } = requestData;
+  const { prompt, contentType, idea, task } = requestData;
   
   try {
+    // Validate the prompt to make sure it's a string
+    if (!prompt || typeof prompt !== 'string') {
+      throw new Error("Invalid prompt format: prompt must be a string");
+    }
+    
     // Use higher temperature for idea extraction
-    const temperature = type === 'extract_ideas' ? IDEAS_TEMPERATURE : DEFAULT_TEMPERATURE;
-    console.log(`Using temperature ${temperature} for ${type} operation`);
+    const temperature = contentType === 'structured_content_ideas' || task === 'extract_ideas' 
+      ? IDEAS_TEMPERATURE 
+      : DEFAULT_TEMPERATURE;
+    
+    console.log(`Using temperature ${temperature} for ${contentType || task} operation`);
     
     // Call Claude API with the appropriate temperature
-    const response = await callClaudeApi(systemPrompt, userPrompt, temperature);
+    const response = await callClaudeApi(prompt, temperature);
     
-    // You can add additional logging or processing here
+    // Log success
     console.log("Generation successful");
     
     // Return the response

@@ -3,17 +3,20 @@ import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Separator } from "@/components/ui/separator";
-import { ContentType } from '@/types';
-import { Lightbulb, Loader2, Bug } from 'lucide-react';
-
-interface ContentGoal {
-  value: string;
-  label: string;
-}
+import { Loader2, Bug, PenLine } from 'lucide-react';
+import { ContentIdea, ContentType } from '@/types';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  RadioGroup,
+  RadioGroupItem,
+} from "@/components/ui/radio-group";
 
 interface ContentParametersCardProps {
   contentType: ContentType;
@@ -23,22 +26,13 @@ interface ContentParametersCardProps {
   callToAction: string;
   setCallToAction: (cta: string) => void;
   lengthPreference: "shorter" | "longer" | "standard";
-  setLengthPreference: (length: "shorter" | "longer" | "standard") => void;
-  callToActions: { id: string; text: string }[];
+  setLengthPreference: (pref: "shorter" | "longer" | "standard") => void;
+  callToActions: string[];
   handleGenerate: () => void;
   handleDebugPrompt: () => void;
   isGenerating: boolean;
   selectedIdea: boolean;
 }
-
-const contentGoals: ContentGoal[] = [
-  { value: 'audience_building', label: 'Audience Building' },
-  { value: 'lead_generation', label: 'Lead Generation' },
-  { value: 'nurturing', label: 'Nurturing' },
-  { value: 'conversion', label: 'Conversion' },
-  { value: 'retention', label: 'Retention' },
-  { value: 'other', label: 'Other' }
-];
 
 const ContentParametersCard: React.FC<ContentParametersCardProps> = ({
   contentType,
@@ -59,84 +53,104 @@ const ContentParametersCard: React.FC<ContentParametersCardProps> = ({
     <Card>
       <CardHeader>
         <CardTitle>Content Parameters</CardTitle>
-        <CardDescription>Customize the draft generation</CardDescription>
+        <CardDescription>Customize how your content is generated</CardDescription>
       </CardHeader>
-      <CardContent className="space-y-4">
-        {/* Content Type Selection */}
+      <CardContent className="space-y-6">
+        {/* Content Type */}
         <div className="space-y-2">
-          <Label>Content Type</Label>
-          <Tabs defaultValue={contentType} onValueChange={(value) => setContentType(value as ContentType)}>
-            <TabsList className="grid grid-cols-3 w-full">
-              <TabsTrigger value="linkedin">LinkedIn</TabsTrigger>
-              <TabsTrigger value="newsletter">Newsletter</TabsTrigger>
-              <TabsTrigger value="marketing">Marketing</TabsTrigger>
-            </TabsList>
-          </Tabs>
-          <div className="text-xs text-muted-foreground mt-1 pl-1">
-            {contentType === "linkedin" && "Short, engaging post for social sharing"}
-            {contentType === "newsletter" && "Longer, more detailed content for email"}
-            {contentType === "marketing" && "Persuasive copy with clear CTA"}
-          </div>
-        </div>
-        
-        <Separator />
-        
-        {/* Optional Parameters */}
-        <div className="space-y-2">
-          <Label>Content Goal (Optional)</Label>
-          <Select value={contentGoal || "none"} onValueChange={(value) => setContentGoal(value === "none" ? null : value)}>
-            <SelectTrigger>
-              <SelectValue placeholder="Select a goal (optional)" />
+          <Label htmlFor="content-type">Content Type</Label>
+          <Select value={contentType} onValueChange={(value) => setContentType(value as ContentType)}>
+            <SelectTrigger id="content-type">
+              <SelectValue placeholder="Select content type" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="none">No specific goal</SelectItem>
-              {contentGoals.map((goal) => (
-                <SelectItem key={goal.value} value={goal.value}>{goal.label}</SelectItem>
-              ))}
+              <SelectItem value="linkedin">LinkedIn Post</SelectItem>
+              <SelectItem value="newsletter">Newsletter</SelectItem>
+              <SelectItem value="marketing">Marketing Content</SelectItem>
+              <SelectItem value="blog">Blog Post</SelectItem>
             </SelectContent>
           </Select>
         </div>
         
+        {/* Call to Action */}
         <div className="space-y-2">
-          <Label>Call to Action (Optional)</Label>
-          <Select value={callToAction || "none"} onValueChange={setCallToAction}>
-            <SelectTrigger>
-              <SelectValue placeholder="Select a CTA (optional)" />
+          <Label htmlFor="call-to-action">Call to Action</Label>
+          <Select 
+            value={callToAction} 
+            onValueChange={setCallToAction}
+          >
+            <SelectTrigger id="call-to-action">
+              <SelectValue placeholder="Select a call to action" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="none">No call to action</SelectItem>
+              <SelectItem value="">None</SelectItem>
               {callToActions.map((cta) => (
-                <SelectItem key={cta.id} value={cta.text}>
-                  {cta.text}
+                <SelectItem key={cta} value={cta}>
+                  {cta}
                 </SelectItem>
               ))}
             </SelectContent>
           </Select>
         </div>
         
+        {/* Length Preference */}
         <div className="space-y-2">
           <Label>Length Preference</Label>
-          <RadioGroup defaultValue={lengthPreference} onValueChange={(value) => setLengthPreference(value as "shorter" | "longer" | "standard")}>
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem value="shorter" id="shorter" />
-              <Label htmlFor="shorter">Shorter</Label>
-            </div>
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem value="standard" id="standard" />
-              <Label htmlFor="standard">Standard</Label>
-            </div>
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem value="longer" id="longer" />
-              <Label htmlFor="longer">Longer</Label>
-            </div>
+          <RadioGroup
+            value={lengthPreference}
+            onValueChange={(value) => setLengthPreference(value as "shorter" | "longer" | "standard")}
+            className="grid grid-cols-3 gap-2"
+          >
+            <Label
+              htmlFor="shorter"
+              className={`flex cursor-pointer items-center justify-center rounded-md border border-muted bg-transparent p-2 text-xs ${
+                lengthPreference === "shorter" ? "border-primary" : ""
+              }`}
+            >
+              <RadioGroupItem
+                value="shorter"
+                id="shorter"
+                className="sr-only"
+              />
+              Shorter
+            </Label>
+            <Label
+              htmlFor="standard"
+              className={`flex cursor-pointer items-center justify-center rounded-md border border-muted bg-transparent p-2 text-xs ${
+                lengthPreference === "standard" ? "border-primary" : ""
+              }`}
+            >
+              <RadioGroupItem
+                value="standard"
+                id="standard"
+                className="sr-only"
+              />
+              Standard
+            </Label>
+            <Label
+              htmlFor="longer"
+              className={`flex cursor-pointer items-center justify-center rounded-md border border-muted bg-transparent p-2 text-xs ${
+                lengthPreference === "longer" ? "border-primary" : ""
+              }`}
+            >
+              <RadioGroupItem
+                value="longer"
+                id="longer"
+                className="sr-only"
+              />
+              Longer
+            </Label>
           </RadioGroup>
         </div>
         
-        <div className="flex gap-2">
+        <Separator />
+        
+        {/* Generate Buttons */}
+        <div className="space-y-2">
           <Button 
-            className="flex-1" 
-            onClick={handleGenerate} 
-            disabled={!selectedIdea || isGenerating}
+            className="w-full" 
+            onClick={handleGenerate}
+            disabled={isGenerating || !selectedIdea}
           >
             {isGenerating ? (
               <>
@@ -145,19 +159,20 @@ const ContentParametersCard: React.FC<ContentParametersCardProps> = ({
               </>
             ) : (
               <>
-                <Lightbulb className="mr-2 h-4 w-4" />
+                <PenLine className="mr-2 h-4 w-4" />
                 Generate Draft
               </>
             )}
           </Button>
-          <Button
-            variant="outline"
-            size="icon"
+          <Button 
+            variant="outline" 
+            size="sm" 
+            className="w-full" 
             onClick={handleDebugPrompt}
-            disabled={!selectedIdea || isGenerating}
-            title="Debug prompt"
+            disabled={isGenerating || !selectedIdea}
           >
-            <Bug className="h-4 w-4" />
+            <Bug className="mr-2 h-4 w-4" />
+            Debug Prompt
           </Button>
         </div>
       </CardContent>

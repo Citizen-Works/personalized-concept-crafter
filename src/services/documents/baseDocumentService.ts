@@ -150,6 +150,49 @@ export const createDocument = async (
 };
 
 /**
+ * Updates a document
+ */
+export const updateDocument = async (
+  userId: string,
+  document: {
+    id: string;
+    title?: string;
+    content?: string;
+    type?: Document["type"];
+    purpose?: Document["purpose"];
+    status?: Document["status"];
+    content_type?: Document["content_type"];
+  }
+): Promise<void> => {
+  if (!userId) throw new Error("User not authenticated");
+
+  try {
+    const updates: Record<string, any> = {};
+    
+    if (document.title !== undefined) updates.title = document.title;
+    if (document.content !== undefined) updates.content = document.content;
+    if (document.type !== undefined) updates.type = document.type;
+    if (document.purpose !== undefined) updates.purpose = document.purpose;
+    if (document.status !== undefined) updates.status = document.status;
+    if (document.content_type !== undefined) updates.content_type = document.content_type;
+    
+    const { error } = await supabase
+      .from("documents")
+      .update(updates)
+      .eq("id", document.id)
+      .eq("user_id", userId);
+
+    if (error) {
+      console.error("Failed to update document:", error);
+      throw error;
+    }
+  } catch (error) {
+    console.error("Error updating document:", error);
+    throw error;
+  }
+};
+
+/**
  * Updates the status of a document
  */
 export const updateDocumentStatus = async (
