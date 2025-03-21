@@ -37,12 +37,12 @@ export async function processContentRequest(requestData: any) {
   // Extract the text content from the Claude API response
   let generatedContent = '';
   
-  if (response.content && Array.isArray(response.content) && response.content.length > 0) {
+  if (response && response.content && Array.isArray(response.content) && response.content.length > 0) {
     const contentItem = response.content[0];
-    if (typeof contentItem === 'string') {
-      generatedContent = contentItem;
-    } else if (typeof contentItem === 'object' && contentItem.text) {
+    if (contentItem && typeof contentItem === 'object' && contentItem.text) {
       generatedContent = contentItem.text;
+    } else if (typeof contentItem === 'string') {
+      generatedContent = contentItem;
     }
   } else if (typeof response.content === 'string') {
     generatedContent = response.content;
@@ -57,7 +57,7 @@ export async function processContentRequest(requestData: any) {
 /**
  * Handles errors and returns appropriate responses
  */
-export function handleError(error: Error) {
+export function handleError(error: Error, corsHeaders: any = {}) {
   console.error('Error in generate-with-claude function:', error);
   
   return new Response(

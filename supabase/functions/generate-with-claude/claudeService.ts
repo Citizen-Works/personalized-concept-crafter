@@ -13,6 +13,8 @@ export async function callClaudeApi(userPrompt: string, temperature = DEFAULT_TE
   const systemPrompt = 'You are an expert content creator that generates high-quality, engaging content based on specific instructions.';
 
   try {
+    console.log('Calling Claude API with temperature:', temperature);
+    
     const response = await fetch(CLAUDE_API_URL, {
       method: 'POST',
       headers: {
@@ -53,6 +55,7 @@ export async function callClaudeApi(userPrompt: string, temperature = DEFAULT_TE
     }
 
     const data = await response.json();
+    console.log('Claude API response received successfully');
     return data;
   } catch (error) {
     console.error('Error calling Claude API:', error);

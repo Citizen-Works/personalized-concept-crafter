@@ -35,17 +35,8 @@ export async function generateContentWithClaude(
       throw new Error('No content generated');
     }
     
-    // Handle both string and object responses
-    if (typeof data.content === 'object') {
-      if (data.content.text) {
-        return data.content.text;
-      } else {
-        console.error('Invalid content format received from API:', data.content);
-        throw new Error('Invalid content format received from API');
-      }
-    }
-
-    return data.content;
+    // Handle response content (ensuring we return a string)
+    return String(data.content);
   } catch (error) {
     console.error('Error in generateContentWithClaude:', error);
     throw error;
@@ -122,17 +113,8 @@ ONLY include the writing sample. Do NOT include any extra comments or notes. Onl
       throw new Error('No preview generated');
     }
     
-    // Handle both string and object responses
-    if (typeof data.content === 'object') {
-      if (data.content.text) {
-        return data.content.text;
-      } else {
-        console.error('Invalid content format received from API:', data.content);
-        throw new Error('Invalid content format received from API');
-      }
-    }
-
-    return data.content;
+    // Ensure we return a string
+    return String(data.content);
   } catch (error) {
     console.error('Error in generatePreviewWithClaude:', error);
     throw error;
