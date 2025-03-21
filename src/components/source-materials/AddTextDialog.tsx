@@ -12,7 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { DocumentType } from '@/types';
+import type { DocumentType } from '@/types';
 
 interface AddTextDialogProps {
   open: boolean;
@@ -29,8 +29,8 @@ const AddTextDialog: React.FC<AddTextDialogProps> = ({
   const [content, setContent] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  // Use a valid DocumentType from the enum
-  const [type, setType] = useState<DocumentType>(DocumentType.DOCUMENT);
+  // Use a string literal type that matches valid DocumentType values
+  const [type, setType] = useState<DocumentType>("document");
 
   const handleAddText = async () => {
     if (!content.trim()) {
