@@ -21,11 +21,19 @@ const badgeVariants = cva(
         teal:
           "border-transparent bg-teal text-teal-foreground hover:bg-teal/80",
         success:
-          "border-transparent bg-teal text-teal-foreground hover:bg-teal/80",
+          "border-transparent bg-teal-500 text-white hover:bg-teal-500/80",
         warning:
           "border-transparent bg-yellow-500 text-white hover:bg-yellow-500/80",
         info:
           "border-transparent bg-blue-500 text-white hover:bg-blue-500/80",
+        unreviewed: 
+          "border-transparent bg-dark-100 text-dark-700 hover:bg-dark-100/80",
+        approved:
+          "border-transparent bg-teal-100 text-teal-700 hover:bg-teal-100/80",
+        drafted:
+          "border-transparent bg-secondary-100 text-secondary-700 hover:bg-secondary-100/80",
+        published:
+          "border-transparent bg-primary-100 text-primary-700 hover:bg-primary-100/80",
       },
     },
     defaultVariants: {

@@ -6,6 +6,7 @@ import { Lightbulb, FileText, RefreshCw, MessageSquare, ArrowRight } from 'lucid
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 
 export interface ActivityItem {
   id: string;
@@ -25,15 +26,15 @@ export const ActivityFeed = ({ activities, isLoading }: ActivityFeedProps) => {
   const getActivityIcon = (type: ActivityItem['type']) => {
     switch (type) {
       case 'idea_created':
-        return <Lightbulb className="h-4 w-4 text-blue-500" />;
+        return <Lightbulb className="h-4 w-4 text-primary" />;
       case 'draft_generated':
-        return <FileText className="h-4 w-4 text-orange-500" />;
+        return <FileText className="h-4 w-4 text-secondary" />;
       case 'status_changed':
-        return <RefreshCw className="h-4 w-4 text-green-500" />;
+        return <RefreshCw className="h-4 w-4 text-teal" />;
       case 'transcript_processed':
-        return <MessageSquare className="h-4 w-4 text-purple-500" />;
+        return <MessageSquare className="h-4 w-4 text-accent" />;
       default:
-        return <Lightbulb className="h-4 w-4 text-blue-500" />;
+        return <Lightbulb className="h-4 w-4 text-primary" />;
     }
   };
 
@@ -52,20 +53,22 @@ export const ActivityFeed = ({ activities, isLoading }: ActivityFeedProps) => {
     }
   };
 
-  const getStatusColor = (status?: string) => {
-    if (!status) return '';
+  const getStatusBadgeVariant = (status?: string) => {
+    if (!status) return 'default';
     
     switch (status.toLowerCase()) {
       case 'unreviewed':
-        return 'bg-blue-50 text-blue-700 border-blue-200';
+        return 'info';
       case 'approved':
-        return 'bg-green-50 text-green-700 border-green-200';
+        return 'success';
       case 'drafted':
-        return 'bg-orange-50 text-orange-700 border-orange-200';
+        return 'secondary';
       case 'published':
-        return 'bg-purple-50 text-purple-700 border-purple-200';
+        return 'accent';
+      case 'draft':
+        return 'secondary';
       default:
-        return 'bg-gray-50 text-gray-700 border-gray-200';
+        return 'default';
     }
   };
 
@@ -110,9 +113,9 @@ export const ActivityFeed = ({ activities, isLoading }: ActivityFeedProps) => {
                   <h4 className="text-sm font-medium line-clamp-1 mt-1">{activity.title}</h4>
                   {activity.status && (
                     <div className="mt-1">
-                      <span className={`inline-flex items-center rounded-full border px-2 py-0.5 text-xs font-semibold ${getStatusColor(activity.status)}`}>
+                      <Badge variant={getStatusBadgeVariant(activity.status)}>
                         {activity.status.charAt(0).toUpperCase() + activity.status.slice(1)}
-                      </span>
+                      </Badge>
                     </div>
                   )}
                 </div>
