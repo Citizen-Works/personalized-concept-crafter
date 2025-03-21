@@ -20,8 +20,7 @@ const AssignAdminRole: React.FC = () => {
     setIsLoading(true);
     
     try {
-      // Use the service_role key (via a server endpoint) to bypass RLS
-      // This is a temporary solution - in production, you should use a more secure approach
+      // I've added a temporary policy to allow users to insert their own roles
       const { error } = await supabase
         .from('user_roles')
         .insert({ user_id: user.id, role: 'admin' })
