@@ -22,32 +22,40 @@ const ContentPipelinePage = () => {
   
   // Use useEffect with cleaner dependency handling
   useEffect(() => {
-    const storedTab = localStorage.getItem("contentPipelineActiveTab");
-    
-    // Check URL for tab parameter first, then fallback to localStorage
     const urlParams = new URLSearchParams(location.search);
     const tabParam = urlParams.get("tab");
     
     if (tabParam) {
-      setActiveTab(tabParam);
-    } else if (storedTab) {
-      setActiveTab(storedTab);
+      // This prevents unwanted state changes if we're already on the correct tab
+      if (tabParam !== activeTab) {
+        setActiveTab(tabParam);
+      }
+    } else {
+      // If no tab in URL, set from localStorage or default to "ideas"
+      const storedTab = localStorage.getItem("contentPipelineActiveTab");
+      const tabToSet = storedTab || "ideas";
       
-      // Also update URL to match the stored tab
-      const currentParams = new URLSearchParams(location.search);
-      currentParams.set("tab", storedTab);
-      navigate(`${location.pathname}?${currentParams.toString()}`, { replace: true });
+      if (tabToSet !== activeTab) {
+        setActiveTab(tabToSet);
+        
+        // Update URL to match the tab without triggering navigation
+        const currentParams = new URLSearchParams(location.search);
+        currentParams.set("tab", tabToSet);
+        navigate(`${location.pathname}?${currentParams.toString()}`, { replace: true });
+      }
     }
-  }, [location.search, navigate]);
+  }, [location.search, navigate, activeTab]);
   
-  // Separate effect for saving to localStorage to avoid render cycles
+  // Separate effect for saving to localStorage when tab changes
   useEffect(() => {
     localStorage.setItem("contentPipelineActiveTab", activeTab);
     
     // Update URL params without full navigation
     const currentParams = new URLSearchParams(location.search);
-    currentParams.set("tab", activeTab);
-    navigate(`${location.pathname}?${currentParams.toString()}`, { replace: true });
+    if (currentParams.get("tab") !== activeTab) {
+      currentParams.set("tab", activeTab);
+      navigate(`${location.pathname}?${currentParams.toString()}`, { replace: true });
+    }
   }, [activeTab, navigate]);
   
   // Memoize the filter props to prevent unnecessary re-renders
@@ -57,9 +65,11 @@ const ContentPipelinePage = () => {
     contentTypeFilter
   }), [searchQuery, dateRange, contentTypeFilter]);
   
-  // Handle tab change
+  // Handle tab change with debounce to prevent rapid state changes
   const handleTabChange = (value: string) => {
-    setActiveTab(value);
+    if (value !== activeTab) {
+      setActiveTab(value);
+    }
   };
   
   // Reset filters

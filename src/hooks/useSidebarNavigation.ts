@@ -42,9 +42,14 @@ export function useSidebarNavigation() {
         const currentTab = pathData.params.get('tab');
         const requestedTab = pathParams.get('tab');
         
-        // Compare the specific tab parameter exactly
-        // This is important for differentiating between pipeline tabs
+        // For specific pipeline tabs, ensure exact tab parameter matching
         if (requestedTab && currentTab) {
+          // Prevent false matches between tabs like "review" and "review-queue"
+          if ((requestedTab === 'review' && currentTab !== 'review') || 
+              (currentTab === 'review' && requestedTab !== 'review')) {
+            return false;
+          }
+          
           return requestedTab === currentTab;
         }
         
@@ -59,8 +64,12 @@ export function useSidebarNavigation() {
         return true;
       }
       
-      // For pipeline without query params, ensure it's an exact match
-      // This prevents /pipeline?tab=X from matching just /pipeline
+      // Special case for review-queue standalone page 
+      if (path === '/review-queue' && pathData.pathname === '/review-queue') {
+        return true;
+      }
+      
+      // Handle nested routes with care
       if (path === '/pipeline' && pathData.pathname === '/pipeline') {
         // If we're on /pipeline with no query params, it's active
         if (pathData.search === '') {

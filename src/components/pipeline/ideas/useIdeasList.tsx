@@ -20,8 +20,8 @@ export const useIdeasList = ({ searchQuery, dateRange, contentTypeFilter }: UseI
   // Filter ideas based on search, date range, and content type
   const filteredIdeas = useMemo(() => {
     return ideas.filter(idea => {
-      // Filter by approved status
-      if (idea.status !== 'approved' && idea.status !== 'unreviewed') return false;
+      // Filter to only show approved ideas (not unreviewed)
+      if (idea.status !== 'approved') return false;
       
       // Filter by search query
       if (searchQuery && !idea.title.toLowerCase().includes(searchQuery.toLowerCase()) &&
