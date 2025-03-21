@@ -24,7 +24,12 @@ export async function callClaudeApi(systemPrompt: string, userPrompt: string, te
       messages: [
         {
           role: "user",
-          content: userPrompt
+          content: [
+            {
+              type: "text",
+              text: userPrompt
+            }
+          ]
         }
       ]
     })
