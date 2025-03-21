@@ -27,12 +27,13 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Progress } from "@/components/ui/progress";
 import { toast } from "sonner";
-import { ArrowLeft, Check, Edit, FileText, Loader2, Lightbulb, RefreshCcw, Save, Trash2, Search } from "lucide-react";
+import { ArrowLeft, Check, Edit, FileText, Loader2, Lightbulb, RefreshCcw, Save, Trash2, Search, Bug } from "lucide-react";
 import { ContentIdea, ContentType } from "@/types";
 import { useIdeas } from "@/hooks/ideas";
 import { useClaudeAI } from "@/hooks/useClaudeAI";
 import { useDrafts } from "@/hooks/useDrafts";
 import { useCallToActions } from "@/hooks/useCallToActions";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 
 // Content goal type
 type ContentGoal = 'audience_building' | 'lead_generation' | 'nurturing' | 'conversion' | 'retention' | 'other';
@@ -40,7 +41,7 @@ type ContentGoal = 'audience_building' | 'lead_generation' | 'nurturing' | 'conv
 const GenerateDraftPage = () => {
   const navigate = useNavigate();
   const { ideas, isLoading: isLoadingIdeas } = useIdeas();
-  const { generateContent, isGenerating } = useClaudeAI();
+  const { generateContent, isGenerating, debugPrompt } = useClaudeAI();
   const { createDraft } = useDrafts();
   const { callToActions, isLoading: isLoadingCTAs } = useCallToActions();
   
@@ -54,6 +55,7 @@ const GenerateDraftPage = () => {
   const [generatedContent, setGeneratedContent] = useState<string>("");
   const [isEditing, setIsEditing] = useState(false);
   const [progress, setProgress] = useState(0);
+  const [showDebugDialog, setShowDebugDialog] = useState(false);
   
   // Filter approved ideas (those that don't have drafts yet)
   const approvedIdeas = ideas.filter(idea => idea.status === 'approved');
@@ -134,6 +136,41 @@ const GenerateDraftPage = () => {
     } catch (error) {
       console.error('Error generating content:', error);
       toast.error('Failed to generate content');
+    }
+  };
+  
+  const handleDebugPrompt = async () => {
+    if (!selectedIdea) {
+      toast.error('Please select a content idea first');
+      return;
+    }
+    
+    try {
+      // Add the content goal and CTA to the idea notes if provided
+      let ideaWithParams = { ...selectedIdea };
+      let notes = selectedIdea.notes || "";
+      
+      if (contentGoal) {
+        notes = `Content Goal: ${contentGoal.replace('_', ' ')}\n\n${notes}`;
+      }
+      
+      if (callToAction) {
+        notes = `${notes}\n\nCall to Action: ${callToAction}`;
+      }
+      
+      if (lengthPreference !== "standard") {
+        notes = `${notes}\n\nLength Preference: ${lengthPreference}`;
+      }
+      
+      ideaWithParams.notes = notes;
+      ideaWithParams.contentType = contentType;
+      
+      // Generate content in debug mode (true as the third parameter)
+      await generateContent(ideaWithParams, contentType, true);
+      setShowDebugDialog(true);
+    } catch (error) {
+      console.error('Error debugging prompt:', error);
+      toast.error('Failed to generate debug prompt');
     }
   };
   
@@ -302,7 +339,7 @@ const GenerateDraftPage = () => {
               
               <div className="space-y-2">
                 <Label>Call to Action (Optional)</Label>
-                <Select value={callToAction} onValueChange={setCallToAction}>
+                <Select value={callToAction || "none"} onValueChange={setCallToAction}>
                   <SelectTrigger>
                     <SelectValue placeholder="Select a CTA (optional)" />
                   </SelectTrigger>
@@ -335,23 +372,34 @@ const GenerateDraftPage = () => {
                 </RadioGroup>
               </div>
               
-              <Button 
-                className="w-full" 
-                onClick={handleGenerate} 
-                disabled={!selectedIdea || isGenerating}
-              >
-                {isGenerating ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Generating...
-                  </>
-                ) : (
-                  <>
-                    <Lightbulb className="mr-2 h-4 w-4" />
-                    Generate Draft
-                  </>
-                )}
-              </Button>
+              <div className="flex gap-2">
+                <Button 
+                  className="flex-1" 
+                  onClick={handleGenerate} 
+                  disabled={!selectedIdea || isGenerating}
+                >
+                  {isGenerating ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Generating...
+                    </>
+                  ) : (
+                    <>
+                      <Lightbulb className="mr-2 h-4 w-4" />
+                      Generate Draft
+                    </>
+                  )}
+                </Button>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={handleDebugPrompt}
+                  disabled={!selectedIdea || isGenerating}
+                  title="Debug prompt"
+                >
+                  <Bug className="h-4 w-4" />
+                </Button>
+              </div>
             </CardContent>
           </Card>
         </div>
@@ -455,6 +503,36 @@ const GenerateDraftPage = () => {
           </Card>
         </div>
       </div>
+
+      {/* Debug Prompt Dialog */}
+      <Dialog open={showDebugDialog} onOpenChange={setShowDebugDialog}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-auto">
+          <DialogHeader>
+            <DialogTitle>Debug Prompt</DialogTitle>
+            <DialogDescription>
+              This is the exact prompt that will be sent to Claude AI
+            </DialogDescription>
+          </DialogHeader>
+          <div className="bg-slate-800 p-4 rounded border border-slate-700 whitespace-pre-wrap font-mono text-sm text-slate-100">
+            {debugPrompt}
+          </div>
+          <div className="flex justify-end gap-2">
+            <Button 
+              onClick={() => {
+                if (debugPrompt) {
+                  navigator.clipboard.writeText(debugPrompt);
+                  toast.success('Prompt copied to clipboard');
+                }
+              }}
+            >
+              Copy to Clipboard
+            </Button>
+            <Button variant="outline" onClick={() => setShowDebugDialog(false)}>
+              Close
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
