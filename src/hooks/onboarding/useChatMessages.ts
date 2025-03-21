@@ -1,6 +1,5 @@
-
 import { useState, useCallback, useEffect } from 'react';
-import { useAuth } from '@/context/AuthContext';
+import { useAuth } from '@/context/auth';
 import { ChatMessage, ProfileData, sendMessageToAssistant } from '@/services/onboardingAssistantService';
 import { toast } from 'sonner';
 

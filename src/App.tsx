@@ -1,4 +1,3 @@
-
 import React from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { ThemeProvider } from "@/components/theme-provider";
@@ -25,7 +24,7 @@ import DocumentsPage from "@/pages/DocumentsPage";
 import MarketingExamplesPage from "@/pages/MarketingExamplesPage";
 import NewsletterExamplesPage from "@/pages/NewsletterExamplesPage";
 import NotFound from "@/pages/NotFound";
-import { AuthProvider } from "./context/AuthContext";
+import { AuthProvider } from "./context/auth";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import TranscriptsPage from "./pages/TranscriptsPage";
 import { MainLayout } from "./components/layout/MainLayout";

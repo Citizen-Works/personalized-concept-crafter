@@ -1,10 +1,9 @@
-
 import { useState, useEffect } from 'react';
 import { WritingStyleProfile } from '@/types/writingStyle';
 import { fetchWritingStyleProfile } from '@/services/profile';
 import { saveWritingStyleProfile } from '@/services/writingStyleService';
 import { toast } from 'sonner';
-import { useAuth } from '@/context/AuthContext';
+import { useAuth } from '@/context/auth';
 
 export const useWritingStyle = () => {
   const { user } = useAuth();

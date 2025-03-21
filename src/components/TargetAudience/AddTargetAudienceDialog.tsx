@@ -1,4 +1,3 @@
-
 import React from "react";
 import {
   Dialog,
@@ -13,7 +12,7 @@ import { Plus } from "lucide-react";
 import { TargetAudienceForm } from "./TargetAudienceForm";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/context/AuthContext";
+import { useAuth } from "@/context/auth";
 import { toast } from "sonner";
 
 const formSchema = z.object({

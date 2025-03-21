@@ -22,17 +22,18 @@ export function useAdminStatus(user: User | null) {
         setIsAdmin(!!data);
         return !!data;
       } catch (rpcError) {
-        console.log('Falling back to direct query for role check');
-        // If RPC fails, directly query the user_roles table
+        console.log('Falling back to direct role query');
+        // Fall back to direct query if RPC fails
         const { data, error } = await supabase
           .from('user_roles')
-          .select('role')
+          .select('*')
           .eq('user_id', userId)
           .eq('role', 'admin')
-          .single();
+          .maybeSingle();
         
-        if (error && error.code !== 'PGRST116') { // PGRST116 is "No rows returned" which is fine
+        if (error) {
           console.error('Error checking user role with direct query:', error);
+          setIsAdmin(false);
           return false;
         }
         
@@ -40,17 +41,20 @@ export function useAdminStatus(user: User | null) {
         return !!data;
       }
     } catch (error) {
-      console.error('Error in checkUserRole:', error);
+      console.error('Error checking admin status:', error);
+      setIsAdmin(false);
       return false;
     }
   }, []);
 
-  // Explicitly refresh admin status - useful after role changes
+  // Refresh the admin status - useful when roles might have changed
   const refreshAdminStatus = useCallback(async () => {
-    if (!user) return false;
-    const isUserAdmin = await checkUserRole(user.id);
-    setIsAdmin(isUserAdmin);
-    return isUserAdmin;
+    if (!user) {
+      setIsAdmin(false);
+      return false;
+    }
+    
+    return await checkUserRole(user.id);
   }, [user, checkUserRole]);
 
   return {

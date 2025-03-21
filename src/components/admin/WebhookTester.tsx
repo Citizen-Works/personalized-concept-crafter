@@ -1,9 +1,8 @@
-
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { testWebhookFlow } from '@/services/webhooks/transcriptWebhookService';
-import { useAuth } from '@/context/AuthContext';
+import { useAuth } from '@/context/auth';
 import { Loader2, TestTube } from 'lucide-react';
 
 const WebhookTester: React.FC = () => {

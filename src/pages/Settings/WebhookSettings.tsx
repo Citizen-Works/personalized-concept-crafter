@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -6,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Clipboard, Smartphone, Check, Info, ExternalLink, Loader2, Zap } from 'lucide-react';
 import { useWebhookConfig, WebhookService } from '@/hooks/useWebhookConfig';
-import { useAuth } from '@/context/AuthContext';
+import { useAuth } from '@/context/auth';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
@@ -177,7 +176,6 @@ const WebhookSettings = () => {
                   </div>
                 ) : (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
-                    {/* Show only non-Zapier services here */}
                     {(Object.keys(serviceNames) as WebhookService[])
                       .filter(service => service !== 'zapier')
                       .map((service) => (

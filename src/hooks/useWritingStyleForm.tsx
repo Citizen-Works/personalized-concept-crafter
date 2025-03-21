@@ -1,9 +1,8 @@
-
 import { useState, useEffect } from 'react';
 import { WritingStyleProfile } from '@/types';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import { useAuth } from '@/context/AuthContext';
+import { useAuth } from '@/context/auth';
 
 export const useWritingStyleForm = (initialProfile?: Partial<WritingStyleProfile>) => {
   const { user } = useAuth();

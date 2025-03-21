@@ -1,9 +1,8 @@
-
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { WritingStyleHeader } from '@/components/writing-style/WritingStyleHeader';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useAuth } from '@/context/AuthContext';
+import { useAuth } from '@/context/auth';
 import { useWritingStyle } from '@/hooks/useWritingStyle';
 import { ArrowLeft, Save } from 'lucide-react';
 import { Link } from 'react-router-dom';

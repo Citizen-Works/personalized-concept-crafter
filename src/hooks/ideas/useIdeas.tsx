@@ -1,7 +1,6 @@
-
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { ContentIdea } from "@/types";
-import { useAuth } from "@/context/AuthContext";
+import { useAuth } from "@/context/auth";
 import { 
   fetchIdeas, 
   fetchIdeaById, 
@@ -54,9 +53,9 @@ export const useIdeas = () => {
     isError: ideasQuery.isError,
     getIdea: ideaByIdQuery,
     createIdea: createIdeaMutation.mutate,
-    createIdeaAsync: createIdeaMutation.mutateAsync, // Add this line to expose the async version
+    createIdeaAsync: createIdeaMutation.mutateAsync,
     updateIdea: updateIdeaMutation.mutate,
-    updateIdeaAsync: updateIdeaMutation.mutateAsync, // Add this line too for consistency
+    updateIdeaAsync: updateIdeaMutation.mutateAsync,
     deleteIdea: deleteIdeaMutation.mutate,
   };
 };

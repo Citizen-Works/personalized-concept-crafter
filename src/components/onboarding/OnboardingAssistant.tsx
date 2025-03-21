@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
@@ -10,7 +9,7 @@ import { useOnboardingAssistant } from '@/hooks/useOnboardingAssistant';
 import OnboardingChat from './OnboardingChat';
 import ProfileReview from './ProfileReview';
 import { saveProfileData } from '@/services/profileDataService';
-import { useAuth } from '@/context/AuthContext';
+import { useAuth } from '@/context/auth';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 interface OnboardingAssistantProps {

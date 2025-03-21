@@ -1,6 +1,5 @@
-
 import { useState, useCallback, useEffect } from 'react';
-import { useAuth } from '@/context/AuthContext';
+import { useAuth } from '@/context/auth';
 import { ProfileData } from '@/services/onboardingAssistantService';
 import { fetchUserProfile } from '@/services/profile';
 import { fetchContentPillars } from '@/services/profile';
