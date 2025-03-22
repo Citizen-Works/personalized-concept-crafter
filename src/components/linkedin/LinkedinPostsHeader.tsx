@@ -20,7 +20,7 @@ const LinkedinPostsHeader: React.FC<LinkedinPostsHeaderProps> = ({
     <div className="flex flex-col gap-2">
       <h1 className="text-3xl font-bold tracking-tight">LinkedIn Posts</h1>
       <p className="text-muted-foreground">
-        Manage your LinkedIn content examples for AI training
+      Add your highest-performing LinkedIn posts and inspiring competitor content to help the AI understand your preferred style and voice. Quality examples lead to more authentic content.
       </p>
       
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mt-4">

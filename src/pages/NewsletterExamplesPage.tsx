@@ -166,7 +166,7 @@ const NewsletterExamplesPage = () => {
           <MailIcon className="h-8 w-8 sm:h-12 sm:w-12 text-muted-foreground mb-4" />
           <h3 className="text-base sm:text-lg font-medium">No Newsletter Examples Added</h3>
           <p className="text-xs sm:text-sm text-muted-foreground mt-2 mb-6 max-w-md">
-            Add newsletter examples to help the AI understand your writing style and generate better content.
+          Save your best-performing newsletter content and inspiring industry examples to help the AI generate engaging newsletters that maintain your consistent voice and resonates with your audience.
           </p>
         </div>
       )}

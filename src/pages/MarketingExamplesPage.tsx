@@ -165,7 +165,7 @@ const MarketingExamplesPage = () => {
           <MessageSquareTextIcon className="h-12 w-12 text-muted-foreground mb-4" />
           <h3 className="text-lg font-medium">No Marketing Examples Added</h3>
           <p className="text-sm text-muted-foreground mt-2 mb-6 max-w-md">
-            Add marketing examples to help the AI understand your writing style and generate better content.
+          Collect your most effective marketing copy and compelling competitor examples to guide the AI in creating conversion-focused content that matches your brand voice and messaging style.
           </p>
         </div>
       )}
