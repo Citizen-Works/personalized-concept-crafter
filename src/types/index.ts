@@ -39,4 +39,4 @@ export type { User } from './user';
 
 // Export user sub-types directly to avoid naming conflicts
 // The WritingStyleProfile from user.ts will not be exported to avoid conflict
-export { WritingStyleProfile } from './writingStyle';
+export type { WritingStyleProfile } from './writingStyle';

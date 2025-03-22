@@ -1,5 +1,6 @@
+
 import { PromptSection, PromptStructure } from './types';
-import { ContentPillar, TargetAudience } from '@/types';
+import { ContentPillar, TargetAudience, ContentType } from '@/types';
 import { WritingStyleProfile } from '@/types/writingStyle';
 
 // Define a simple User interface that matches what's needed in this file

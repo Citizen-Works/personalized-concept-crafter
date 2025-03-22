@@ -45,9 +45,9 @@ export const useContentIdeaApi = () => {
         status: data.status as ContentStatus,
         hasBeenUsed: data.has_been_used || false,
         createdAt: new Date(data.created_at),
-        // The database doesn't have these fields yet, so provide empty arrays as defaults
-        contentPillarIds: [], 
-        targetAudienceIds: []
+        // Handle potentially missing array fields with empty arrays as defaults
+        contentPillarIds: data.content_pillar_ids || [], 
+        targetAudienceIds: data.target_audience_ids || []
       };
       
       toast.success(`Idea updated to ${newStatus}`);
@@ -101,8 +101,9 @@ export const useContentDraftApi = () => {
         id: data.id,
         contentIdeaId: data.content_idea_id,
         content: data.content,
-        // The content_type field might be missing in the database
+        // Handle potentially missing content_type field with a default
         contentType: (data.content_type || 'linkedin') as ContentType,
+        // Handle potentially missing content_goal field
         contentGoal: data.content_goal || undefined,
         version: data.version,
         feedback: data.feedback || '',
