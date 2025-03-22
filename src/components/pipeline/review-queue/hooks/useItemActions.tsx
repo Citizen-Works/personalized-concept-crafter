@@ -5,7 +5,7 @@ import { toast } from "sonner";
 
 interface UseItemActionsProps {
   updateIdea: (params: { id: string } & any) => Promise<ContentIdea>;
-  deleteIdea: (id: string) => Promise<void>;
+  deleteIdea: (id: string) => void | Promise<void>;  // Updated type to accept both void and Promise<void>
   selectedItems: string[];
   setSelectedItems: React.Dispatch<React.SetStateAction<string[]>>;
   previewItem: string | null;
@@ -128,7 +128,11 @@ export const useItemActions = ({
     
     try {
       setIsUpdating(true);
-      await deleteIdea(itemToDelete);
+      // Call deleteIdea and handle both void and Promise<void> return types
+      const result = deleteIdea(itemToDelete);
+      if (result instanceof Promise) {
+        await result;
+      }
       
       // Remove from selected items if it was selected
       if (selectedItems.includes(itemToDelete)) {
