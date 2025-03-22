@@ -7,7 +7,12 @@ import { saveIdeas } from "./saveIdeas";
 import { IdeaResponse } from "./types";
 import { supabase } from "@/integrations/supabase/client";
 import { DocumentProcessingStatus } from "@/types/documents";
-import { useIsMobile } from "@/hooks/use-mobile";
+import { updateDocumentProcessingStatus } from "./documentStatusUpdater";
+import { 
+  handleProcessingError, 
+  validateDocument,
+  sanitizeDocumentContent
+} from "./processingUtils";
 
 /**
  * Processes a document to extract content ideas - can run in background
@@ -23,52 +28,18 @@ export const processTranscriptForIdeas = async (
 
   // If in background mode, update the document's processing status
   if (backgroundMode) {
-    try {
-      await supabase
-        .from("documents")
-        .update({ processing_status: 'processing' as DocumentProcessingStatus })
-        .eq("id", documentId)
-        .eq("user_id", userId);
-      
-      console.log(`Updated document ${documentId} status to 'processing'`);
-    } catch (updateError) {
-      console.error("Error updating document processing status:", updateError);
-      // Continue with processing even if status update fails
-    }
+    await updateDocumentProcessingStatus(documentId, userId, 'processing');
   }
 
   try {
-    // Step 1: Use direct Supabase query to fetch the document with consistent error handling for mobile
+    // Step 1: Fetch and validate the document
     console.log(`Fetching document ${documentId}`);
+    const document = await fetchDocument(userId, documentId);
     
-    let document;
-    try {
-      // Mobile-optimized fetching
-      const { data, error } = await supabase
-        .from("documents")
-        .select("*")
-        .eq("id", documentId)
-        .eq("user_id", userId)
-        .single();
-      
-      if (error) {
-        console.error(`Error fetching document for ID ${documentId}:`, error);
-        throw new Error(`Database error: ${error.message}`);
-      }
-      
-      if (!data) {
-        console.error("Document not found for ID:", documentId);
-        throw new Error(`Document with ID ${documentId} not found`);
-      }
-      
-      document = data;
-      console.log(`Successfully fetched document: ${document.title} (ID: ${document.id})`);
-    } catch (docError) {
-      console.error("Error fetching document:", docError);
-      throw new Error(`Failed to find document: ${docError instanceof Error ? docError.message : 'Unknown error'}`);
-    }
+    // Step 2: Validate document content
+    validateDocument(document);
     
-    // Step 2: Get business context for better idea generation
+    // Step 3: Get business context for better idea generation
     let businessContext = '';
     try {
       businessContext = await fetchBusinessContext(userId);
@@ -78,78 +49,23 @@ export const processTranscriptForIdeas = async (
       // Continue without business context if it fails
     }
     
-    // Step 3: Sanitize content to prevent HTML/XML confusion
-    const sanitizedContent = document.content 
-      ? document.content.replace(/<[^>]*>/g, '') // Remove any HTML-like tags
-      : '';
+    // Step 4: Sanitize content to prevent HTML/XML confusion
+    const sanitizedContent = sanitizeDocumentContent(document.content);
     
-    if (!sanitizedContent.trim()) {
-      throw new Error("Document content is empty");
-    }
+    // Step 5: Generate content ideas (via edge function or local fallback)
+    const contentIdeas = await generateIdeas(
+      sanitizedContent, 
+      businessContext, 
+      document.title,
+      document.id,
+      userId,
+      document.type
+    );
     
-    // Step 4: Call the edge function with solid error handling
-    let contentIdeas;
-    try {
-      console.log(`Calling edge function to generate ideas for: ${document.title} (ID: ${document.id})`);
-      
-      // Enhanced edge function call with better error handling
-      const response = await supabase.functions.invoke(
-        "process-document", 
-        {
-          body: {
-            documentId: document.id, 
-            userId,
-            content: sanitizedContent,
-            title: document.title,
-            type: document.type || 'generic'
-          }
-        }
-      );
-      
-      if (response.error) {
-        console.error("Edge function error:", response.error);
-        throw new Error(`Edge function failed: ${response.error.message || 'Unknown error'}`);
-      }
-      
-      if (!response.data) {
-        console.error("Edge function returned no data");
-        throw new Error("No data returned from edge function");
-      }
-      
-      contentIdeas = response.data?.ideas || [];
-      console.log(`Generated ${contentIdeas.length} ideas via edge function`);
-    } catch (generateError) {
-      console.error("Error generating ideas via edge function:", generateError);
-      
-      try {
-        // Fallback to local generation
-        console.log("Falling back to local idea generation");
-        contentIdeas = await generateIdeas(sanitizedContent, businessContext, document.title);
-        console.log(`Generated ${contentIdeas.length} ideas locally`);
-      } catch (localGenerateError) {
-        console.error("Local idea generation also failed:", localGenerateError);
-        throw new Error(`Failed to generate ideas: ${localGenerateError instanceof Error ? localGenerateError.message : 'Unknown error'}`);
-      }
-    }
-
-    // Step 5: If no ideas were generated, return a message
+    // Step 6: If no ideas were generated, update document and return a message
     if (!contentIdeas || contentIdeas.length === 0) {
-      // Update document status if in background mode
       if (backgroundMode) {
-        try {
-          await supabase
-            .from("documents")
-            .update({ 
-              processing_status: 'completed' as DocumentProcessingStatus, 
-              has_ideas: false 
-            })
-            .eq("id", documentId)
-            .eq("user_id", userId);
-          
-          console.log(`Updated document ${documentId} status to 'completed' with no ideas`);
-        } catch (updateError) {
-          console.error("Error updating document status after no ideas:", updateError);
-        }
+        await updateDocumentProcessingStatus(documentId, userId, 'completed', false);
       }
       
       return {
@@ -158,63 +74,28 @@ export const processTranscriptForIdeas = async (
       };
     }
 
-    // Step 6: Save content ideas to the database
-    let savedIdeas;
-    try {
-      console.log(`Saving ${contentIdeas.length} ideas to database`);
-      savedIdeas = await saveIdeas(contentIdeas, userId);
-      console.log(`Successfully saved ${savedIdeas.length} ideas`);
-    } catch (saveError) {
-      console.error("Error saving ideas:", saveError);
-      throw new Error(`Failed to save ideas: ${saveError instanceof Error ? saveError.message : 'Unknown error'}`);
-    }
+    // Step 7: Save content ideas to the database
+    const savedIdeas = await saveIdeas(contentIdeas, userId);
+    console.log(`Successfully saved ${savedIdeas.length} ideas`);
 
-    // Step 7: Update document status if in background mode
+    // Step 8: Update document status if in background mode
     if (backgroundMode) {
-      try {
-        await supabase
-          .from("documents")
-          .update({ 
-            processing_status: 'completed' as DocumentProcessingStatus, 
-            has_ideas: true,
-            ideas_count: savedIdeas.length
-          })
-          .eq("id", documentId)
-          .eq("user_id", userId);
-        
-        console.log(`Updated document ${documentId} status to 'completed' with ${savedIdeas.length} ideas`);
-      } catch (updateError) {
-        console.error("Error updating document status after processing:", updateError);
-        // Continue to return ideas even if status update fails
-      }
+      await updateDocumentProcessingStatus(
+        documentId, 
+        userId, 
+        'completed', 
+        true, 
+        savedIdeas.length
+      );
     }
 
-    // Step 8: Return both a summary message and the structured idea data
+    // Step 9: Return both a summary message and the structured idea data
     return {
       message: `${savedIdeas.length} content ideas were created from this document.`,
       ideas: savedIdeas
     };
   } catch (error) {
-    console.error("Error processing document:", error);
-    
-    // Update document status if in background mode
-    if (backgroundMode) {
-      try {
-        await supabase
-          .from("documents")
-          .update({ processing_status: 'failed' as DocumentProcessingStatus })
-          .eq("id", documentId)
-          .eq("user_id", userId);
-        
-        console.log(`Updated document ${documentId} status to 'failed'`);
-      } catch (updateError) {
-        console.error("Error updating document status after failure:", updateError);
-      }
-    } else {
-      toast.error("Failed to process document for ideas");
-    }
-    
-    throw error;
+    return handleProcessingError(error, documentId, userId, backgroundMode);
   }
 };
 

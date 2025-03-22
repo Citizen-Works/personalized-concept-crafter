@@ -1,7 +1,10 @@
 
-import { processTranscriptForIdeas } from './transcript/processTranscript';
+import { processTranscriptForIdeas, checkProcessingStatus } from './transcript/processTranscript';
 
-export { processTranscriptForIdeas };
+export { 
+  processTranscriptForIdeas,
+  checkProcessingStatus 
+};
 
 // Re-export types
-export type { ContentIdea } from './transcript/types';
+export type { ContentIdea, IdeaResponse } from './transcript/types';

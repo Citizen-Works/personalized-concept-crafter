@@ -1,6 +1,6 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { ContentIdea } from "./types";
+import { isMobileDevice } from "./processingUtils";
 
 /**
  * Splits a long transcript into smaller chunks that won't exceed token limits
@@ -48,12 +48,58 @@ function chunkTranscript(text: string, maxChunkLength: number = 6000): string[] 
 }
 
 /**
+ * Attempts to generate ideas via the Supabase edge function
+ */
+async function generateIdeasViaEdgeFunction(
+  sanitizedContent: string,
+  businessContext: string,
+  documentTitle: string,
+  documentId: string,
+  userId: string,
+  documentType?: string
+): Promise<ContentIdea[]> {
+  console.log(`Calling edge function to generate ideas for: ${documentTitle} (ID: ${documentId})`);
+  
+  // Enhanced edge function call with better error handling
+  const response = await supabase.functions.invoke(
+    "process-document", 
+    {
+      body: {
+        documentId: documentId, 
+        userId,
+        content: sanitizedContent,
+        title: documentTitle,
+        type: documentType || 'generic'
+      }
+    }
+  );
+  
+  if (response.error) {
+    console.error("Edge function error:", response.error);
+    throw new Error(`Edge function failed: ${response.error.message || 'Unknown error'}`);
+  }
+  
+  if (!response.data) {
+    console.error("Edge function returned no data");
+    throw new Error("No data returned from edge function");
+  }
+  
+  const contentIdeas = response.data?.ideas || [];
+  console.log(`Generated ${contentIdeas.length} ideas via edge function`);
+  
+  return contentIdeas;
+}
+
+/**
  * Calls the Claude AI service to generate content ideas from transcript text
  */
 export const generateIdeas = async (
   sanitizedContent: string,
   businessContext: string,
-  documentTitle: string
+  documentTitle: string,
+  documentId?: string,
+  userId?: string,
+  documentType?: string
 ): Promise<ContentIdea[]> => {
   console.log(`Processing transcript with length: ${sanitizedContent.length} characters`);
 
@@ -62,6 +108,23 @@ export const generateIdeas = async (
   console.log(`Processing transcript in ${chunks.length} chunks`);
 
   let allIdeas: ContentIdea[] = [];
+
+  // First try to use the edge function if document ID and user ID are provided
+  if (documentId && userId && !isMobileDevice()) {
+    try {
+      return await generateIdeasViaEdgeFunction(
+        sanitizedContent, 
+        businessContext, 
+        documentTitle,
+        documentId,
+        userId,
+        documentType
+      );
+    } catch (edgeFunctionError) {
+      console.error("Edge function failed, falling back to local generation:", edgeFunctionError);
+      // Continue with local generation below
+    }
+  }
 
   // Process each chunk separately
   for (let i = 0; i < chunks.length; i++) {
