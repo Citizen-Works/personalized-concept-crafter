@@ -16,6 +16,7 @@ export const fetchDocument = async (userId: string, documentId: string): Promise
   }
 
   try {
+    // Use a direct query approach that works with both UUID and non-UUID IDs
     const { data, error } = await supabase
       .from("documents")
       .select("*")

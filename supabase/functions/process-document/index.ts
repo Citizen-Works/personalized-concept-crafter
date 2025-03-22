@@ -21,13 +21,26 @@ async function generateIdeasFromDocument(documentId: string, userId: string, typ
     let document: any = null;
     
     if (!content) {
-      // Fetch the document
-      const { data: docData, error: docError } = await supabase
-        .from('documents')
-        .select('*')
-        .eq('id', documentId)
-        .eq('user_id', userId)
-        .single();
+      // Fetch the document - use single() if documentId is a UUID, otherwise use a more flexible approach
+      let docData = null;
+      let docError = null;
+      
+      try {
+        // First try standard query without assuming UUID format
+        console.log(`Fetching document with ID: ${documentId}`);
+        const { data, error } = await supabase
+          .from('documents')
+          .select('*')
+          .eq('id', documentId)
+          .eq('user_id', userId)
+          .single();
+          
+        docData = data;
+        docError = error;
+      } catch (fetchError) {
+        console.error('Error in initial document fetch:', fetchError);
+        docError = fetchError;
+      }
 
       if (docError) {
         console.error('Error fetching document:', docError);
@@ -85,19 +98,24 @@ async function generateIdeasFromDocument(documentId: string, userId: string, typ
       console.log(`Successfully saved ${savedCount} of ${ideas.length} ideas`);
 
       // Update the document to mark that ideas have been generated
-      const { error: updateError } = await supabase
-        .from('documents')
-        .update({
-          processing_status: 'completed',
-          has_ideas: true,
-          ideas_count: savedCount,
-        })
-        .eq('id', documentId);
-
-      if (updateError) {
-        console.error('Error updating document status:', updateError);
-        // Log but don't throw to ensure we still return ideas
-        console.log(`Warning: Could not update document status: ${updateError.message}`);
+      try {
+        const { error: updateError } = await supabase
+          .from('documents')
+          .update({
+            processing_status: 'completed',
+            has_ideas: true,
+            ideas_count: savedCount,
+          })
+          .eq('id', documentId);
+  
+        if (updateError) {
+          console.error('Error updating document status:', updateError);
+          // Log but don't throw to ensure we still return ideas
+          console.log(`Warning: Could not update document status: ${updateError.message}`);
+        }
+      } catch (updateError) {
+        console.error('Error during document update:', updateError);
+        console.log(`Warning: Could not update document status due to exception: ${updateError instanceof Error ? updateError.message : 'Unknown error'}`);
       }
     }
 

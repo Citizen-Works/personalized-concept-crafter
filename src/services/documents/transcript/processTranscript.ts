@@ -37,34 +37,27 @@ export const processTranscriptForIdeas = async (
   }
 
   try {
-    // Step 1: Fetch the document with optimistic error handling
+    // Step 1: Use direct Supabase query to fetch the document
     console.log(`Fetching document ${documentId}`);
+    
     let document;
     try {
-      document = await fetchDocument(userId, documentId);
+      // Direct Supabase query to avoid UUID validation issues
+      const { data, error } = await supabase
+        .from("documents")
+        .select("*")
+        .eq("id", documentId)
+        .eq("user_id", userId)
+        .single();
+      
+      if (error) throw error;
+      if (!data) throw new Error("Document not found");
+      
+      document = data;
       console.log(`Successfully fetched document: ${document.title}`);
     } catch (docError) {
       console.error("Error fetching document:", docError);
-      
-      // Try directly querying from Supabase as a fallback
-      try {
-        console.log("Attempting direct document fetch from Supabase");
-        const { data: docData, error: docQueryError } = await supabase
-          .from("documents")
-          .select("*")
-          .eq("id", documentId)
-          .eq("user_id", userId)
-          .single();
-        
-        if (docQueryError) throw docQueryError;
-        if (!docData) throw new Error("Document not found");
-        
-        document = docData;
-        console.log(`Successfully fetched document via fallback: ${document.title}`);
-      } catch (fallbackError) {
-        console.error("Fallback document fetch also failed:", fallbackError);
-        throw new Error(`Failed to retrieve document: ${fallbackError instanceof Error ? fallbackError.message : 'Unknown error'}`);
-      }
+      throw new Error(`Failed to find document: ${docError instanceof Error ? docError.message : 'Unknown error'}`);
     }
     
     // Step 2: Get business context for better idea generation
@@ -86,38 +79,38 @@ export const processTranscriptForIdeas = async (
       throw new Error("Document content is empty");
     }
     
-    // Step 4: Generate content ideas - try local generation first, then fallback to edge function
+    // Step 4: Call the edge function directly with document content
     let contentIdeas;
     try {
-      console.log(`Generating ideas for document: ${document.title}`);
-      contentIdeas = await generateIdeas(sanitizedContent, businessContext, document.title);
-      console.log(`Generated ${contentIdeas.length} ideas locally`);
-    } catch (generateError) {
-      console.error("Error generating ideas locally:", generateError);
-      
-      // Fallback to edge function
-      try {
-        console.log("Attempting to generate ideas via edge function");
-        const { data: edgeFunctionData, error: edgeFunctionError } = await supabase.functions.invoke(
-          "process-document", 
-          {
-            body: {
-              documentId, 
-              userId,
-              content: sanitizedContent,
-              title: document.title,
-              type: document.type || 'generic'
-            }
+      console.log(`Calling edge function to generate ideas for: ${document.title}`);
+      const { data: edgeFunctionData, error: edgeFunctionError } = await supabase.functions.invoke(
+        "process-document", 
+        {
+          body: {
+            documentId, 
+            userId,
+            content: sanitizedContent,
+            title: document.title,
+            type: document.type || 'generic'
           }
-        );
-        
-        if (edgeFunctionError) throw edgeFunctionError;
-        
-        contentIdeas = edgeFunctionData?.ideas || [];
-        console.log(`Generated ${contentIdeas.length} ideas via edge function`);
-      } catch (edgeFunctionFailure) {
-        console.error("Edge function fallback also failed:", edgeFunctionFailure);
-        throw new Error(`Failed to generate ideas: ${edgeFunctionFailure instanceof Error ? edgeFunctionFailure.message : 'Unknown error'}`);
+        }
+      );
+      
+      if (edgeFunctionError) throw edgeFunctionError;
+      
+      contentIdeas = edgeFunctionData?.ideas || [];
+      console.log(`Generated ${contentIdeas.length} ideas via edge function`);
+    } catch (generateError) {
+      console.error("Error generating ideas via edge function:", generateError);
+      
+      try {
+        // Fallback to local generation
+        console.log("Falling back to local idea generation");
+        contentIdeas = await generateIdeas(sanitizedContent, businessContext, document.title);
+        console.log(`Generated ${contentIdeas.length} ideas locally`);
+      } catch (localGenerateError) {
+        console.error("Local idea generation also failed:", localGenerateError);
+        throw new Error(`Failed to generate ideas: ${localGenerateError instanceof Error ? localGenerateError.message : 'Unknown error'}`);
       }
     }
 
