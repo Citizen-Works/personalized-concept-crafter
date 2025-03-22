@@ -107,9 +107,9 @@ const SourceMaterialsPage = () => {
     return filtered.sort((a, b) => {
       switch (sortOrder) {
         case "newest":
-          return b.createdAt.getTime() - a.createdAt.getTime();
+          return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
         case "oldest":
-          return a.createdAt.getTime() - b.createdAt.getTime();
+          return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
         case "alphabetical":
           return a.title.localeCompare(b.title);
         default:
@@ -149,6 +149,16 @@ const SourceMaterialsPage = () => {
   const handleEditDocument = (document: Document) => {
     setSelectedDocument(document);
     setEditDialogOpen(true);
+  };
+  
+  const handleAddSuccess = () => {
+    console.log("AddTextDialog onSuccess called, triggering refetch");
+    // Immediate refetch after adding text
+    refetch();
+    toast({
+      title: "Text added",
+      description: "Your text has been added to your materials.",
+    });
   };
   
   if (isLoading) {
@@ -198,14 +208,7 @@ const SourceMaterialsPage = () => {
       <AddTextDialog
         open={addTextDialogOpen}
         onOpenChange={setAddTextDialogOpen}
-        onSuccess={() => {
-          console.log("AddTextDialog onSuccess called, triggering refetch");
-          refetch();
-          toast({
-            title: "Text added",
-            description: "Your text has been added to your materials.",
-          });
-        }}
+        onSuccess={handleAddSuccess}
       />
       
       <EditDocumentDialog

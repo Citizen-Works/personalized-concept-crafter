@@ -31,6 +31,14 @@ export function useAddTextForm(onSuccess: () => void, onClose: () => void) {
       setError(null);
       setIsSubmitting(true);
       
+      console.log("Submitting text with data:", {
+        title: title.trim(),
+        content: content.trim(),
+        type,
+        purpose,
+        contentType
+      });
+      
       // Create the document
       const result = await createDocumentAsync({
         title: title.trim(),

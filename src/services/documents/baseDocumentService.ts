@@ -4,13 +4,14 @@ import { Document, DocumentFilterOptions, DocumentCreateInput } from '@/types';
 // Define DocumentUpdateInput type
 type DocumentUpdateInput = Partial<DocumentCreateInput> & { id: string };
 
+// Store mock documents in memory for development
+let mockDocuments: Document[] = [];
+
 // Mock implementation for getting documents
 export const fetchDocuments = async (
   userId: string,
   filters?: DocumentFilterOptions
 ): Promise<Document[]> => {
-  // Here would be actual API call to fetch documents
-  // For development, return mock data
   console.log('Fetching documents for user:', userId, 'with filters:', filters);
   
   try {
@@ -23,54 +24,58 @@ export const fetchDocuments = async (
     return data;
   } catch (error) {
     console.error('Error fetching documents:', error);
-    // In development, we return mock data since the API is not available
-    return getMockDocuments(userId);
+    // In development, return our in-memory mock data
+    return mockDocuments.length > 0 ? mockDocuments : getInitialMockDocuments(userId);
   }
 };
 
-// Helper function to generate mock documents for development
-const getMockDocuments = (userId: string): Document[] => {
-  return [
-    {
-      id: '1',
-      userId: userId,
-      title: 'Sample Blog Post',
-      content: 'This is a sample blog post content for development purposes.',
-      type: 'blog',
-      purpose: 'writing_sample',
-      status: 'active',
-      content_type: 'general',
-      createdAt: new Date(),
-      processing_status: 'idle',
-      has_ideas: false
-    },
-    {
-      id: '2',
-      userId: userId,
-      title: 'Meeting Transcript',
-      content: 'This is a sample transcript from a team meeting.',
-      type: 'transcript',
-      purpose: 'business_context',
-      status: 'active',
-      content_type: null,
-      createdAt: new Date(),
-      processing_status: 'idle',
-      has_ideas: false
-    },
-    {
-      id: '3',
-      userId: userId,
-      title: 'Product Whitepaper',
-      content: 'Detailed whitepaper about our new product features.',
-      type: 'whitepaper',
-      purpose: 'business_context',
-      status: 'active',
-      content_type: null,
-      createdAt: new Date(),
-      processing_status: 'idle',
-      has_ideas: false
-    }
-  ];
+// Helper function to generate initial mock documents for development
+const getInitialMockDocuments = (userId: string): Document[] => {
+  // Only generate initial mock data if we don't have any yet
+  if (mockDocuments.length === 0) {
+    mockDocuments = [
+      {
+        id: '1',
+        userId: userId,
+        title: 'Sample Blog Post',
+        content: 'This is a sample blog post content for development purposes.',
+        type: 'blog',
+        purpose: 'writing_sample',
+        status: 'active',
+        content_type: 'general',
+        createdAt: new Date(),
+        processing_status: 'idle',
+        has_ideas: false
+      },
+      {
+        id: '2',
+        userId: userId,
+        title: 'Meeting Transcript',
+        content: 'This is a sample transcript from a team meeting.',
+        type: 'transcript',
+        purpose: 'business_context',
+        status: 'active',
+        content_type: null,
+        createdAt: new Date(),
+        processing_status: 'idle',
+        has_ideas: false
+      },
+      {
+        id: '3',
+        userId: userId,
+        title: 'Product Whitepaper',
+        content: 'Detailed whitepaper about our new product features.',
+        type: 'whitepaper',
+        purpose: 'business_context',
+        status: 'active',
+        content_type: null,
+        createdAt: new Date(),
+        processing_status: 'idle',
+        has_ideas: false
+      }
+    ];
+  }
+  return [...mockDocuments];
 };
 
 // Get a single document by ID
@@ -87,9 +92,8 @@ export const getDocumentById = async (
     return await response.json();
   } catch (error) {
     console.error('Error fetching document:', error);
-    // Return a mock document for development
-    const mockDocs = getMockDocuments(userId);
-    const doc = mockDocs.find(d => d.id === documentId);
+    // Look for the document in our mock data
+    const doc = mockDocuments.find(d => d.id === documentId);
     if (!doc) {
       throw new Error('Document not found');
     }
@@ -102,7 +106,6 @@ export const createDocument = async (
   userId: string,
   documentData: DocumentCreateInput
 ): Promise<Document> => {
-  // Here would be actual API call to create document
   console.log('Creating document for user:', userId, 'with data:', documentData);
   
   try {
@@ -124,8 +127,8 @@ export const createDocument = async (
     return await response.json();
   } catch (error) {
     console.error('Error creating document:', error);
-    // For development, return a mock successful response
-    return {
+    // For development, create a mock document and add it to our local array
+    const newDoc: Document = {
       id: `mock-${Date.now()}`,
       userId,
       title: documentData.title,
@@ -138,6 +141,11 @@ export const createDocument = async (
       processing_status: 'idle',
       has_ideas: false
     };
+    
+    // Add the new document to our mock array
+    mockDocuments.push(newDoc);
+    
+    return newDoc;
   }
 };
 
@@ -149,6 +157,30 @@ export const updateDocumentStatus = async (
 ): Promise<void> => {
   // Here would be actual API call to update document status
   console.log('Updating document status:', documentId, status);
+  
+  try {
+    const response = await fetch(`/api/documents/${documentId}/status`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        userId,
+        status,
+      }),
+    });
+    
+    if (!response.ok) {
+      throw new Error('Failed to update document status');
+    }
+  } catch (error) {
+    console.error('Error updating document status:', error);
+    // Update the status in our mock data
+    const docIndex = mockDocuments.findIndex(d => d.id === documentId);
+    if (docIndex !== -1) {
+      mockDocuments[docIndex].status = status;
+    }
+  }
 };
 
 // Update document 
@@ -178,7 +210,17 @@ export const updateDocument = async (
     return await response.json();
   } catch (error) {
     console.error('Error updating document:', error);
-    // Mock return for development
+    // Update the document in our mock data
+    const docIndex = mockDocuments.findIndex(d => d.id === documentData.id);
+    if (docIndex !== -1) {
+      mockDocuments[docIndex] = {
+        ...mockDocuments[docIndex],
+        ...documentData,
+      };
+      return mockDocuments[docIndex];
+    }
+    
+    // Mock return for development if not found
     return {
       id: documentData.id,
       userId,
