@@ -10,7 +10,7 @@ import { ContentType, DraftStatus } from '@/types';
 import IdeaPageHeader from '@/components/ideas/IdeaPageHeader';
 import IdeaDescription from '@/components/ideas/IdeaDescription';
 import IdeaNotes from '@/components/ideas/IdeaNotes';
-import IdeaContentGeneration from '@/components/ideas/IdeaContentGeneration';
+import IdeaContentGeneration from '@/components/ideas/content-generation';
 import IdeaActions from '@/components/ideas/IdeaActions';
 import IdeaDetailLoading from '@/components/ideas/IdeaDetailLoading';
 import IdeaDetailError from '@/components/ideas/IdeaDetailError';
