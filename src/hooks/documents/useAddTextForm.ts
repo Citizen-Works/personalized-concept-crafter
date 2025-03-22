@@ -14,7 +14,7 @@ export function useAddTextForm(onSuccess: () => void, onClose: () => void) {
   const [showContentTypeField, setShowContentTypeField] = useState(false);
   const [contentType, setContentType] = useState<DocumentContentType>(null);
   
-  const { createDocument } = useDocuments();
+  const { createDocumentAsync, refetch } = useDocuments();
 
   const handleAddText = async () => {
     if (!content.trim()) {
@@ -32,7 +32,7 @@ export function useAddTextForm(onSuccess: () => void, onClose: () => void) {
       setIsSubmitting(true);
       
       // Create the document
-      await createDocument({
+      const result = await createDocumentAsync({
         title: title.trim(),
         content: content.trim(),
         type,
@@ -41,7 +41,13 @@ export function useAddTextForm(onSuccess: () => void, onClose: () => void) {
         content_type: contentType,
       });
       
+      console.log("Document created:", result);
+      
       toast.success("Text added successfully");
+      
+      // Force a refetch of documents to update the list
+      await refetch();
+      
       onSuccess();
       handleClose();
     } catch (error) {

@@ -71,9 +71,19 @@ const SourceMaterialsPage = () => {
     setSearchParams(params, { replace: true });
   }, [materialType, sortOrder, searchQuery, setSearchParams]);
   
+  useEffect(() => {
+    // Log documents every time they change
+    console.log('Documents in SourceMaterialsPage:', documents);
+  }, [documents]);
+  
   // Filter and sort documents
   const filteredDocuments = React.useMemo(() => {
-    if (!documents) return [];
+    console.log('Filtering documents:', documents);
+    
+    if (!documents || documents.length === 0) {
+      console.log('No documents to filter');
+      return [];
+    }
     
     let filtered = [...documents];
     
@@ -189,6 +199,7 @@ const SourceMaterialsPage = () => {
         open={addTextDialogOpen}
         onOpenChange={setAddTextDialogOpen}
         onSuccess={() => {
+          console.log("AddTextDialog onSuccess called, triggering refetch");
           refetch();
           toast({
             title: "Text added",

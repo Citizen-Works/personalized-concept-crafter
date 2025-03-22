@@ -33,14 +33,13 @@ export const useDocuments = (filters?: DocumentFilterOptions) => {
     queryFn: async () => {
       if (!user?.id) return [];
       
-      // For development/testing, use mock data if no actual service
-      // This ensures documents appear in the UI during development
       try {
-        return await fetchDocuments(user.id, filters);
+        const documents = await fetchDocuments(user.id, filters);
+        console.log('Fetched documents:', documents);
+        return documents;
       } catch (error) {
-        console.error('Error fetching documents:', error);
-        // Return mock data for development/testing
-        return getMockDocuments();
+        console.error('Error in useDocuments query:', error);
+        return [];
       }
     },
     enabled: !!user?.id,
@@ -117,51 +116,6 @@ export const useDocuments = (filters?: DocumentFilterOptions) => {
   const isDocumentProcessing = useCallback((documentId: string) => {
     return processingDocumentIds.includes(documentId);
   }, [processingDocumentIds]);
-
-  // Helper function to generate mock documents for development/testing
-  const getMockDocuments = () => {
-    return [
-      {
-        id: '1',
-        userId: user?.id || '',
-        title: 'Sample Blog Post',
-        content: 'This is a sample blog post content for development purposes.',
-        type: 'blog',
-        purpose: 'writing_sample',
-        status: 'active',
-        content_type: 'general',
-        createdAt: new Date(),
-        processing_status: 'idle',
-        has_ideas: false
-      },
-      {
-        id: '2',
-        userId: user?.id || '',
-        title: 'Meeting Transcript',
-        content: 'This is a sample transcript from a team meeting.',
-        type: 'transcript',
-        purpose: 'business_context',
-        status: 'active',
-        content_type: null,
-        createdAt: new Date(),
-        processing_status: 'idle',
-        has_ideas: false
-      },
-      {
-        id: '3',
-        userId: user?.id || '',
-        title: 'Product Whitepaper',
-        content: 'Detailed whitepaper about our new product features.',
-        type: 'whitepaper',
-        purpose: 'business_context',
-        status: 'active',
-        content_type: null,
-        createdAt: new Date(),
-        processing_status: 'idle',
-        has_ideas: false
-      }
-    ] as Document[];
-  };
 
   return {
     documents: data,

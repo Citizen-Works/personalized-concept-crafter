@@ -19,12 +19,58 @@ export const fetchDocuments = async (
     if (!response.ok) {
       throw new Error('Failed to fetch documents');
     }
-    return await response.json();
+    const data = await response.json();
+    return data;
   } catch (error) {
     console.error('Error fetching documents:', error);
-    // In development, we can return empty array so the mock data in useDocuments will be used
-    return [];
+    // In development, we return mock data since the API is not available
+    return getMockDocuments(userId);
   }
+};
+
+// Helper function to generate mock documents for development
+const getMockDocuments = (userId: string): Document[] => {
+  return [
+    {
+      id: '1',
+      userId: userId,
+      title: 'Sample Blog Post',
+      content: 'This is a sample blog post content for development purposes.',
+      type: 'blog',
+      purpose: 'writing_sample',
+      status: 'active',
+      content_type: 'general',
+      createdAt: new Date(),
+      processing_status: 'idle',
+      has_ideas: false
+    },
+    {
+      id: '2',
+      userId: userId,
+      title: 'Meeting Transcript',
+      content: 'This is a sample transcript from a team meeting.',
+      type: 'transcript',
+      purpose: 'business_context',
+      status: 'active',
+      content_type: null,
+      createdAt: new Date(),
+      processing_status: 'idle',
+      has_ideas: false
+    },
+    {
+      id: '3',
+      userId: userId,
+      title: 'Product Whitepaper',
+      content: 'Detailed whitepaper about our new product features.',
+      type: 'whitepaper',
+      purpose: 'business_context',
+      status: 'active',
+      content_type: null,
+      createdAt: new Date(),
+      processing_status: 'idle',
+      has_ideas: false
+    }
+  ];
 };
 
 // Get a single document by ID
@@ -33,11 +79,22 @@ export const getDocumentById = async (
   documentId: string
 ): Promise<Document> => {
   // Here would be actual API call to get document
-  const response = await fetch(`/api/documents/${documentId}?userId=${userId}`);
-  if (!response.ok) {
-    throw new Error('Failed to fetch document');
+  try {
+    const response = await fetch(`/api/documents/${documentId}?userId=${userId}`);
+    if (!response.ok) {
+      throw new Error('Failed to fetch document');
+    }
+    return await response.json();
+  } catch (error) {
+    console.error('Error fetching document:', error);
+    // Return a mock document for development
+    const mockDocs = getMockDocuments(userId);
+    const doc = mockDocs.find(d => d.id === documentId);
+    if (!doc) {
+      throw new Error('Document not found');
+    }
+    return doc;
   }
-  return await response.json();
 };
 
 // Create document
@@ -102,20 +159,40 @@ export const updateDocument = async (
   // Here would be actual API call to update document
   console.log('Updating document:', documentData);
   
-  // Mock return for development
-  return {
-    id: documentData.id,
-    userId,
-    title: documentData.title || 'Updated Document',
-    content: documentData.content || '',
-    type: documentData.type || 'other',
-    purpose: documentData.purpose || 'business_context',
-    status: 'active',
-    content_type: documentData.content_type,
-    createdAt: new Date(),
-    processing_status: 'idle',
-    has_ideas: false
-  };
+  try {
+    const response = await fetch(`/api/documents/${documentData.id}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        ...documentData,
+        userId,
+      }),
+    });
+    
+    if (!response.ok) {
+      throw new Error('Failed to update document');
+    }
+    
+    return await response.json();
+  } catch (error) {
+    console.error('Error updating document:', error);
+    // Mock return for development
+    return {
+      id: documentData.id,
+      userId,
+      title: documentData.title || 'Updated Document',
+      content: documentData.content || '',
+      type: documentData.type || 'other',
+      purpose: documentData.purpose || 'business_context',
+      status: 'active',
+      content_type: documentData.content_type,
+      createdAt: new Date(),
+      processing_status: 'idle',
+      has_ideas: false
+    };
+  }
 };
 
 // Upload a file and return the file URL
