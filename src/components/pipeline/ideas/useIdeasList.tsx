@@ -1,7 +1,6 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import { ContentIdea, ContentType } from '@/types';
 import { useIdeas } from '@/hooks/ideas';
-import { toast } from 'sonner';
 
 interface UseIdeasListProps {
   searchQuery: string;
@@ -9,122 +8,127 @@ interface UseIdeasListProps {
   contentTypeFilter: ContentType | "all";
 }
 
-export const useIdeasList = ({ searchQuery, dateRange, contentTypeFilter }: UseIdeasListProps) => {
+export const useIdeasList = ({
+  searchQuery,
+  dateRange,
+  contentTypeFilter
+}: UseIdeasListProps) => {
   const { ideas, isLoading, deleteIdea } = useIdeas();
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [itemToDelete, setItemToDelete] = useState<string | null>(null);
-  const [sortOrder, setSortOrder] = useState<'newest' | 'oldest' | 'alphabetical'>('newest');
   const [isDeleting, setIsDeleting] = useState(false);
+  const [sortOrder, setSortOrder] = useState<'newest' | 'oldest' | 'unused-first'>('unused-first'); // Default to showing unused first
   
-  // Filter ideas based on search and date range
+  // Filter ideas based on search, date range, and content type
   const filteredIdeas = useMemo(() => {
-    return ideas.filter(idea => {
-      // Filter to only show approved ideas (not unreviewed or rejected)
-      if (idea.status !== 'approved') return false;
+    let result = [...ideas];
+    
+    // Filter by search query
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase();
+      result = result.filter(idea => 
+        idea.title.toLowerCase().includes(query) ||
+        (idea.description && idea.description.toLowerCase().includes(query))
+      );
+    }
+    
+    // Filter by date range
+    if (dateRange[0] && dateRange[1]) {
+      const startDate = new Date(dateRange[0]);
+      startDate.setHours(0, 0, 0, 0);
       
-      // Filter by search query
-      if (searchQuery && !idea.title.toLowerCase().includes(searchQuery.toLowerCase()) &&
-          !idea.description?.toLowerCase().includes(searchQuery.toLowerCase())) {
-        return false;
-      }
+      const endDate = new Date(dateRange[1]);
+      endDate.setHours(23, 59, 59, 999);
       
-      // Filter by date range
-      const ideaDate = new Date(idea.createdAt);
-      if (dateRange[0] && ideaDate < dateRange[0]) return false;
-      if (dateRange[1]) {
-        const endDate = new Date(dateRange[1]);
-        endDate.setHours(23, 59, 59, 999);
-        if (ideaDate > endDate) return false;
-      }
-      
-      return true;
-    });
-  }, [ideas, searchQuery, dateRange]);
+      result = result.filter(idea => {
+        const createdAt = new Date(idea.createdAt);
+        return createdAt >= startDate && createdAt <= endDate;
+      });
+    }
+    
+    // Filter by content type - this is commented out since ContentIdea no longer has a content type field
+    // if (contentTypeFilter && contentTypeFilter !== "all") {
+    //   result = result.filter(idea => idea.contentType === contentTypeFilter);
+    // }
+    
+    return result;
+  }, [ideas, searchQuery, dateRange, contentTypeFilter]);
   
-  // Sort filtered ideas
+  // Sort ideas based on selected sort order
   const sortedIdeas = useMemo(() => {
-    return [...filteredIdeas].sort((a, b) => {
-      if (sortOrder === 'newest') {
-        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
-      } else if (sortOrder === 'oldest') {
-        return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
-      } else if (sortOrder === 'alphabetical') {
-        return a.title.localeCompare(b.title);
-      }
-      return 0;
-    });
+    let sorted = [...filteredIdeas];
+    
+    switch (sortOrder) {
+      case 'oldest':
+        return sorted.sort((a, b) => 
+          new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+        );
+      case 'unused-first':
+        return sorted.sort((a, b) => {
+          // First sort by hasBeenUsed status (unused first)
+          if (a.hasBeenUsed !== b.hasBeenUsed) {
+            return a.hasBeenUsed ? 1 : -1;
+          }
+          // Then by creation date (newest first)
+          return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+        });
+      case 'newest':
+      default:
+        return sorted.sort((a, b) => 
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        );
+    }
   }, [filteredIdeas, sortOrder]);
   
-  // Handle toggle select for a single item
-  const handleToggleSelect = (id: string) => {
+  // Toggle selection for a single item
+  const handleToggleSelect = useCallback((id: string) => {
     setSelectedItems(prev => 
-      prev.includes(id) 
-        ? prev.filter(item => item !== id) 
-        : [...prev, id]
+      prev.includes(id) ? prev.filter(item => item !== id) : [...prev, id]
     );
-  };
+  }, []);
   
-  // Handle select all
-  const handleSelectAll = () => {
+  // Toggle selection for all filtered items
+  const handleSelectAll = useCallback(() => {
     if (selectedItems.length === sortedIdeas.length) {
+      // If all are selected, deselect all
       setSelectedItems([]);
     } else {
+      // Otherwise, select all filtered ideas
       setSelectedItems(sortedIdeas.map(idea => idea.id));
     }
-  };
+  }, [sortedIdeas, selectedItems]);
   
-  // Handle delete idea
-  const handleDelete = async (id: string) => {
-    if (isDeleting) return; // Prevent duplicate deletes
-    
+  // Handle deleting confirmed items
+  const handleDeleteConfirm = useCallback(async () => {
     try {
       setIsDeleting(true);
-      await deleteIdea(id);
-      toast.success("Content idea deleted");
       
-      // Update UI state
-      setSelectedItems(prev => prev.filter(item => item !== id));
+      // If a specific item is being deleted
+      if (itemToDelete) {
+        await deleteIdea(itemToDelete);
+        setSelectedItems(prev => prev.filter(id => id !== itemToDelete));
+      } 
+      // If batch delete is being performed
+      else if (selectedItems.length > 0) {
+        // Currently, we delete items one by one
+        for (const id of selectedItems) {
+          await deleteIdea(id);
+        }
+        setSelectedItems([]);
+      }
+    } catch (error) {
+      console.error('Error deleting ideas:', error);
+    } finally {
+      setIsDeleting(false);
       setDeleteConfirmOpen(false);
       setItemToDelete(null);
-    } catch (error) {
-      console.error("Error deleting idea:", error);
-      toast.error("Failed to delete content idea");
-    } finally {
-      setIsDeleting(false);
     }
-  };
+  }, [deleteIdea, itemToDelete, selectedItems]);
   
-  // Handle batch delete
-  const handleBatchDelete = async () => {
-    if (isDeleting || selectedItems.length === 0) return;
-    
-    try {
-      setIsDeleting(true);
-      const promises = selectedItems.map(id => deleteIdea(id));
-      await Promise.all(promises);
-      toast.success(`${selectedItems.length} items deleted`);
-      setSelectedItems([]);
-      setDeleteConfirmOpen(false);
-    } catch (error) {
-      console.error("Error batch deleting ideas:", error);
-      toast.error("Failed to delete selected items");
-    } finally {
-      setIsDeleting(false);
-    }
-  };
-
-  // Handle delete confirmation
-  const handleDeleteConfirm = () => {
-    if (itemToDelete) {
-      handleDelete(itemToDelete);
-    } else {
-      handleBatchDelete();
-    }
-  };
-
   return {
-    isLoading,
+    ideas,
+    filteredIdeas,
     sortedIdeas,
     selectedItems,
     deleteConfirmOpen,
@@ -133,9 +137,10 @@ export const useIdeasList = ({ searchQuery, dateRange, contentTypeFilter }: UseI
     setItemToDelete,
     sortOrder,
     setSortOrder,
+    isLoading,
+    isDeleting,
     handleToggleSelect,
     handleSelectAll,
     handleDeleteConfirm,
-    isDeleting,
   };
 };

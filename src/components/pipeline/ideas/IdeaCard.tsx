@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { ContentIdea, ContentStatus, ContentType } from '@/types';
@@ -11,7 +10,7 @@ import {
   DropdownMenuItem, 
   DropdownMenuTrigger 
 } from "@/components/ui/dropdown-menu";
-import { ArrowUpRight, Edit, MoreHorizontal, Trash } from 'lucide-react';
+import { ArrowUpRight, Edit, MoreHorizontal, Trash, CheckCircle } from 'lucide-react';
 
 interface IdeaCardProps {
   idea: ContentIdea;
@@ -62,7 +61,14 @@ export const IdeaCard: React.FC<IdeaCardProps> = ({
                     {idea.status.charAt(0).toUpperCase() + idea.status.slice(1)}
                   </Badge>
                 )}
-                {/* Content type badge removed as it no longer exists on ContentIdea */}
+                
+                {/* Add Used badge */}
+                {idea.hasBeenUsed && (
+                  <Badge variant="outline" className="text-xs bg-green-50 text-green-700 border-green-200">
+                    <CheckCircle className="h-3 w-3 mr-1" />
+                    Used
+                  </Badge>
+                )}
               </div>
             </div>
             <p className="text-xs sm:text-sm text-muted-foreground line-clamp-2">{idea.description}</p>

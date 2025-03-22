@@ -11,6 +11,13 @@ import {
   SelectAll,
   useIdeasList
 } from './ideas';
+import { 
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from "@/components/ui/select";
 
 interface IdeasTabProps {
   searchQuery: string;
@@ -49,6 +56,23 @@ export const IdeasTab: React.FC<IdeasTabProps> = ({
   
   return (
     <div className="space-y-4">
+      {/* Sorting dropdown */}
+      <div className="flex justify-end">
+        <Select
+          value={sortOrder}
+          onValueChange={(value) => setSortOrder(value as 'newest' | 'oldest' | 'unused-first')}
+        >
+          <SelectTrigger className="w-[180px]">
+            <SelectValue placeholder="Sort by..." />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="unused-first">Unused First</SelectItem>
+            <SelectItem value="newest">Newest First</SelectItem>
+            <SelectItem value="oldest">Oldest First</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+      
       {/* Batch actions */}
       <BatchActions 
         selectedItems={selectedItems}

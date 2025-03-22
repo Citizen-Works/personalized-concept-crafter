@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { ContentIdea, ContentStatus, ContentSource } from "@/types";
@@ -27,7 +26,7 @@ export const fetchIdeas = async (userId: string): Promise<ContentIdea[]> => {
     meetingTranscriptExcerpt: item.meeting_transcript_excerpt,
     sourceUrl: item.source_url,
     status: item.status as ContentStatus,
-    hasBeenUsed: false, // Default since field doesn't exist in DB yet
+    hasBeenUsed: item.has_been_used || false, // Map from the database field
     createdAt: new Date(item.created_at),
     contentPillarIds: [], // Default since field doesn't exist in DB yet
     targetAudienceIds: [] // Default since field doesn't exist in DB yet
@@ -62,7 +61,7 @@ export const fetchIdeaById = async (id: string, userId: string): Promise<Content
     meetingTranscriptExcerpt: data.meeting_transcript_excerpt,
     sourceUrl: data.source_url,
     status: data.status as ContentStatus,
-    hasBeenUsed: false, // Default since field doesn't exist in DB yet
+    hasBeenUsed: data.has_been_used || false, // Map from the database field
     createdAt: new Date(data.created_at),
     contentPillarIds: [], // Default since field doesn't exist in DB yet
     targetAudienceIds: [] // Default since field doesn't exist in DB yet
@@ -83,9 +82,7 @@ export const createIdea = async (idea: IdeaCreateInput, userId: string): Promise
         meeting_transcript_excerpt: idea.meetingTranscriptExcerpt,
         source_url: idea.sourceUrl,
         status: idea.status,
-        // has_been_used field doesn't exist in DB yet
-        // content_pillar_ids field doesn't exist in DB yet
-        // target_audience_ids field doesn't exist in DB yet
+        has_been_used: idea.hasBeenUsed || false, // Map to the database field
         user_id: userId
       }
     ])
@@ -107,7 +104,7 @@ export const createIdea = async (idea: IdeaCreateInput, userId: string): Promise
     meetingTranscriptExcerpt: data.meeting_transcript_excerpt,
     sourceUrl: data.source_url,
     status: data.status as ContentStatus,
-    hasBeenUsed: false, // Default since field doesn't exist in DB yet
+    hasBeenUsed: data.has_been_used || false, // Map from the database field
     createdAt: new Date(data.created_at),
     contentPillarIds: [], // Default since field doesn't exist in DB yet
     targetAudienceIds: [] // Default since field doesn't exist in DB yet
@@ -125,12 +122,10 @@ export const updateIdea = async ({ id, ...updates }: { id: string } & IdeaUpdate
   if (updates.meetingTranscriptExcerpt !== undefined) updateData.meeting_transcript_excerpt = updates.meetingTranscriptExcerpt;
   if (updates.sourceUrl !== undefined) updateData.source_url = updates.sourceUrl;
   if (updates.status) updateData.status = updates.status; // This should accept 'rejected'
-  // has_been_used field doesn't exist in DB yet
-  // content_pillar_ids field doesn't exist in DB yet
-  // target_audience_ids field doesn't exist in DB yet
+  if (updates.hasBeenUsed !== undefined) updateData.has_been_used = updates.hasBeenUsed; // Map to the database field
 
   try {
-    console.log("Updating idea with status:", updates.status); // Add logging to debug the issue
+    console.log("Updating idea with data:", updateData);
     
     const { data, error } = await supabase
       .from("content_ideas")
@@ -154,7 +149,7 @@ export const updateIdea = async ({ id, ...updates }: { id: string } & IdeaUpdate
       meetingTranscriptExcerpt: data.meeting_transcript_excerpt,
       sourceUrl: data.source_url,
       status: data.status as ContentStatus,
-      hasBeenUsed: false, // Default since field doesn't exist in DB yet
+      hasBeenUsed: data.has_been_used || false, // Map from the database field
       createdAt: new Date(data.created_at),
       contentPillarIds: [], // Default since field doesn't exist in DB yet
       targetAudienceIds: [] // Default since field doesn't exist in DB yet
