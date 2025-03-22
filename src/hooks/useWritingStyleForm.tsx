@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { WritingStyleProfile } from '@/types';
 import { supabase } from '@/integrations/supabase/client';
@@ -80,7 +81,7 @@ export const useWritingStyleForm = (initialProfile?: Partial<WritingStyleProfile
       }
       
       toast.success('Writing style saved successfully');
-      window.location.reload();
+      // Remove the window.location.reload() to prevent page refresh
     } catch (error) {
       console.error('Error saving writing style:', error);
       toast.error('Failed to save writing style');

@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+
+import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { WritingStyleHeader } from '@/components/writing-style/WritingStyleHeader';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -13,7 +14,7 @@ import { useWritingStyleForm } from '@/hooks/useWritingStyleForm';
 
 const WritingStylePage = () => {
   const { user } = useAuth();
-  const { profile, isLoading } = useWritingStyle();
+  const { profile, isLoading, refetch } = useWritingStyle();
   const [activeTab, setActiveTab] = useState("general");
   
   const {
@@ -23,6 +24,13 @@ const WritingStylePage = () => {
     isSaving,
     getPreviewProfile
   } = useWritingStyleForm(profile);
+
+  // Function to handle save and refresh data
+  const handleSave = async () => {
+    await saveWritingStyle();
+    // Refresh the data after saving instead of reloading the page
+    refetch();
+  };
 
   return (
     <div className="space-y-8">
@@ -70,7 +78,7 @@ const WritingStylePage = () => {
       </div>
       
       <div className="flex justify-end">
-        <Button onClick={saveWritingStyle} disabled={isSaving} className="flex items-center gap-1">
+        <Button onClick={handleSave} disabled={isSaving} className="flex items-center gap-1">
           <Save className="h-4 w-4" />
           {isSaving ? 'Saving...' : 'Save Writing Style'}
         </Button>

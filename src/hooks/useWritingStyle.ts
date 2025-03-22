@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { WritingStyleProfile } from '@/types/writingStyle';
 import { fetchWritingStyleProfile } from '@/services/profile';
 import { saveWritingStyleProfile } from '@/services/writingStyleService';
@@ -28,7 +28,7 @@ export const useWritingStyle = () => {
     avoidPatterns: '',
   });
 
-  const loadProfile = async () => {
+  const loadProfile = useCallback(async () => {
     if (!user) return;
     
     setIsLoading(true);
@@ -44,7 +44,7 @@ export const useWritingStyle = () => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [user]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -77,13 +77,11 @@ export const useWritingStyle = () => {
     }
   };
 
-  const refetch = loadProfile;
-
   useEffect(() => {
     if (user) {
       loadProfile();
     }
-  }, [user]);
+  }, [user, loadProfile]);
 
   return {
     profile,
@@ -92,6 +90,6 @@ export const useWritingStyle = () => {
     handleChange,
     saveProfile,
     writingStyle: profile, // Add this alias for backward compatibility
-    refetch // Add this for compatibility
+    refetch: loadProfile // Expose the loadProfile function as refetch
   };
 };
