@@ -1,69 +1,89 @@
-# Welcome to your Lovable project
 
-## Project info
+# Content Engine
 
-**URL**: https://lovable.dev/projects/ab2849ab-7bab-4e25-9c3e-bf752a228b94
+A comprehensive content management and generation platform that helps businesses streamline their content creation process from ideation to publication.
 
-## How can I edit this code?
+## 🚀 Features
 
-There are several ways of editing your application.
+- **Content Pipeline Management**: Track content from ideas to published pieces
+- **Kanban-style Content Organization**: Visual workflow management
+- **AI-Assisted Content Generation**: Leverage AI to create draft content
+- **Multi-tenant Architecture**: Secure isolation between client organizations
+- **Writing Style Management**: Define and maintain consistent brand voice
+- **Target Audience Segmentation**: Tailor content to specific audience needs
+- **Personal Story Library**: Build a repository of usable personal anecdotes
+- **Source Material Management**: Organize and reference your content sources
+- **Integrated Document Processing**: Extract insights from uploaded documents
 
-**Use Lovable**
+## 🛠️ Technologies
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/ab2849ab-7bab-4e25-9c3e-bf752a228b94) and start prompting.
+- **Frontend**: React, TypeScript, Tailwind CSS, shadcn/ui
+- **State Management**: TanStack React Query
+- **Backend**: Supabase (Auth, Storage, Database, Edge Functions)
+- **AI Integration**: Claude AI for content generation
+- **Build Tool**: Vite
 
-Changes made via Lovable will be committed automatically to this repo.
+## 📋 Project Structure
 
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
+```
+src/
+├── components/     # UI components organized by feature
+├── context/        # React context providers
+├── hooks/          # Custom React hooks
+├── pages/          # Page components
+├── services/       # API service functions
+├── types/          # TypeScript type definitions
+└── utils/          # Utility functions
 ```
 
-**Edit a file directly in GitHub**
+## 📚 Documentation
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+For more detailed documentation:
 
-**Use GitHub Codespaces**
+- [Multi-tenant Architecture](./src/docs/multi-tenant-architecture.md)
+- [Error Handling](./src/docs/error-handling.md)
+- [Testing Strategy](./src/docs/testing-strategy.md)
+- [Performance Optimizations](./src/docs/performance-optimizations.md)
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+## 🚦 Getting Started
 
-## What technologies are used for this project?
+### Prerequisites
 
-This project is built with .
+- Node.js 16 or higher
+- npm or yarn
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+### Installation
 
-## How can I deploy this project?
+1. Clone the repository:
+   ```bash
+   git clone <repository-url>
+   cd content-engine
+   ```
 
-Simply open [Lovable](https://lovable.dev/projects/ab2849ab-7bab-4e25-9c3e-bf752a228b94) and click on Share -> Publish.
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
 
-## I want to use a custom domain - is that possible?
+3. Start the development server:
+   ```bash
+   npm run dev
+   ```
 
-We don't support custom domains (yet). If you want to deploy your project under your own domain then we recommend using Netlify. Visit our docs for more details: [Custom domains](https://docs.lovable.dev/tips-tricks/custom-domain/)
+4. Open your browser and navigate to `http://localhost:8080`
+
+## 🧪 Testing
+
+Run the test suite with:
+
+```bash
+npm test
+```
+
+## 🚀 Deployment
+
+This project is set up for easy deployment with Netlify or Vercel. Connect your repository to your preferred hosting service and follow their deployment instructions.
+
+## 📝 License
+
+[MIT](LICENSE)
