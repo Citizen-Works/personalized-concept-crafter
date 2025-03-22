@@ -32,20 +32,22 @@ export const useContentIdeaApi = () => {
       if (error) throw error;
       
       // Transform database response to match ContentIdea interface
+      // Handle missing or undefined fields with defaults
       const transformedData: ContentIdea = {
         id: data.id,
         userId: data.user_id,
         title: data.title,
         description: data.description || '',
         notes: data.notes || '',
-        source: data.source as ContentSource, // Cast to ContentSource type
+        source: (data.source || 'manual') as ContentSource, // Cast to ContentSource type
         meetingTranscriptExcerpt: data.meeting_transcript_excerpt,
         sourceUrl: data.source_url,
         status: data.status as ContentStatus,
         hasBeenUsed: data.has_been_used,
         createdAt: new Date(data.created_at),
-        contentPillarIds: data.content_pillar_ids ? [...data.content_pillar_ids] : [], 
-        targetAudienceIds: data.target_audience_ids ? [...data.target_audience_ids] : []
+        // Handle arrays that might not exist in the database response
+        contentPillarIds: Array.isArray(data.content_pillar_ids) ? [...data.content_pillar_ids] : [], 
+        targetAudienceIds: Array.isArray(data.target_audience_ids) ? [...data.target_audience_ids] : []
       };
       
       toast.success(`Idea updated to ${newStatus}`);
@@ -95,10 +97,12 @@ export const useContentDraftApi = () => {
       if (error) throw error;
       
       // Transform database response to match ContentDraft interface
+      // Handle missing or undefined fields with defaults
       const transformedData: ContentDraft = {
         id: data.id,
         contentIdeaId: data.content_idea_id,
         content: data.content,
+        // Handle contentType field which might be missing in the database
         contentType: data.content_type ? (data.content_type as ContentType) : 'linkedin',
         contentGoal: data.content_goal || undefined,
         version: data.version,
