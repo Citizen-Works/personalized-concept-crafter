@@ -1,7 +1,7 @@
 
 import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { ContentIdea, ContentDraft, ContentStatus, DraftStatus } from '@/types';
+import { ContentIdea, ContentDraft, ContentStatus, DraftStatus, ContentSource, ContentType } from '@/types';
 import { toast } from 'sonner';
 
 /**
@@ -38,14 +38,14 @@ export const useContentIdeaApi = () => {
         title: data.title,
         description: data.description || '',
         notes: data.notes || '',
-        source: data.source,
+        source: data.source as ContentSource, // Cast to ContentSource type
         meetingTranscriptExcerpt: data.meeting_transcript_excerpt,
         sourceUrl: data.source_url,
         status: data.status as ContentStatus,
         hasBeenUsed: data.has_been_used,
         createdAt: new Date(data.created_at),
-        contentPillarIds: data.content_pillar_ids,
-        targetAudienceIds: data.target_audience_ids
+        contentPillarIds: data.content_pillar_ids || [], // Default to empty array if undefined
+        targetAudienceIds: data.target_audience_ids || [] // Default to empty array if undefined
       };
       
       toast.success(`Idea updated to ${newStatus}`);
@@ -99,8 +99,8 @@ export const useContentDraftApi = () => {
         id: data.id,
         contentIdeaId: data.content_idea_id,
         content: data.content,
-        contentType: data.content_type || 'linkedin', // Default to linkedin if missing
-        contentGoal: data.content_goal,
+        contentType: (data.content_type as ContentType) || 'linkedin', // Cast to ContentType and default if missing
+        contentGoal: data.content_goal || undefined, // Handle undefined case
         version: data.version,
         feedback: data.feedback || '',
         status: data.status as DraftStatus,
