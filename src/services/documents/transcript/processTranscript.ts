@@ -1,3 +1,4 @@
+
 import { toast } from "sonner";
 import { fetchDocument } from "./fetchDocument";
 import { fetchBusinessContext } from "./fetchBusinessContext";
@@ -17,6 +18,8 @@ export const processTranscriptForIdeas = async (
 ): Promise<IdeaResponse> => {
   if (!userId) throw new Error("User not authenticated");
 
+  console.log(`Starting to process document ID: ${documentId} for user ${userId}`);
+
   // If in background mode, update the document's processing status
   if (backgroundMode) {
     try {
@@ -25,6 +28,8 @@ export const processTranscriptForIdeas = async (
         .update({ processing_status: 'processing' as DocumentProcessingStatus })
         .eq("id", documentId)
         .eq("user_id", userId);
+      
+      console.log(`Updated document ${documentId} status to 'processing'`);
     } catch (updateError) {
       console.error("Error updating document processing status:", updateError);
       // Continue with processing even if status update fails
@@ -33,9 +38,11 @@ export const processTranscriptForIdeas = async (
 
   try {
     // Step 1: Fetch the document with optimistic error handling
+    console.log(`Fetching document ${documentId}`);
     let document;
     try {
       document = await fetchDocument(userId, documentId);
+      console.log(`Successfully fetched document: ${document.title}`);
     } catch (docError) {
       console.error("Error fetching document:", docError);
       throw new Error(`Failed to retrieve document: ${docError instanceof Error ? docError.message : 'Unknown error'}`);
@@ -45,6 +52,7 @@ export const processTranscriptForIdeas = async (
     let businessContext = '';
     try {
       businessContext = await fetchBusinessContext(userId);
+      console.log("Retrieved business context for idea generation");
     } catch (contextError) {
       console.error("Error fetching business context:", contextError);
       // Continue without business context if it fails
@@ -62,7 +70,9 @@ export const processTranscriptForIdeas = async (
     // Step 4: Generate content ideas using Claude AI with chunking for large documents
     let contentIdeas;
     try {
+      console.log(`Generating ideas for document: ${document.title}`);
       contentIdeas = await generateIdeas(sanitizedContent, businessContext, document.title);
+      console.log(`Generated ${contentIdeas.length} ideas`);
     } catch (generateError) {
       console.error("Error generating ideas:", generateError);
       throw new Error(`Failed to generate ideas: ${generateError instanceof Error ? generateError.message : 'Unknown error'}`);
@@ -81,6 +91,8 @@ export const processTranscriptForIdeas = async (
             })
             .eq("id", documentId)
             .eq("user_id", userId);
+          
+          console.log(`Updated document ${documentId} status to 'completed' with no ideas`);
         } catch (updateError) {
           console.error("Error updating document status after no ideas:", updateError);
         }
@@ -95,7 +107,9 @@ export const processTranscriptForIdeas = async (
     // Step 6: Save content ideas to the database
     let savedIdeas;
     try {
+      console.log(`Saving ${contentIdeas.length} ideas to database`);
       savedIdeas = await saveIdeas(contentIdeas, userId);
+      console.log(`Successfully saved ${savedIdeas.length} ideas`);
     } catch (saveError) {
       console.error("Error saving ideas:", saveError);
       throw new Error(`Failed to save ideas: ${saveError instanceof Error ? saveError.message : 'Unknown error'}`);
@@ -113,6 +127,8 @@ export const processTranscriptForIdeas = async (
           })
           .eq("id", documentId)
           .eq("user_id", userId);
+        
+        console.log(`Updated document ${documentId} status to 'completed' with ${savedIdeas.length} ideas`);
       } catch (updateError) {
         console.error("Error updating document status after processing:", updateError);
         // Continue to return ideas even if status update fails
@@ -135,6 +151,8 @@ export const processTranscriptForIdeas = async (
           .update({ processing_status: 'failed' as DocumentProcessingStatus })
           .eq("id", documentId)
           .eq("user_id", userId);
+        
+        console.log(`Updated document ${documentId} status to 'failed'`);
       } catch (updateError) {
         console.error("Error updating document status after failure:", updateError);
       }

@@ -45,8 +45,12 @@ const SourceMaterialDetailPage = () => {
   
   useEffect(() => {
     if (id) {
+      console.log(`Fetching document with ID: ${id}`);
       fetchDocument(id)
-        .then(doc => setDocument(doc))
+        .then(doc => {
+          console.log("Document fetched successfully:", doc.title);
+          setDocument(doc);
+        })
         .catch(err => {
           console.error("Failed to fetch document:", err);
           if (err.code === "22P02") {
@@ -64,14 +68,13 @@ const SourceMaterialDetailPage = () => {
     }
   }, [id, fetchDocument, navigate, toast]);
   
-  const isTranscriptType = document?.type === 'transcript';
-  
   const handleExtractIdeas = async () => {
     if (!document) return;
     
     setProcessingError(null);
     
     try {
+      console.log(`Starting idea extraction for document: ${document.id}`);
       await processTranscript(document.id);
       toast({
         title: "Processing started",
@@ -180,7 +183,7 @@ const SourceMaterialDetailPage = () => {
     );
   }
   
-  const documentTypeLabel = isTranscriptType ? 'Transcript' : document?.type || 'Document';
+  const documentTypeLabel = document?.type === 'transcript' ? 'Transcript' : document?.type || 'Document';
   
   return (
     <div className="container mx-auto p-6 space-y-6">
@@ -284,3 +287,4 @@ const SourceMaterialDetailPage = () => {
 };
 
 export default SourceMaterialDetailPage;
+
