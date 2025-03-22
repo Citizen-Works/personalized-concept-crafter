@@ -13,8 +13,8 @@ export const fetchIdeas = async (userId: string): Promise<ContentIdea[]> => {
     .order("created_at", { ascending: false });
 
   if (error) {
-    toast.error("Failed to fetch ideas");
-    throw error;
+    console.error("Error fetching ideas:", error);
+    throw error; // Don't show a toast here, let the calling component handle it
   }
 
   return data.map(item => ({
@@ -87,11 +87,10 @@ export const createIdea = async (idea: IdeaCreateInput, userId: string): Promise
     .single();
 
   if (error) {
-    toast.error("Failed to create idea");
-    throw error;
+    console.error("Error creating idea:", error);
+    throw error; // Don't show toast here, let the calling component handle it
   }
 
-  toast.success("Idea created successfully");
   return {
     id: data.id,
     userId: data.user_id,
@@ -120,32 +119,36 @@ export const updateIdea = async ({ id, ...updates }: { id: string } & IdeaUpdate
   if (updates.status) updateData.status = updates.status;
   if (updates.contentType !== undefined) updateData.content_type = updates.contentType;
 
-  const { data, error } = await supabase
-    .from("content_ideas")
-    .update(updateData)
-    .eq("id", id)
-    .select()
-    .single();
+  try {
+    const { data, error } = await supabase
+      .from("content_ideas")
+      .update(updateData)
+      .eq("id", id)
+      .select()
+      .single();
 
-  if (error) {
-    toast.error("Failed to update idea");
+    if (error) {
+      console.error("Error updating idea:", error);
+      throw error; // Let the component handle the toast
+    }
+
+    return {
+      id: data.id,
+      userId: data.user_id,
+      title: data.title,
+      description: data.description || "",
+      notes: data.notes || "",
+      source: data.source as ContentSource,
+      meetingTranscriptExcerpt: data.meeting_transcript_excerpt,
+      sourceUrl: data.source_url,
+      status: data.status as ContentStatus,
+      contentType: data.content_type as ContentType | null,
+      createdAt: new Date(data.created_at)
+    };
+  } catch (error) {
+    console.error("Error in updateIdea:", error);
     throw error;
   }
-
-  toast.success("Idea updated successfully");
-  return {
-    id: data.id,
-    userId: data.user_id,
-    title: data.title,
-    description: data.description || "",
-    notes: data.notes || "",
-    source: data.source as ContentSource,
-    meetingTranscriptExcerpt: data.meeting_transcript_excerpt,
-    sourceUrl: data.source_url,
-    status: data.status as ContentStatus,
-    contentType: data.content_type as ContentType | null,
-    createdAt: new Date(data.created_at)
-  };
 };
 
 export const deleteIdea = async (id: string, userId: string): Promise<void> => {
@@ -157,9 +160,7 @@ export const deleteIdea = async (id: string, userId: string): Promise<void> => {
     .eq("id", id);
 
   if (error) {
-    toast.error("Failed to delete idea");
-    throw error;
+    console.error("Error deleting idea:", error);
+    throw error; // Let the component handle the toast
   }
-
-  toast.success("Idea deleted successfully");
 };

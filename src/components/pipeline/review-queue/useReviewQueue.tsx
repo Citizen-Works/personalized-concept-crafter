@@ -78,7 +78,7 @@ export const useReviewQueue = ({ searchQuery, dateRange, contentTypeFilter }: Us
     
     try {
       setIsUpdating(true);
-      await updateIdea({ id, status: 'approved' });
+      await updateIdea({ id, status: 'approved' as ContentStatus });
       
       // Remove from selected items if it was selected
       if (selectedItems.includes(id)) {
@@ -105,8 +105,6 @@ export const useReviewQueue = ({ searchQuery, dateRange, contentTypeFilter }: Us
     
     try {
       setIsUpdating(true);
-      // Fix: Use a valid status for archiving based on the ContentStatus type
-      // Update the status to "archived" if it's a valid value, otherwise use "approved"
       await updateIdea({ 
         id, 
         status: 'archived' as ContentStatus 
@@ -126,6 +124,7 @@ export const useReviewQueue = ({ searchQuery, dateRange, contentTypeFilter }: Us
     } catch (error) {
       console.error("Error archiving idea:", error);
       toast.error("Failed to archive content idea");
+      return; // Exit early to prevent further processing
     } finally {
       setIsUpdating(false);
     }
@@ -172,7 +171,7 @@ export const useReviewQueue = ({ searchQuery, dateRange, contentTypeFilter }: Us
     
     try {
       setIsUpdating(true);
-      const promises = selectedItems.map(id => updateIdea({ id, status: 'approved' }));
+      const promises = selectedItems.map(id => updateIdea({ id, status: 'approved' as ContentStatus }));
       await Promise.all(promises);
       toast.success(`${selectedItems.length} items approved`);
       setSelectedItems([]);
@@ -190,7 +189,6 @@ export const useReviewQueue = ({ searchQuery, dateRange, contentTypeFilter }: Us
     
     try {
       setIsUpdating(true);
-      // Fix: Use a valid status for batch archiving
       const promises = selectedItems.map(id => updateIdea({ 
         id, 
         status: 'archived' as ContentStatus 
