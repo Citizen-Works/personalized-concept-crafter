@@ -44,8 +44,8 @@ export const useContentIdeaApi = () => {
         status: data.status as ContentStatus,
         hasBeenUsed: data.has_been_used,
         createdAt: new Date(data.created_at),
-        contentPillarIds: data.content_pillar_ids || [], // Default to empty array if undefined
-        targetAudienceIds: data.target_audience_ids || [] // Default to empty array if undefined
+        contentPillarIds: data.content_pillar_ids ? [...data.content_pillar_ids] : [], 
+        targetAudienceIds: data.target_audience_ids ? [...data.target_audience_ids] : []
       };
       
       toast.success(`Idea updated to ${newStatus}`);
@@ -99,8 +99,8 @@ export const useContentDraftApi = () => {
         id: data.id,
         contentIdeaId: data.content_idea_id,
         content: data.content,
-        contentType: (data.content_type as ContentType) || 'linkedin', // Cast to ContentType and default if missing
-        contentGoal: data.content_goal || undefined, // Handle undefined case
+        contentType: data.content_type ? (data.content_type as ContentType) : 'linkedin',
+        contentGoal: data.content_goal || undefined,
         version: data.version,
         feedback: data.feedback || '',
         status: data.status as DraftStatus,
