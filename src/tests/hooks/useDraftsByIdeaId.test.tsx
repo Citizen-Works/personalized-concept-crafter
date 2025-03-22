@@ -1,10 +1,9 @@
-
 import { renderHook, waitFor } from '@testing-library/react';
 import { useDraftsByIdeaId } from '@/hooks/draft/useDraftsByIdeaId';
 import * as draftService from '@/services/draftService';
 import { useAuth } from '@/context/auth';
 import { useTenant } from '@/context/tenant/TenantContext';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { createWrapper } from '../utils/tenant-test-utils';
 import React from 'react';
 import { vi, describe, it, expect, beforeEach } from 'vitest';
 
@@ -21,21 +20,6 @@ vi.mock('@/hooks/useErrorHandling', () => ({
 const mockFetchDraftsByIdeaId = vi.mocked(draftService.fetchDraftsByIdeaId);
 const mockUseAuth = vi.mocked(useAuth);
 const mockUseTenant = vi.mocked(useTenant);
-
-// Create a wrapper with the necessary providers
-const createWrapper = () => {
-  const queryClient = new QueryClient({
-    defaultOptions: {
-      queries: {
-        retry: false,
-      },
-    },
-  });
-  
-  return ({ children }: { children: React.ReactNode }) => (
-    <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
-  );
-};
 
 describe('useDraftsByIdeaId', () => {
   beforeEach(() => {
