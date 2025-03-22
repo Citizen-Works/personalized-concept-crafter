@@ -33,6 +33,7 @@ const DraftDetailPage = () => {
 
   // Only fetch the idea if we have a draft with a contentIdeaId
   const ideaId = draft?.contentIdeaId;
+  // Use an empty string as fallback to avoid undefined being passed to dependencies
   const { 
     data: idea, 
     isLoading: isIdeaLoading, 

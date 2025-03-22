@@ -29,8 +29,8 @@ export const useIdeas = () => {
       queryKey: ["idea", id, user?.id],
       queryFn: () => fetchIdeaById(id, user?.id || ""),
       enabled,
-      // Add a safe fallback return to ensure our hook dependencies are never undefined
-      useErrorBoundary: false,
+      // Remove the 'useErrorBoundary' option as it's not supported in this version
+      retry: false, // Use retry: false instead to avoid multiple failed attempts
     });
   };
 
