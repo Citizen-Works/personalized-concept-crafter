@@ -5,6 +5,7 @@ import { decryptContent } from "@/utils/encryptionUtils";
 
 /**
  * Fetches a single document by ID with encrypted content decryption
+ * Works with both UUID and non-UUID document IDs
  */
 export const fetchDocument = async (userId: string, documentId: string): Promise<Document> => {
   if (!userId) throw new Error("User not authenticated");
@@ -16,9 +17,9 @@ export const fetchDocument = async (userId: string, documentId: string): Promise
   }
 
   try {
-    console.log(`Attempting to fetch document with ID: ${documentId}`);
+    console.log(`Attempting to fetch document with ID: ${documentId} for user ${userId}`);
     
-    // Always use direct query approach to handle both UUID and non-UUID IDs
+    // Mobile-friendly approach: Use string comparison for all IDs
     const { data, error } = await supabase
       .from("documents")
       .select("*")
@@ -27,12 +28,12 @@ export const fetchDocument = async (userId: string, documentId: string): Promise
       .single();
 
     if (error) {
-      console.error("Failed to fetch document:", error);
-      throw error;
+      console.error(`Failed to fetch document ${documentId}:`, error);
+      throw new Error(`Document fetch failed: ${error.message}`);
     }
 
     if (!data) {
-      console.error("Document not found for ID:", documentId);
+      console.error(`Document not found for ID: ${documentId}`);
       throw new Error("Document not found");
     }
 
@@ -54,10 +55,11 @@ export const fetchDocument = async (userId: string, documentId: string): Promise
       }
     }
 
+    // Ensure all required fields are present
     return {
       id: data.id,
       userId: data.user_id,
-      title: data.title,
+      title: data.title || "Untitled Document",
       content: content,
       type: data.type as DocumentType,
       purpose: data.purpose as DocumentPurpose,
@@ -70,7 +72,8 @@ export const fetchDocument = async (userId: string, documentId: string): Promise
       ideas_count: data.ideas_count || 0
     };
   } catch (error) {
-    console.error("Error fetching document:", error);
-    throw error;
+    console.error(`Error fetching document ${documentId}:`, error);
+    // Add more context to the error
+    throw new Error(`Error retrieving document: ${error instanceof Error ? error.message : 'Unknown error'}`);
   }
 };

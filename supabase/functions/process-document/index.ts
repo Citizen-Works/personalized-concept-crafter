@@ -21,28 +21,36 @@ async function generateIdeasFromDocument(documentId: string, userId: string, typ
     let document: any = null;
     
     if (!content) {
-      // Fetch the document directly using a string-based query without assuming UUID format
-      console.log(`Fetching document with ID: ${documentId}`);
-      const { data, error } = await supabase
-        .from('documents')
-        .select('*')
-        .eq('id', documentId)
-        .eq('user_id', userId)
-        .single();
-        
-      if (error) {
-        console.error('Error fetching document:', error);
-        throw new Error(`Failed to fetch document: ${error.message}`);
-      }
-
-      if (!data || !data.content) {
-        throw new Error('Document not found or has no content');
-      }
+      // Fetch document with extra debugging for mobile
+      console.log(`Fetching document with ID: ${documentId}, type=${typeof documentId}`);
       
-      document = data;
-      content = data.content;
-      title = data.title;
-      type = data.type || type;
+      try {
+        const { data, error } = await supabase
+          .from('documents')
+          .select('*')
+          .eq('id', documentId)
+          .eq('user_id', userId)
+          .single();
+          
+        if (error) {
+          console.error('Error fetching document:', error);
+          throw new Error(`Failed to fetch document: ${error.message}`);
+        }
+
+        if (!data || !data.content) {
+          throw new Error('Document not found or has no content');
+        }
+        
+        document = data;
+        content = data.content;
+        title = data.title;
+        type = data.type || type;
+        
+        console.log(`Document fetch successful: ${title} (${type})`);
+      } catch (fetchError) {
+        console.error('Document fetch error:', fetchError);
+        throw fetchError;
+      }
     } else {
       // Create a temporary document object if content was provided directly
       document = {
@@ -51,6 +59,7 @@ async function generateIdeasFromDocument(documentId: string, userId: string, typ
         content,
         type: type || 'generic'
       };
+      console.log(`Using provided content for document ${documentId} with title ${title || 'Document'}`);
     }
 
     console.log(`Processing document: ${title} (${type})`);
@@ -66,20 +75,24 @@ async function generateIdeasFromDocument(documentId: string, userId: string, typ
     // Only save ideas to database if given a real document ID (not when content was provided directly)
     if (!content || (document && document.id)) {
       for (const idea of ideas) {
-        const { error: ideaError } = await supabase
-          .from('content_ideas')
-          .insert({
-            user_id: userId,
-            title: idea.title,
-            description: idea.description,
-            source: 'source_material',
-            source_url: document.id
-          });
+        try {
+          const { error: ideaError } = await supabase
+            .from('content_ideas')
+            .insert({
+              user_id: userId,
+              title: idea.title,
+              description: idea.description,
+              source: 'source_material',
+              source_url: document.id
+            });
 
-        if (ideaError) {
-          console.error('Error saving idea:', ideaError);
-        } else {
-          savedCount++;
+          if (ideaError) {
+            console.error('Error saving idea:', ideaError);
+          } else {
+            savedCount++;
+          }
+        } catch (insertError) {
+          console.error('Exception during idea save:', insertError);
         }
       }
 
@@ -202,8 +215,21 @@ serve(async (req) => {
   }
   
   try {
-    const requestBody = await req.json();
+    // Enhanced error handling for parsing request body (common mobile issue)
+    let requestBody;
+    try {
+      requestBody = await req.json();
+    } catch (parseError) {
+      console.error('Error parsing request body:', parseError);
+      return new Response(
+        JSON.stringify({ error: 'Invalid request body format' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+    
     const { documentId, userId, type, content, title } = requestBody;
+    
+    console.log(`Request parameters: documentId=${documentId}, userId=${userId}, type=${type}`);
     
     if (!userId) {
       return new Response(
@@ -234,7 +260,10 @@ serve(async (req) => {
     console.error('Error processing request:', error);
     
     return new Response(
-      JSON.stringify({ error: error.message || 'Unknown error occurred' }),
+      JSON.stringify({ 
+        error: error.message || 'Unknown error occurred',
+        stack: error.stack || 'No stack trace available' 
+      }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   }

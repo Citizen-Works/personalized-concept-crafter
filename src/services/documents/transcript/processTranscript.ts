@@ -7,6 +7,7 @@ import { saveIdeas } from "./saveIdeas";
 import { IdeaResponse } from "./types";
 import { supabase } from "@/integrations/supabase/client";
 import { DocumentProcessingStatus } from "@/types/documents";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 /**
  * Processes a document to extract content ideas - can run in background
@@ -37,12 +38,12 @@ export const processTranscriptForIdeas = async (
   }
 
   try {
-    // Step 1: Use direct Supabase query to fetch the document
+    // Step 1: Use direct Supabase query to fetch the document with consistent error handling for mobile
     console.log(`Fetching document ${documentId}`);
     
     let document;
     try {
-      // Always use direct query approach to handle both UUID and non-UUID IDs
+      // Mobile-optimized fetching
       const { data, error } = await supabase
         .from("documents")
         .select("*")
@@ -51,13 +52,13 @@ export const processTranscriptForIdeas = async (
         .single();
       
       if (error) {
-        console.error("Error fetching document via Supabase query:", error);
-        throw error;
+        console.error(`Error fetching document for ID ${documentId}:`, error);
+        throw new Error(`Database error: ${error.message}`);
       }
       
       if (!data) {
         console.error("Document not found for ID:", documentId);
-        throw new Error("Document not found");
+        throw new Error(`Document with ID ${documentId} not found`);
       }
       
       document = data;
@@ -86,11 +87,13 @@ export const processTranscriptForIdeas = async (
       throw new Error("Document content is empty");
     }
     
-    // Step 4: Call the edge function directly with document content
+    // Step 4: Call the edge function with solid error handling
     let contentIdeas;
     try {
       console.log(`Calling edge function to generate ideas for: ${document.title} (ID: ${document.id})`);
-      const { data: edgeFunctionData, error: edgeFunctionError } = await supabase.functions.invoke(
+      
+      // Enhanced edge function call with better error handling
+      const response = await supabase.functions.invoke(
         "process-document", 
         {
           body: {
@@ -103,17 +106,17 @@ export const processTranscriptForIdeas = async (
         }
       );
       
-      if (edgeFunctionError) {
-        console.error("Edge function error:", edgeFunctionError);
-        throw edgeFunctionError;
+      if (response.error) {
+        console.error("Edge function error:", response.error);
+        throw new Error(`Edge function failed: ${response.error.message || 'Unknown error'}`);
       }
       
-      if (!edgeFunctionData) {
+      if (!response.data) {
         console.error("Edge function returned no data");
         throw new Error("No data returned from edge function");
       }
       
-      contentIdeas = edgeFunctionData?.ideas || [];
+      contentIdeas = response.data?.ideas || [];
       console.log(`Generated ${contentIdeas.length} ideas via edge function`);
     } catch (generateError) {
       console.error("Error generating ideas via edge function:", generateError);
