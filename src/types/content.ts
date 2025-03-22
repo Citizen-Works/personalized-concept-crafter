@@ -2,9 +2,9 @@
 /**
  * Content-related type definitions
  */
-export type ContentSource = 'manual' | 'meeting' | 'transcript' | 'ai';
-export type ContentStatus = 'draft' | 'unreviewed' | 'approved' | 'archived' | 'published' | 'rejected';
-export type ContentType = 'blog' | 'newsletter' | 'social' | 'linkedin' | 'twitter' | 'facebook' | 'instagram';
+export type ContentSource = 'manual' | 'meeting' | 'transcript' | 'ai' | 'other';
+export type ContentStatus = 'draft' | 'unreviewed' | 'approved' | 'archived' | 'published' | 'rejected' | 'drafted' | 'ready';
+export type ContentType = 'blog' | 'newsletter' | 'social' | 'linkedin' | 'twitter' | 'facebook' | 'instagram' | 'marketing';
 export type DraftStatus = 'draft' | 'ready' | 'published' | 'archived';
 
 export interface ContentIdea {

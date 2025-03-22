@@ -8,8 +8,8 @@ export function useContentStatusCounts() {
   
   const statusCounts = useMemo(() => {
     const needsReviewCount = ideas.filter(idea => idea.status === 'unreviewed').length;
-    const inProgressCount = ideas.filter(idea => idea.status === 'approved' || idea.status === 'drafted').length;
-    const readyToPublishCount = ideas.filter(idea => idea.status === 'ready').length;
+    const inProgressCount = ideas.filter(idea => ['approved', 'drafted', 'draft'].includes(idea.status as string)).length;
+    const readyToPublishCount = ideas.filter(idea => ['ready'].includes(idea.status as string)).length;
     const publishedCount = ideas.filter(idea => idea.status === 'published').length;
     
     return {

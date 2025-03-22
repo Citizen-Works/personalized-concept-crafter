@@ -31,6 +31,7 @@ export const ReviewQueueTab: React.FC<ReviewQueueTabProps> = ({
     previewIdea,
     previewItem,
     deleteConfirmOpen,
+    itemToDelete,
     handleToggleSelect,
     handleSelectAll,
     handleApprove,

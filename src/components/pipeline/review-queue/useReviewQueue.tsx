@@ -97,6 +97,7 @@ export const useReviewQueue = ({ searchQuery, dateRange, contentTypeFilter }: Us
     handleApprove,
     handleArchive,
     handleReject,
+    handleDelete,
     handleConfirmDelete,
     handleBatchApprove,
     handleBatchArchive,
