@@ -13,21 +13,11 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { ContentType } from '@/types';
 import { DraftWithIdea } from '@/hooks/useDrafts';
+import { getTypeBadgeClasses } from '@/components/ideas/BadgeUtils';
 
 type DraftListItemProps = {
   draft: DraftWithIdea;
   onDelete: (id: string) => void;
-};
-
-export const getTypeBadgeClasses = (type: ContentType) => {
-  switch (type) {
-    case 'linkedin':
-      return 'bg-sky-50 text-sky-700 border-sky-200';
-    case 'newsletter':
-      return 'bg-emerald-50 text-emerald-700 border-emerald-200';
-    case 'marketing':
-      return 'bg-rose-50 text-rose-700 border-rose-200';
-  }
 };
 
 export const DraftListItem: React.FC<DraftListItemProps> = ({ draft, onDelete }) => {
@@ -45,7 +35,7 @@ export const DraftListItem: React.FC<DraftListItemProps> = ({ draft, onDelete })
             <div className="flex items-center gap-2 flex-wrap">
               <h3 className="font-medium">{draft.ideaTitle}</h3>
               <Badge 
-                className={`${getTypeBadgeClasses(draft.contentType)}`}
+                className={getTypeBadgeClasses(draft.contentType)}
               >
                 {draft.contentType.charAt(0).toUpperCase() + draft.contentType.slice(1)}
               </Badge>
