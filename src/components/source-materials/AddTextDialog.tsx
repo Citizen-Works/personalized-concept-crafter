@@ -31,7 +31,7 @@ const AddTextDialog: React.FC<AddTextDialogProps> = ({
   const [content, setContent] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [type, setType] = useState<DocumentType>("document" as DocumentType);
+  const [type, setType] = useState<DocumentType>("other" as DocumentType);
   
   const { createDocument } = useDocuments();
 
@@ -54,7 +54,7 @@ const AddTextDialog: React.FC<AddTextDialogProps> = ({
       await createDocument({
         title: title.trim(),
         content: content.trim(),
-        type: "document", // Default type for text
+        type: "other", // Using "other" type instead of "document"
         purpose: "business_context", // Default purpose
         status: "active",
         content_type: null,

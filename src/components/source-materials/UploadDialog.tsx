@@ -30,7 +30,7 @@ const UploadDialog: React.FC<UploadDialogProps> = ({
   const [file, setFile] = useState<File | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [type, setType] = useState<DocumentType>("document" as DocumentType);
+  const [type, setType] = useState<DocumentType>("other" as DocumentType);
   
   const { uploadDocument } = useDocuments();
 
@@ -65,7 +65,7 @@ const UploadDialog: React.FC<UploadDialogProps> = ({
       // Call the uploadDocument function with the file and document data
       await uploadDocument(file, {
         title: title.trim(),
-        type: "document",
+        type: "other", // Using "other" type instead of "document"
         purpose: "business_context",
         content_type: null,
         status: "active"
