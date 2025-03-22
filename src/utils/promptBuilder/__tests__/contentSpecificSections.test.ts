@@ -1,130 +1,36 @@
-import { describe, it, expect, vi } from 'vitest';
-import { ContentIdea, ContentType } from '@/types';
+
+import { ContentType } from '@/types';
 import { getContentSpecificSections } from '../contentSpecificSections';
 
 describe('getContentSpecificSections', () => {
-  it('should return LinkedIn specific sections when contentType is linkedin', () => {
-    const idea: ContentIdea = {
-      id: '123',
-      userId: 'user123',
-      title: 'Test Idea',
-      description: 'This is a test idea',
-      notes: 'Some notes',
-      source: 'manual',
-      status: 'approved',
-      hasBeenUsed: false,
-      createdAt: new Date(),
-    };
+  test('returns LinkedIn specific guidelines for linkedin type', () => {
+    const sections = getContentSpecificSections('linkedin');
     
-    const contentType: ContentType = 'linkedin';
-    
-    const sections = getContentSpecificSections(idea, contentType);
-    
-    expect(sections).toContainEqual(
-      expect.objectContaining({
-        title: expect.stringContaining('LinkedIn'),
-      })
-    );
+    expect(sections).toHaveLength(1);
+    expect(sections[0].title).toBe('LinkedIn Specific Guidelines');
+    expect(sections[0].content).toContain('Keep posts professional but conversational');
   });
-  
-  it('should return newsletter specific sections when contentType is newsletter', () => {
-    const idea: ContentIdea = {
-      id: '123',
-      userId: 'user123',
-      title: 'Test Idea',
-      description: 'This is a test idea',
-      notes: 'Some notes',
-      source: 'manual',
-      status: 'approved',
-      hasBeenUsed: false,
-      createdAt: new Date(),
-    };
+
+  test('returns newsletter specific guidelines for newsletter type', () => {
+    const sections = getContentSpecificSections('newsletter');
     
-    const contentType: ContentType = 'newsletter';
-    
-    const sections = getContentSpecificSections(idea, contentType);
-    
-    expect(sections).toContainEqual(
-      expect.objectContaining({
-        title: expect.stringContaining('Newsletter'),
-      })
-    );
+    expect(sections).toHaveLength(1);
+    expect(sections[0].title).toBe('Newsletter Specific Guidelines');
+    expect(sections[0].content).toContain('Include a clear, engaging subject line');
   });
-  
-  it('should return marketing specific sections when contentType is marketing', () => {
-    const idea: ContentIdea = {
-      id: '123',
-      userId: 'user123',
-      title: 'Test Idea',
-      description: 'This is a test idea',
-      notes: 'Some notes',
-      source: 'manual',
-      status: 'approved',
-      hasBeenUsed: false,
-      createdAt: new Date(),
-    };
+
+  test('returns marketing specific guidelines for marketing type', () => {
+    const sections = getContentSpecificSections('marketing');
     
-    const contentType: ContentType = 'marketing';
-    
-    const sections = getContentSpecificSections(idea, contentType);
-    
-    expect(sections).toContainEqual(
-      expect.objectContaining({
-        title: expect.stringContaining('Marketing'),
-      })
-    );
+    expect(sections).toHaveLength(1);
+    expect(sections[0].title).toBe('Marketing Content Specific Guidelines');
+    expect(sections[0].content).toContain('Focus on benefits rather than features');
   });
-  
-  it('should extract content from notes if available', () => {
-    const idea: ContentIdea = {
-      id: '123',
-      userId: 'user123',
-      title: 'Test Idea',
-      description: 'This is a test idea',
-      notes: JSON.stringify({
-        targetIcp: 'Marketing professionals',
-        contentPillar: 'Content Strategy',
-        keyPoints: ['Point 1', 'Point 2'],
-        ctaSuggestion: 'Sign up for our newsletter'
-      }),
-      source: 'manual',
-      status: 'approved',
-      hasBeenUsed: false,
-      createdAt: new Date(),
-    };
+
+  test('returns empty array for unrecognized content type', () => {
+    // @ts-ignore - Testing invalid input
+    const sections = getContentSpecificSections('invalid-type');
     
-    const contentType: ContentType = 'linkedin';
-    
-    const sections = getContentSpecificSections(idea, contentType);
-    
-    // Check if the parsed notes data is included in the sections
-    const contentSection = sections.find(section => 
-      section.content.includes('Marketing professionals') ||
-      section.content.includes('Content Strategy')
-    );
-    
-    expect(contentSection).toBeDefined();
-  });
-  
-  it('should handle invalid JSON in notes gracefully', () => {
-    const idea: ContentIdea = {
-      id: '123',
-      userId: 'user123',
-      title: 'Test Idea',
-      description: 'This is a test idea',
-      notes: 'This is not valid JSON',
-      source: 'manual',
-      status: 'approved',
-      hasBeenUsed: false,
-      createdAt: new Date(),
-    };
-    
-    const contentType: ContentType = 'linkedin';
-    
-    // Should not throw an error
-    expect(() => getContentSpecificSections(idea, contentType)).not.toThrow();
-    
-    const sections = getContentSpecificSections(idea, contentType);
-    expect(sections.length).toBeGreaterThan(0);
+    expect(sections).toHaveLength(0);
   });
 });

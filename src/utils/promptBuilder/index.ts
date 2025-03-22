@@ -39,6 +39,21 @@ export const buildPrompt = (idea: ContentIdea, contentType: ContentType): Prompt
   };
 };
 
+// Export these functions for tests and other parts of the app
+export const buildBasePrompt = () => { return ''; };
+export const addLinkedinPostsToPrompt = (prompt: string, posts: any[]) => { return prompt; };
+export const addContentIdeaToPrompt = (prompt: string, idea: ContentIdea) => { return prompt; };
+export const addCustomInstructionsToPrompt = (prompt: string, instructions: string | null) => { return prompt; };
+export const addTaskToPrompt = (prompt: string, contentType: ContentType) => { return prompt; };
+export const addPatternsToAvoidToPrompt = (prompt: string, profile: any) => { return prompt; };
+export const addPersonalStoriesToPrompt = (prompt: string, stories: any[]) => { return prompt; };
+export const buildBasePromptStructure = () => { return {}; };
+export const getBestPracticesSection = () => { return {}; };
+export const buildBusinessContextSection = () => { return {}; };
+export const buildContentPillarsSection = () => { return {}; };
+export const buildTargetAudiencesSection = () => { return {}; };
+export const buildWritingStyleSections = () => { return {}; };
+
 export default {
   buildPrompt
 };

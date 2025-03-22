@@ -27,10 +27,10 @@ export const fetchIdeas = async (userId: string): Promise<ContentIdea[]> => {
     meetingTranscriptExcerpt: item.meeting_transcript_excerpt,
     sourceUrl: item.source_url,
     status: item.status as ContentStatus,
-    hasBeenUsed: item.has_been_used || false, // Default to false if field doesn't exist
+    hasBeenUsed: false, // Default since field doesn't exist in DB yet
     createdAt: new Date(item.created_at),
-    contentPillarIds: item.content_pillar_ids || [], // Default to empty array if field doesn't exist
-    targetAudienceIds: item.target_audience_ids || [] // Default to empty array if field doesn't exist
+    contentPillarIds: [], // Default since field doesn't exist in DB yet
+    targetAudienceIds: [] // Default since field doesn't exist in DB yet
   }));
 };
 
@@ -62,10 +62,10 @@ export const fetchIdeaById = async (id: string, userId: string): Promise<Content
     meetingTranscriptExcerpt: data.meeting_transcript_excerpt,
     sourceUrl: data.source_url,
     status: data.status as ContentStatus,
-    hasBeenUsed: data.has_been_used || false, // Default to false if field doesn't exist
+    hasBeenUsed: false, // Default since field doesn't exist in DB yet
     createdAt: new Date(data.created_at),
-    contentPillarIds: data.content_pillar_ids || [], // Default to empty array if field doesn't exist
-    targetAudienceIds: data.target_audience_ids || [] // Default to empty array if field doesn't exist
+    contentPillarIds: [], // Default since field doesn't exist in DB yet
+    targetAudienceIds: [] // Default since field doesn't exist in DB yet
   };
 };
 
@@ -83,9 +83,9 @@ export const createIdea = async (idea: IdeaCreateInput, userId: string): Promise
         meeting_transcript_excerpt: idea.meetingTranscriptExcerpt,
         source_url: idea.sourceUrl,
         status: idea.status,
-        has_been_used: idea.hasBeenUsed || false,
-        content_pillar_ids: idea.contentPillarIds || [],
-        target_audience_ids: idea.targetAudienceIds || [],
+        // has_been_used field doesn't exist in DB yet
+        // content_pillar_ids field doesn't exist in DB yet
+        // target_audience_ids field doesn't exist in DB yet
         user_id: userId
       }
     ])
@@ -107,10 +107,10 @@ export const createIdea = async (idea: IdeaCreateInput, userId: string): Promise
     meetingTranscriptExcerpt: data.meeting_transcript_excerpt,
     sourceUrl: data.source_url,
     status: data.status as ContentStatus,
-    hasBeenUsed: data.has_been_used || false, // Default to false if field doesn't exist
+    hasBeenUsed: false, // Default since field doesn't exist in DB yet
     createdAt: new Date(data.created_at),
-    contentPillarIds: data.content_pillar_ids || [], // Default to empty array if field doesn't exist
-    targetAudienceIds: data.target_audience_ids || [] // Default to empty array if field doesn't exist
+    contentPillarIds: [], // Default since field doesn't exist in DB yet
+    targetAudienceIds: [] // Default since field doesn't exist in DB yet
   };
 };
 
@@ -125,9 +125,9 @@ export const updateIdea = async ({ id, ...updates }: { id: string } & IdeaUpdate
   if (updates.meetingTranscriptExcerpt !== undefined) updateData.meeting_transcript_excerpt = updates.meetingTranscriptExcerpt;
   if (updates.sourceUrl !== undefined) updateData.source_url = updates.sourceUrl;
   if (updates.status) updateData.status = updates.status;
-  if (updates.hasBeenUsed !== undefined) updateData.has_been_used = updates.hasBeenUsed;
-  if (updates.contentPillarIds !== undefined) updateData.content_pillar_ids = updates.contentPillarIds;
-  if (updates.targetAudienceIds !== undefined) updateData.target_audience_ids = updates.targetAudienceIds;
+  // has_been_used field doesn't exist in DB yet
+  // content_pillar_ids field doesn't exist in DB yet
+  // target_audience_ids field doesn't exist in DB yet
 
   try {
     const { data, error } = await supabase
@@ -152,10 +152,10 @@ export const updateIdea = async ({ id, ...updates }: { id: string } & IdeaUpdate
       meetingTranscriptExcerpt: data.meeting_transcript_excerpt,
       sourceUrl: data.source_url,
       status: data.status as ContentStatus,
-      hasBeenUsed: data.has_been_used || false, // Default to false if field doesn't exist
+      hasBeenUsed: false, // Default since field doesn't exist in DB yet
       createdAt: new Date(data.created_at),
-      contentPillarIds: data.content_pillar_ids || [], // Default to empty array if field doesn't exist
-      targetAudienceIds: data.target_audience_ids || [] // Default to empty array if field doesn't exist
+      contentPillarIds: [], // Default since field doesn't exist in DB yet
+      targetAudienceIds: [] // Default since field doesn't exist in DB yet
     };
   } catch (error) {
     console.error("Error in updateIdea:", error);

@@ -1,4 +1,3 @@
-
 import { useMemo } from 'react';
 import { ContentIdea, ContentType } from '@/types';
 
@@ -40,6 +39,7 @@ export const useFilteredIdeas = ({
       }
       
       // Note: contentType filter removed since contentType no longer exists on ideas
+      // but we're keeping the interface the same for compatibility
       
       return true;
     });

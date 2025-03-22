@@ -1,119 +1,55 @@
-import { describe, it, expect, vi } from 'vitest';
+
+import { ContentIdea, ContentSource, ContentStatus, ContentType } from '@/types';
 import { buildPrompt } from '../index';
-import { ContentIdea, ContentType } from '@/types';
 
 describe('buildPrompt', () => {
-  it('should build a prompt with all sections', () => {
-    const idea: ContentIdea = {
-      id: '123',
-      userId: 'user123',
+  test('builds prompt structure with proper sections', () => {
+    // Create a mock content idea
+    const mockIdea: ContentIdea = {
+      id: 'test-id',
+      userId: 'user-123',
       title: 'Test Idea',
-      description: 'This is a test idea',
-      notes: 'Some notes about the idea',
-      source: 'manual',
-      status: 'approved',
+      description: 'Test description',
+      notes: 'Test notes',
+      source: 'manual' as ContentSource,
+      status: 'approved' as ContentStatus,
       hasBeenUsed: false,
       createdAt: new Date(),
+      contentPillarIds: [],
+      targetAudienceIds: []
     };
+
+    // Test for LinkedIn content type
+    const linkedinPrompt = buildPrompt(mockIdea, 'linkedin');
     
-    const contentType: ContentType = 'linkedin';
-    
-    const prompt = buildPrompt(idea, contentType);
-    
-    expect(prompt).toContain('# Content Idea');
-    expect(prompt).toContain('Test Idea');
-    expect(prompt).toContain('This is a test idea');
-    expect(prompt).toContain('Some notes about the idea');
+    expect(linkedinPrompt.sections).toHaveLength(3); // Base sections + LinkedIn section
+    expect(linkedinPrompt.sections[0].title).toBe('Content Idea');
+    expect(linkedinPrompt.sections[0].content).toBe('Test Idea');
+    expect(linkedinPrompt.sections[1].title).toBe('Description');
+    expect(linkedinPrompt.sections[1].content).toBe('Test description');
+    expect(linkedinPrompt.sections[2].title).toBe('LinkedIn Specific Guidelines');
   });
-  
-  it('should include content type specific sections', () => {
-    const idea: ContentIdea = {
-      id: '123',
-      userId: 'user123',
-      title: 'LinkedIn Post Idea',
-      description: 'This is a LinkedIn post idea',
-      notes: 'Some notes about the LinkedIn post',
-      source: 'manual',
-      status: 'approved',
-      hasBeenUsed: false,
-      createdAt: new Date(),
-    };
-    
-    const linkedinPrompt = buildPrompt(idea, 'linkedin');
-    expect(linkedinPrompt).toContain('LinkedIn Post Guidelines');
-    
-    const newsletterPrompt = buildPrompt(idea, 'newsletter');
-    expect(newsletterPrompt).toContain('Newsletter Guidelines');
-    
-    const marketingPrompt = buildPrompt(idea, 'marketing');
-    expect(marketingPrompt).toContain('Marketing Content Guidelines');
-  });
-  
-  it('should handle empty notes', () => {
-    const idea: ContentIdea = {
-      id: '123',
-      userId: 'user123',
+
+  test('handles idea without notes', () => {
+    // Create a mock content idea without notes
+    const mockIdea: ContentIdea = {
+      id: 'test-id',
+      userId: 'user-123',
       title: 'Test Idea',
-      description: 'This is a test idea',
+      description: 'Test description',
       notes: '',
-      source: 'manual',
-      status: 'approved',
+      source: 'manual' as ContentSource,
+      status: 'approved' as ContentStatus,
       hasBeenUsed: false,
       createdAt: new Date(),
+      contentPillarIds: [],
+      targetAudienceIds: []
     };
+
+    const prompt = buildPrompt(mockIdea, 'newsletter');
     
-    const prompt = buildPrompt(idea, 'linkedin');
-    
-    expect(prompt).toContain('# Content Idea');
-    expect(prompt).toContain('Test Idea');
-    expect(prompt).not.toContain('## Additional Notes');
-  });
-  
-  it('should include writing style if provided', () => {
-    const idea: ContentIdea = {
-      id: '123',
-      userId: 'user123',
-      title: 'Test Idea',
-      description: 'This is a test idea',
-      notes: 'Some notes',
-      source: 'manual',
-      status: 'approved',
-      hasBeenUsed: false,
-      createdAt: new Date(),
-    };
-    
-    const writingStyle = {
-      voiceAnalysis: 'Professional and authoritative',
-      generalStyleGuide: 'Use clear, concise language',
-      linkedinStyleGuide: 'Engage with questions',
-      newsletterStyleGuide: 'Tell stories',
-      marketingStyleGuide: 'Focus on benefits',
-      vocabularyPatterns: 'Technical terms',
-      avoidPatterns: 'Jargon, clichés'
-    };
-    
-    const prompt = buildPrompt(idea, 'linkedin', writingStyle);
-    
-    expect(prompt).toContain('Professional and authoritative');
-    expect(prompt).toContain('Use clear, concise language');
-    expect(prompt).toContain('Engage with questions');
-  });
-  
-  it('should handle missing writing style', () => {
-    const idea: ContentIdea = {
-      id: '123',
-      userId: 'user123',
-      title: 'Test Idea',
-      description: 'This is a test idea',
-      notes: 'Some notes',
-      source: 'manual',
-      status: 'approved',
-      hasBeenUsed: false,
-      createdAt: new Date(),
-    };
-    
-    const prompt = buildPrompt(idea, 'linkedin');
-    
-    expect(prompt).not.toContain('## Writing Style');
+    expect(prompt.sections).toHaveLength(2); // Just title and description, no notes
+    expect(prompt.sections[0].title).toBe('Content Idea');
+    expect(prompt.sections[1].title).toBe('Description');
   });
 });
