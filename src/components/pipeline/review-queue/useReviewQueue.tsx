@@ -49,7 +49,7 @@ export const useReviewQueue = ({ searchQuery, dateRange, contentTypeFilter }: Us
     setPreviewItem 
   });
   
-  // Handle batch actions
+  // Handle batch actions - no more handleBatchReject
   const { 
     isUpdating: batchActionsUpdating, 
     handleBatchApprove, 

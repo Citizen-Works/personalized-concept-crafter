@@ -1,21 +1,18 @@
 
 import { useState } from 'react';
-import { ContentIdea, ContentStatus } from '@/types';
-import { toast } from "sonner";
+import { ContentStatus } from '@/types';
+import { toast } from 'sonner';
 
 interface UseItemActionsProps {
-  updateIdea: (params: { id: string } & any) => Promise<ContentIdea>;
+  updateIdea: (params: { id: string } & any) => Promise<any>;
   selectedItems: string[];
   setSelectedItems: React.Dispatch<React.SetStateAction<string[]>>;
   previewItem: string | null;
   setPreviewItem: React.Dispatch<React.SetStateAction<string | null>>;
 }
 
-/**
- * Custom hook for handling idea actions (approve, archive)
- */
-export const useItemActions = ({ 
-  updateIdea, 
+export const useItemActions = ({
+  updateIdea,
   selectedItems,
   setSelectedItems,
   previewItem,
@@ -23,59 +20,53 @@ export const useItemActions = ({
 }: UseItemActionsProps) => {
   const [isUpdating, setIsUpdating] = useState(false);
   
-  // Handle approve idea
+  // Handle approve action
   const handleApprove = async (id: string) => {
-    if (isUpdating) return; // Prevent multiple requests
+    if (isUpdating) return;
     
     try {
       setIsUpdating(true);
       await updateIdea({ id, status: 'approved' as ContentStatus });
+      toast.success("Item approved");
       
       // Remove from selected items if it was selected
       if (selectedItems.includes(id)) {
-        setSelectedItems(prev => prev.filter(itemId => itemId !== id));
+        setSelectedItems(prev => prev.filter(item => item !== id));
       }
       
-      // Close preview if this item was being previewed
+      // Close preview if this was the item being previewed
       if (previewItem === id) {
         setPreviewItem(null);
       }
-      
-      toast.success("Content idea approved");
     } catch (error) {
       console.error("Error approving idea:", error);
-      toast.error("Failed to approve content idea");
+      toast.error("Failed to approve item");
     } finally {
       setIsUpdating(false);
     }
   };
   
-  // Handle archive idea
+  // Handle archive action
   const handleArchive = async (id: string) => {
-    if (isUpdating) return; // Prevent multiple requests
+    if (isUpdating) return;
     
     try {
       setIsUpdating(true);
-      await updateIdea({ 
-        id, 
-        status: 'archived' as ContentStatus 
-      });
+      await updateIdea({ id, status: 'archived' as ContentStatus });
+      toast.success("Item archived");
       
       // Remove from selected items if it was selected
       if (selectedItems.includes(id)) {
-        setSelectedItems(prev => prev.filter(itemId => itemId !== id));
+        setSelectedItems(prev => prev.filter(item => item !== id));
       }
       
-      // Close preview if this item was being previewed
+      // Close preview if this was the item being previewed
       if (previewItem === id) {
         setPreviewItem(null);
       }
-      
-      toast.success("Content idea archived");
     } catch (error) {
       console.error("Error archiving idea:", error);
-      toast.error("Failed to archive content idea");
-      return; // Exit early to prevent further processing
+      toast.error("Failed to archive item");
     } finally {
       setIsUpdating(false);
     }

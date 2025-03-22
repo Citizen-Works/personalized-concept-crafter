@@ -8,7 +8,7 @@ export function useContentStatusCounts() {
   const { drafts, isLoading: draftsLoading } = useDrafts();
   
   const statusCounts = useMemo(() => {
-    // Idea counts
+    // Idea counts - explicitly filter out archived ideas
     const needsReviewCount = ideas.filter(idea => idea.status === 'unreviewed').length;
     const approvedIdeasCount = ideas.filter(idea => 
       idea.status === 'approved' && !idea.hasBeenUsed
