@@ -16,6 +16,7 @@ export function createWrapper() {
     },
   });
   
+  // Return a function that wraps the children with the necessary providers
   return ({ children }: { children: React.ReactNode }) => (
     <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
   );
