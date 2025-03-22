@@ -45,9 +45,10 @@ export const useContentIdeaApi = () => {
         status: data.status as ContentStatus,
         hasBeenUsed: data.has_been_used || false,
         createdAt: new Date(data.created_at),
-        // Handle potentially missing array fields with empty arrays as defaults
-        contentPillarIds: data.content_pillar_ids || [], 
-        targetAudienceIds: data.target_audience_ids || []
+        // The database schema may not have these fields yet
+        // Using optional chaining and nullish coalescing to safely handle
+        contentPillarIds: (data as any)?.content_pillar_ids || [], 
+        targetAudienceIds: (data as any)?.target_audience_ids || [] 
       };
       
       toast.success(`Idea updated to ${newStatus}`);
@@ -102,9 +103,10 @@ export const useContentDraftApi = () => {
         contentIdeaId: data.content_idea_id,
         content: data.content,
         // Handle potentially missing content_type field with a default
-        contentType: (data.content_type || 'linkedin') as ContentType,
+        // Using type assertion to avoid TypeScript errors
+        contentType: ((data as any)?.content_type || 'linkedin') as ContentType,
         // Handle potentially missing content_goal field
-        contentGoal: data.content_goal || undefined,
+        contentGoal: (data as any)?.content_goal || undefined,
         version: data.version,
         feedback: data.feedback || '',
         status: data.status as DraftStatus,

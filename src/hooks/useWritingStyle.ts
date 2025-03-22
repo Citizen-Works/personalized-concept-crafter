@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { WritingStyleProfile } from '@/types/writingStyle';
 import { fetchWritingStyleProfile } from '@/services/profile';
@@ -47,7 +48,18 @@ export const useWritingStyle = () => {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    setProfile(prev => ({ ...prev, [name]: value }));
+    setProfile(prev => {
+      // Update both camelCase and snake_case versions if needed
+      if (name === 'voiceAnalysis') return { ...prev, voiceAnalysis: value, voice_analysis: value };
+      if (name === 'generalStyleGuide') return { ...prev, generalStyleGuide: value, general_style_guide: value };
+      if (name === 'linkedinStyleGuide') return { ...prev, linkedinStyleGuide: value, linkedin_style_guide: value };
+      if (name === 'newsletterStyleGuide') return { ...prev, newsletterStyleGuide: value, newsletter_style_guide: value };
+      if (name === 'marketingStyleGuide') return { ...prev, marketingStyleGuide: value, marketing_style_guide: value };
+      if (name === 'vocabularyPatterns') return { ...prev, vocabularyPatterns: value, vocabulary_patterns: value };
+      if (name === 'avoidPatterns') return { ...prev, avoidPatterns: value, avoid_patterns: value };
+      
+      return { ...prev, [name]: value };
+    });
   };
 
   const saveProfile = async () => {
