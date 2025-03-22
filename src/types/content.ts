@@ -3,7 +3,7 @@
  * Content-related type definitions
  */
 export type ContentSource = 'manual' | 'meeting' | 'transcript' | 'ai' | 'other';
-export type ContentStatus = 'unreviewed' | 'approved' | 'rejected'; // Confirming 'rejected' is a valid status
+export type ContentStatus = 'unreviewed' | 'approved' | 'rejected'; // Standard content idea statuses
 export type ContentType = 'linkedin' | 'newsletter' | 'marketing';
 export type DraftStatus = 'draft' | 'ready' | 'published' | 'archived'; // Status for drafts
 
@@ -16,7 +16,7 @@ export interface ContentIdea {
   source: ContentSource;
   meetingTranscriptExcerpt?: string;
   sourceUrl?: string;
-  status: ContentStatus; // Simplified statuses
+  status: ContentStatus; // Using standardized ContentStatus type
   hasBeenUsed: boolean; // Tracks if idea has been used for drafts
   createdAt: Date;
   contentPillarIds?: string[];  // Optional array of content pillar IDs

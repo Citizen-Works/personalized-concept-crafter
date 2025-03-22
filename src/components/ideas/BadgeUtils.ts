@@ -3,13 +3,13 @@ import { ContentStatus, ContentType, ContentSource, DraftStatus } from '@/types'
 export const getStatusBadgeClasses = (status: ContentStatus): string => {
   switch (status) {
     case 'unreviewed':
-      return 'bg-yellow-50 text-yellow-700 border-yellow-200';
+      return 'bg-yellow-50 text-yellow-700 border-yellow-200 dark:bg-yellow-950 dark:text-yellow-300 dark:border-yellow-800';
     case 'approved':
-      return 'bg-green-50 text-green-700 border-green-200';
+      return 'bg-green-50 text-green-700 border-green-200 dark:bg-green-950 dark:text-green-300 dark:border-green-800';
     case 'rejected':
-      return 'bg-gray-50 text-gray-700 border-gray-200';
+      return 'bg-gray-50 text-gray-700 border-gray-200 dark:bg-gray-950 dark:text-gray-300 dark:border-gray-800';
     default:
-      return 'bg-gray-50 text-gray-700 border-gray-200';
+      return 'bg-gray-50 text-gray-700 border-gray-200 dark:bg-gray-950 dark:text-gray-300 dark:border-gray-800';
   }
 };
 

@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { FileText, Edit, Check, SendHorizonal, ArrowUpRight, Archive } from 'lucide-react';
+import { FileText, Edit, Check, SendHorizonal, ArrowUpRight, Archive, X } from 'lucide-react';
 import { StatusCard } from './StatusCard';
 
 interface ContentStatusCardsProps {
@@ -10,6 +10,7 @@ interface ContentStatusCardsProps {
   publishedCount: number;
   approvedIdeasCount: number;
   archivedCount?: number;
+  rejectedIdeasCount?: number;
   isLoading: boolean;
 }
 
@@ -20,6 +21,7 @@ export const ContentStatusCards = ({
   publishedCount,
   approvedIdeasCount,
   archivedCount = 0,
+  rejectedIdeasCount = 0,
   isLoading 
 }: ContentStatusCardsProps) => {
   const statusCards = [
@@ -64,11 +66,18 @@ export const ContentStatusCards = ({
       icon: <Archive className="h-6 w-6 text-gray-600" />,
       route: "/drafts?status=archived",
       color: "bg-gray-100 text-gray-600",
+    },
+    {
+      title: "Rejected Ideas",
+      count: rejectedIdeasCount,
+      icon: <X className="h-6 w-6 text-red-600" />,
+      route: "/ideas?status=rejected",
+      color: "bg-red-100 text-red-600",
     }
   ];
 
   return (
-    <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
+    <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-7">
       {statusCards.map((card) => (
         <StatusCard
           key={card.title}
