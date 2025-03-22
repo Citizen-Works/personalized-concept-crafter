@@ -8,7 +8,6 @@ import { ReadyToPublishTab } from "@/components/pipeline/ReadyToPublishTab";
 import { PublishedTab } from "@/components/pipeline/PublishedTab";
 import { ContentFilterBar } from "@/components/pipeline/ContentFilterBar";
 import { ResponsiveTabsList } from '@/components/pipeline/responsive/ResponsiveTabsList';
-import { ResponsiveText } from '@/components/ui/responsive-text';
 import { PageHeader } from '@/components/pipeline/page/PageHeader';
 import { TabContentContainer } from '@/components/pipeline/page/TabContentContainer';
 import { useContentPipeline } from '@/hooks/useContentPipeline';
