@@ -14,6 +14,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Document, DocumentType } from '@/types';
 import { useDocuments } from '@/hooks/useDocuments';
+import { toast } from 'sonner';
 
 interface AddTextDialogProps {
   open: boolean;
@@ -30,7 +31,6 @@ const AddTextDialog: React.FC<AddTextDialogProps> = ({
   const [content, setContent] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  // Use a string literal type that matches valid DocumentType values
   const [type, setType] = useState<DocumentType>("document" as DocumentType);
   
   const { createDocument } = useDocuments();
@@ -54,12 +54,13 @@ const AddTextDialog: React.FC<AddTextDialogProps> = ({
       await createDocument({
         title: title.trim(),
         content: content.trim(),
-        type: "other", // Default type for text
+        type: "document", // Default type for text
         purpose: "business_context", // Default purpose
         status: "active",
         content_type: null,
       });
       
+      toast.success("Text added successfully");
       onSuccess();
       handleClose();
     } catch (error) {

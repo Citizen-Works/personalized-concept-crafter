@@ -36,6 +36,7 @@ export const DraftActions: React.FC<DraftActionsProps> = ({
   const navigate = useNavigate();
   const [showRegenerateDialog, setShowRegenerateDialog] = useState(false);
   const { generateContent, isGenerating } = useClaudeAI();
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const handleCopyContent = () => {
     navigator.clipboard.writeText(content)
@@ -46,11 +47,15 @@ export const DraftActions: React.FC<DraftActionsProps> = ({
   const handleDeleteDraft = async () => {
     if (window.confirm('Are you sure you want to delete this draft?')) {
       try {
+        setIsDeleting(true);
         await onDelete(draftId);
         toast.success('Draft deleted successfully');
         navigate('/drafts');
       } catch (error) {
         console.error('Error deleting draft:', error);
+        toast.error('Failed to delete draft');
+      } finally {
+        setIsDeleting(false);
       }
     }
   };
@@ -116,9 +121,10 @@ export const DraftActions: React.FC<DraftActionsProps> = ({
             variant="destructive" 
             className="w-full gap-1"
             onClick={handleDeleteDraft}
+            disabled={isDeleting}
           >
             <Trash className="h-4 w-4" />
-            Delete Draft
+            {isDeleting ? 'Deleting...' : 'Delete Draft'}
           </Button>
         </CardContent>
       </Card>

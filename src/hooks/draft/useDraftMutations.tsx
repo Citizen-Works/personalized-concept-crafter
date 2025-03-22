@@ -28,6 +28,8 @@ export const useDraftMutations = (userId: string | undefined) => {
     mutationFn: (id: string) => deleteDraft(id, userId || ""),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["drafts", userId] });
+      // Invalidate the drafts for individual ideas as well
+      queryClient.invalidateQueries({ queryKey: ["drafts-by-idea"] });
     },
   });
 

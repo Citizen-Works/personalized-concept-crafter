@@ -11,6 +11,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import { useDocuments } from '@/hooks/useDocuments';
+import { toast } from 'sonner';
 import type { DocumentType } from '@/types';
 
 interface UploadDialogProps {
@@ -28,8 +30,9 @@ const UploadDialog: React.FC<UploadDialogProps> = ({
   const [file, setFile] = useState<File | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  // Use a string literal type that matches valid DocumentType values
   const [type, setType] = useState<DocumentType>("document" as DocumentType);
+  
+  const { uploadDocument } = useDocuments();
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -50,16 +53,30 @@ const UploadDialog: React.FC<UploadDialogProps> = ({
       return;
     }
     
+    if (!title.trim()) {
+      setError("Please enter a title");
+      return;
+    }
+    
     try {
       setError(null);
       setIsSubmitting(true);
-      // Handle upload logic
+      
+      // Call the uploadDocument function with the file and document data
+      await uploadDocument(file, {
+        title: title.trim(),
+        type: "document",
+        purpose: "business_context",
+        content_type: null,
+        status: "active"
+      });
+      
+      toast.success("Document uploaded successfully");
       onSuccess();
       handleClose();
     } catch (error) {
       console.error("Error uploading file:", error);
       setError("Failed to upload file. Please try again.");
-      // Error is already handled in the service
     } finally {
       setIsSubmitting(false);
     }

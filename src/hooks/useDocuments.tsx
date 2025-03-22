@@ -1,127 +1,149 @@
 
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Document, DocumentCreateInput, DocumentFilterOptions } from "@/types";
+import { useState, useCallback } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/context/auth';
-import { 
-  fetchDocuments, 
-  createDocument, 
-  updateDocumentStatus, 
-  processTranscriptForIdeas,
-  IdeaResponse,
-  fetchDocument
-} from "@/services/documents"; 
-import { useDocumentUpload } from "./documents/useDocumentUpload";
-import { useMemo, useCallback } from "react";
+import { Document, DocumentType, DocumentCreateInput } from '@/types';
+import { toast } from 'sonner';
 
-/**
- * Hook for managing document operations with optimized performance
- */
-export const useDocuments = (filters?: DocumentFilterOptions) => {
+type ProcessTranscriptStatus = {
+  [key: string]: boolean;
+};
+
+export const useDocuments = () => {
   const { user } = useAuth();
   const queryClient = useQueryClient();
-  const { uploadDocument, uploadProgress } = useDocumentUpload(user?.id);
-  
-  // Query key that includes all filter parameters for proper cache invalidation
-  const queryKey = useMemo(() => ["documents", user?.id, filters], [user?.id, filters]);
+  const [isDocumentProcessing, setIsDocumentProcessing] = useState<ProcessTranscriptStatus>({});
 
-  // Query for fetching documents with caching
-  const documentsQuery = useQuery({
-    queryKey,
-    queryFn: () => fetchDocuments(user?.id || "", filters),
-    enabled: !!user,
+  // Query to fetch all documents
+  const { data: documents, isLoading, error, refetch } = useQuery({
+    queryKey: ['documents', user?.id],
+    queryFn: async () => {
+      if (!user?.id) throw new Error('User not authenticated');
+      
+      try {
+        const response = await fetch('/api/documents');
+        if (!response.ok) throw new Error('Failed to fetch documents');
+        
+        const data = await response.json();
+        
+        // Convert date strings to Date objects
+        return data.map((doc: any) => ({
+          ...doc,
+          createdAt: new Date(doc.createdAt),
+          updatedAt: new Date(doc.updatedAt),
+        }));
+      } catch (error) {
+        console.error('Error fetching documents:', error);
+        toast.error('Failed to fetch documents');
+        throw error;
+      }
+    },
+    enabled: !!user?.id,
   });
 
-  // Function to fetch an individual document by ID
-  const fetchDocumentCallback = useCallback(async (documentId: string) => {
-    if (!user?.id) throw new Error("User not authenticated");
-    return await fetchDocument(user?.id, documentId);
-  }, [user?.id]);
-
-  // Mutation for creating documents
+  // Mutation to create a document
   const createDocumentMutation = useMutation({
-    mutationFn: (document: DocumentCreateInput) => 
-      createDocument(user?.id || "", document),
+    mutationFn: async (documentData: DocumentCreateInput) => {
+      if (!user?.id) throw new Error('User not authenticated');
+      
+      try {
+        const response = await fetch('/api/documents', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            ...documentData,
+            user_id: user.id,
+          }),
+        });
+        
+        if (!response.ok) throw new Error('Failed to create document');
+        
+        return await response.json();
+      } catch (error) {
+        console.error('Error creating document:', error);
+        toast.error('Failed to create document');
+        throw error;
+      }
+    },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey });
+      queryClient.invalidateQueries({ queryKey: ['documents', user?.id] });
+      toast.success('Document created successfully');
     },
   });
 
-  // Mutation for updating document status
-  const updateDocumentStatusMutation = useMutation({
-    mutationFn: ({ id, status }: { id: string; status: 'active' | 'archived' }) => 
-      updateDocumentStatus(user?.id || "", id, status),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey });
-    },
-  });
+  // Upload a document
+  const uploadDocument = useCallback(async (file: File, documentData: Omit<DocumentCreateInput, 'content'>) => {
+    if (!user?.id) throw new Error('User not authenticated');
+    
+    try {
+      // First, parse the file content using FileReader
+      const content = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result as string);
+        reader.onerror = reject;
+        reader.readAsText(file);
+      });
+      
+      // Then create the document with parsed content
+      return await createDocumentMutation.mutateAsync({
+        ...documentData,
+        content,
+      });
+    } catch (error) {
+      console.error('Error uploading document:', error);
+      toast.error('Failed to upload document');
+      throw error;
+    }
+  }, [user?.id, createDocumentMutation]);
 
-  // Mutation for processing transcripts
+  // Mutation to process a transcript
   const processTranscriptMutation = useMutation({
-    mutationFn: (params: { documentId: string; backgroundMode?: boolean }) => 
-      processTranscriptForIdeas(
-        user?.id || "", 
-        params.documentId, 
-        params.backgroundMode
-      ),
+    mutationFn: async (documentId: string) => {
+      if (!user?.id) throw new Error('User not authenticated');
+      
+      try {
+        setIsDocumentProcessing(prev => ({ ...prev, [documentId]: true }));
+        
+        const response = await fetch(`/api/documents/${documentId}/process`, {
+          method: 'POST',
+        });
+        
+        if (!response.ok) throw new Error('Failed to process document');
+        
+        return await response.json();
+      } catch (error) {
+        console.error('Error processing document:', error);
+        toast.error('Failed to process document');
+        throw error;
+      } finally {
+        setIsDocumentProcessing(prev => ({ ...prev, [documentId]: false }));
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['documents', user?.id] });
+      queryClient.invalidateQueries({ queryKey: ['ideas', user?.id] });
+    },
   });
 
-  // Memoized create function to prevent unnecessary rerenders
-  const createDocumentCallback = useCallback((document: DocumentCreateInput) => {
-    createDocumentMutation.mutate(document);
+  // Function to create a document asynchronously and get the result
+  const createDocumentAsync = useCallback(async (documentData: DocumentCreateInput) => {
+    return await createDocumentMutation.mutateAsync(documentData);
   }, [createDocumentMutation]);
-  
-  // Memoized upload function
-  const uploadDocumentCallback = useCallback(({ file, documentData }: { 
-    file: File; 
-    documentData: Omit<DocumentCreateInput, "content"> 
-  }) => {
-    uploadDocumentMutation.mutate({ file, documentData });
-  }, [uploadDocumentMutation]);
-  
-  // Memoized status update function
-  const updateDocumentStatusCallback = useCallback(({ id, status }: { 
-    id: string; 
-    status: 'active' | 'archived' 
-  }) => {
-    updateDocumentStatusMutation.mutate({ id, status });
-  }, [updateDocumentStatusMutation]);
 
-  // Process transcript with optional background mode
-  const processTranscriptCallback = useCallback((
-    documentId: string, 
-    backgroundMode: boolean = false
-  ) => {
-    return processTranscriptMutation.mutateAsync({ 
-      documentId, 
-      backgroundMode 
-    });
+  // Function to process a transcript and get the result
+  const processTranscript = useCallback(async (documentId: string) => {
+    return await processTranscriptMutation.mutateAsync(documentId);
   }, [processTranscriptMutation]);
 
-  // Return memoized value to prevent downstream rerenders
-  return useMemo(() => ({
-    documents: documentsQuery.data || [],
-    isLoading: documentsQuery.isLoading,
-    isError: documentsQuery.isError,
-    error: documentsQuery.error,
-    refetch: documentsQuery.refetch,
-    fetchDocument: fetchDocumentCallback,
-    createDocument: createDocumentCallback,
-    uploadDocument: uploadDocumentCallback,
-    updateDocumentStatus: updateDocumentStatusCallback,
-    processTranscript: processTranscriptCallback,
-    uploadProgress,
-    isDocumentProcessing: (id: string) => false, // Placeholder function for compatibility
-  }), [
-    documentsQuery.data,
-    documentsQuery.isLoading,
-    documentsQuery.isError,
-    documentsQuery.error,
-    documentsQuery.refetch,
-    fetchDocumentCallback,
-    createDocumentCallback,
-    uploadDocumentCallback,
-    updateDocumentStatusCallback,
-    processTranscriptCallback,
-    uploadProgress
-  ]);
+  return {
+    documents,
+    isLoading,
+    error,
+    createDocument: createDocumentMutation.mutate,
+    createDocumentAsync,
+    uploadDocument,
+    processTranscript,
+    isDocumentProcessing,
+    refetch,
+  };
 };
