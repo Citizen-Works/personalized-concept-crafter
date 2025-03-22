@@ -1,14 +1,13 @@
 
 import React from 'react';
 import { Button } from "@/components/ui/button";
-import { Check, X, Ban, Loader2 } from "lucide-react";
+import { Check, X, Loader2 } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 
 interface BatchActionsProps {
   selectedItems: string[];
   onBatchApprove: () => Promise<void>;
   onBatchArchive: () => Promise<void>;
-  onBatchReject: () => Promise<void>;
   isUpdating: boolean;
 }
 
@@ -16,7 +15,6 @@ export const BatchActions: React.FC<BatchActionsProps> = ({
   selectedItems, 
   onBatchApprove, 
   onBatchArchive,
-  onBatchReject,
   isUpdating
 }) => {
   if (selectedItems.length === 0) return null;
@@ -44,14 +42,6 @@ export const BatchActions: React.FC<BatchActionsProps> = ({
               <X className="h-4 w-4 mr-1" />
             )}
             Archive All
-          </Button>
-          <Button size="sm" variant="outline" onClick={onBatchReject} disabled={isUpdating} className="text-destructive">
-            {isUpdating ? (
-              <Loader2 className="h-4 w-4 mr-1 animate-spin" />
-            ) : (
-              <Ban className="h-4 w-4 mr-1" />
-            )}
-            Reject All
           </Button>
         </div>
       </div>
