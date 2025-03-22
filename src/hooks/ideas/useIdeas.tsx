@@ -1,3 +1,4 @@
+
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { ContentIdea } from "@/types";
 import { useAuth } from "@/context/auth";
@@ -20,11 +21,18 @@ export const useIdeas = () => {
     enabled: !!user,
   });
 
-  const ideaByIdQuery = (id: string) => useQuery({
-    queryKey: ["idea", id, user?.id],
-    queryFn: () => fetchIdeaById(id, user?.id || ""),
-    enabled: !!user && !!id && id !== "new",
-  });
+  const ideaByIdQuery = (id: string) => {
+    // Only execute the query if id is valid and not "new"
+    const enabled = !!user && !!id && id !== "new";
+    
+    return useQuery({
+      queryKey: ["idea", id, user?.id],
+      queryFn: () => fetchIdeaById(id, user?.id || ""),
+      enabled,
+      // Add a safe fallback return to ensure our hook dependencies are never undefined
+      useErrorBoundary: false,
+    });
+  };
 
   const createIdeaMutation = useMutation({
     mutationFn: (idea: IdeaCreateInput) => createIdea(idea, user?.id || ""),

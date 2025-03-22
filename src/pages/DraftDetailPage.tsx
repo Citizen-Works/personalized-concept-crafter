@@ -20,20 +20,24 @@ const DraftDetailPage = () => {
   const navigate = useNavigate();
   const { getDraft, updateDraft } = useDrafts();
   const { getIdea, updateIdea } = useIdeas();
+  
+  // Fetch the draft first
   const { data: draft, isLoading: isDraftLoading, isError: isDraftError } = getDraft(id || '');
   
-  // Only call getIdea when draft and contentIdeaId are available
-  const ideaQuery = draft?.contentIdeaId 
-    ? getIdea(draft.contentIdeaId) 
-    : { data: null, isLoading: false, isError: false };
-    
-  const { data: idea, isLoading: isIdeaLoading, isError: isIdeaError } = ideaQuery;
-  
+  // Initialize form state
   const [isEditing, setIsEditing] = React.useState(false);
   const [content, setContent] = React.useState('');
   const [feedback, setFeedback] = React.useState('');
   const [status, setStatus] = React.useState<DraftStatus>('draft');
   const [contentType, setContentType] = React.useState<ContentType>('linkedin');
+
+  // Only fetch the idea if we have a draft with a contentIdeaId
+  const ideaId = draft?.contentIdeaId;
+  const { 
+    data: idea, 
+    isLoading: isIdeaLoading, 
+    isError: isIdeaError 
+  } = getIdea(ideaId || '');
 
   // Initialize form state when draft data is loaded
   React.useEffect(() => {
@@ -65,7 +69,7 @@ const DraftDetailPage = () => {
   };
 
   const handlePublish = async () => {
-    if (!draft || !idea) return;
+    if (!draft) return;
 
     try {
       await updateDraft({
@@ -77,7 +81,7 @@ const DraftDetailPage = () => {
       });
 
       // Optionally, update the idea to mark it as used
-      if (!idea.hasBeenUsed) {
+      if (idea && !idea.hasBeenUsed) {
         await updateIdea({
           id: idea.id,
           hasBeenUsed: true
@@ -92,12 +96,12 @@ const DraftDetailPage = () => {
     }
   };
 
-  if (isDraftLoading || isIdeaLoading) {
+  if (isDraftLoading || (ideaId && isIdeaLoading)) {
     return <div>Loading...</div>;
   }
 
-  if (isDraftError || isIdeaError || !draft) {
-    return <div>Error loading draft or associated idea.</div>;
+  if (isDraftError || !draft) {
+    return <div>Error loading draft.</div>;
   }
 
   const statusBadgeClass = getDraftStatusBadgeClasses(status);
