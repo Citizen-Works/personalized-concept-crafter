@@ -73,7 +73,7 @@ export function usePromptAssembly() {
     }
     
     // Step 4: Add patterns to avoid from writing style
-    prompt = addPatternsToAvoidToPrompt(prompt, profile as any); // Type cast here as well
+    prompt = addPatternsToAvoidToPrompt(prompt, profile as WritingStyleProfile);
     
     // Step 5: Add content idea details
     prompt = addContentIdeaToPrompt(prompt, idea);

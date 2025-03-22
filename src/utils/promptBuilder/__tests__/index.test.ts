@@ -49,7 +49,7 @@ describe('buildPrompt', () => {
 
     const prompt = buildPrompt(mockIdea, 'newsletter');
     
-    expect(prompt.sections).toHaveLength(2); // Just title and description, no notes
+    expect(prompt.sections).toHaveLength(3); // Just title, description, and newsletter section
     expect(prompt.sections[0].title).toBe('Content Idea');
     expect(prompt.sections[1].title).toBe('Description');
   });

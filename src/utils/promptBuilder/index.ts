@@ -3,7 +3,13 @@ import { ContentIdea, ContentType, ContentPillar, TargetAudience } from '@/types
 import { User } from '@/types/user';
 import { WritingStyleProfile } from '@/types/writingStyle';
 import { PromptSection, PromptStructure } from './types';
-import { buildBasePromptStructure, buildBusinessContextSection, buildContentPillarsSection, buildTargetAudiencesSection, buildWritingStyleSections } from './basePromptBuilder';
+import { 
+  buildBasePromptStructure, 
+  buildBusinessContextSection, 
+  buildContentPillarsSection, 
+  buildTargetAudiencesSection, 
+  buildWritingStyleSections 
+} from './basePromptBuilder';
 import { getBestPracticesSection } from './contentBestPractices';
 import { getContentSpecificSections } from './contentSpecificSections';
 
@@ -127,3 +133,18 @@ export function buildPrompt(idea: ContentIdea, contentType: ContentType): Prompt
   // Return the complete structure
   return { sections };
 }
+
+// Export all the necessary functions from basePromptBuilder
+export {
+  buildBasePromptStructure,
+  buildBusinessContextSection,
+  buildContentPillarsSection,
+  buildTargetAudiencesSection,
+  buildWritingStyleSections
+};
+
+// Export the getBestPracticesSection function
+export { getBestPracticesSection };
+
+// Export the getContentSpecificSections function
+export { getContentSpecificSections };
