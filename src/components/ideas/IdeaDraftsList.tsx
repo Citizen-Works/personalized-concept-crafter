@@ -13,7 +13,7 @@ interface IdeaDraftsListProps {
 }
 
 export const IdeaDraftsList: React.FC<IdeaDraftsListProps> = ({ ideaId, ideaTitle }) => {
-  const { drafts, isLoading, isError } = useDraftsByIdeaId(ideaId);
+  const { data: drafts, isLoading, isError } = useDraftsByIdeaId(ideaId);
   
   if (isLoading) {
     return (
