@@ -1,8 +1,7 @@
-
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { 
-  buildBasePromptStructure,
+  buildBasePrompt,
   getBestPracticesSection,
   buildBusinessContextSection,
   buildContentPillarsSection,
@@ -131,7 +130,11 @@ export async function extractAndGenerateBaseTemplates(): Promise<boolean> {
     const bestPracticesTemplates = {};
     for (const contentType of contentTypes) {
       const section = getBestPracticesSection(contentType as any);
-      bestPracticesTemplates[contentType] = section ? section.content : '';
+      if (section) {
+        bestPracticesTemplates[contentType] = section.content;
+      } else {
+        bestPracticesTemplates[contentType] = '';
+      }
     }
     
     // Prepare templates for database
