@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useDrafts } from '@/hooks/useDrafts';
@@ -20,12 +21,29 @@ const DraftDetailPage = () => {
   const { getDraft, updateDraft } = useDrafts();
   const { getIdea, updateIdea } = useIdeas();
   const { data: draft, isLoading: isDraftLoading, isError: isDraftError } = getDraft(id || '');
-  const { data: idea, isLoading: isIdeaLoading, isError: isIdeaError } = draft ? getIdea(draft.contentIdeaId) : { data: null, isLoading: false, isError: false };
+  
+  // Only call getIdea when draft and contentIdeaId are available
+  const ideaQuery = draft?.contentIdeaId 
+    ? getIdea(draft.contentIdeaId) 
+    : { data: null, isLoading: false, isError: false };
+    
+  const { data: idea, isLoading: isIdeaLoading, isError: isIdeaError } = ideaQuery;
+  
   const [isEditing, setIsEditing] = React.useState(false);
-  const [content, setContent] = React.useState(draft?.content || '');
-  const [feedback, setFeedback] = React.useState(draft?.feedback || '');
-  const [status, setStatus] = React.useState<DraftStatus>(draft?.status || 'draft');
-  const [contentType, setContentType] = React.useState<ContentType>(draft?.contentType || 'linkedin');
+  const [content, setContent] = React.useState('');
+  const [feedback, setFeedback] = React.useState('');
+  const [status, setStatus] = React.useState<DraftStatus>('draft');
+  const [contentType, setContentType] = React.useState<ContentType>('linkedin');
+
+  // Initialize form state when draft data is loaded
+  React.useEffect(() => {
+    if (draft) {
+      setContent(draft.content || '');
+      setFeedback(draft.feedback || '');
+      setStatus(draft.status || 'draft');
+      setContentType(draft.contentType || 'linkedin');
+    }
+  }, [draft]);
 
   const handleSave = async () => {
     if (!draft) return;
@@ -78,7 +96,7 @@ const DraftDetailPage = () => {
     return <div>Loading...</div>;
   }
 
-  if (isDraftError || isIdeaError || !draft || !idea) {
+  if (isDraftError || isIdeaError || !draft) {
     return <div>Error loading draft or associated idea.</div>;
   }
 
@@ -92,7 +110,7 @@ const DraftDetailPage = () => {
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back
           </Button>
-          <h1 className="text-2xl font-bold">{idea.title} - Draft Details</h1>
+          <h1 className="text-2xl font-bold">{idea?.title || 'Draft Details'}</h1>
         </div>
         {isEditing ? (
           <div className="flex gap-2">
