@@ -36,11 +36,25 @@ src/
 └── utils/          # Utility functions
 ```
 
+## 🏗️ Architecture
+
+The Content Engine employs a robust architecture:
+
+1. **Multi-tenant System**: Isolates data between different organizations based on email domains
+2. **Document Processing System**: Converts uploaded documents into structured content ideas
+3. **AI Prompt Engineering**: Sophisticated system to generate context-aware prompts for Claude AI
+4. **Content Pipeline**: Manages the flow of content from ideas through drafting to publication
+5. **Custom Hooks Layer**: Abstracts API calls and business logic from the UI components
+
+See [Architecture Overview](./src/docs/architecture-overview.md) for a detailed explanation.
+
 ## 📚 Documentation
 
 For more detailed documentation:
 
+- [Architecture Overview](./src/docs/architecture-overview.md)
 - [Multi-tenant Architecture](./src/docs/multi-tenant-architecture.md)
+- [Component Organization](./src/docs/component-organization.md)
 - [Error Handling](./src/docs/error-handling.md)
 - [Testing Strategy](./src/docs/testing-strategy.md)
 - [Performance Optimizations](./src/docs/performance-optimizations.md)
