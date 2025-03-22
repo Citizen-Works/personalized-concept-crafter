@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useIdeas } from '@/hooks/ideas';
 import { toast } from 'sonner';
@@ -10,16 +11,15 @@ const IdeasPage = () => {
   const { ideas, isLoading, isError, deleteIdea } = useIdeas();
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<ContentStatus | 'all'>('all');
-  const [typeFilter, setTypeFilter] = useState<ContentType | 'all'>('all');
+  // Remove type filter since contentType no longer exists on ContentIdea
   
   const filteredIdeas = ideas.filter((idea) => {
     // Make sure to include "unreviewed" ideas in the filter
     const matchesSearch = (idea.title?.toLowerCase().includes(searchQuery.toLowerCase()) || 
                           (idea.description && idea.description.toLowerCase().includes(searchQuery.toLowerCase()))) || false;
     const matchesStatus = statusFilter === 'all' || idea.status === statusFilter;
-    const matchesType = typeFilter === 'all' || idea.contentType === typeFilter;
     
-    return matchesSearch && matchesStatus && matchesType;
+    return matchesSearch && matchesStatus;
   });
   
   const handleDeleteIdea = (id: string) => {
@@ -60,7 +60,7 @@ const IdeasPage = () => {
     );
   }
   
-  const searchActive = searchQuery !== '' || statusFilter !== 'all' || typeFilter !== 'all';
+  const searchActive = searchQuery !== '' || statusFilter !== 'all';
   
   return (
     <div className="space-y-8">
@@ -68,9 +68,7 @@ const IdeasPage = () => {
         searchQuery={searchQuery}
         setSearchQuery={setSearchQuery}
         statusFilter={statusFilter}
-        typeFilter={typeFilter}
         setStatusFilter={setStatusFilter}
-        setTypeFilter={setTypeFilter}
       />
       
       <IdeasTabs 

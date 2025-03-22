@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, Pencil, CheckCircle } from 'lucide-react';
 import { ContentIdea } from '@/types';
-import { getStatusBadgeProps } from './BadgeUtils';
+import { getStatusBadgeClasses } from './BadgeUtils';
 
 interface IdeaPageHeaderProps {
   idea: ContentIdea;
@@ -19,7 +19,9 @@ const IdeaPageHeader: React.FC<IdeaPageHeaderProps> = ({
   onApprove 
 }) => {
   const navigate = useNavigate();
-  const statusBadge = getStatusBadgeProps(idea.status);
+  
+  // Use the utility function directly instead of importing a non-existent function
+  const statusBadgeClass = getStatusBadgeClasses(idea.status);
   
   return (
     <div className="space-y-4">
@@ -60,7 +62,9 @@ const IdeaPageHeader: React.FC<IdeaPageHeaderProps> = ({
       
       <div className="space-y-2">
         <div className="flex flex-wrap gap-2">
-          <Badge {...statusBadge} />
+          <Badge className={statusBadgeClass}>
+            {idea.status.charAt(0).toUpperCase() + idea.status.slice(1)}
+          </Badge>
           {idea.hasBeenUsed && (
             <Badge className="bg-blue-50 text-blue-700 border-blue-200">
               Used in Drafts

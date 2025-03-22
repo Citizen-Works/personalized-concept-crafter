@@ -69,11 +69,7 @@ export const ReviewQueueItem: React.FC<ReviewQueueItemProps> = ({
           <p className="text-sm text-muted-foreground line-clamp-2">
             {idea.description || "No description provided"}
           </p>
-          {idea.contentType && (
-            <Badge className={`ml-2 shrink-0 ${getTypeBadgeClasses(idea.contentType as ContentType)}`}>
-              {idea.contentType.charAt(0).toUpperCase() + idea.contentType.slice(1)}
-            </Badge>
-          )}
+          {/* Content type badge removed as it no longer exists on ContentIdea */}
         </div>
       </CardContent>
       <CardFooter className="flex justify-between">

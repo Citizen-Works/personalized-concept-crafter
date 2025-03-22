@@ -18,7 +18,7 @@ export const useFilteredIdeas = ({
   dateRange, 
   contentTypeFilter 
 }: UseFilteredIdeasProps) => {
-  // Filter ideas based on search, date range, and content type
+  // Filter ideas based on search, date range
   return useMemo(() => {
     return ideas.filter(idea => {
       // Filter by status
@@ -39,12 +39,9 @@ export const useFilteredIdeas = ({
         if (ideaDate > endDate) return false;
       }
       
-      // Filter by content type
-      if (contentTypeFilter !== "all" && idea.contentType !== contentTypeFilter) {
-        return false;
-      }
+      // Note: contentType filter removed since contentType no longer exists on ideas
       
       return true;
     });
-  }, [ideas, searchQuery, dateRange, contentTypeFilter]);
+  }, [ideas, searchQuery, dateRange]);
 };

@@ -18,7 +18,7 @@ export const useIdeasList = ({ searchQuery, dateRange, contentTypeFilter }: UseI
   const [sortOrder, setSortOrder] = useState<'newest' | 'oldest' | 'alphabetical'>('newest');
   const [isDeleting, setIsDeleting] = useState(false);
   
-  // Filter ideas based on search and date range and content type if specified
+  // Filter ideas based on search and date range
   const filteredIdeas = useMemo(() => {
     return ideas.filter(idea => {
       // Filter to only show approved ideas (not unreviewed)
@@ -30,10 +30,7 @@ export const useIdeasList = ({ searchQuery, dateRange, contentTypeFilter }: UseI
         return false;
       }
       
-      // Filter by content type if not "all"
-      if (contentTypeFilter !== "all" && idea.contentType !== contentTypeFilter) {
-        return false;
-      }
+      // Note: contentType filter removed since contentType no longer exists on ideas
       
       // Filter by date range
       const ideaDate = new Date(idea.createdAt);
@@ -46,7 +43,7 @@ export const useIdeasList = ({ searchQuery, dateRange, contentTypeFilter }: UseI
       
       return true;
     });
-  }, [ideas, searchQuery, dateRange, contentTypeFilter]);
+  }, [ideas, searchQuery, dateRange]);
   
   // Sort filtered ideas
   const sortedIdeas = useMemo(() => {

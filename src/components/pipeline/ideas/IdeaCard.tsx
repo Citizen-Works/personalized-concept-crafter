@@ -62,13 +62,7 @@ export const IdeaCard: React.FC<IdeaCardProps> = ({
                     {idea.status.charAt(0).toUpperCase() + idea.status.slice(1)}
                   </Badge>
                 )}
-                {!hideTypeBadge && idea.contentType && (
-                  <Badge 
-                    className={`${getTypeBadgeClasses(idea.contentType)} text-xs whitespace-nowrap`}
-                  >
-                    {idea.contentType.charAt(0).toUpperCase() + idea.contentType.slice(1)}
-                  </Badge>
-                )}
+                {/* Content type badge removed as it no longer exists on ContentIdea */}
               </div>
             </div>
             <p className="text-xs sm:text-sm text-muted-foreground line-clamp-2">{idea.description}</p>

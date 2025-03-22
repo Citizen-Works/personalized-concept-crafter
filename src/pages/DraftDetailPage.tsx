@@ -1,193 +1,193 @@
-
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useDrafts } from '@/hooks/useDrafts';
-import { DraftHeader } from '@/components/drafts/DraftHeader';
-import { DraftContent } from '@/components/drafts/DraftContent';
-import { DraftActions } from '@/components/drafts/DraftActions';
-import { IdeaLinkCard } from '@/components/drafts/IdeaLinkCard';
-import { DraftLoading } from '@/components/drafts/DraftLoading';
-import { DraftError } from '@/components/drafts/DraftError';
-import { DraftStatusToggle } from '@/components/drafts/DraftStatusToggle';
+import { useIdeas } from '@/hooks/ideas';
 import { toast } from 'sonner';
-import { ContentIdea, ContentType, ContentSource, ContentStatus, DraftStatus } from '@/types';
-import { supabase } from '@/integrations/supabase/client';
+import { Button } from "@/components/ui/button";
+import { ArrowLeft, Edit, Save, XCircle } from "lucide-react";
+import { Card, CardHeader, CardContent, CardFooter, CardTitle, CardDescription } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { ContentType, DraftStatus } from '@/types';
+import { getDraftStatusBadgeClasses } from '@/components/ideas/BadgeUtils';
 
 const DraftDetailPage = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { getDraft, updateDraft, deleteDraft, createDraft } = useDrafts();
-  const { data: draft, isLoading, isError, refetch } = getDraft(id || '');
-  const [idea, setIdea] = useState<ContentIdea | null>(null);
-  const [isLoadingIdea, setIsLoadingIdea] = useState(false);
-  const [content, setContent] = useState<string>('');
-  const [draftStatus, setDraftStatus] = useState<DraftStatus>('draft');
-  
-  useEffect(() => {
-    if (draft) {
-      setContent(draft.content);
-      setDraftStatus(draft.status || 'draft');
-      
-      if (draft.contentIdeaId) {
-        fetchIdea(draft.contentIdeaId);
-      }
-    }
-  }, [draft]);
-  
-  const fetchIdea = async (ideaId: string) => {
-    setIsLoadingIdea(true);
-    try {
-      const { data, error } = await supabase
-        .from('content_ideas')
-        .select('*')
-        .eq('id', ideaId)
-        .single();
-      
-      if (error) throw error;
-      
-      const mappedIdea: ContentIdea = {
-        id: data.id,
-        userId: data.user_id,
-        title: data.title,
-        description: data.description || "",
-        notes: data.notes || "",
-        source: data.source as ContentSource,
-        meetingTranscriptExcerpt: data.meeting_transcript_excerpt,
-        sourceUrl: data.source_url,
-        status: data.status as ContentStatus,
-        hasBeenUsed: data.has_been_used || false,
-        createdAt: new Date(data.created_at),
-        contentPillarIds: data.content_pillar_ids || [],
-        targetAudienceIds: data.target_audience_ids || []
-      };
-      
-      setIdea(mappedIdea);
-    } catch (error) {
-      console.error('Error fetching idea:', error);
-    } finally {
-      setIsLoadingIdea(false);
-    }
-  };
+  const { getDraft, updateDraft } = useDrafts();
+  const { getIdea, updateIdea } = useIdeas();
+  const { data: draft, isLoading: isDraftLoading, isError: isDraftError } = getDraft(id || '');
+  const { data: idea, isLoading: isIdeaLoading, isError: isIdeaError } = draft ? getIdea(draft.contentIdeaId) : { data: null, isLoading: false, isError: false };
+  const [isEditing, setIsEditing] = React.useState(false);
+  const [content, setContent] = React.useState(draft?.content || '');
+  const [feedback, setFeedback] = React.useState(draft?.feedback || '');
+  const [status, setStatus] = React.useState<DraftStatus>(draft?.status || 'draft');
+  const [contentType, setContentType] = React.useState<ContentType>(draft?.contentType || 'linkedin');
 
-  const handleUpdateContent = async (updatedContent: string) => {
+  const handleSave = async () => {
     if (!draft) return;
-    
+
     try {
       await updateDraft({
         id: draft.id,
-        content: updatedContent
+        content,
+        feedback,
+        status,
+        contentType
       });
-      
-      setContent(updatedContent);
-      
-      refetch();
-      
-      toast.success("Content updated successfully");
+      toast.success('Draft updated successfully');
+      setIsEditing(false);
     } catch (error) {
-      toast.error("Failed to update content");
-      console.error(error);
+      console.error('Error updating draft:', error);
+      toast.error('Failed to update draft');
     }
   };
 
-  const handleCreateNewVersion = async (updatedContent: string) => {
-    if (!draft) return;
-    
-    try {
-      await createDraft({
-        contentIdeaId: draft.contentIdeaId,
-        content: updatedContent,
-        contentType: draft.contentType,
-        version: draft.version + 1,
-        feedback: '',
-        status: draft.status
-      });
-      
-      toast.success("New version created successfully");
-      
-      navigate(`/ideas/${draft.contentIdeaId}`);
-    } catch (error) {
-      toast.error("Failed to create new version");
-      console.error(error);
-    }
-  };
+  const handlePublish = async () => {
+    if (!draft || !idea) return;
 
-  const handleDeleteDraft = async (id: string): Promise<void> => {
-    return new Promise<void>((resolve, reject) => {
-      try {
-        deleteDraft(id);
-        toast.success("Draft deleted successfully");
-        navigate('/drafts');
-        resolve();
-      } catch (error) {
-        toast.error("Failed to delete draft");
-        reject(error);
-      }
-    });
-  };
-  
-  const handleStatusChange = async (status: DraftStatus): Promise<void> => {
-    if (!draft) return;
-    
     try {
       await updateDraft({
         id: draft.id,
-        status
+        content,
+        feedback,
+        status: 'published',
+        contentType
       });
-      
-      setDraftStatus(status);
-      refetch();
-      
-      toast.success(`Draft status updated to ${status}`);
+
+      // Optionally, update the idea to mark it as used
+      if (!idea.hasBeenUsed) {
+        await updateIdea({
+          id: idea.id,
+          hasBeenUsed: true
+        });
+      }
+
+      toast.success('Draft published successfully');
+      setIsEditing(false);
     } catch (error) {
-      toast.error("Failed to update draft status");
-      console.error(error);
+      console.error('Error publishing draft:', error);
+      toast.error('Failed to publish draft');
     }
   };
 
-  if (isLoading) {
-    return <DraftLoading />;
+  if (isDraftLoading || isIdeaLoading) {
+    return <div>Loading...</div>;
   }
 
-  if (isError || !draft) {
-    return <DraftError />;
+  if (isDraftError || isIdeaError || !draft || !idea) {
+    return <div>Error loading draft or associated idea.</div>;
   }
-  
+
+  const statusBadgeClass = getDraftStatusBadgeClasses(status);
+
   return (
-    <div className="space-y-8">
-      <div className="flex items-center justify-between">
-        <DraftHeader draft={draft} />
-        <DraftStatusToggle 
-          status={draftStatus} 
-          onStatusChange={handleStatusChange} 
-        />
-      </div>
-      
-      <div className="grid gap-6 md:grid-cols-3">
-        <div className="md:col-span-2">
-          <DraftContent 
-            content={content} 
-            contentType={draft.contentType}
-            version={draft.version}
-            onUpdateContent={handleUpdateContent}
-          />
+    <div className="container mx-auto p-6">
+      <div className="mb-6 flex items-center justify-between">
+        <div>
+          <Button variant="outline" onClick={() => navigate(-1)} className="mr-2">
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Back
+          </Button>
+          <h1 className="text-2xl font-bold">{idea.title} - Draft Details</h1>
         </div>
-        
-        <div className="space-y-6">
-          <DraftActions 
-            draftId={draft.id}
-            content={content}
-            contentIdeaId={draft.contentIdeaId}
-            contentType={draft.contentType}
-            version={draft.version}
-            onDelete={handleDeleteDraft}
-            onUpdate={handleUpdateContent}
-            onCreateNewVersion={handleCreateNewVersion}
-            idea={idea || undefined}
-          />
-          
-          <IdeaLinkCard contentIdeaId={draft.contentIdeaId} contentType={draft.contentType} />
-        </div>
+        {isEditing ? (
+          <div className="flex gap-2">
+            <Button variant="secondary" onClick={() => setIsEditing(false)}>
+              <XCircle className="h-4 w-4 mr-2" />
+              Cancel
+            </Button>
+            <Button variant="default" onClick={handleSave}>
+              <Save className="h-4 w-4 mr-2" />
+              Save
+            </Button>
+            <Button variant="primary" onClick={handlePublish}>
+              Publish
+            </Button>
+          </div>
+        ) : (
+          <Button variant="outline" onClick={() => setIsEditing(true)}>
+            <Edit className="h-4 w-4 mr-2" />
+            Edit Draft
+          </Button>
+        )}
       </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Draft Content</CardTitle>
+          <CardDescription>
+            Manage and refine your draft content.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="grid gap-4">
+          <div className="flex items-center space-x-2">
+            <Label htmlFor="status">Status</Label>
+            <Badge className={statusBadgeClass}>
+              {status.charAt(0).toUpperCase() + status.slice(1)}
+            </Badge>
+          </div>
+          <div className="grid gap-2">
+            <Label htmlFor="content-type">Content Type</Label>
+            {isEditing ? (
+              <Select onValueChange={(value) => setContentType(value as ContentType)}>
+                <SelectTrigger className="w-[180px]">
+                  <SelectValue placeholder="Select a type" defaultValue={contentType} />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="linkedin">LinkedIn</SelectItem>
+                  <SelectItem value="newsletter">Newsletter</SelectItem>
+                  <SelectItem value="marketing">Marketing</SelectItem>
+                </SelectContent>
+              </Select>
+            ) : (
+              <Input id="content-type" value={contentType} readOnly />
+            )}
+          </div>
+          <div className="grid gap-2">
+            <Label htmlFor="content">Content</Label>
+            {isEditing ? (
+              <Textarea
+                id="content"
+                value={content}
+                onChange={(e) => setContent(e.target.value)}
+                className="resize-none"
+              />
+            ) : (
+              <Textarea
+                id="content"
+                value={content}
+                readOnly
+                className="resize-none"
+              />
+            )}
+          </div>
+          <div className="grid gap-2">
+            <Label htmlFor="feedback">Feedback</Label>
+            {isEditing ? (
+              <Textarea
+                id="feedback"
+                value={feedback}
+                onChange={(e) => setFeedback(e.target.value)}
+                className="resize-none"
+              />
+            ) : (
+              <Textarea
+                id="feedback"
+                value={feedback}
+                readOnly
+                className="resize-none"
+              />
+            )}
+          </div>
+        </CardContent>
+        <CardFooter>
+          {/* Additional actions or information can be added here */}
+        </CardFooter>
+      </Card>
     </div>
   );
 };
