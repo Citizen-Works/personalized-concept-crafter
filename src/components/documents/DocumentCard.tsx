@@ -41,7 +41,6 @@ const DocumentCard: React.FC<DocumentCardProps> = ({
   const getDocumentIcon = (type: DocumentType) => {
     switch (type) {
       case 'transcript':
-      case 'meeting_transcript':
         return <FileJson className="h-4 w-4" />;
       default:
         return <FileText className="h-4 w-4" />;
@@ -55,7 +54,6 @@ const DocumentCard: React.FC<DocumentCardProps> = ({
       case 'whitepaper': return 'Whitepaper';
       case 'case-study': return 'Case Study';
       case 'transcript': return 'Transcript';
-      case 'meeting_transcript': return 'Meeting Transcript';
       default: return 'Other';
     }
   };
