@@ -32,9 +32,9 @@ export const ReviewQueueTab: React.FC<ReviewQueueTabProps> = ({
     handleToggleSelect,
     handleSelectAll,
     handleApprove,
-    handleArchive,
+    handleReject,
     handleBatchApprove,
-    handleBatchArchive,
+    handleBatchReject,
     setPreviewItem
   } = useReviewQueue({ searchQuery, dateRange, contentTypeFilter });
   
@@ -52,7 +52,7 @@ export const ReviewQueueTab: React.FC<ReviewQueueTabProps> = ({
       <BatchActions 
         selectedItems={selectedItems}
         onBatchApprove={handleBatchApprove}
-        onBatchArchive={handleBatchArchive}
+        onBatchReject={handleBatchReject}
         isUpdating={isUpdating}
       />
       
@@ -74,7 +74,7 @@ export const ReviewQueueTab: React.FC<ReviewQueueTabProps> = ({
           onToggleSelect={handleToggleSelect}
           onPreview={() => setPreviewItem(idea.id)}
           onApprove={handleApprove}
-          onArchive={handleArchive}
+          onReject={handleReject}
         />
       ))}
       
@@ -84,7 +84,7 @@ export const ReviewQueueTab: React.FC<ReviewQueueTabProps> = ({
         isOpen={!!previewItem}
         onClose={() => setPreviewItem(null)}
         onApprove={handleApprove}
-        onArchive={handleArchive}
+        onReject={handleReject}
         isUpdating={isUpdating}
       />
     </div>

@@ -40,7 +40,7 @@ export const useReviewQueue = ({ searchQuery, dateRange, contentTypeFilter }: Us
   const { 
     isUpdating: itemActionsUpdating, 
     handleApprove, 
-    handleArchive
+    handleReject
   } = useItemActions({ 
     updateIdea: updateIdeaAsync, 
     selectedItems, 
@@ -49,11 +49,11 @@ export const useReviewQueue = ({ searchQuery, dateRange, contentTypeFilter }: Us
     setPreviewItem 
   });
   
-  // Handle batch actions - no more handleBatchReject
+  // Handle batch actions
   const { 
     isUpdating: batchActionsUpdating, 
     handleBatchApprove, 
-    handleBatchArchive
+    handleBatchReject
   } = useBatchActions({ 
     selectedItems, 
     updateIdea: updateIdeaAsync, 
@@ -84,9 +84,9 @@ export const useReviewQueue = ({ searchQuery, dateRange, contentTypeFilter }: Us
     handleToggleSelect,
     handleSelectAll,
     handleApprove,
-    handleArchive,
+    handleReject,
     handleBatchApprove,
-    handleBatchArchive,
+    handleBatchReject,
     setPreviewItem
   };
 };

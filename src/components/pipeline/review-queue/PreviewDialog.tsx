@@ -11,7 +11,7 @@ interface PreviewDialogProps {
   isOpen: boolean;
   onClose: () => void;
   onApprove: (id: string) => Promise<void>;
-  onArchive: (id: string) => Promise<void>;
+  onReject: (id: string) => Promise<void>;
   isUpdating: boolean;
 }
 
@@ -20,7 +20,7 @@ export const PreviewDialog: React.FC<PreviewDialogProps> = ({
   isOpen,
   onClose,
   onApprove,
-  onArchive,
+  onReject,
   isUpdating
 }) => {
   if (!previewIdea) return null;
@@ -51,7 +51,7 @@ export const PreviewDialog: React.FC<PreviewDialogProps> = ({
         <DialogFooter>
           <Button 
             variant="outline"
-            onClick={() => onArchive(previewIdea.id)}
+            onClick={() => onReject(previewIdea.id)}
             disabled={isUpdating}
             className="gap-2"
           >

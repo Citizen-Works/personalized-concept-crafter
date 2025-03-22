@@ -46,8 +46,8 @@ export const useItemActions = ({
     }
   };
   
-  // Handle reject action - consistently using 'rejected' status
-  const handleArchive = async (id: string) => {
+  // Handle reject action
+  const handleReject = async (id: string) => {
     if (isUpdating) return;
     
     try {
@@ -75,6 +75,6 @@ export const useItemActions = ({
   return {
     isUpdating,
     handleApprove,
-    handleArchive
+    handleReject
   };
 };

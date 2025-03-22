@@ -16,7 +16,7 @@ interface ReviewQueueItemProps {
   onToggleSelect: (id: string) => void;
   onPreview: (id: string) => void;
   onApprove: (id: string) => Promise<void>;
-  onArchive: (id: string) => Promise<void>;
+  onReject: (id: string) => Promise<void>;
 }
 
 export const ReviewQueueItem: React.FC<ReviewQueueItemProps> = ({
@@ -26,7 +26,7 @@ export const ReviewQueueItem: React.FC<ReviewQueueItemProps> = ({
   onToggleSelect,
   onPreview,
   onApprove,
-  onArchive
+  onReject
 }) => {
   const displaySource = () => {
     switch (idea.source) {
@@ -96,7 +96,7 @@ export const ReviewQueueItem: React.FC<ReviewQueueItemProps> = ({
           <Button 
             variant="outline" 
             size="icon" 
-            onClick={() => onArchive(idea.id)}
+            onClick={() => onReject(idea.id)}
             title="Reject"
             disabled={isUpdating}
           >
