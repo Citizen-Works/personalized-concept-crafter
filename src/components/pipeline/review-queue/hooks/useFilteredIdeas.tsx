@@ -21,8 +21,10 @@ export const useFilteredIdeas = ({
   // Filter ideas based on search, date range
   return useMemo(() => {
     return ideas.filter(idea => {
-      // Filter by status - only show unreviewed items and exclude archived items
-      if (idea.status !== 'unreviewed' || idea.status === 'archived') return false;
+      // Filter by status - only show unreviewed items
+      if (idea.status !== 'unreviewed') {
+        return false;
+      }
       
       // Filter by search query
       if (searchQuery && !idea.title.toLowerCase().includes(searchQuery.toLowerCase()) &&
