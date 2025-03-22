@@ -13,7 +13,7 @@ interface UseItemActionsProps {
 }
 
 /**
- * Custom hook for handling idea actions (approve, archive, delete)
+ * Custom hook for handling idea actions (approve, archive, reject, delete)
  */
 export const useItemActions = ({ 
   updateIdea, 
@@ -85,6 +85,37 @@ export const useItemActions = ({
     }
   };
   
+  // Handle reject idea
+  const handleReject = async (id: string) => {
+    if (isUpdating) return; // Prevent multiple requests
+    
+    try {
+      setIsUpdating(true);
+      await updateIdea({ 
+        id, 
+        status: 'rejected' as ContentStatus 
+      });
+      
+      // Remove from selected items if it was selected
+      if (selectedItems.includes(id)) {
+        setSelectedItems(prev => prev.filter(itemId => itemId !== id));
+      }
+      
+      // Close preview if this item was being previewed
+      if (previewItem === id) {
+        setPreviewItem(null);
+      }
+      
+      toast.success("Content idea rejected");
+    } catch (error) {
+      console.error("Error rejecting idea:", error);
+      toast.error("Failed to reject content idea");
+      return; // Exit early to prevent further processing
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+  
   // Handle delete idea
   const handleDelete = async (id: string) => {
     setItemToDelete(id);
@@ -126,6 +157,7 @@ export const useItemActions = ({
     itemToDelete,
     handleApprove,
     handleArchive,
+    handleReject,
     handleDelete,
     handleConfirmDelete,
     setDeleteConfirmOpen,

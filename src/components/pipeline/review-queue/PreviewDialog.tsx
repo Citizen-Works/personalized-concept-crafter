@@ -4,7 +4,7 @@ import { ContentIdea } from '@/types';
 import { formatDistanceToNow } from 'date-fns';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Check, X, Loader2 } from "lucide-react";
+import { Check, X, Loader2, Ban } from "lucide-react";
 
 interface PreviewDialogProps {
   previewIdea: ContentIdea | null;
@@ -12,6 +12,7 @@ interface PreviewDialogProps {
   onClose: () => void;
   onApprove: (id: string) => Promise<void>;
   onArchive: (id: string) => Promise<void>;
+  onReject: (id: string) => Promise<void>;
   isUpdating: boolean;
 }
 
@@ -21,6 +22,7 @@ export const PreviewDialog: React.FC<PreviewDialogProps> = ({
   onClose,
   onApprove,
   onArchive,
+  onReject,
   isUpdating
 }) => {
   if (!previewIdea) return null;
@@ -90,6 +92,22 @@ export const PreviewDialog: React.FC<PreviewDialogProps> = ({
                 <X className="h-4 w-4 mr-1" />
               )}
               Archive
+            </Button>
+            <Button 
+              variant="outline"
+              className="text-destructive hover:text-destructive"
+              onClick={() => {
+                onReject(previewIdea.id);
+                onClose();
+              }}
+              disabled={isUpdating}
+            >
+              {isUpdating ? (
+                <Loader2 className="h-4 w-4 mr-1 animate-spin" />
+              ) : (
+                <Ban className="h-4 w-4 mr-1" />
+              )}
+              Reject
             </Button>
           </div>
         </div>

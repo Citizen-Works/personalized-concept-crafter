@@ -16,7 +16,7 @@ interface UseReviewQueueProps {
 }
 
 export const useReviewQueue = ({ searchQuery, dateRange, contentTypeFilter }: UseReviewQueueProps) => {
-  const { ideas, isLoading, updateIdea, deleteIdea } = useIdeas();
+  const { ideas, isLoading, updateIdeaAsync, deleteIdea } = useIdeas();
   
   // Use custom hooks to break down functionality
   const { 
@@ -42,13 +42,14 @@ export const useReviewQueue = ({ searchQuery, dateRange, contentTypeFilter }: Us
     deleteConfirmOpen, 
     itemToDelete, 
     handleApprove, 
-    handleArchive, 
+    handleArchive,
+    handleReject,
     handleDelete, 
     handleConfirmDelete, 
     setDeleteConfirmOpen, 
     setItemToDelete 
   } = useItemActions({ 
-    updateIdea, 
+    updateIdea: updateIdeaAsync, 
     deleteIdea, 
     selectedItems, 
     setSelectedItems, 
@@ -60,10 +61,11 @@ export const useReviewQueue = ({ searchQuery, dateRange, contentTypeFilter }: Us
   const { 
     isUpdating: batchActionsUpdating, 
     handleBatchApprove, 
-    handleBatchArchive 
+    handleBatchArchive,
+    handleBatchReject
   } = useBatchActions({ 
     selectedItems, 
-    updateIdea, 
+    updateIdea: updateIdeaAsync, 
     setSelectedItems 
   });
   
@@ -94,10 +96,11 @@ export const useReviewQueue = ({ searchQuery, dateRange, contentTypeFilter }: Us
     handleSelectAll,
     handleApprove,
     handleArchive,
-    handleDelete,
+    handleReject,
     handleConfirmDelete,
     handleBatchApprove,
     handleBatchArchive,
+    handleBatchReject,
     setPreviewItem,
     setDeleteConfirmOpen,
     setItemToDelete

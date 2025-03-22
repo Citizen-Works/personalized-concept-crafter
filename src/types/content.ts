@@ -3,7 +3,7 @@
  * Content-related type definitions
  */
 export type ContentSource = 'manual' | 'meeting' | 'transcript' | 'ai';
-export type ContentStatus = 'draft' | 'unreviewed' | 'approved' | 'archived' | 'published';
+export type ContentStatus = 'draft' | 'unreviewed' | 'approved' | 'archived' | 'published' | 'rejected';
 export type ContentType = 'blog' | 'newsletter' | 'social' | 'linkedin' | 'twitter' | 'facebook' | 'instagram';
 export type DraftStatus = 'draft' | 'ready' | 'published' | 'archived';
 

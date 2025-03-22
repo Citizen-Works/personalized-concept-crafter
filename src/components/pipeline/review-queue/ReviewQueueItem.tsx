@@ -6,7 +6,7 @@ import { Card, CardHeader, CardContent, CardFooter, CardTitle, CardDescription }
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
-import { Eye, Check, X, ArrowUpRight, Trash, Loader2 } from "lucide-react";
+import { Eye, Check, X, ArrowUpRight, Trash, Loader2, Ban } from "lucide-react";
 import { getTypeBadgeClasses } from '@/components/ideas/BadgeUtils';
 
 interface ReviewQueueItemProps {
@@ -17,6 +17,7 @@ interface ReviewQueueItemProps {
   onPreview: (id: string) => void;
   onApprove: (id: string) => Promise<void>;
   onArchive: (id: string) => Promise<void>;
+  onReject: (id: string) => Promise<void>;
   onDelete: (id: string) => void;
 }
 
@@ -28,6 +29,7 @@ export const ReviewQueueItem: React.FC<ReviewQueueItemProps> = ({
   onPreview,
   onApprove,
   onArchive,
+  onReject,
   onDelete
 }) => {
   const displaySource = () => {
@@ -108,6 +110,16 @@ export const ReviewQueueItem: React.FC<ReviewQueueItemProps> = ({
             disabled={isUpdating}
           >
             {isUpdating ? <Loader2 className="h-4 w-4 animate-spin" /> : <X className="h-4 w-4" />}
+          </Button>
+          <Button 
+            variant="outline" 
+            size="icon"
+            className="text-destructive hover:text-destructive"
+            onClick={() => onReject(idea.id)}
+            title="Reject"
+            disabled={isUpdating}
+          >
+            {isUpdating ? <Loader2 className="h-4 w-4 animate-spin" /> : <Ban className="h-4 w-4" />}
           </Button>
           <Button 
             variant="outline" 
