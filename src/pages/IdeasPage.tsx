@@ -11,7 +11,8 @@ const IdeasPage = () => {
   const { ideas, isLoading, isError, deleteIdea } = useIdeas();
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<ContentStatus | 'all'>('all');
-  // Remove type filter since contentType no longer exists on ContentIdea
+  // Type filter still needed for the IdeasHeader component interface
+  const [typeFilter, setTypeFilter] = useState<ContentType | 'all'>('all');
   
   const filteredIdeas = ideas.filter((idea) => {
     // Make sure to include "unreviewed" ideas in the filter
@@ -69,6 +70,8 @@ const IdeasPage = () => {
         setSearchQuery={setSearchQuery}
         statusFilter={statusFilter}
         setStatusFilter={setStatusFilter}
+        typeFilter={typeFilter}
+        setTypeFilter={setTypeFilter}
       />
       
       <IdeasTabs 

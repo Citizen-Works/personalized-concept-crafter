@@ -27,10 +27,10 @@ export const fetchIdeas = async (userId: string): Promise<ContentIdea[]> => {
     meetingTranscriptExcerpt: item.meeting_transcript_excerpt,
     sourceUrl: item.source_url,
     status: item.status as ContentStatus,
-    hasBeenUsed: item.has_been_used || false, // Add default value if not present in DB
+    hasBeenUsed: item.has_been_used || false, // Default to false if field doesn't exist
     createdAt: new Date(item.created_at),
-    contentPillarIds: item.content_pillar_ids || [], // Add default value if not present in DB
-    targetAudienceIds: item.target_audience_ids || [] // Add default value if not present in DB
+    contentPillarIds: item.content_pillar_ids || [], // Default to empty array if field doesn't exist
+    targetAudienceIds: item.target_audience_ids || [] // Default to empty array if field doesn't exist
   }));
 };
 
@@ -62,10 +62,10 @@ export const fetchIdeaById = async (id: string, userId: string): Promise<Content
     meetingTranscriptExcerpt: data.meeting_transcript_excerpt,
     sourceUrl: data.source_url,
     status: data.status as ContentStatus,
-    hasBeenUsed: data.has_been_used || false, // Add default value if not present in DB
+    hasBeenUsed: data.has_been_used || false, // Default to false if field doesn't exist
     createdAt: new Date(data.created_at),
-    contentPillarIds: data.content_pillar_ids || [], // Add default value if not present in DB
-    targetAudienceIds: data.target_audience_ids || [] // Add default value if not present in DB
+    contentPillarIds: data.content_pillar_ids || [], // Default to empty array if field doesn't exist
+    targetAudienceIds: data.target_audience_ids || [] // Default to empty array if field doesn't exist
   };
 };
 
@@ -107,10 +107,10 @@ export const createIdea = async (idea: IdeaCreateInput, userId: string): Promise
     meetingTranscriptExcerpt: data.meeting_transcript_excerpt,
     sourceUrl: data.source_url,
     status: data.status as ContentStatus,
-    hasBeenUsed: data.has_been_used || false, // Add default value if not present in DB
+    hasBeenUsed: data.has_been_used || false, // Default to false if field doesn't exist
     createdAt: new Date(data.created_at),
-    contentPillarIds: data.content_pillar_ids || [], // Add default value if not present in DB
-    targetAudienceIds: data.target_audience_ids || [] // Add default value if not present in DB
+    contentPillarIds: data.content_pillar_ids || [], // Default to empty array if field doesn't exist
+    targetAudienceIds: data.target_audience_ids || [] // Default to empty array if field doesn't exist
   };
 };
 
@@ -152,10 +152,10 @@ export const updateIdea = async ({ id, ...updates }: { id: string } & IdeaUpdate
       meetingTranscriptExcerpt: data.meeting_transcript_excerpt,
       sourceUrl: data.source_url,
       status: data.status as ContentStatus,
-      hasBeenUsed: data.has_been_used || false, // Add default value if not present in DB
+      hasBeenUsed: data.has_been_used || false, // Default to false if field doesn't exist
       createdAt: new Date(data.created_at),
-      contentPillarIds: data.content_pillar_ids || [], // Add default value if not present in DB
-      targetAudienceIds: data.target_audience_ids || [] // Add default value if not present in DB
+      contentPillarIds: data.content_pillar_ids || [], // Default to empty array if field doesn't exist
+      targetAudienceIds: data.target_audience_ids || [] // Default to empty array if field doesn't exist
     };
   } catch (error) {
     console.error("Error in updateIdea:", error);
