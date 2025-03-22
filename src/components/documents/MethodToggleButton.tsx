@@ -2,6 +2,7 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface MethodToggleButtonProps {
   isActive: boolean;
@@ -20,13 +21,18 @@ const MethodToggleButton: React.FC<MethodToggleButtonProps> = ({
   children,
   className = ""
 }) => {
+  const isMobile = useIsMobile();
+  
   return (
     <Button
       type="button"
       variant={isActive ? "default" : "outline"}
       onClick={onClick}
       className={cn(
-        "flex-1 text-sm sm:text-base px-3 sm:px-4 py-2 sm:py-2.5",
+        "flex-1",
+        isMobile 
+          ? "text-xs px-2 py-1.5" 
+          : "text-sm sm:text-base px-3 sm:px-4 py-2 sm:py-2.5",
         className
       )}
     >
