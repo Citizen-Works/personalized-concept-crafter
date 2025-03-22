@@ -11,6 +11,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import ErrorDisplay from '@/components/ideas/content-generation/ErrorDisplay';
 import { DraftStatusToggle } from '@/components/drafts/DraftStatusToggle';
 import { DraftStatus } from '@/types';
+import { IdeaLinkCard } from '@/components/drafts/IdeaLinkCard';
 
 const DraftDetailPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -152,7 +153,15 @@ const DraftDetailPage = () => {
             onUpdateContent={handleUpdateContent}
           />
         </div>
-        <div>
+        <div className="space-y-6">
+          {/* Add the IdeaLinkCard component to show the source content idea */}
+          {draft.contentIdeaId && (
+            <IdeaLinkCard 
+              contentIdeaId={draft.contentIdeaId} 
+              contentType={draft.contentType}
+            />
+          )}
+          
           <DraftActions 
             draftId={draft.id}
             content={draft.content || ''}
