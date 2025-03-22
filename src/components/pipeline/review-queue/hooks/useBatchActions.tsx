@@ -1,7 +1,7 @@
 
 import { useState } from 'react';
+import { toast } from 'sonner';
 import { ContentStatus } from '@/types';
-import { toast } from "sonner";
 
 interface UseBatchActionsProps {
   selectedItems: string[];
@@ -9,13 +9,10 @@ interface UseBatchActionsProps {
   setSelectedItems: React.Dispatch<React.SetStateAction<string[]>>;
 }
 
-/**
- * Custom hook for handling batch actions on multiple items
- */
-export const useBatchActions = ({ 
-  selectedItems, 
-  updateIdea, 
-  setSelectedItems 
+export const useBatchActions = ({
+  selectedItems,
+  updateIdea,
+  setSelectedItems
 }: UseBatchActionsProps) => {
   const [isUpdating, setIsUpdating] = useState(false);
   
@@ -25,34 +22,39 @@ export const useBatchActions = ({
     
     try {
       setIsUpdating(true);
-      const promises = selectedItems.map(id => updateIdea({ id, status: 'approved' as ContentStatus }));
-      await Promise.all(promises);
+      
+      // Process items in sequence to avoid race conditions
+      for (const id of selectedItems) {
+        await updateIdea({ id, status: 'approved' as ContentStatus });
+      }
+      
       toast.success(`${selectedItems.length} items approved`);
       setSelectedItems([]);
     } catch (error) {
-      console.error("Error batch approving ideas:", error);
-      toast.error("Failed to approve selected items");
+      console.error("Error in batch approve:", error);
+      toast.error("Failed to approve items");
     } finally {
       setIsUpdating(false);
     }
   };
   
-  // Handle batch archive - using 'rejected' status
+  // Handle batch archive - using 'archived' status instead of 'rejected'
   const handleBatchArchive = async () => {
     if (isUpdating || selectedItems.length === 0) return;
     
     try {
       setIsUpdating(true);
-      const promises = selectedItems.map(id => updateIdea({ 
-        id, 
-        status: 'rejected' as ContentStatus 
-      }));
-      await Promise.all(promises);
+      
+      // Process items in sequence to avoid race conditions
+      for (const id of selectedItems) {
+        await updateIdea({ id, status: 'archived' as ContentStatus });
+      }
+      
       toast.success(`${selectedItems.length} items rejected`);
       setSelectedItems([]);
     } catch (error) {
-      console.error("Error batch rejecting ideas:", error);
-      toast.error("Failed to reject selected items");
+      console.error("Error in batch archive:", error);
+      toast.error("Failed to reject items");
     } finally {
       setIsUpdating(false);
     }

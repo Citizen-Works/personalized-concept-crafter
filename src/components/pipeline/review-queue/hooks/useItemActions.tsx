@@ -46,13 +46,13 @@ export const useItemActions = ({
     }
   };
   
-  // Handle archive action - using 'rejected' status
+  // Handle archive action - using 'archived' status instead of 'rejected'
   const handleArchive = async (id: string) => {
     if (isUpdating) return;
     
     try {
       setIsUpdating(true);
-      await updateIdea({ id, status: 'rejected' as ContentStatus });
+      await updateIdea({ id, status: 'archived' as ContentStatus });
       toast.success("Item rejected");
       
       // Remove from selected items if it was selected
