@@ -2,9 +2,11 @@
 import React from 'react';
 import { ContentIdea } from '@/types';
 import { formatDistanceToNow } from 'date-fns';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Check, X, Loader2 } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { getTypeBadgeClasses } from '@/components/ideas/BadgeUtils';
 
 interface PreviewDialogProps {
   previewIdea: ContentIdea | null;
@@ -24,75 +26,87 @@ export const PreviewDialog: React.FC<PreviewDialogProps> = ({
   isUpdating
 }) => {
   if (!previewIdea) return null;
-
+  
+  const handleApprove = () => {
+    if (previewIdea) {
+      onApprove(previewIdea.id);
+    }
+  };
+  
+  const handleArchive = () => {
+    if (previewIdea) {
+      onArchive(previewIdea.id);
+    }
+  };
+  
   return (
-    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="max-w-3xl max-h-[90vh] overflow-auto">
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="max-w-xl">
         <DialogHeader>
-          <DialogTitle>{previewIdea.title}</DialogTitle>
+          <DialogTitle className="text-xl">{previewIdea.title}</DialogTitle>
           <DialogDescription>
-            Created {formatDistanceToNow(new Date(previewIdea.createdAt), { addSuffix: true })}
+            {previewIdea.source && (
+              <span className="text-muted-foreground">
+                From {previewIdea.source} • {formatDistanceToNow(new Date(previewIdea.createdAt), { addSuffix: true })}
+              </span>
+            )}
           </DialogDescription>
         </DialogHeader>
         
-        <div className="space-y-4 mt-4">
-          <div>
-            <h4 className="text-sm font-medium mb-1">Description</h4>
-            <p className="text-sm">{previewIdea.description || "No description provided"}</p>
-          </div>
-          
-          {previewIdea.meetingTranscriptExcerpt && (
+        <div className="mt-4 space-y-4">
+          {previewIdea.description && (
             <div>
-              <h4 className="text-sm font-medium mb-1">Meeting Transcript Excerpt</h4>
-              <div className="bg-muted p-3 rounded-md text-sm">
-                {previewIdea.meetingTranscriptExcerpt}
-              </div>
+              <h3 className="font-semibold mb-1">Description</h3>
+              <p className="text-gray-700 dark:text-gray-300 whitespace-pre-line">
+                {previewIdea.description}
+              </p>
             </div>
           )}
           
           {previewIdea.notes && (
             <div>
-              <h4 className="text-sm font-medium mb-1">Notes</h4>
-              <p className="text-sm">{previewIdea.notes}</p>
+              <h3 className="font-semibold mb-1">Notes</h3>
+              <p className="text-gray-700 dark:text-gray-300 whitespace-pre-line">
+                {previewIdea.notes}
+              </p>
             </div>
           )}
           
-          <div className="flex justify-end gap-2 pt-4">
-            <Button variant="outline" onClick={onClose} disabled={isUpdating}>
-              Close
-            </Button>
-            <Button 
-              variant="default" 
-              onClick={() => {
-                onApprove(previewIdea.id);
-                onClose();
-              }}
-              disabled={isUpdating}
-            >
-              {isUpdating ? (
-                <Loader2 className="h-4 w-4 mr-1 animate-spin" />
-              ) : (
-                <Check className="h-4 w-4 mr-1" />
-              )}
-              Approve
-            </Button>
-            <Button 
-              variant="outline" 
-              onClick={() => {
-                onArchive(previewIdea.id);
-                onClose();
-              }}
-              disabled={isUpdating}
-            >
-              {isUpdating ? (
-                <Loader2 className="h-4 w-4 mr-1 animate-spin" />
-              ) : (
-                <X className="h-4 w-4 mr-1" />
-              )}
-              Archive
-            </Button>
-          </div>
+          {previewIdea.meetingTranscriptExcerpt && (
+            <div>
+              <h3 className="font-semibold mb-1">Meeting Transcript Excerpt</h3>
+              <div className="bg-gray-100 dark:bg-gray-800 p-3 rounded text-sm">
+                <p className="italic text-gray-700 dark:text-gray-300">
+                  "{previewIdea.meetingTranscriptExcerpt}"
+                </p>
+              </div>
+            </div>
+          )}
         </div>
+        
+        <DialogFooter className="mt-6 flex justify-end gap-2">
+          <Button variant="outline" onClick={onClose} disabled={isUpdating}>
+            Cancel
+          </Button>
+          <Button 
+            variant="outline" 
+            onClick={handleArchive}
+            disabled={isUpdating}
+            className="gap-1"
+          >
+            {isUpdating ? <Loader2 className="h-4 w-4 animate-spin" /> : <X className="h-4 w-4" />}
+            Reject
+          </Button>
+          <Button 
+            variant="default" 
+            onClick={handleApprove}
+            disabled={isUpdating}
+            className="gap-1"
+          >
+            {isUpdating ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}
+            Approve
+          </Button>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );

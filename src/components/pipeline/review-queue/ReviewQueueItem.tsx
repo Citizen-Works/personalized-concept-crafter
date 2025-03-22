@@ -97,7 +97,7 @@ export const ReviewQueueItem: React.FC<ReviewQueueItemProps> = ({
             variant="outline" 
             size="icon" 
             onClick={() => onArchive(idea.id)}
-            title="Archive"
+            title="Reject"
             disabled={isUpdating}
           >
             {isUpdating ? <Loader2 className="h-4 w-4 animate-spin" /> : <X className="h-4 w-4" />}

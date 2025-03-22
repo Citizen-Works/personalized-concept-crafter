@@ -41,7 +41,7 @@ export const BatchActions: React.FC<BatchActionsProps> = ({
             ) : (
               <X className="h-4 w-4 mr-1" />
             )}
-            Archive All
+            Reject All
           </Button>
         </div>
       </div>

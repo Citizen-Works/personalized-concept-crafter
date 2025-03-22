@@ -37,7 +37,7 @@ export const useBatchActions = ({
     }
   };
   
-  // Handle batch archive
+  // Handle batch archive - using 'rejected' status instead of 'archived'
   const handleBatchArchive = async () => {
     if (isUpdating || selectedItems.length === 0) return;
     
@@ -45,7 +45,7 @@ export const useBatchActions = ({
       setIsUpdating(true);
       const promises = selectedItems.map(id => updateIdea({ 
         id, 
-        status: 'archived' as ContentStatus 
+        status: 'rejected' as ContentStatus 
       }));
       await Promise.all(promises);
       toast.success(`${selectedItems.length} items archived`);
