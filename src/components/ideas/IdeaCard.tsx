@@ -83,7 +83,12 @@ const IdeaCard: React.FC<IdeaCardProps> = ({
                     Edit
                   </Link>
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => onDeleteIdea(idea.id)}>
+                <DropdownMenuItem 
+                  onClick={(e) => {
+                    e.preventDefault();
+                    onDeleteIdea(idea.id);
+                  }}
+                >
                   <Trash className="h-4 w-4 mr-2 text-destructive" />
                   <span className="text-destructive">Delete</span>
                 </DropdownMenuItem>

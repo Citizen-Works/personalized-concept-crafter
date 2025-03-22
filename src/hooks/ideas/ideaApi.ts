@@ -1,3 +1,4 @@
+
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { ContentIdea, ContentStatus, ContentSource } from "@/types";
@@ -164,6 +165,8 @@ export const deleteIdea = async (id: string, userId: string): Promise<void> => {
   if (!userId) throw new Error("User not authenticated");
 
   try {
+    console.log(`Changing idea ${id} status to rejected`);
+    
     // First, update the idea status to 'rejected' instead of deleting
     const { error: updateError } = await supabase
       .from("content_ideas")
@@ -175,6 +178,8 @@ export const deleteIdea = async (id: string, userId: string): Promise<void> => {
       throw updateError;
     }
 
+    console.log(`Successfully updated idea ${id} status to rejected`);
+    
     // Then, check if we need to clean up old rejected ideas
     // Get count of rejected ideas for this user
     const { count, error: countError } = await supabase

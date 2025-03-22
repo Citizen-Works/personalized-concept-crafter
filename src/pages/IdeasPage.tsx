@@ -26,11 +26,12 @@ const IdeasPage = () => {
   const handleDeleteIdea = async (id: string) => {
     if (window.confirm('Are you sure you want to delete this idea?')) {
       try {
+        console.log("Deleting idea with ID:", id); // Add logging
         await deleteIdea(id);
         toast.success("Idea moved to rejected status");
       } catch (error) {
-        toast.error("Failed to delete idea");
         console.error('Error deleting idea:', error);
+        toast.error("Failed to delete idea");
       }
     }
   };
