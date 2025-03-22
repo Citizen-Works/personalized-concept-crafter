@@ -6,7 +6,7 @@ import { Card, CardHeader, CardContent, CardFooter, CardTitle, CardDescription }
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
-import { Eye, Check, X, ArrowUpRight, Trash, Loader2, Ban } from "lucide-react";
+import { Eye, Check, X, ArrowUpRight, Loader2 } from "lucide-react";
 import { getTypeBadgeClasses } from '@/components/ideas/BadgeUtils';
 
 interface ReviewQueueItemProps {
@@ -17,8 +17,6 @@ interface ReviewQueueItemProps {
   onPreview: (id: string) => void;
   onApprove: (id: string) => Promise<void>;
   onArchive: (id: string) => Promise<void>;
-  onReject: (id: string) => Promise<void>;
-  onDelete: (id: string) => void;
 }
 
 export const ReviewQueueItem: React.FC<ReviewQueueItemProps> = ({
@@ -28,9 +26,7 @@ export const ReviewQueueItem: React.FC<ReviewQueueItemProps> = ({
   onToggleSelect,
   onPreview,
   onApprove,
-  onArchive,
-  onReject,
-  onDelete
+  onArchive
 }) => {
   const displaySource = () => {
     switch (idea.source) {
@@ -69,7 +65,6 @@ export const ReviewQueueItem: React.FC<ReviewQueueItemProps> = ({
           <p className="text-sm text-muted-foreground line-clamp-2">
             {idea.description || "No description provided"}
           </p>
-          {/* Content type badge removed as it no longer exists on ContentIdea */}
         </div>
       </CardContent>
       <CardFooter className="flex justify-between">
@@ -106,26 +101,6 @@ export const ReviewQueueItem: React.FC<ReviewQueueItemProps> = ({
             disabled={isUpdating}
           >
             {isUpdating ? <Loader2 className="h-4 w-4 animate-spin" /> : <X className="h-4 w-4" />}
-          </Button>
-          <Button 
-            variant="outline" 
-            size="icon"
-            className="text-destructive hover:text-destructive"
-            onClick={() => onReject(idea.id)}
-            title="Reject"
-            disabled={isUpdating}
-          >
-            {isUpdating ? <Loader2 className="h-4 w-4 animate-spin" /> : <Ban className="h-4 w-4" />}
-          </Button>
-          <Button 
-            variant="outline" 
-            size="icon"
-            className="text-destructive hover:text-destructive"
-            onClick={() => onDelete(idea.id)}
-            title="Delete"
-            disabled={isUpdating}
-          >
-            {isUpdating ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash className="h-4 w-4" />}
           </Button>
         </div>
       </CardFooter>

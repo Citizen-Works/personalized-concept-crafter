@@ -16,7 +16,7 @@ interface UseReviewQueueProps {
 }
 
 export const useReviewQueue = ({ searchQuery, dateRange, contentTypeFilter }: UseReviewQueueProps) => {
-  const { ideas, isLoading, updateIdeaAsync, deleteIdea } = useIdeas();
+  const { ideas, isLoading, updateIdeaAsync } = useIdeas();
   
   // Use custom hooks to break down functionality
   const { 
@@ -39,18 +39,10 @@ export const useReviewQueue = ({ searchQuery, dateRange, contentTypeFilter }: Us
   // Handle individual item actions
   const { 
     isUpdating: itemActionsUpdating, 
-    deleteConfirmOpen, 
-    itemToDelete, 
     handleApprove, 
-    handleArchive,
-    handleReject,
-    handleDelete, 
-    handleConfirmDelete, 
-    setDeleteConfirmOpen, 
-    setItemToDelete 
+    handleArchive
   } = useItemActions({ 
     updateIdea: updateIdeaAsync, 
-    deleteIdea, 
     selectedItems, 
     setSelectedItems, 
     previewItem, 
@@ -61,8 +53,7 @@ export const useReviewQueue = ({ searchQuery, dateRange, contentTypeFilter }: Us
   const { 
     isUpdating: batchActionsUpdating, 
     handleBatchApprove, 
-    handleBatchArchive,
-    handleBatchReject
+    handleBatchArchive
   } = useBatchActions({ 
     selectedItems, 
     updateIdea: updateIdeaAsync, 
@@ -90,20 +81,12 @@ export const useReviewQueue = ({ searchQuery, dateRange, contentTypeFilter }: Us
     selectedItems,
     previewIdea,
     previewItem,
-    deleteConfirmOpen,
-    itemToDelete,
     handleToggleSelect,
     handleSelectAll,
     handleApprove,
     handleArchive,
-    handleReject,
-    handleDelete,
-    handleConfirmDelete,
     handleBatchApprove,
     handleBatchArchive,
-    handleBatchReject,
-    setPreviewItem,
-    setDeleteConfirmOpen,
-    setItemToDelete
+    setPreviewItem
   };
 };

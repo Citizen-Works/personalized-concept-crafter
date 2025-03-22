@@ -3,7 +3,6 @@ import React from 'react';
 import { ContentType } from "@/types";
 import {
   BatchActions,
-  DeleteConfirmDialog,
   EmptyReviewQueue,
   PreviewDialog,
   ReviewQueueItem,
@@ -30,21 +29,13 @@ export const ReviewQueueTab: React.FC<ReviewQueueTabProps> = ({
     selectedItems,
     previewIdea,
     previewItem,
-    deleteConfirmOpen,
-    itemToDelete,
     handleToggleSelect,
     handleSelectAll,
     handleApprove,
     handleArchive,
-    handleReject,
-    handleDelete,
-    handleConfirmDelete,
     handleBatchApprove,
     handleBatchArchive,
-    handleBatchReject,
-    setPreviewItem,
-    setDeleteConfirmOpen,
-    setItemToDelete
+    setPreviewItem
   } = useReviewQueue({ searchQuery, dateRange, contentTypeFilter });
   
   if (isLoading) {
@@ -62,7 +53,6 @@ export const ReviewQueueTab: React.FC<ReviewQueueTabProps> = ({
         selectedItems={selectedItems}
         onBatchApprove={handleBatchApprove}
         onBatchArchive={handleBatchArchive}
-        onBatchReject={handleBatchReject}
         isUpdating={isUpdating}
       />
       
@@ -85,8 +75,6 @@ export const ReviewQueueTab: React.FC<ReviewQueueTabProps> = ({
           onPreview={() => setPreviewItem(idea.id)}
           onApprove={handleApprove}
           onArchive={handleArchive}
-          onReject={handleReject}
-          onDelete={handleDelete}
         />
       ))}
       
@@ -97,17 +85,7 @@ export const ReviewQueueTab: React.FC<ReviewQueueTabProps> = ({
         onClose={() => setPreviewItem(null)}
         onApprove={handleApprove}
         onArchive={handleArchive}
-        onReject={handleReject}
         isUpdating={isUpdating}
-      />
-      
-      {/* Delete confirmation */}
-      <DeleteConfirmDialog
-        isOpen={deleteConfirmOpen}
-        onOpenChange={setDeleteConfirmOpen}
-        onConfirm={handleConfirmDelete}
-        onCancel={() => setItemToDelete(null)}
-        isLoading={isUpdating}
       />
     </div>
   );

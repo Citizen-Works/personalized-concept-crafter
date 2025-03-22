@@ -1,3 +1,4 @@
+
 import { useMemo } from 'react';
 import { ContentIdea, ContentType } from '@/types';
 
@@ -20,7 +21,7 @@ export const useFilteredIdeas = ({
   // Filter ideas based on search, date range
   return useMemo(() => {
     return ideas.filter(idea => {
-      // Filter by status
+      // Filter by status - only show unreviewed items
       if (idea.status !== 'unreviewed') return false;
       
       // Filter by search query
@@ -37,9 +38,6 @@ export const useFilteredIdeas = ({
         endDate.setHours(23, 59, 59, 999);
         if (ideaDate > endDate) return false;
       }
-      
-      // Note: contentType filter removed since contentType no longer exists on ideas
-      // but we're keeping the interface the same for compatibility
       
       return true;
     });

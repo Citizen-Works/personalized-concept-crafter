@@ -19,6 +19,7 @@ const Dashboard = () => {
       
       <ContentStatusCards 
         needsReviewCount={statusCounts.needsReview}
+        approvedIdeasCount={statusCounts.approvedIdeas}
         inProgressCount={statusCounts.inProgress}
         readyToPublishCount={statusCounts.readyToPublish}
         publishedCount={statusCounts.published}

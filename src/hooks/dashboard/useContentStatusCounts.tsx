@@ -2,7 +2,6 @@
 import { useMemo } from 'react';
 import { useIdeas } from '@/hooks/ideas';
 import { useDrafts } from '@/hooks/useDrafts';
-import { ContentIdea, ContentDraft } from '@/types';
 
 export function useContentStatusCounts() {
   const { ideas, isLoading: ideasLoading } = useIdeas();
@@ -11,7 +10,9 @@ export function useContentStatusCounts() {
   const statusCounts = useMemo(() => {
     // Idea counts
     const needsReviewCount = ideas.filter(idea => idea.status === 'unreviewed').length;
-    const approvedIdeasCount = ideas.filter(idea => idea.status === 'approved').length;
+    const approvedIdeasCount = ideas.filter(idea => 
+      idea.status === 'approved' && !idea.hasBeenUsed
+    ).length;
     
     // Draft counts
     const inProgressCount = drafts.filter(draft => draft.status === 'draft').length;

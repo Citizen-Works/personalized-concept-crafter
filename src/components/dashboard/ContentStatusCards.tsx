@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { FileText, Edit, Check, SendHorizonal } from 'lucide-react';
+import { FileText, Edit, Check, SendHorizonal, ArrowUpRight } from 'lucide-react';
 import { StatusCard } from './StatusCard';
 
 interface ContentStatusCardsProps {
@@ -8,6 +8,7 @@ interface ContentStatusCardsProps {
   inProgressCount: number;
   readyToPublishCount: number;
   publishedCount: number;
+  approvedIdeasCount: number;
   isLoading: boolean;
 }
 
@@ -16,6 +17,7 @@ export const ContentStatusCards = ({
   inProgressCount, 
   readyToPublishCount, 
   publishedCount,
+  approvedIdeasCount,
   isLoading 
 }: ContentStatusCardsProps) => {
   const statusCards = [
@@ -27,10 +29,17 @@ export const ContentStatusCards = ({
       color: "bg-primary/10 text-primary",
     },
     {
+      title: "Approved Ideas",
+      count: approvedIdeasCount,
+      icon: <ArrowUpRight className="h-6 w-6 text-indigo-600" />,
+      route: "/ideas?status=approved",
+      color: "bg-indigo-100 text-indigo-600",
+    },
+    {
       title: "In Progress",
       count: inProgressCount,
       icon: <Edit className="h-6 w-6 text-secondary" />,
-      route: "/ideas",
+      route: "/drafts?status=draft",
       color: "bg-secondary/10 text-secondary",
     },
     {
@@ -50,7 +59,7 @@ export const ContentStatusCards = ({
   ];
 
   return (
-    <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-4">
+    <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-5">
       {statusCards.map((card) => (
         <StatusCard
           key={card.title}
