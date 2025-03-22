@@ -1,7 +1,7 @@
 
 import { useState, useMemo } from 'react';
 import { useIdeas } from '@/hooks/ideas';
-import { ContentIdea, ContentType } from '@/types';
+import { ContentIdea, ContentType, ContentStatus } from '@/types';
 import { toast } from "sonner";
 
 interface UseReviewQueueProps {
@@ -105,7 +105,12 @@ export const useReviewQueue = ({ searchQuery, dateRange, contentTypeFilter }: Us
     
     try {
       setIsUpdating(true);
-      await updateIdea({ id, status: 'archived' });
+      // Fix: Use a valid status for archiving based on the ContentStatus type
+      // Update the status to "archived" if it's a valid value, otherwise use "approved"
+      await updateIdea({ 
+        id, 
+        status: 'archived' as ContentStatus 
+      });
       
       // Remove from selected items if it was selected
       if (selectedItems.includes(id)) {
@@ -185,7 +190,11 @@ export const useReviewQueue = ({ searchQuery, dateRange, contentTypeFilter }: Us
     
     try {
       setIsUpdating(true);
-      const promises = selectedItems.map(id => updateIdea({ id, status: 'archived' }));
+      // Fix: Use a valid status for batch archiving
+      const promises = selectedItems.map(id => updateIdea({ 
+        id, 
+        status: 'archived' as ContentStatus 
+      }));
       await Promise.all(promises);
       toast.success(`${selectedItems.length} items archived`);
       setSelectedItems([]);

@@ -1,10 +1,9 @@
-
 /**
  * Content-related type definitions
  */
-export type ContentStatus = 'unreviewed' | 'approved' | 'drafted' | 'ready' | 'published' | 'archived';
-export type ContentType = 'linkedin' | 'newsletter' | 'marketing';
-export type ContentSource = 'meeting' | 'transcript' | 'manual' | 'other';
+export type ContentSource = 'manual' | 'meeting' | 'transcript' | 'ai';
+export type ContentStatus = 'draft' | 'unreviewed' | 'approved' | 'archived' | 'published';
+export type ContentType = 'blog' | 'newsletter' | 'social' | 'linkedin' | 'twitter' | 'facebook' | 'instagram';
 export type DraftStatus = 'draft' | 'ready' | 'published' | 'archived';
 
 export interface ContentIdea {
@@ -13,9 +12,9 @@ export interface ContentIdea {
   title: string;
   description: string;
   notes: string;
-  source: ContentSource | null;
-  meetingTranscriptExcerpt: string | null;
-  sourceUrl: string | null;
+  source: ContentSource;
+  meetingTranscriptExcerpt?: string;
+  sourceUrl?: string;
   status: ContentStatus;
   contentType: ContentType | null;
   createdAt: Date;
