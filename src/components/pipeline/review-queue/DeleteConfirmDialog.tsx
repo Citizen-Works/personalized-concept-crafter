@@ -24,7 +24,7 @@ export const DeleteConfirmDialog: React.FC<DeleteConfirmDialogProps> = ({
         <AlertDialogHeader>
           <AlertDialogTitle>Are you sure?</AlertDialogTitle>
           <AlertDialogDescription>
-            This action cannot be undone. This will permanently delete this content idea.
+            This will remove this content idea from your active ideas. The idea will be archived for potential future use but won't appear in your content pipeline.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
@@ -40,7 +40,7 @@ export const DeleteConfirmDialog: React.FC<DeleteConfirmDialogProps> = ({
             {isLoading ? (
               <Loader2 className="h-4 w-4 mr-2 animate-spin" />
             ) : null}
-            Delete
+            Remove
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

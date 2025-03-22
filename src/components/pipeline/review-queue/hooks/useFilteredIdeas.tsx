@@ -9,22 +9,16 @@ interface UseFilteredIdeasProps {
   contentTypeFilter: ContentType | "all";
 }
 
-/**
- * Custom hook to filter ideas based on search query, date range, and content type
- */
 export const useFilteredIdeas = ({ 
   ideas, 
   searchQuery, 
   dateRange, 
   contentTypeFilter 
 }: UseFilteredIdeasProps) => {
-  // Filter ideas based on search, date range
-  return useMemo(() => {
+  const filteredIdeas = useMemo(() => {
     return ideas.filter(idea => {
-      // Filter by status - only show unreviewed items
-      if (idea.status !== 'unreviewed') {
-        return false;
-      }
+      // Only include unreviewed ideas, exclude rejected ideas
+      if (idea.status !== 'unreviewed') return false;
       
       // Filter by search query
       if (searchQuery && !idea.title.toLowerCase().includes(searchQuery.toLowerCase()) &&
@@ -41,7 +35,15 @@ export const useFilteredIdeas = ({
         if (ideaDate > endDate) return false;
       }
       
+      // Apply content type filter if specified
+      if (contentTypeFilter !== "all") {
+        // If the idea doesn't have a type specified or doesn't match the filter, exclude it
+        if (!idea.contentType || idea.contentType !== contentTypeFilter) return false;
+      }
+      
       return true;
     });
-  }, [ideas, searchQuery, dateRange]);
+  }, [ideas, searchQuery, dateRange, contentTypeFilter]);
+  
+  return filteredIdeas;
 };

@@ -36,8 +36,8 @@ export const IdeasDeleteDialog: React.FC<IdeasDeleteDialogProps> = ({
         <AlertDialogHeader>
           <AlertDialogTitle>Are you sure?</AlertDialogTitle>
           <AlertDialogDescription>
-            This will permanently delete {itemToDelete ? 'this content idea' : `${selectedItemsCount} selected ideas`}. 
-            This action cannot be undone.
+            This will remove {itemToDelete ? 'this content idea' : `${selectedItemsCount} selected ideas`} from your active ideas. 
+            The {itemToDelete ? 'idea' : 'ideas'} will be archived for potential future use but won't appear in your content pipeline.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
@@ -49,7 +49,7 @@ export const IdeasDeleteDialog: React.FC<IdeasDeleteDialogProps> = ({
             className="gap-2"
           >
             {isLoading && <Loader2 className="h-4 w-4 animate-spin" />}
-            Delete
+            Remove
           </Button>
         </AlertDialogFooter>
       </AlertDialogContent>
