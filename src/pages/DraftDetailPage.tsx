@@ -33,18 +33,17 @@ const DraftDetailPage = () => {
   } = getIdea(draft?.contentIdeaId || '');
 
   // Handle updating the draft content
-  const handleUpdateContent = async (content: string) => {
+  const handleUpdateContent = async (content: string): Promise<void> => {
     if (!draft) return;
     try {
       await updateDraft({
         id: draft.id,
         content
       });
-      return true;
+      // We don't need to return a boolean anymore
     } catch (error) {
       console.error('Error updating draft content:', error);
       toast.error('Failed to update content');
-      return false;
     }
   };
 
@@ -65,14 +64,13 @@ const DraftDetailPage = () => {
   };
 
   // Handle deleting the draft
-  const handleDeleteDraft = async (draftId: string) => {
+  const handleDeleteDraft = async (draftId: string): Promise<void> => {
     try {
       await deleteDraft(draftId);
-      return true;
+      navigate('/drafts');
     } catch (error) {
       console.error('Error deleting draft:', error);
       toast.error('Failed to delete draft');
-      return false;
     }
   };
 
