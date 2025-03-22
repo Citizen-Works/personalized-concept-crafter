@@ -6,10 +6,10 @@ import { generateIdeas } from "./generateIdeas";
 import { saveIdeas } from "./saveIdeas";
 import { IdeaResponse } from "./types";
 import { supabase } from "@/integrations/supabase/client";
-import { DocumentProcessingStatus } from "@/types/documents";
+import { DocumentProcessingStatus, DocumentType } from "@/types/documents";
 
 /**
- * Processes a transcript to extract content ideas - can run in background
+ * Processes a document to extract content ideas - can run in background
  */
 export const processTranscriptForIdeas = async (
   userId: string, 
@@ -39,7 +39,12 @@ export const processTranscriptForIdeas = async (
       document = await fetchDocument(userId, documentId);
     } catch (docError) {
       console.error("Error fetching document:", docError);
-      throw new Error(`Failed to retrieve transcript: ${docError instanceof Error ? docError.message : 'Unknown error'}`);
+      throw new Error(`Failed to retrieve document: ${docError instanceof Error ? docError.message : 'Unknown error'}`);
+    }
+    
+    // Check if document is a transcript or eligible for idea extraction
+    if (document.type !== "transcript") {
+      throw new Error(`Only transcript documents can be processed for ideas. This document is type: ${document.type}`);
     }
     
     // Step 2: Get business context for better idea generation

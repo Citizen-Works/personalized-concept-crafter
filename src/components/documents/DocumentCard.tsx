@@ -58,6 +58,9 @@ const DocumentCard: React.FC<DocumentCardProps> = ({
     }
   };
 
+  // Only transcript documents can be processed for ideas
+  const canProcessForIdeas = document.type === 'transcript';
+
   return (
     <Card className="h-full flex flex-col">
       <CardContent className="flex-1 pt-6">
@@ -82,7 +85,7 @@ const DocumentCard: React.FC<DocumentCardProps> = ({
                   Edit Properties
                 </DropdownMenuItem>
               )}
-              {onProcess && document.type === 'transcript' && (
+              {onProcess && canProcessForIdeas && (
                 <DropdownMenuItem onClick={() => onProcess(document.id)}>
                   <RefreshCw className="mr-2 h-4 w-4" />
                   Extract Ideas

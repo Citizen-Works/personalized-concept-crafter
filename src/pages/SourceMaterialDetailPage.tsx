@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useDocuments } from "@/hooks/useDocuments";
@@ -21,16 +20,19 @@ import {
   Download,
   ClipboardCopy,
   ExternalLink,
-  FileType
+  FileType,
+  AlertTriangle
 } from "lucide-react";
 import { formatDate } from "@/utils/dateUtils";
 import { useToast } from "@/hooks/use-toast";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 const SourceMaterialDetailPage = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { toast } = useToast();
   const [isContentCopied, setIsContentCopied] = useState(false);
+  const [processingError, setProcessingError] = useState<string | null>(null);
   
   const { 
     fetchDocument, 
@@ -45,24 +47,54 @@ const SourceMaterialDetailPage = () => {
     if (id) {
       fetchDocument(id)
         .then(doc => setDocument(doc))
-        .catch(err => console.error("Failed to fetch document:", err));
+        .catch(err => {
+          console.error("Failed to fetch document:", err);
+          if (err.code === "22P02") {
+            toast({
+              variant: "destructive",
+              title: "Invalid document ID",
+              description: "Could not find the requested document. Redirecting to materials list.",
+            });
+            
+            setTimeout(() => {
+              navigate('/source-materials');
+            }, 2000);
+          }
+        });
     }
-  }, [id, fetchDocument]);
+  }, [id, fetchDocument, navigate, toast]);
+  
+  const isTranscriptType = document?.type === 'transcript';
   
   const handleExtractIdeas = async () => {
     if (!document) return;
+    
+    setProcessingError(null);
+    
+    if (!isTranscriptType) {
+      setProcessingError("Only transcript documents can be processed for ideas.");
+      toast({
+        variant: "destructive",
+        title: "Processing failed",
+        description: "Only transcript documents can be processed for ideas.",
+      });
+      return;
+    }
     
     try {
       await processTranscript(document.id);
       toast({
         title: "Processing started",
-        description: "We're extracting ideas from this material",
+        description: "We're extracting ideas from this transcript",
       });
     } catch (error) {
+      console.error("Error processing transcript:", error);
+      const errorMessage = error instanceof Error ? error.message : "Failed to extract ideas from this material";
+      setProcessingError(errorMessage);
       toast({
         variant: "destructive",
         title: "Processing failed",
-        description: "Failed to extract ideas from this material",
+        description: errorMessage,
       });
     }
   };
@@ -158,8 +190,7 @@ const SourceMaterialDetailPage = () => {
     );
   }
   
-  const isTranscript = document.type === 'transcript';
-  const documentTypeLabel = isTranscript ? 'Transcript' : 'Document';
+  const documentTypeLabel = isTranscriptType ? 'Transcript' : document?.type || 'Document';
   
   return (
     <div className="container mx-auto p-6 space-y-6">
@@ -195,6 +226,7 @@ const SourceMaterialDetailPage = () => {
             <ClipboardCopy className="mr-2 h-4 w-4" />
             {isContentCopied ? "Copied!" : "Copy"}
           </Button>
+          
           <Button 
             variant="outline" 
             onClick={handleDownload}
@@ -202,14 +234,27 @@ const SourceMaterialDetailPage = () => {
             <Download className="mr-2 h-4 w-4" />
             Download
           </Button>
+          
           <Button 
             onClick={handleExtractIdeas}
+            disabled={!isTranscriptType || document.processing_status === 'processing'}
+            variant={isTranscriptType ? "default" : "secondary"}
+            title={!isTranscriptType ? "Only transcript documents can be processed for ideas" : ""}
           >
             <Lightbulb className="mr-2 h-4 w-4" />
             Extract Ideas
           </Button>
         </div>
       </div>
+      
+      {processingError && (
+        <Alert variant="destructive" className="mb-4">
+          <AlertTriangle className="h-4 w-4" />
+          <AlertDescription>
+            {processingError}
+          </AlertDescription>
+        </Alert>
+      )}
       
       <Card>
         <CardHeader>
@@ -226,6 +271,12 @@ const SourceMaterialDetailPage = () => {
               </Badge>
             )}
           </div>
+          {!isTranscriptType && (
+            <CardDescription className="text-amber-500 flex items-center gap-1">
+              <AlertTriangle className="h-4 w-4" />
+              Note: Only transcript documents can be processed for ideas
+            </CardDescription>
+          )}
         </CardHeader>
         <CardContent>
           <div className="whitespace-pre-wrap font-mono text-sm bg-muted p-4 rounded-md max-h-[60vh] overflow-y-auto">
