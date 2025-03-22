@@ -1,27 +1,34 @@
 
 import { useMemo } from 'react';
 import { useIdeas } from '@/hooks/ideas';
-import { ContentIdea } from '@/types';
+import { useDrafts } from '@/hooks/useDrafts';
+import { ContentIdea, ContentDraft } from '@/types';
 
 export function useContentStatusCounts() {
-  const { ideas, isLoading } = useIdeas();
+  const { ideas, isLoading: ideasLoading } = useIdeas();
+  const { drafts, isLoading: draftsLoading } = useDrafts();
   
   const statusCounts = useMemo(() => {
+    // Idea counts
     const needsReviewCount = ideas.filter(idea => idea.status === 'unreviewed').length;
-    const inProgressCount = ideas.filter(idea => ['approved', 'drafted', 'draft'].includes(idea.status as string)).length;
-    const readyToPublishCount = ideas.filter(idea => ['ready'].includes(idea.status as string)).length;
-    const publishedCount = ideas.filter(idea => idea.status === 'published').length;
+    const approvedIdeasCount = ideas.filter(idea => idea.status === 'approved').length;
+    
+    // Draft counts
+    const inProgressCount = drafts.filter(draft => draft.status === 'draft').length;
+    const readyToPublishCount = drafts.filter(draft => draft.status === 'ready').length;
+    const publishedCount = drafts.filter(draft => draft.status === 'published').length;
     
     return {
       needsReview: needsReviewCount,
       inProgress: inProgressCount,
       readyToPublish: readyToPublishCount,
-      published: publishedCount
+      published: publishedCount,
+      approvedIdeas: approvedIdeasCount
     };
-  }, [ideas]);
+  }, [ideas, drafts]);
   
   return {
     statusCounts,
-    isLoading
+    isLoading: ideasLoading || draftsLoading
   };
 }

@@ -5,7 +5,7 @@ import { useIdeas } from '@/hooks/ideas';
 import { useClaudeAI } from '@/hooks/useClaudeAI';
 import { useDrafts } from '@/hooks/useDrafts';
 import { toast } from 'sonner';
-import { ContentType } from '@/types';
+import { ContentType, DraftStatus } from '@/types';
 import { useForm } from 'react-hook-form';
 import { FormValues, formSchema } from './FormFields';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -47,10 +47,10 @@ export const useNewIdeaForm = () => {
         title: values.title,
         description: values.description || "",
         notes: formattedNotes,
-        contentType: null, // No longer required
         source: values.source,
         sourceUrl: values.sourceUrl || null,
         status: 'approved',
+        hasBeenUsed: false, // Initialize as not used
         meetingTranscriptExcerpt: null
       });
       
@@ -93,10 +93,10 @@ export const useNewIdeaForm = () => {
         title: values.title,
         description: values.description || "",
         notes: formattedNotes,
-        contentType: contentType, // Needed for generation
         source: values.source,
         sourceUrl: values.sourceUrl || null,
         status: 'approved',
+        hasBeenUsed: false, // Will be set to true after draft creation
         meetingTranscriptExcerpt: null
       });
       
@@ -104,21 +104,29 @@ export const useNewIdeaForm = () => {
       
       // 2. Generate content for the idea
       if (savedIdea && savedIdea.id) {
-        const generatedContent = await generateContent(savedIdea, contentType);
+        // Add contentType only for generation purpose, not stored on the idea
+        const ideaWithType = {
+          ...savedIdea,
+          contentType: contentType // Used temporarily for content generation
+        };
+        
+        const generatedContent = await generateContent(ideaWithType, contentType);
         
         if (generatedContent) {
           // 3. Create a draft with the generated content
           await createDraft({
             contentIdeaId: savedIdea.id,
             content: generatedContent,
+            contentType: contentType, // Store on the draft
             version: 1,
             feedback: '',
+            status: 'draft' as DraftStatus
           });
           
-          // 4. Update the idea status to drafted
+          // 4. Update the idea to mark it as used
           await updateIdea({
             id: savedIdea.id,
-            status: 'drafted'
+            hasBeenUsed: true
           });
           
           toast.success(`Draft generated successfully for ${contentType} content`);

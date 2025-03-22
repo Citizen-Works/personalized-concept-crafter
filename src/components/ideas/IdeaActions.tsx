@@ -1,39 +1,71 @@
+
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Pencil, Trash } from 'lucide-react';
-import { ContentStatus } from '@/types/content';
+import { Badge } from "@/components/ui/badge";
+import { ContentStatus } from "@/types";
+import { Edit, Trash, CheckCircle } from "lucide-react";
+import { getStatusBadgeClasses } from './BadgeUtils';
 
 interface IdeaActionsProps {
   id: string;
   status: ContentStatus;
+  hasBeenUsed: boolean;
   onDeleteIdea: () => void;
   onEdit: () => void;
 }
 
-const IdeaActions: React.FC<IdeaActionsProps> = ({ id, status, onDeleteIdea, onEdit }) => {
+const IdeaActions: React.FC<IdeaActionsProps> = ({ 
+  id, 
+  status, 
+  hasBeenUsed,
+  onDeleteIdea, 
+  onEdit 
+}) => {
   return (
     <Card>
       <CardHeader className="pb-3">
-        <CardTitle>Actions</CardTitle>
+        <CardTitle className="flex justify-between items-center">
+          <span>Status</span>
+          <Badge className={getStatusBadgeClasses(status)}>
+            {status.charAt(0).toUpperCase() + status.slice(1)}
+          </Badge>
+        </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-4">
-        <Button 
-          variant="outline" 
-          className="w-full gap-1" 
-          onClick={onEdit}
-        >
-          <Pencil className="h-4 w-4" />
-          Edit Idea
-        </Button>
-        <Button 
-          variant="destructive" 
-          className="w-full gap-1"
-          onClick={onDeleteIdea}
-        >
-          <Trash className="h-4 w-4" />
-          Delete Idea
-        </Button>
+      <CardContent>
+        <div className="space-y-4">
+          {/* Usage indicator */}
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <span className="font-medium">Usage:</span>
+            {hasBeenUsed ? (
+              <div className="flex items-center gap-1 text-green-600">
+                <CheckCircle className="h-4 w-4" />
+                <span>Used for content</span>
+              </div>
+            ) : (
+              <span>Not used yet</span>
+            )}
+          </div>
+          
+          <div className="flex flex-col gap-2">
+            <Button
+              variant="outline"
+              className="w-full"
+              onClick={onEdit}
+            >
+              <Edit className="h-4 w-4 mr-2" />
+              Edit Idea
+            </Button>
+            <Button
+              variant="destructive"
+              className="w-full"
+              onClick={onDeleteIdea}
+            >
+              <Trash className="h-4 w-4 mr-2" />
+              Delete Idea
+            </Button>
+          </div>
+        </div>
       </CardContent>
     </Card>
   );

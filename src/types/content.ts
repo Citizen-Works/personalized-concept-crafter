@@ -3,21 +3,21 @@
  * Content-related type definitions
  */
 export type ContentSource = 'manual' | 'meeting' | 'transcript' | 'ai' | 'other';
-export type ContentStatus = 'draft' | 'unreviewed' | 'approved' | 'archived' | 'published' | 'rejected' | 'drafted' | 'ready';
-export type ContentType = 'blog' | 'newsletter' | 'social' | 'linkedin' | 'twitter' | 'facebook' | 'instagram' | 'marketing';
-export type DraftStatus = 'draft' | 'ready' | 'published' | 'archived';
+export type ContentStatus = 'unreviewed' | 'approved' | 'archived'; // Simplified status for ideas
+export type ContentType = 'linkedin' | 'newsletter' | 'marketing';
+export type DraftStatus = 'draft' | 'ready' | 'published' | 'archived'; // Status for drafts
 
 export interface ContentIdea {
   id: string;
   userId: string;
   title: string;
   description: string;
-  notes: string;
+  notes: string; // Keep for additional context
   source: ContentSource;
   meetingTranscriptExcerpt?: string;
   sourceUrl?: string;
-  status: ContentStatus;
-  contentType: ContentType | null;
+  status: ContentStatus; // Simplified statuses
+  hasBeenUsed: boolean; // NEW: Tracks if idea has been used for drafts
   createdAt: Date;
   contentPillarIds?: string[];  // Optional array of content pillar IDs
   targetAudienceIds?: string[]; // Optional array of target audience IDs
@@ -27,10 +27,12 @@ export interface ContentDraft {
   id: string;
   contentIdeaId: string;
   content: string;
+  contentType: ContentType; // Added: specific to draft
+  contentGoal?: string;     // Added: specific to draft
   version: number;
   feedback: string;
+  status: DraftStatus;      // Updated: draft-specific statuses
   createdAt: Date;
-  status?: DraftStatus;
 }
 
 export interface LinkedinPost {

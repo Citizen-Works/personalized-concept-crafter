@@ -14,14 +14,14 @@ import { Progress } from "@/components/ui/progress";
 
 interface IdeaContentGenerationProps {
   idea: ContentIdea;
-  onGenerateDraft: (contentType: string, content: string) => Promise<void>;
+  onGenerateDraft: (contentType: ContentType, content: string) => Promise<void>;
 }
 
 const IdeaContentGeneration: React.FC<IdeaContentGenerationProps> = ({
   idea,
   onGenerateDraft
 }) => {
-  const [selectedContentType, setSelectedContentType] = useState<ContentType>(idea.contentType || 'linkedin');
+  const [selectedContentType, setSelectedContentType] = useState<ContentType>('linkedin');
   const [generatedContent, setGeneratedContent] = useState('');
   const { generateContent, isGenerating, error } = useClaudeAI();
   const { updateIdea } = useIdeas();
@@ -64,17 +64,7 @@ const IdeaContentGeneration: React.FC<IdeaContentGenerationProps> = ({
     };
   }, [isGenerating, progress]);
   
-  // Extract content goal and call to action from the idea notes
-  const extractContentGoal = () => {
-    if (!idea.notes) return null;
-    
-    const goalMatch = idea.notes.match(/Content Goal: (.*?)(?:\n|$)/);
-    if (goalMatch && goalMatch[1]) {
-      return goalMatch[1].trim();
-    }
-    return null;
-  };
-  
+  // Extract call to action from the idea notes
   const extractCallToAction = () => {
     if (!idea.notes) return null;
     
@@ -85,12 +75,17 @@ const IdeaContentGeneration: React.FC<IdeaContentGenerationProps> = ({
     return null;
   };
   
-  const contentGoal = extractContentGoal();
   const callToAction = extractCallToAction();
   
   const handleGenerateContent = async () => {
     try {
-      const content = await generateContent(idea, selectedContentType);
+      // Create temporary object with contentType for generation
+      const ideaWithType = {
+        ...idea,
+        contentType: selectedContentType // Temporary for generation only
+      };
+      
+      const content = await generateContent(ideaWithType, selectedContentType);
       if (content) {
         setGeneratedContent(content);
       }
@@ -103,13 +98,12 @@ const IdeaContentGeneration: React.FC<IdeaContentGenerationProps> = ({
     try {
       await onGenerateDraft(selectedContentType, generatedContent);
       
-      // Update the idea status to 'drafted' and 'approved'
-      if (idea.status !== 'drafted') {
+      // Mark the idea as used if not already
+      if (!idea.hasBeenUsed) {
         await updateIdea({
           id: idea.id,
-          status: 'approved' // Update to approved status when drafted
+          hasBeenUsed: true
         });
-        toast.success('Idea status updated to approved');
       }
       
       // Optionally clear the content after saving
@@ -128,18 +122,11 @@ const IdeaContentGeneration: React.FC<IdeaContentGenerationProps> = ({
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        {contentGoal && (
+        {callToAction && (
           <div className="mb-4">
-            <Badge variant="outline" className="bg-primary/10 text-primary hover:bg-primary/20">
-              Goal: {contentGoal}
+            <Badge variant="outline" className="bg-secondary/10 text-secondary hover:bg-secondary/20">
+              CTA: {callToAction}
             </Badge>
-            {callToAction && (
-              <div className="mt-2">
-                <Badge variant="outline" className="bg-secondary/10 text-secondary hover:bg-secondary/20">
-                  CTA: {callToAction}
-                </Badge>
-              </div>
-            )}
           </div>
         )}
         

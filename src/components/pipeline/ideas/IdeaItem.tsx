@@ -6,7 +6,7 @@ import { Card, CardHeader, CardContent, CardFooter, CardTitle, CardDescription }
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
-import { ArrowUpRight, Trash, Loader2, Lightbulb } from "lucide-react";
+import { ArrowUpRight, Trash, Loader2, Lightbulb, CheckCircle } from "lucide-react";
 import { Link } from "react-router-dom";
 
 interface IdeaItemProps {
@@ -53,7 +53,15 @@ export const IdeaItem: React.FC<IdeaItemProps> = ({
             disabled={isUpdating}
           />
           <div>
-            <CardTitle className="text-base">{idea.title}</CardTitle>
+            <CardTitle className="text-base flex items-center gap-2">
+              {idea.title}
+              {idea.hasBeenUsed && (
+                <Badge variant="outline" className="ml-2 text-xs bg-green-50 text-green-700 border-green-200">
+                  <CheckCircle className="h-3 w-3 mr-1" />
+                  Used
+                </Badge>
+              )}
+            </CardTitle>
             <CardDescription>
               {displaySource()} • {formatDistanceToNow(new Date(idea.createdAt), { addSuffix: true })}
             </CardDescription>
@@ -81,7 +89,7 @@ export const IdeaItem: React.FC<IdeaItemProps> = ({
             asChild
             title="Generate Content"
           >
-            <Link to={`/generate-draft`}>
+            <Link to={`/generate-draft?ideaId=${idea.id}`}>
               <Lightbulb className="h-4 w-4 mr-1" />
               Generate Content
             </Link>

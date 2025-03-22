@@ -30,7 +30,6 @@ export const useIdeaEditorForm = (idea: ContentIdea, onClose: () => void) => {
     // Set notes without the CTA line
     let cleanedNotes = notesText
       .replace(/Call to Action: .*?(?:\n|$)/, "")
-      .replace(/Content Goal: .*?(?:\n|$)/, "") // Remove content goal too
       .trim();
       
     setNotes(cleanedNotes);

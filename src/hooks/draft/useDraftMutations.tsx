@@ -11,11 +11,13 @@ export const useDraftMutations = (userId: string | undefined) => {
       createDraft(draft, userId || ""),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["drafts", userId] });
+      // When a draft is created, we also need to update the hasBeenUsed field on the idea
+      queryClient.invalidateQueries({ queryKey: ["ideas", userId] });
     },
   });
 
   const updateDraftMutation = useMutation({
-    mutationFn: (params: { id: string } & Partial<Omit<ContentDraft, "id" | "createdAt"> & { status?: DraftStatus }>) => 
+    mutationFn: (params: { id: string } & Partial<Omit<ContentDraft, "id" | "createdAt">>) => 
       updateDraft(params, userId || ""),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["drafts", userId] });

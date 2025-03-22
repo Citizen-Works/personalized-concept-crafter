@@ -1,7 +1,7 @@
 
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { ContentIdea, ContentStatus, ContentType, ContentSource } from "@/types";
+import { ContentIdea, ContentStatus, ContentSource } from "@/types";
 import { IdeaCreateInput, IdeaUpdateInput } from "./types";
 
 export const fetchIdeas = async (userId: string): Promise<ContentIdea[]> => {
@@ -27,8 +27,10 @@ export const fetchIdeas = async (userId: string): Promise<ContentIdea[]> => {
     meetingTranscriptExcerpt: item.meeting_transcript_excerpt,
     sourceUrl: item.source_url,
     status: item.status as ContentStatus,
-    contentType: item.content_type as ContentType | null,
-    createdAt: new Date(item.created_at)
+    hasBeenUsed: item.has_been_used || false,
+    createdAt: new Date(item.created_at),
+    contentPillarIds: item.content_pillar_ids,
+    targetAudienceIds: item.target_audience_ids
   }));
 };
 
@@ -60,8 +62,10 @@ export const fetchIdeaById = async (id: string, userId: string): Promise<Content
     meetingTranscriptExcerpt: data.meeting_transcript_excerpt,
     sourceUrl: data.source_url,
     status: data.status as ContentStatus,
-    contentType: data.content_type as ContentType | null,
-    createdAt: new Date(data.created_at)
+    hasBeenUsed: data.has_been_used || false,
+    createdAt: new Date(data.created_at),
+    contentPillarIds: data.content_pillar_ids,
+    targetAudienceIds: data.target_audience_ids
   };
 };
 
@@ -79,7 +83,9 @@ export const createIdea = async (idea: IdeaCreateInput, userId: string): Promise
         meeting_transcript_excerpt: idea.meetingTranscriptExcerpt,
         source_url: idea.sourceUrl,
         status: idea.status,
-        content_type: idea.contentType,
+        has_been_used: idea.hasBeenUsed || false,
+        content_pillar_ids: idea.contentPillarIds,
+        target_audience_ids: idea.targetAudienceIds,
         user_id: userId
       }
     ])
@@ -101,8 +107,10 @@ export const createIdea = async (idea: IdeaCreateInput, userId: string): Promise
     meetingTranscriptExcerpt: data.meeting_transcript_excerpt,
     sourceUrl: data.source_url,
     status: data.status as ContentStatus,
-    contentType: data.content_type as ContentType | null,
-    createdAt: new Date(data.created_at)
+    hasBeenUsed: data.has_been_used || false,
+    createdAt: new Date(data.created_at),
+    contentPillarIds: data.content_pillar_ids,
+    targetAudienceIds: data.target_audience_ids
   };
 };
 
@@ -117,7 +125,9 @@ export const updateIdea = async ({ id, ...updates }: { id: string } & IdeaUpdate
   if (updates.meetingTranscriptExcerpt !== undefined) updateData.meeting_transcript_excerpt = updates.meetingTranscriptExcerpt;
   if (updates.sourceUrl !== undefined) updateData.source_url = updates.sourceUrl;
   if (updates.status) updateData.status = updates.status;
-  if (updates.contentType !== undefined) updateData.content_type = updates.contentType;
+  if (updates.hasBeenUsed !== undefined) updateData.has_been_used = updates.hasBeenUsed;
+  if (updates.contentPillarIds !== undefined) updateData.content_pillar_ids = updates.contentPillarIds;
+  if (updates.targetAudienceIds !== undefined) updateData.target_audience_ids = updates.targetAudienceIds;
 
   try {
     const { data, error } = await supabase
@@ -142,8 +152,10 @@ export const updateIdea = async ({ id, ...updates }: { id: string } & IdeaUpdate
       meetingTranscriptExcerpt: data.meeting_transcript_excerpt,
       sourceUrl: data.source_url,
       status: data.status as ContentStatus,
-      contentType: data.content_type as ContentType | null,
-      createdAt: new Date(data.created_at)
+      hasBeenUsed: data.has_been_used || false,
+      createdAt: new Date(data.created_at),
+      contentPillarIds: data.content_pillar_ids,
+      targetAudienceIds: data.target_audience_ids
     };
   } catch (error) {
     console.error("Error in updateIdea:", error);

@@ -85,7 +85,7 @@ export const useItemActions = ({
     }
   };
   
-  // Handle reject idea
+  // Handle reject idea (which now means archive with reject notification)
   const handleReject = async (id: string) => {
     if (isUpdating) return; // Prevent multiple requests
     
@@ -93,7 +93,8 @@ export const useItemActions = ({
       setIsUpdating(true);
       await updateIdea({ 
         id, 
-        status: 'rejected' as ContentStatus 
+        status: 'archived' as ContentStatus, 
+        rejectionReason: 'Rejected during review'  // Add metadata for rejection
       });
       
       // Remove from selected items if it was selected

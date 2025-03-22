@@ -4,6 +4,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useIdeas } from '@/hooks/ideas';
 import { useDrafts } from '@/hooks/useDrafts';
 import { toast } from 'sonner';
+import { ContentType, DraftStatus } from '@/types';
 
 // Import components
 import IdeaPageHeader from '@/components/ideas/IdeaPageHeader';
@@ -52,7 +53,7 @@ const IdeaDetailPage = () => {
     }
   };
 
-  const handleGenerateDraft = async (contentType: string, content: string) => {
+  const handleGenerateDraft = async (contentType: ContentType, content: string) => {
     if (!idea) return;
     
     if (!content) {
@@ -67,15 +68,19 @@ const IdeaDetailPage = () => {
       await createDraft({
         contentIdeaId: idea.id,
         content: content,
+        contentType: contentType, // Store content type on the draft
         version: 1,
-        feedback: ''
+        feedback: '',
+        status: 'draft' as DraftStatus
       });
       
-      // Update the idea status to 'approved' (was 'drafted')
-      await updateIdea({
-        id: idea.id,
-        status: 'approved'
-      });
+      // Mark the idea as used
+      if (!idea.hasBeenUsed) {
+        await updateIdea({
+          id: idea.id,
+          hasBeenUsed: true
+        });
+      }
       
       toast.success(`${contentType.charAt(0).toUpperCase() + contentType.slice(1)} draft generated successfully`);
     } catch (error) {
@@ -112,6 +117,7 @@ const IdeaDetailPage = () => {
           <IdeaActions 
             id={idea.id} 
             status={idea.status}
+            hasBeenUsed={idea.hasBeenUsed}
             onDeleteIdea={handleDeleteIdea}
             onEdit={() => setIsEditorOpen(true)}
           />
