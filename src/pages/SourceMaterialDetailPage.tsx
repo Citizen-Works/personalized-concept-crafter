@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useDocuments } from "@/hooks/useDocuments";
@@ -21,11 +22,13 @@ import {
   ClipboardCopy,
   ExternalLink,
   FileType,
-  AlertTriangle
+  AlertTriangle,
+  RefreshCw
 } from "lucide-react";
 import { formatDate } from "@/utils/dateUtils";
 import { useToast } from "@/hooks/use-toast";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { supabase } from "@/integrations/supabase/client";
 
 const SourceMaterialDetailPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -33,6 +36,8 @@ const SourceMaterialDetailPage = () => {
   const { toast } = useToast();
   const [isContentCopied, setIsContentCopied] = useState(false);
   const [processingError, setProcessingError] = useState<string | null>(null);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [retryCount, setRetryCount] = useState(0);
   
   const { 
     fetchDocument, 
@@ -43,28 +48,110 @@ const SourceMaterialDetailPage = () => {
   
   const [document, setDocument] = useState<any>(null);
   
+  // Function to poll document status
+  const pollDocumentStatus = async (docId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from("documents")
+        .select("processing_status, has_ideas, ideas_count")
+        .eq("id", docId)
+        .single();
+        
+      if (error) throw error;
+      
+      if (data) {
+        // Update local document state with latest status
+        setDocument(prev => ({
+          ...prev,
+          processing_status: data.processing_status,
+          has_ideas: data.has_ideas,
+          ideas_count: data.ideas_count
+        }));
+        
+        // If still processing, continue polling
+        if (data.processing_status === 'processing') {
+          setTimeout(() => pollDocumentStatus(docId), 2000);
+        } else if (data.processing_status === 'failed') {
+          setProcessingError("Processing failed. Please try again.");
+          setIsProcessing(false);
+        } else {
+          setIsProcessing(false);
+          
+          // Show success message if ideas were generated
+          if (data.has_ideas) {
+            toast({
+              title: "Ideas generated successfully",
+              description: `Generated ${data.ideas_count} ideas from this document`,
+            });
+          } else {
+            toast({
+              title: "Processing complete",
+              description: "No ideas were found in this document",
+            });
+          }
+        }
+      }
+    } catch (err) {
+      console.error("Error polling document status:", err);
+      // Don't set processing error here, just stop polling
+      setIsProcessing(false);
+    }
+  };
+  
   useEffect(() => {
     if (id) {
       console.log(`Fetching document with ID: ${id}`);
-      fetchDocument(id)
-        .then(doc => {
-          console.log("Document fetched successfully:", doc.title);
-          setDocument(doc);
-        })
-        .catch(err => {
-          console.error("Failed to fetch document:", err);
-          if (err.code === "22P02") {
+      
+      // First try direct Supabase query as fallback
+      const fetchDirectly = async () => {
+        try {
+          const { data, error } = await supabase
+            .from("documents")
+            .select("*")
+            .eq("id", id)
+            .single();
+            
+          if (error) {
+            console.log("Direct fetch failed, trying service layer:", error);
+            // Fall back to service layer
+            return fetchDocument(id)
+              .then(doc => {
+                console.log("Document fetched successfully via service:", doc.title);
+                setDocument(doc);
+              })
+              .catch(err => handleFetchError(err));
+          }
+          
+          if (data) {
+            console.log("Document fetched successfully via direct query:", data.title);
+            setDocument(data);
+          } else {
             toast({
               variant: "destructive",
-              title: "Invalid document ID",
-              description: "Could not find the requested document. Redirecting to materials list.",
+              title: "Document not found",
+              description: "Could not find the requested document."
             });
-            
-            setTimeout(() => {
-              navigate('/source-materials');
-            }, 2000);
           }
+        } catch (err) {
+          handleFetchError(err);
+        }
+      };
+      
+      const handleFetchError = (err: any) => {
+        console.error("Failed to fetch document:", err);
+        
+        toast({
+          variant: "destructive",
+          title: "Error loading document",
+          description: "Could not load the requested document. Redirecting to materials list.",
         });
+        
+        setTimeout(() => {
+          navigate('/source-materials');
+        }, 2000);
+      };
+      
+      fetchDirectly();
     }
   }, [id, fetchDocument, navigate, toast]);
   
@@ -72,18 +159,40 @@ const SourceMaterialDetailPage = () => {
     if (!document) return;
     
     setProcessingError(null);
+    setIsProcessing(true);
+    setRetryCount(prev => prev + 1);
     
     try {
-      console.log(`Starting idea extraction for document: ${document.id}`);
+      console.log(`Starting idea extraction for document: ${document.id} (Attempt ${retryCount + 1})`);
+      
+      // Update the document status to processing
+      try {
+        await supabase
+          .from("documents")
+          .update({ processing_status: 'processing' })
+          .eq("id", document.id);
+      } catch (statusError) {
+        console.error("Error updating status:", statusError);
+        // Continue even if status update fails
+      }
+      
+      // Start processing
       await processTranscript(document.id);
+      
+      // Start polling for status updates
+      pollDocumentStatus(document.id);
+      
       toast({
         title: "Processing started",
         description: "We're extracting ideas from this document",
       });
     } catch (error) {
       console.error("Error processing document:", error);
+      setIsProcessing(false);
+      
       const errorMessage = error instanceof Error ? error.message : "Failed to extract ideas from this material";
       setProcessingError(errorMessage);
+      
       toast({
         variant: "destructive",
         title: "Processing failed",
@@ -230,11 +339,20 @@ const SourceMaterialDetailPage = () => {
           
           <Button 
             onClick={handleExtractIdeas}
-            disabled={document.processing_status === 'processing'}
+            disabled={isProcessing || document.processing_status === 'processing'}
             variant="default"
           >
-            <Lightbulb className="mr-2 h-4 w-4" />
-            Extract Ideas
+            {isProcessing || document.processing_status === 'processing' ? (
+              <>
+                <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
+                Processing...
+              </>
+            ) : (
+              <>
+                <Lightbulb className="mr-2 h-4 w-4" />
+                Extract Ideas
+              </>
+            )}
           </Button>
         </div>
       </div>
@@ -242,8 +360,16 @@ const SourceMaterialDetailPage = () => {
       {processingError && (
         <Alert variant="destructive" className="mb-4">
           <AlertTriangle className="h-4 w-4" />
-          <AlertDescription>
-            {processingError}
+          <AlertDescription className="flex justify-between items-center">
+            <span>{processingError}</span>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={handleExtractIdeas} 
+              disabled={isProcessing}
+            >
+              Retry
+            </Button>
           </AlertDescription>
         </Alert>
       )}
@@ -252,7 +378,7 @@ const SourceMaterialDetailPage = () => {
         <CardHeader>
           <div className="flex items-center justify-between">
             <CardTitle>Content</CardTitle>
-            {document.processing_status === 'processing' && (
+            {(isProcessing || document.processing_status === 'processing') && (
               <Badge variant="outline" className="bg-yellow-100 dark:bg-yellow-900">
                 Processing
               </Badge>
@@ -260,6 +386,11 @@ const SourceMaterialDetailPage = () => {
             {document.has_ideas && (
               <Badge variant="outline" className="bg-green-100 dark:bg-green-900">
                 Ideas Generated
+              </Badge>
+            )}
+            {document.processing_status === 'failed' && !isProcessing && (
+              <Badge variant="outline" className="bg-red-100 dark:bg-red-900">
+                Processing Failed
               </Badge>
             )}
           </div>
@@ -287,4 +418,3 @@ const SourceMaterialDetailPage = () => {
 };
 
 export default SourceMaterialDetailPage;
-

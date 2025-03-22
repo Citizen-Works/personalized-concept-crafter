@@ -13,89 +13,114 @@ const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || '';
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 // Generate content ideas from document
-async function generateIdeasFromDocument(documentId: string, userId: string, type: string = 'extract_ideas') {
+async function generateIdeasFromDocument(documentId: string, userId: string, type: string = 'extract_ideas', content?: string, title?: string) {
   try {
     console.log(`Processing document ${documentId} for user ${userId} with type ${type}`);
 
-    // Fetch the document
-    const { data: document, error: docError } = await supabase
-      .from('documents')
-      .select('*')
-      .eq('id', documentId)
-      .eq('user_id', userId)
-      .single();
+    // Only fetch the document if content wasn't provided
+    let document: any = null;
+    
+    if (!content) {
+      // Fetch the document
+      const { data: docData, error: docError } = await supabase
+        .from('documents')
+        .select('*')
+        .eq('id', documentId)
+        .eq('user_id', userId)
+        .single();
 
-    if (docError) {
-      console.error('Error fetching document:', docError);
-      throw new Error(`Failed to fetch document: ${docError.message}`);
+      if (docError) {
+        console.error('Error fetching document:', docError);
+        throw new Error(`Failed to fetch document: ${docError.message}`);
+      }
+
+      if (!docData || !docData.content) {
+        throw new Error('Document not found or has no content');
+      }
+      
+      document = docData;
+      content = docData.content;
+      title = docData.title;
+      type = docData.type || type;
+    } else {
+      // Create a temporary document object if content was provided directly
+      document = {
+        id: documentId,
+        title: title || 'Document',
+        content,
+        type: type || 'generic'
+      };
     }
 
-    if (!document || !document.content) {
-      throw new Error('Document not found or has no content');
-    }
-
-    console.log(`Successfully retrieved document: ${document.title}`);
+    console.log(`Processing document: ${title} (${type})`);
 
     // For demo purposes, let's generate some simple ideas from the document
     // In a real implementation, you would use AI with higher temperature here
-    const ideas = generateSimpleIdeas(document.content, document.title, document.type);
+    const ideas = generateSimpleIdeas(content, title || 'Document', type);
     console.log(`Generated ${ideas.length} ideas for document ${documentId}`);
 
-    // Save the generated ideas
+    // Save the generated ideas if we have a valid document ID
     let savedCount = 0;
-    for (const idea of ideas) {
-      const { error: ideaError } = await supabase
-        .from('content_ideas')
-        .insert({
-          user_id: userId,
-          title: idea.title,
-          description: idea.description,
-          source: 'source_material',
-          source_url: document.id
-        });
+    
+    // Only save ideas to database if given a real document ID (not when content was provided directly)
+    if (!content || (document && document.id)) {
+      for (const idea of ideas) {
+        const { error: ideaError } = await supabase
+          .from('content_ideas')
+          .insert({
+            user_id: userId,
+            title: idea.title,
+            description: idea.description,
+            source: 'source_material',
+            source_url: document.id
+          });
 
-      if (ideaError) {
-        console.error('Error saving idea:', ideaError);
-      } else {
-        savedCount++;
+        if (ideaError) {
+          console.error('Error saving idea:', ideaError);
+        } else {
+          savedCount++;
+        }
+      }
+
+      console.log(`Successfully saved ${savedCount} of ${ideas.length} ideas`);
+
+      // Update the document to mark that ideas have been generated
+      const { error: updateError } = await supabase
+        .from('documents')
+        .update({
+          processing_status: 'completed',
+          has_ideas: true,
+          ideas_count: savedCount,
+        })
+        .eq('id', documentId);
+
+      if (updateError) {
+        console.error('Error updating document status:', updateError);
+        // Log but don't throw to ensure we still return ideas
+        console.log(`Warning: Could not update document status: ${updateError.message}`);
       }
     }
 
-    console.log(`Successfully saved ${savedCount} of ${ideas.length} ideas`);
-
-    // Update the document to mark that ideas have been generated
-    const { error: updateError } = await supabase
-      .from('documents')
-      .update({
-        processing_status: 'completed',
-        has_ideas: true,
-        ideas_count: savedCount,
-      })
-      .eq('id', documentId);
-
-    if (updateError) {
-      console.error('Error updating document status:', updateError);
-      throw new Error(`Failed to update document status: ${updateError.message}`);
-    }
-
     console.log(`Successfully generated ${ideas.length} ideas from document ${documentId}`);
-    return { success: true, ideasCount: ideas.length };
+    return { success: true, ideasCount: ideas.length, ideas };
 
   } catch (error) {
     console.error('Error processing document:', error);
     
-    // Update the document status to show processing has failed
-    try {
-      await supabase
-        .from('documents')
-        .update({
-          processing_status: 'failed'
-        })
-        .eq('id', documentId);
-      
-      console.log(`Updated document ${documentId} status to 'failed'`);
-    } catch (updateError) {
-      console.error('Error updating document status after failure:', updateError);
+    // Only update document status if we're working with a stored document
+    if (!content) {
+      try {
+        await supabase
+          .from('documents')
+          .update({
+            processing_status: 'failed'
+          })
+          .eq('id', documentId);
+        
+        console.log(`Updated document ${documentId} status to 'failed'`);
+      } catch (updateError) {
+        console.error('Error updating document status after failure:', updateError);
+      }
     }
       
     throw error;
@@ -171,19 +196,28 @@ serve(async (req) => {
   }
   
   try {
-    const { documentId, userId, type } = await req.json();
+    const requestBody = await req.json();
+    const { documentId, userId, type, content, title } = requestBody;
     
-    if (!documentId || !userId) {
+    if (!userId) {
       return new Response(
-        JSON.stringify({ error: 'Document ID and User ID are required' }),
+        JSON.stringify({ error: 'User ID is required' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
     
-    console.log(`Received request to process document ${documentId} for user ${userId}`);
+    // Document ID is required unless content is directly provided
+    if (!documentId && !content) {
+      return new Response(
+        JSON.stringify({ error: 'Either Document ID or content is required' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+    
+    console.log(`Received request to process ${content ? 'direct content' : `document ${documentId}`} for user ${userId}`);
     
     // Process the document to generate ideas
-    const result = await generateIdeasFromDocument(documentId, userId, type);
+    const result = await generateIdeasFromDocument(documentId, userId, type, content, title);
     
     return new Response(
       JSON.stringify(result),
