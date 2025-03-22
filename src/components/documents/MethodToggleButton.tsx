@@ -9,6 +9,7 @@ interface MethodToggleButtonProps {
   onClick: () => void;
   children: React.ReactNode;
   className?: string;
+  icon?: React.ReactNode;
 }
 
 /**
@@ -19,7 +20,8 @@ const MethodToggleButton: React.FC<MethodToggleButtonProps> = ({
   isActive,
   onClick,
   children,
-  className = ""
+  className = "",
+  icon
 }) => {
   const isMobile = useIsMobile();
   
@@ -29,13 +31,14 @@ const MethodToggleButton: React.FC<MethodToggleButtonProps> = ({
       variant={isActive ? "default" : "outline"}
       onClick={onClick}
       className={cn(
-        "flex-1",
+        "flex-1 justify-center items-center",
         isMobile 
           ? "text-xs px-2 py-1.5" 
           : "text-sm sm:text-base px-3 sm:px-4 py-2 sm:py-2.5",
         className
       )}
     >
+      {icon && <span className="mr-2">{icon}</span>}
       {children}
     </Button>
   );

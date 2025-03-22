@@ -1,5 +1,6 @@
 
 import React from "react";
+import { FileText, Upload } from "lucide-react";
 import MethodToggleButton from "./MethodToggleButton";
 import { MOBILE_BREAKPOINT } from "@/hooks/use-mobile";
 import { createResponsiveComponent } from "@/components/ui/responsive-container";
@@ -19,12 +20,14 @@ const DesktopSelector: React.FC<InputMethodSelectorProps> = ({
       <MethodToggleButton
         isActive={inputMethod === "manual"}
         onClick={() => setInputMethod("manual")}
+        icon={<FileText className="h-4 w-4" />}
       >
         Manual Input
       </MethodToggleButton>
       <MethodToggleButton
         isActive={inputMethod === "upload"}
         onClick={() => setInputMethod("upload")}
+        icon={<Upload className="h-4 w-4" />}
       >
         Upload File
       </MethodToggleButton>
@@ -42,12 +45,14 @@ const MobileSelector: React.FC<InputMethodSelectorProps> = ({
       <MethodToggleButton
         isActive={inputMethod === "manual"}
         onClick={() => setInputMethod("manual")}
+        icon={<FileText className="h-3.5 w-3.5" />}
       >
         Manual Input
       </MethodToggleButton>
       <MethodToggleButton
         isActive={inputMethod === "upload"}
         onClick={() => setInputMethod("upload")}
+        icon={<Upload className="h-3.5 w-3.5" />}
       >
         Upload File
       </MethodToggleButton>
@@ -59,7 +64,7 @@ const MobileSelector: React.FC<InputMethodSelectorProps> = ({
  * Component that renders a toggle for selecting between manual input and file upload.
  * Uses responsive design to adapt to different screen sizes.
  */
-const InputMethodSelector: React.FC<InputMethodSelectorProps> = createResponsiveComponent<InputMethodSelectorProps>(
+const InputMethodSelector = createResponsiveComponent<InputMethodSelectorProps>(
   DesktopSelector,
   MobileSelector
 );
