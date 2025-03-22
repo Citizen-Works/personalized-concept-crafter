@@ -31,8 +31,25 @@ export const useContentIdeaApi = () => {
       
       if (error) throw error;
       
+      // Transform database response to match ContentIdea interface
+      const transformedData: ContentIdea = {
+        id: data.id,
+        userId: data.user_id,
+        title: data.title,
+        description: data.description || '',
+        notes: data.notes || '',
+        source: data.source,
+        meetingTranscriptExcerpt: data.meeting_transcript_excerpt,
+        sourceUrl: data.source_url,
+        status: data.status as ContentStatus,
+        hasBeenUsed: data.has_been_used,
+        createdAt: new Date(data.created_at),
+        contentPillarIds: data.content_pillar_ids,
+        targetAudienceIds: data.target_audience_ids
+      };
+      
       toast.success(`Idea updated to ${newStatus}`);
-      return data;
+      return transformedData;
     } catch (err) {
       console.error('Error updating idea status:', err);
       setError(err as Error);
@@ -77,8 +94,21 @@ export const useContentDraftApi = () => {
       
       if (error) throw error;
       
+      // Transform database response to match ContentDraft interface
+      const transformedData: ContentDraft = {
+        id: data.id,
+        contentIdeaId: data.content_idea_id,
+        content: data.content,
+        contentType: data.content_type || 'linkedin', // Default to linkedin if missing
+        contentGoal: data.content_goal,
+        version: data.version,
+        feedback: data.feedback || '',
+        status: data.status as DraftStatus,
+        createdAt: new Date(data.created_at)
+      };
+      
       toast.success(`Draft updated to ${newStatus}`);
-      return data;
+      return transformedData;
     } catch (err) {
       console.error('Error updating draft status:', err);
       setError(err as Error);
