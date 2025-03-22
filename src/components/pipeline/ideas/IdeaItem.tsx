@@ -8,6 +8,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { ArrowUpRight, Trash, Loader2, Lightbulb, CheckCircle } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useIsMobile } from '@/hooks/use-mobile';
+import { ResponsiveText } from '@/components/ui/responsive-text';
 
 interface IdeaItemProps {
   idea: ContentIdea;
@@ -28,6 +30,8 @@ export const IdeaItem: React.FC<IdeaItemProps> = ({
   getStatusBadgeClasses,
   getTypeBadgeClasses
 }) => {
+  const isMobile = useIsMobile();
+  
   const displaySource = () => {
     switch (idea.source) {
       case 'meeting':
@@ -59,7 +63,7 @@ export const IdeaItem: React.FC<IdeaItemProps> = ({
             disabled={isUpdating}
           />
           <div>
-            <CardTitle className="text-base flex items-center gap-2">
+            <CardTitle className={`flex items-center gap-2 ${isMobile ? 'text-sm' : 'text-base'}`}>
               {idea.title}
               {idea.hasBeenUsed && (
                 <Badge variant="outline" className="ml-2 text-xs bg-green-50 text-green-700 border-green-200">
@@ -68,7 +72,7 @@ export const IdeaItem: React.FC<IdeaItemProps> = ({
                 </Badge>
               )}
             </CardTitle>
-            <CardDescription>
+            <CardDescription className={isMobile ? 'text-xs' : 'text-sm'}>
               {displaySource()} • {formatDistanceToNow(new Date(idea.createdAt), { addSuffix: true })}
             </CardDescription>
           </div>
@@ -76,39 +80,48 @@ export const IdeaItem: React.FC<IdeaItemProps> = ({
       </CardHeader>
       <CardContent>
         <div className="flex items-center justify-between">
-          <p className="text-sm text-muted-foreground line-clamp-2">
+          <p className={`text-muted-foreground ${isMobile ? 'text-xs line-clamp-1' : 'text-sm line-clamp-2'}`}>
             {idea.description || "No description provided"}
           </p>
         </div>
       </CardContent>
       <CardFooter className="flex justify-between">
-        <Button variant="outline" size="sm" asChild>
+        <Button 
+          variant="outline" 
+          size={isMobile ? "sm" : "default"} 
+          className={isMobile ? "px-2 py-1 text-xs" : ""}
+          asChild
+        >
           <Link to={`/ideas/${idea.id}`}>
-            <ArrowUpRight className="h-4 w-4 mr-1" />
-            View Details
+            <ArrowUpRight className={`${isMobile ? 'h-3 w-3 mr-1' : 'h-4 w-4 mr-1'}`} />
+            View
           </Link>
         </Button>
         <div className="flex gap-2">
           <Button 
             variant="default" 
-            size="sm" 
+            size={isMobile ? "sm" : "default"} 
+            className={isMobile ? "px-2 py-1 text-xs" : ""}
             asChild
             title="Generate Content"
           >
             <Link to={`/ideas/${idea.id}`}>
-              <Lightbulb className="h-4 w-4 mr-1" />
-              Generate Content
+              <Lightbulb className={`${isMobile ? 'h-3 w-3 mr-1' : 'h-4 w-4 mr-1'}`} />
+              Generate
             </Link>
           </Button>
           <Button 
             variant="outline" 
             size="icon"
-            className="text-destructive hover:text-destructive"
+            className={`text-destructive hover:text-destructive ${isMobile ? 'h-7 w-7' : ''}`}
             onClick={handleDelete}
             title="Delete"
             disabled={isUpdating}
           >
-            {isUpdating ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash className="h-4 w-4" />}
+            {isUpdating ? 
+              <Loader2 className={`${isMobile ? 'h-3 w-3' : 'h-4 w-4'} animate-spin`} /> : 
+              <Trash className={`${isMobile ? 'h-3 w-3' : 'h-4 w-4'}`} />
+            }
           </Button>
         </div>
       </CardFooter>

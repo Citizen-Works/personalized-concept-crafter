@@ -10,6 +10,8 @@ import { PublishedTab } from "@/components/pipeline/PublishedTab";
 import { ContentFilterBar } from "@/components/pipeline/ContentFilterBar";
 import { ContentType } from "@/types";
 import { useIsMobile } from '@/hooks/use-mobile';
+import { ResponsiveTabsList } from '@/components/pipeline/responsive/ResponsiveTabsList';
+import { ResponsiveText } from '@/components/ui/responsive-text';
 
 const ContentPipelinePage = () => {
   const navigate = useNavigate();
@@ -80,7 +82,13 @@ const ContentPipelinePage = () => {
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-2">
-        <h1 className="text-3xl font-bold tracking-tight">Content Pipeline</h1>
+        <ResponsiveText
+          as="h1"
+          mobileClasses="text-2xl font-bold tracking-tight"
+          desktopClasses="text-3xl font-bold tracking-tight"
+        >
+          Content Pipeline
+        </ResponsiveText>
         <p className="text-muted-foreground">
           Manage your content through its entire lifecycle
         </p>
@@ -102,22 +110,10 @@ const ContentPipelinePage = () => {
         className="w-full"
         defaultValue={activeTab}
       >
-        <TabsList className={`${isMobile ? 'grid-cols-3 mb-2' : 'grid-cols-5'} grid`}>
-          <TabsTrigger value="review">Review</TabsTrigger>
-          <TabsTrigger value="ideas">Ideas</TabsTrigger>
-          <TabsTrigger value="drafts">Drafts</TabsTrigger>
-          {isMobile ? (
-            <TabsList className="grid grid-cols-2 mt-2">
-              <TabsTrigger value="ready">Ready</TabsTrigger>
-              <TabsTrigger value="published">Published</TabsTrigger>
-            </TabsList>
-          ) : (
-            <>
-              <TabsTrigger value="ready">Ready to Publish</TabsTrigger>
-              <TabsTrigger value="published">Published</TabsTrigger>
-            </>
-          )}
-        </TabsList>
+        <ResponsiveTabsList 
+          activeTab={activeTab} 
+          onTabChange={handleTabChange}
+        />
         
         <TabsContent value="review" className="mt-6">
           <ReviewQueueTab {...filterProps} />
