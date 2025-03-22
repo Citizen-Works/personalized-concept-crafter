@@ -1,9 +1,8 @@
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import { ContentIdea, ContentStatus, ContentType } from '@/types';
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import IdeaCard from './IdeaCard';
 import EmptyIdeasState from './EmptyIdeasState';
+import KanbanGrid from './KanbanGrid';
 
 interface KanbanViewProps {
   ideas: ContentIdea[];
@@ -20,46 +19,14 @@ const KanbanView: React.FC<KanbanViewProps> = ({
   getStatusBadgeClasses,
   getTypeBadgeClasses
 }) => {
-  // Group ideas by status
-  const unreviewedIdeas = ideas.filter(idea => idea.status === 'unreviewed');
-  const approvedIdeas = ideas.filter(idea => idea.status === 'approved');
-  const rejectedIdeas = ideas.filter(idea => idea.status === 'rejected');
-
-  const renderColumn = (title: string, statusIdeas: ContentIdea[], status: ContentStatus) => {
-    return (
-      <Card className="flex flex-col h-full">
-        <CardHeader className="pb-2">
-          <CardTitle className="text-base flex items-center justify-between">
-            <span>{title}</span>
-            <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-primary/10 text-xs font-medium">
-              {statusIdeas.length}
-            </span>
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="flex-grow overflow-auto pb-6">
-          {statusIdeas.length === 0 ? (
-            <div className="h-32 flex items-center justify-center text-sm text-muted-foreground">
-              No ideas in this column
-            </div>
-          ) : (
-            <div className="space-y-3">
-              {statusIdeas.map((idea) => (
-                <IdeaCard
-                  key={idea.id}
-                  idea={idea}
-                  onDeleteIdea={onDeleteIdea}
-                  getStatusBadgeClasses={getStatusBadgeClasses}
-                  getTypeBadgeClasses={getTypeBadgeClasses}
-                  hideStatusBadge={true}  // New prop to hide status badge
-                  hideTypeBadge={true}    // New prop to hide type badge
-                />
-              ))}
-            </div>
-          )}
-        </CardContent>
-      </Card>
-    );
-  };
+  // Group ideas by status - memoized to avoid recalculation on every render
+  const groupedIdeas = useMemo(() => {
+    return {
+      unreviewed: ideas.filter(idea => idea.status === 'unreviewed'),
+      approved: ideas.filter(idea => idea.status === 'approved'),
+      rejected: ideas.filter(idea => idea.status === 'rejected')
+    };
+  }, [ideas]);
 
   if (ideas.length === 0) {
     return (
@@ -71,11 +38,12 @@ const KanbanView: React.FC<KanbanViewProps> = ({
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 h-[calc(100vh-250px)]">
-      {renderColumn("Unreviewed", unreviewedIdeas, "unreviewed")}
-      {renderColumn("Approved", approvedIdeas, "approved")}
-      {renderColumn("Rejected", rejectedIdeas, "rejected")}
-    </div>
+    <KanbanGrid
+      ideas={groupedIdeas}
+      onDeleteIdea={onDeleteIdea}
+      getStatusBadgeClasses={getStatusBadgeClasses}
+      getTypeBadgeClasses={getTypeBadgeClasses}
+    />
   );
 };
 
