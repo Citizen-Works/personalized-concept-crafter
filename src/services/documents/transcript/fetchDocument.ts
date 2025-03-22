@@ -9,11 +9,10 @@ import { decryptContent } from "@/utils/encryptionUtils";
 export const fetchDocument = async (userId: string, documentId: string): Promise<Document> => {
   if (!userId) throw new Error("User not authenticated");
   
-  // Validate if documentId is a proper UUID format
-  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-  if (!uuidRegex.test(documentId)) {
-    console.error("Invalid document ID format:", documentId);
-    throw new Error(`Invalid document ID format: ${documentId}. Expected UUID format.`);
+  // Less restrictive document ID validation - allow any non-empty string
+  if (!documentId || documentId.trim() === '') {
+    console.error("Empty document ID provided");
+    throw new Error("Invalid document ID: empty ID provided");
   }
 
   try {
