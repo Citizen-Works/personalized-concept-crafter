@@ -47,6 +47,9 @@ const SourceMaterialsContent: React.FC<SourceMaterialsContentProps> = ({
   onEditDocument,
   isDocumentProcessing
 }) => {
+  console.log('SourceMaterialsContent - documents:', documents);
+  console.log('SourceMaterialsContent - filteredDocuments:', filteredDocuments);
+
   if (documents.length === 0) {
     return (
       <DocumentsEmptyState

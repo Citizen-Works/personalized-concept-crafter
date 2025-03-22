@@ -10,7 +10,21 @@ export const fetchDocuments = async (
   filters?: DocumentFilterOptions
 ): Promise<Document[]> => {
   // Here would be actual API call to fetch documents
-  return [];
+  // For development, return mock data
+  console.log('Fetching documents for user:', userId, 'with filters:', filters);
+  
+  try {
+    // This should be replaced with an actual API call in production
+    const response = await fetch(`/api/documents?userId=${userId}`);
+    if (!response.ok) {
+      throw new Error('Failed to fetch documents');
+    }
+    return await response.json();
+  } catch (error) {
+    console.error('Error fetching documents:', error);
+    // In development, we can return empty array so the mock data in useDocuments will be used
+    return [];
+  }
 };
 
 // Get a single document by ID
@@ -32,7 +46,42 @@ export const createDocument = async (
   documentData: DocumentCreateInput
 ): Promise<Document> => {
   // Here would be actual API call to create document
-  return {} as Document;
+  console.log('Creating document for user:', userId, 'with data:', documentData);
+  
+  try {
+    const response = await fetch('/api/documents', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        ...documentData,
+        userId,
+      }),
+    });
+    
+    if (!response.ok) {
+      throw new Error('Failed to create document');
+    }
+    
+    return await response.json();
+  } catch (error) {
+    console.error('Error creating document:', error);
+    // For development, return a mock successful response
+    return {
+      id: `mock-${Date.now()}`,
+      userId,
+      title: documentData.title,
+      content: documentData.content || '',
+      type: documentData.type,
+      purpose: documentData.purpose,
+      status: 'active',
+      content_type: documentData.content_type,
+      createdAt: new Date(),
+      processing_status: 'idle',
+      has_ideas: false
+    };
+  }
 };
 
 // Update document status
@@ -42,6 +91,7 @@ export const updateDocumentStatus = async (
   status: 'active' | 'archived'
 ): Promise<void> => {
   // Here would be actual API call to update document status
+  console.log('Updating document status:', documentId, status);
 };
 
 // Update document 
@@ -50,7 +100,22 @@ export const updateDocument = async (
   documentData: DocumentUpdateInput
 ): Promise<Document> => {
   // Here would be actual API call to update document
-  return {} as Document;
+  console.log('Updating document:', documentData);
+  
+  // Mock return for development
+  return {
+    id: documentData.id,
+    userId,
+    title: documentData.title || 'Updated Document',
+    content: documentData.content || '',
+    type: documentData.type || 'other',
+    purpose: documentData.purpose || 'business_context',
+    status: 'active',
+    content_type: documentData.content_type,
+    createdAt: new Date(),
+    processing_status: 'idle',
+    has_ideas: false
+  };
 };
 
 // Upload a file and return the file URL
