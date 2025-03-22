@@ -1,4 +1,3 @@
-
 import { useState, useMemo } from 'react';
 import { ContentIdea, ContentType } from '@/types';
 import { useIdeas } from '@/hooks/ideas';
@@ -21,7 +20,7 @@ export const useIdeasList = ({ searchQuery, dateRange, contentTypeFilter }: UseI
   // Filter ideas based on search and date range
   const filteredIdeas = useMemo(() => {
     return ideas.filter(idea => {
-      // Filter to only show approved ideas (not unreviewed)
+      // Filter to only show approved ideas (not unreviewed or rejected)
       if (idea.status !== 'approved') return false;
       
       // Filter by search query
@@ -29,8 +28,6 @@ export const useIdeasList = ({ searchQuery, dateRange, contentTypeFilter }: UseI
           !idea.description?.toLowerCase().includes(searchQuery.toLowerCase())) {
         return false;
       }
-      
-      // Note: contentType filter removed since contentType no longer exists on ideas
       
       // Filter by date range
       const ideaDate = new Date(idea.createdAt);

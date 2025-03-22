@@ -48,7 +48,7 @@ const IdeasTabsContent: React.FC<IdeasTabsContentProps> = ({
         />
       </TabsContent>
       
-      {['unreviewed', 'approved', 'drafted'].map((status) => (
+      {['unreviewed', 'approved', 'rejected'].map((status) => (
         <TabsContent key={status} value={status} className="mt-0">
           <IdeasList 
             ideas={filteredIdeas}

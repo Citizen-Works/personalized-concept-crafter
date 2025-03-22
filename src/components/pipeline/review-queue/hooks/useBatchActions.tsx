@@ -37,7 +37,7 @@ export const useBatchActions = ({
     }
   };
   
-  // Handle batch archive - using 'rejected' status instead of 'archived'
+  // Handle batch archive - using 'rejected' status
   const handleBatchArchive = async () => {
     if (isUpdating || selectedItems.length === 0) return;
     
@@ -48,11 +48,11 @@ export const useBatchActions = ({
         status: 'rejected' as ContentStatus 
       }));
       await Promise.all(promises);
-      toast.success(`${selectedItems.length} items archived`);
+      toast.success(`${selectedItems.length} items rejected`);
       setSelectedItems([]);
     } catch (error) {
-      console.error("Error batch archiving ideas:", error);
-      toast.error("Failed to archive selected items");
+      console.error("Error batch rejecting ideas:", error);
+      toast.error("Failed to reject selected items");
     } finally {
       setIsUpdating(false);
     }

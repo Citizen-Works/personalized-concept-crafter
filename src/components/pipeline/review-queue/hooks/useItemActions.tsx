@@ -46,14 +46,14 @@ export const useItemActions = ({
     }
   };
   
-  // Handle archive action - using 'rejected' status instead of 'archived'
+  // Handle archive action - using 'rejected' status
   const handleArchive = async (id: string) => {
     if (isUpdating) return;
     
     try {
       setIsUpdating(true);
       await updateIdea({ id, status: 'rejected' as ContentStatus });
-      toast.success("Item archived");
+      toast.success("Item rejected");
       
       // Remove from selected items if it was selected
       if (selectedItems.includes(id)) {
@@ -65,8 +65,8 @@ export const useItemActions = ({
         setPreviewItem(null);
       }
     } catch (error) {
-      console.error("Error archiving idea:", error);
-      toast.error("Failed to archive item");
+      console.error("Error rejecting idea:", error);
+      toast.error("Failed to reject item");
     } finally {
       setIsUpdating(false);
     }

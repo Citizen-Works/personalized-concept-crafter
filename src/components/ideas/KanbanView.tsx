@@ -23,7 +23,7 @@ const KanbanView: React.FC<KanbanViewProps> = ({
   // Group ideas by status
   const unreviewedIdeas = ideas.filter(idea => idea.status === 'unreviewed');
   const approvedIdeas = ideas.filter(idea => idea.status === 'approved');
-  const archivedIdeas = ideas.filter(idea => idea.status === 'archived');
+  const rejectedIdeas = ideas.filter(idea => idea.status === 'rejected');
 
   const renderColumn = (title: string, statusIdeas: ContentIdea[], status: ContentStatus) => {
     return (
@@ -74,7 +74,7 @@ const KanbanView: React.FC<KanbanViewProps> = ({
     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 h-[calc(100vh-250px)]">
       {renderColumn("Unreviewed", unreviewedIdeas, "unreviewed")}
       {renderColumn("Approved", approvedIdeas, "approved")}
-      {renderColumn("Archived", archivedIdeas, "archived")}
+      {renderColumn("Rejected", rejectedIdeas, "rejected")}
     </div>
   );
 };
