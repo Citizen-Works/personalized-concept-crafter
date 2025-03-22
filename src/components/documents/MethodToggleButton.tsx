@@ -1,6 +1,7 @@
 
 import React from "react";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 interface MethodToggleButtonProps {
   isActive: boolean;
@@ -9,6 +10,10 @@ interface MethodToggleButtonProps {
   className?: string;
 }
 
+/**
+ * A responsive toggle button used for method selection in various inputs.
+ * Automatically adapts its size based on the screen size.
+ */
 const MethodToggleButton: React.FC<MethodToggleButtonProps> = ({
   isActive,
   onClick,
@@ -20,7 +25,10 @@ const MethodToggleButton: React.FC<MethodToggleButtonProps> = ({
       type="button"
       variant={isActive ? "default" : "outline"}
       onClick={onClick}
-      className={`flex-1 ${className}`}
+      className={cn(
+        "flex-1 text-sm sm:text-base px-3 sm:px-4 py-2 sm:py-2.5",
+        className
+      )}
     >
       {children}
     </Button>
