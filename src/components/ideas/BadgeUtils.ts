@@ -1,4 +1,3 @@
-
 import { ContentStatus, ContentType, ContentSource, DraftStatus } from '@/types';
 
 export const getStatusBadgeClasses = (status: ContentStatus): string => {
@@ -7,7 +6,7 @@ export const getStatusBadgeClasses = (status: ContentStatus): string => {
       return 'bg-yellow-50 text-yellow-700 border-yellow-200';
     case 'approved':
       return 'bg-green-50 text-green-700 border-green-200';
-    case 'archived':
+    case 'rejected':
       return 'bg-gray-50 text-gray-700 border-gray-200';
     default:
       return 'bg-gray-50 text-gray-700 border-gray-200';
@@ -61,7 +60,6 @@ export const getSourceBadgeClasses = (source: ContentSource): string => {
   }
 };
 
-// Add helper functions for IdeaPageHeader
 export const getStatusBadgeProps = (status: ContentStatus) => {
   return {
     className: getStatusBadgeClasses(status),
