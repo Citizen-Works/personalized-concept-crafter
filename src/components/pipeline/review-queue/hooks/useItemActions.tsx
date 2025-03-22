@@ -46,7 +46,7 @@ export const useItemActions = ({
     }
   };
   
-  // Handle archive action - using 'rejected' status
+  // Handle reject action - consistently using 'rejected' status
   const handleArchive = async (id: string) => {
     if (isUpdating) return;
     

@@ -37,7 +37,7 @@ export const useBatchActions = ({
     }
   };
   
-  // Handle batch archive - using 'rejected' status
+  // Handle batch reject - using 'rejected' status consistently
   const handleBatchArchive = async () => {
     if (isUpdating || selectedItems.length === 0) return;
     

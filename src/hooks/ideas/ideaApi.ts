@@ -124,12 +124,14 @@ export const updateIdea = async ({ id, ...updates }: { id: string } & IdeaUpdate
   if (updates.source) updateData.source = updates.source;
   if (updates.meetingTranscriptExcerpt !== undefined) updateData.meeting_transcript_excerpt = updates.meetingTranscriptExcerpt;
   if (updates.sourceUrl !== undefined) updateData.source_url = updates.sourceUrl;
-  if (updates.status) updateData.status = updates.status;
+  if (updates.status) updateData.status = updates.status; // This should accept 'rejected'
   // has_been_used field doesn't exist in DB yet
   // content_pillar_ids field doesn't exist in DB yet
   // target_audience_ids field doesn't exist in DB yet
 
   try {
+    console.log("Updating idea with status:", updates.status); // Add logging to debug the issue
+    
     const { data, error } = await supabase
       .from("content_ideas")
       .update(updateData)
