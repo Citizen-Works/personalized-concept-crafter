@@ -1,9 +1,10 @@
 
+import { describe, it, expect } from 'vitest';
 import { ContentIdea, ContentSource, ContentStatus, ContentType } from '@/types';
 import { buildPrompt } from '../index';
 
 describe('buildPrompt', () => {
-  test('builds prompt structure with proper sections', () => {
+  it('builds prompt structure with proper sections', () => {
     // Create a mock content idea
     const mockIdea: ContentIdea = {
       id: 'test-id',
@@ -30,7 +31,7 @@ describe('buildPrompt', () => {
     expect(linkedinPrompt.sections[2].title).toBe('LinkedIn Specific Guidelines');
   });
 
-  test('handles idea without notes', () => {
+  it('handles idea without notes', () => {
     // Create a mock content idea without notes
     const mockIdea: ContentIdea = {
       id: 'test-id',

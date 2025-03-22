@@ -1,9 +1,10 @@
 
+import { describe, it, expect } from 'vitest';
 import { ContentType } from '@/types';
 import { getContentSpecificSections } from '../contentSpecificSections';
 
 describe('getContentSpecificSections', () => {
-  test('returns LinkedIn specific guidelines for linkedin type', () => {
+  it('returns LinkedIn specific guidelines for linkedin type', () => {
     const sections = getContentSpecificSections('linkedin');
     
     expect(sections).toHaveLength(1);
@@ -11,7 +12,7 @@ describe('getContentSpecificSections', () => {
     expect(sections[0].content).toContain('Keep posts professional but conversational');
   });
 
-  test('returns newsletter specific guidelines for newsletter type', () => {
+  it('returns newsletter specific guidelines for newsletter type', () => {
     const sections = getContentSpecificSections('newsletter');
     
     expect(sections).toHaveLength(1);
@@ -19,7 +20,7 @@ describe('getContentSpecificSections', () => {
     expect(sections[0].content).toContain('Include a clear, engaging subject line');
   });
 
-  test('returns marketing specific guidelines for marketing type', () => {
+  it('returns marketing specific guidelines for marketing type', () => {
     const sections = getContentSpecificSections('marketing');
     
     expect(sections).toHaveLength(1);
@@ -27,7 +28,7 @@ describe('getContentSpecificSections', () => {
     expect(sections[0].content).toContain('Focus on benefits rather than features');
   });
 
-  test('returns empty array for unrecognized content type', () => {
+  it('returns empty array for unrecognized content type', () => {
     // @ts-ignore - Testing invalid input
     const sections = getContentSpecificSections('invalid-type');
     

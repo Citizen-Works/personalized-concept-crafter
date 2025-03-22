@@ -60,13 +60,7 @@ export function usePromptAssembly() {
     };
     
     // Step 1: Build the base prompt with user context, content pillars, target audiences, and writing style
-    let prompt = buildBasePrompt(
-      userProfile, 
-      contentPillars, 
-      targetAudiences, 
-      profile as any, // Type cast to resolve the WritingStyleProfile incompatibility
-      contentType
-    );
+    let prompt = buildBasePrompt();
     
     // Step 2: Add LinkedIn posts if generating LinkedIn content
     if (contentType === 'linkedin' && posts.length > 0) {

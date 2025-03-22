@@ -100,10 +100,14 @@ export async function extractAndGenerateBaseTemplates(): Promise<boolean> {
     
     // Extract different parts of the prompt structure as templates
     // Base templates
+    const businessSection = buildBusinessContextSection(dummyUser);
+    const contentPillarsSection = buildContentPillarsSection(dummyPillars);
+    const targetAudiencesSection = buildTargetAudiencesSection(dummyAudiences);
+    
     const baseTemplates = {
-      'business_context': buildBusinessContextSection(dummyUser).content,
-      'content_pillars': buildContentPillarsSection(dummyPillars).content,
-      'target_audiences': buildTargetAudiencesSection(dummyAudiences).content,
+      'business_context': businessSection ? businessSection.content : '',
+      'content_pillars': contentPillarsSection ? contentPillarsSection.content : '',
+      'target_audiences': targetAudiencesSection ? targetAudiencesSection.content : '',
     };
     
     // Content type specific style guides
@@ -112,15 +116,22 @@ export async function extractAndGenerateBaseTemplates(): Promise<boolean> {
     
     for (const contentType of contentTypes) {
       const styleSections = buildWritingStyleSections(dummyStyleProfile, contentType as any);
-      contentTypeTemplates[contentType] = {
-        'style_guide': styleSections[0].content, // Use first section as example
-      };
+      if (styleSections && styleSections.length > 0) {
+        contentTypeTemplates[contentType] = {
+          'style_guide': styleSections[0].content || '', // Use first section as example
+        };
+      } else {
+        contentTypeTemplates[contentType] = {
+          'style_guide': '',
+        };
+      }
     }
     
     // Best practices for different content types
     const bestPracticesTemplates = {};
     for (const contentType of contentTypes) {
-      bestPracticesTemplates[contentType] = getBestPracticesSection(contentType as any).content;
+      const section = getBestPracticesSection(contentType as any);
+      bestPracticesTemplates[contentType] = section ? section.content : '';
     }
     
     // Prepare templates for database
@@ -210,14 +221,18 @@ export async function getPromptTemplate(templateKey: string): Promise<string> {
     
     // Example fallback logic based on template key
     if (templateKey.startsWith('base_business_context')) {
-      return buildBusinessContextSection(null).content;
+      const section = buildBusinessContextSection(null);
+      return section ? section.content : '';
     } else if (templateKey.startsWith('base_content_pillars')) {
-      return buildContentPillarsSection([]).content;
+      const section = buildContentPillarsSection([]);
+      return section ? section.content : '';
     } else if (templateKey.startsWith('base_target_audiences')) {
-      return buildTargetAudiencesSection([]).content;
+      const section = buildTargetAudiencesSection([]);
+      return section ? section.content : '';
     } else if (templateKey.startsWith('best_practices_')) {
       const contentType = templateKey.replace('best_practices_', '');
-      return getBestPracticesSection(contentType as any).content;
+      const section = getBestPracticesSection(contentType as any);
+      return section ? section.content : '';
     }
     
     return '';
