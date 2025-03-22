@@ -19,7 +19,7 @@ import {
 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { DraftWithIdea } from '@/hooks/useDrafts';
-import { getTypeBadgeClasses } from '@/components/ideas/BadgeUtils';
+import { getTypeBadgeClasses, getDraftStatusBadgeClasses } from '@/components/ideas/BadgeUtils';
 
 interface DraftListMobileProps {
   drafts: DraftWithIdea[];
@@ -69,6 +69,9 @@ export const DraftListMobile: React.FC<DraftListMobileProps> = ({
                   </Badge>
                   <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-950 dark:text-blue-300 dark:border-blue-800">
                     v{draft.version}
+                  </Badge>
+                  <Badge className={getDraftStatusBadgeClasses(draft.status)}>
+                    {draft.status.charAt(0).toUpperCase() + draft.status.slice(1)}
                   </Badge>
                   <span className="text-xs text-muted-foreground flex items-center gap-1">
                     <Clock className="h-3 w-3" />

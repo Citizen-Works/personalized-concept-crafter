@@ -113,8 +113,9 @@ export const createDraft = async (
 ) => {
   if (!userId) throw new Error("User not authenticated");
 
-  // Remove contentType if it's included in the draft object
-  // since it doesn't exist in the database table
+  // Ensure we're using the standardized status values
+  const validStatus: DraftStatus = draft.status || "draft";
+
   const { contentType, ...draftData } = draft as any;
 
   console.log("Creating draft with data:", {
@@ -122,7 +123,7 @@ export const createDraft = async (
     content: draftData.content,
     version: draftData.version,
     feedback: draftData.feedback,
-    status: draftData.status || "draft"
+    status: validStatus
   });
 
   const { data, error } = await supabase
@@ -133,7 +134,7 @@ export const createDraft = async (
         content: draftData.content,
         version: draftData.version,
         feedback: draftData.feedback,
-        status: draftData.status || "draft"
+        status: validStatus
       }
     ])
     .select()

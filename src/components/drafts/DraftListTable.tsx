@@ -27,7 +27,7 @@ import {
   DropdownMenuTrigger 
 } from "@/components/ui/dropdown-menu";
 import { DraftWithIdea } from '@/hooks/useDrafts';
-import { getTypeBadgeClasses } from '@/components/ideas/BadgeUtils';
+import { getTypeBadgeClasses, getDraftStatusBadgeClasses } from '@/components/ideas/BadgeUtils';
 
 interface DraftListTableProps {
   drafts: DraftWithIdea[];
@@ -70,6 +70,7 @@ export const DraftListTable: React.FC<DraftListTableProps> = ({
             <TableHead>Draft</TableHead>
             <TableHead className="hidden md:table-cell">Content Type</TableHead>
             <TableHead className="hidden md:table-cell">Version</TableHead>
+            <TableHead className="hidden md:table-cell">Status</TableHead>
             <TableHead className="hidden md:table-cell">Created</TableHead>
             <TableHead className="w-24">Actions</TableHead>
           </TableRow>
@@ -105,6 +106,11 @@ export const DraftListTable: React.FC<DraftListTableProps> = ({
               <TableCell className="hidden md:table-cell p-4">
                 <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-950 dark:text-blue-300 dark:border-blue-800">
                   v{draft.version}
+                </Badge>
+              </TableCell>
+              <TableCell className="hidden md:table-cell p-4">
+                <Badge className={getDraftStatusBadgeClasses(draft.status)}>
+                  {draft.status.charAt(0).toUpperCase() + draft.status.slice(1)}
                 </Badge>
               </TableCell>
               <TableCell className="hidden md:table-cell text-muted-foreground p-4">

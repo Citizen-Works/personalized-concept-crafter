@@ -2,6 +2,7 @@
 import { useMemo } from 'react';
 import { useIdeas } from '@/hooks/ideas';
 import { useDrafts } from '@/hooks/useDrafts';
+import { DraftStatus } from '@/types/content';
 
 export function useContentStatusCounts() {
   const { ideas, isLoading: ideasLoading } = useIdeas();
@@ -14,16 +15,18 @@ export function useContentStatusCounts() {
       idea.status === 'approved' && !idea.hasBeenUsed
     ).length;
     
-    // Draft counts
+    // Draft counts - using standardized DraftStatus values
     const inProgressCount = drafts.filter(draft => draft.status === 'draft').length;
     const readyToPublishCount = drafts.filter(draft => draft.status === 'ready').length;
     const publishedCount = drafts.filter(draft => draft.status === 'published').length;
+    const archivedCount = drafts.filter(draft => draft.status === 'archived').length;
     
     return {
       needsReview: needsReviewCount,
       inProgress: inProgressCount,
       readyToPublish: readyToPublishCount,
       published: publishedCount,
+      archived: archivedCount,
       approvedIdeas: approvedIdeasCount
     };
   }, [ideas, drafts]);
