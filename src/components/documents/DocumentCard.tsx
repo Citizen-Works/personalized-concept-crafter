@@ -10,7 +10,8 @@ import {
   Archive, 
   Trash2, 
   RefreshCw,
-  Edit
+  Edit,
+  Lightbulb
 } from 'lucide-react';
 import { 
   DropdownMenu, 
@@ -58,8 +59,8 @@ const DocumentCard: React.FC<DocumentCardProps> = ({
     }
   };
 
-  // Only transcript documents can be processed for ideas
-  const canProcessForIdeas = document.type === 'transcript';
+  // All documents can now be processed for ideas
+  const canProcessForIdeas = true;
 
   return (
     <Card className="h-full flex flex-col">
@@ -87,7 +88,7 @@ const DocumentCard: React.FC<DocumentCardProps> = ({
               )}
               {onProcess && canProcessForIdeas && (
                 <DropdownMenuItem onClick={() => onProcess(document.id)}>
-                  <RefreshCw className="mr-2 h-4 w-4" />
+                  <Lightbulb className="mr-2 h-4 w-4" />
                   Extract Ideas
                 </DropdownMenuItem>
               )}

@@ -1,4 +1,3 @@
-
 import { toast } from "sonner";
 import { fetchDocument } from "./fetchDocument";
 import { fetchBusinessContext } from "./fetchBusinessContext";
@@ -6,7 +5,7 @@ import { generateIdeas } from "./generateIdeas";
 import { saveIdeas } from "./saveIdeas";
 import { IdeaResponse } from "./types";
 import { supabase } from "@/integrations/supabase/client";
-import { DocumentProcessingStatus, DocumentType } from "@/types/documents";
+import { DocumentProcessingStatus } from "@/types/documents";
 
 /**
  * Processes a document to extract content ideas - can run in background
@@ -42,11 +41,6 @@ export const processTranscriptForIdeas = async (
       throw new Error(`Failed to retrieve document: ${docError instanceof Error ? docError.message : 'Unknown error'}`);
     }
     
-    // Check if document is a transcript or eligible for idea extraction
-    if (document.type !== "transcript") {
-      throw new Error(`Only transcript documents can be processed for ideas. This document is type: ${document.type}`);
-    }
-    
     // Step 2: Get business context for better idea generation
     let businessContext = '';
     try {
@@ -56,16 +50,16 @@ export const processTranscriptForIdeas = async (
       // Continue without business context if it fails
     }
     
-    // Step 3: Sanitize transcript content to prevent HTML/XML confusion
+    // Step 3: Sanitize content to prevent HTML/XML confusion
     const sanitizedContent = document.content 
       ? document.content.replace(/<[^>]*>/g, '') // Remove any HTML-like tags
       : '';
     
     if (!sanitizedContent.trim()) {
-      throw new Error("Transcript content is empty");
+      throw new Error("Document content is empty");
     }
     
-    // Step 4: Generate content ideas using Claude AI with chunking for large transcripts
+    // Step 4: Generate content ideas using Claude AI with chunking for large documents
     let contentIdeas;
     try {
       contentIdeas = await generateIdeas(sanitizedContent, businessContext, document.title);
@@ -93,7 +87,7 @@ export const processTranscriptForIdeas = async (
       }
       
       return {
-        message: "No valuable content ideas were identified in this transcript.",
+        message: "No valuable content ideas were identified in this document.",
         ideas: []
       };
     }
@@ -127,11 +121,11 @@ export const processTranscriptForIdeas = async (
 
     // Step 8: Return both a summary message and the structured idea data
     return {
-      message: `${savedIdeas.length} content ideas were created from this transcript.`,
+      message: `${savedIdeas.length} content ideas were created from this document.`,
       ideas: savedIdeas
     };
   } catch (error) {
-    console.error("Error processing transcript:", error);
+    console.error("Error processing document:", error);
     
     // Update document status if in background mode
     if (backgroundMode) {
@@ -145,7 +139,7 @@ export const processTranscriptForIdeas = async (
         console.error("Error updating document status after failure:", updateError);
       }
     } else {
-      toast.error("Failed to process transcript for ideas");
+      toast.error("Failed to process document for ideas");
     }
     
     throw error;

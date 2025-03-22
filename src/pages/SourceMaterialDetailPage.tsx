@@ -71,24 +71,14 @@ const SourceMaterialDetailPage = () => {
     
     setProcessingError(null);
     
-    if (!isTranscriptType) {
-      setProcessingError("Only transcript documents can be processed for ideas.");
-      toast({
-        variant: "destructive",
-        title: "Processing failed",
-        description: "Only transcript documents can be processed for ideas.",
-      });
-      return;
-    }
-    
     try {
       await processTranscript(document.id);
       toast({
         title: "Processing started",
-        description: "We're extracting ideas from this transcript",
+        description: "We're extracting ideas from this document",
       });
     } catch (error) {
-      console.error("Error processing transcript:", error);
+      console.error("Error processing document:", error);
       const errorMessage = error instanceof Error ? error.message : "Failed to extract ideas from this material";
       setProcessingError(errorMessage);
       toast({
@@ -237,9 +227,8 @@ const SourceMaterialDetailPage = () => {
           
           <Button 
             onClick={handleExtractIdeas}
-            disabled={!isTranscriptType || document.processing_status === 'processing'}
-            variant={isTranscriptType ? "default" : "secondary"}
-            title={!isTranscriptType ? "Only transcript documents can be processed for ideas" : ""}
+            disabled={document.processing_status === 'processing'}
+            variant="default"
           >
             <Lightbulb className="mr-2 h-4 w-4" />
             Extract Ideas
@@ -271,12 +260,6 @@ const SourceMaterialDetailPage = () => {
               </Badge>
             )}
           </div>
-          {!isTranscriptType && (
-            <CardDescription className="text-amber-500 flex items-center gap-1">
-              <AlertTriangle className="h-4 w-4" />
-              Note: Only transcript documents can be processed for ideas
-            </CardDescription>
-          )}
         </CardHeader>
         <CardContent>
           <div className="whitespace-pre-wrap font-mono text-sm bg-muted p-4 rounded-md max-h-[60vh] overflow-y-auto">
