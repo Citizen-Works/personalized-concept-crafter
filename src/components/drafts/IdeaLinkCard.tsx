@@ -1,114 +1,90 @@
 
 import React from 'react';
-import { Link } from 'react-router-dom';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { useIdeas } from '@/hooks/ideas';
-import { ArrowRight, Calendar, Tag, FileEdit } from 'lucide-react';
-import { Skeleton } from '@/components/ui/skeleton';
-import { ContentStatus, ContentType } from '@/types';
+import { useNavigate } from 'react-router-dom';
+import { Card, CardContent, CardFooter } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { getStatusBadgeClasses, getTypeBadgeClasses } from '@/components/ideas/BadgeUtils';
+import { useIdeas } from '@/hooks/ideas';
+import { Loader2, FileText, ExternalLink } from 'lucide-react';
+import { ContentType } from '@/types';
+import { getStatusBadgeClasses } from '@/components/ideas/BadgeUtils';
 
-type IdeaLinkCardProps = {
+interface IdeaLinkCardProps {
   contentIdeaId: string;
-  contentType?: ContentType; // Pass content type from parent draft
-};
+  contentType?: ContentType;
+}
 
 export const IdeaLinkCard: React.FC<IdeaLinkCardProps> = ({ contentIdeaId, contentType }) => {
+  const navigate = useNavigate();
   const { getIdea } = useIdeas();
-  const { data: idea, isLoading, isError } = getIdea(contentIdeaId);
+  const { data: idea, isLoading, error } = getIdea(contentIdeaId);
 
   if (isLoading) {
     return (
-      <Card>
-        <CardHeader className="pb-3">
-          <CardTitle className="text-base sm:text-lg">Related Content Idea</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-2">
-            <Skeleton className="h-5 w-2/3" />
-            <Skeleton className="h-4 w-full" />
-            <Skeleton className="h-4 w-3/4" />
-            <div className="flex gap-2 mt-2">
-              <Skeleton className="h-5 w-16 rounded-full" />
-              <Skeleton className="h-5 w-20 rounded-full" />
-            </div>
-            <Skeleton className="h-9 w-full mt-4" />
+      <Card className="bg-muted/20">
+        <CardContent className="p-4 flex justify-center items-center min-h-[120px]">
+          <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (error || !idea) {
+    return (
+      <Card className="bg-muted/20 border-destructive/20">
+        <CardContent className="p-4">
+          <div className="text-center p-4">
+            <p className="text-muted-foreground">
+              Unable to load source content idea
+            </p>
           </div>
         </CardContent>
       </Card>
     );
   }
 
-  if (isError || !idea) {
-    return (
-      <Card>
-        <CardHeader className="pb-3">
-          <CardTitle className="text-base sm:text-lg">Related Content Idea</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="text-sm text-muted-foreground">
-            Could not load the related idea. It may have been deleted.
-          </p>
-          <Button asChild variant="outline" className="w-full gap-1 mt-4">
-            <Link to="/ideas">
-              Browse Ideas
-              <ArrowRight className="h-4 w-4 ml-1" />
-            </Link>
-          </Button>
-        </CardContent>
-      </Card>
-    );
-  }
-
-  const formatDate = (date: Date) => {
-    return new Date(date).toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric'
-    });
-  };
-
   return (
-    <Card>
-      <CardHeader className="pb-2 sm:pb-3">
-        <CardTitle className="text-base sm:text-lg">Related Content Idea</CardTitle>
-        <CardDescription className="text-xs sm:text-sm">
-          This draft was generated from this idea
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-3 sm:space-y-4">
-        <div>
-          <h3 className="font-medium text-sm sm:text-base">{idea.title}</h3>
-          <p className="text-xs sm:text-sm text-muted-foreground mt-1 line-clamp-2">
-            {idea.description ? idea.description : 'No description'}
-          </p>
-        </div>
-        
-        <div className="flex flex-wrap gap-2">
-          <Badge className={getStatusBadgeClasses(idea.status)}>
-            {idea.status.charAt(0).toUpperCase() + idea.status.slice(1)}
-          </Badge>
-          {contentType && (
-            <Badge className={getTypeBadgeClasses(contentType)}>
-              {contentType.charAt(0).toUpperCase() + contentType.slice(1)}
+    <Card className="overflow-hidden">
+      <CardContent className="p-4 space-y-3">
+        <div className="flex items-start justify-between">
+          <div className="flex items-center space-x-2">
+            <FileText className="h-5 w-5 text-muted-foreground" />
+            <h3 className="font-medium">Source Content Idea</h3>
+          </div>
+          <div className="flex space-x-2">
+            <Badge className={getStatusBadgeClasses(idea.status)}>
+              {idea.status.charAt(0).toUpperCase() + idea.status.slice(1)}
             </Badge>
+            {idea.hasBeenUsed && (
+              <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+                Used
+              </Badge>
+            )}
+          </div>
+        </div>
+
+        <div>
+          <h4 className="font-medium text-base mb-1">{idea.title}</h4>
+          {idea.description && (
+            <p className="text-sm text-muted-foreground line-clamp-2">{idea.description}</p>
           )}
         </div>
-        
-        <div className="flex items-center text-xs sm:text-sm text-muted-foreground">
-          <Calendar className="h-3.5 w-3.5 mr-1" />
-          <span>Created {formatDate(idea.createdAt)}</span>
+
+        <div className="text-xs text-muted-foreground">
+          <p>Created: {new Date(idea.createdAt).toLocaleDateString()}</p>
+          {contentType && <p>Content Type: {contentType.charAt(0).toUpperCase() + contentType.slice(1)}</p>}
         </div>
-        
-        <Button asChild variant="outline" className="w-full gap-1 text-xs sm:text-sm">
-          <Link to={`/ideas/${idea.id}`}>
-            View Idea Details
-            <ArrowRight className="h-3.5 w-3.5 ml-1" />
-          </Link>
-        </Button>
       </CardContent>
+      <CardFooter className="bg-muted/10 px-4 py-2 flex justify-end">
+        <Button 
+          size="sm" 
+          variant="ghost" 
+          className="text-xs gap-1"
+          onClick={() => navigate(`/ideas/${idea.id}`)}
+        >
+          View Idea <ExternalLink className="h-3 w-3" />
+        </Button>
+      </CardFooter>
     </Card>
   );
 };

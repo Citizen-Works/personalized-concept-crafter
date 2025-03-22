@@ -70,6 +70,14 @@ export const useContentGeneration = (idea: ContentIdea) => {
       const content = await generateContent(ideaWithType, selectedContentType);
       if (content) {
         setGeneratedContent(content);
+        
+        // Mark the idea as used if not already
+        if (!idea.hasBeenUsed) {
+          await updateIdea({
+            id: idea.id,
+            hasBeenUsed: true
+          });
+        }
       }
     } catch (error) {
       console.error('Error generating content:', error);

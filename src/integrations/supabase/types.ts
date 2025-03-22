@@ -130,6 +130,7 @@ export type Database = {
           content_type: string | null
           created_at: string
           description: string | null
+          has_been_used: boolean | null
           id: string
           meeting_transcript_excerpt: string | null
           notes: string | null
@@ -146,6 +147,7 @@ export type Database = {
           content_type?: string | null
           created_at?: string
           description?: string | null
+          has_been_used?: boolean | null
           id?: string
           meeting_transcript_excerpt?: string | null
           notes?: string | null
@@ -162,6 +164,7 @@ export type Database = {
           content_type?: string | null
           created_at?: string
           description?: string | null
+          has_been_used?: boolean | null
           id?: string
           meeting_transcript_excerpt?: string | null
           notes?: string | null
