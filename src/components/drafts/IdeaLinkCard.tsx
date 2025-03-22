@@ -5,7 +5,7 @@ import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useIdeas } from '@/hooks/ideas';
-import { Loader2, FileText, ExternalLink } from 'lucide-react';
+import { Loader2, FileText, ExternalLink, CheckCircle } from 'lucide-react';
 import { ContentType } from '@/types';
 import { getStatusBadgeClasses } from '@/components/ideas/BadgeUtils';
 
@@ -57,6 +57,7 @@ export const IdeaLinkCard: React.FC<IdeaLinkCardProps> = ({ contentIdeaId, conte
             </Badge>
             {idea.hasBeenUsed && (
               <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+                <CheckCircle className="h-3 w-3 mr-1" />
                 Used
               </Badge>
             )}
@@ -70,9 +71,13 @@ export const IdeaLinkCard: React.FC<IdeaLinkCardProps> = ({ contentIdeaId, conte
           )}
         </div>
 
-        <div className="text-xs text-muted-foreground">
+        <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
           <p>Created: {new Date(idea.createdAt).toLocaleDateString()}</p>
-          {contentType && <p>Content Type: {contentType.charAt(0).toUpperCase() + contentType.slice(1)}</p>}
+          {contentType && (
+            <Badge variant="outline" className="capitalize bg-blue-50 text-blue-700 border-blue-200">
+              {contentType.charAt(0).toUpperCase() + contentType.slice(1)} Content
+            </Badge>
+          )}
         </div>
       </CardContent>
       <CardFooter className="bg-muted/10 px-4 py-2 flex justify-end">

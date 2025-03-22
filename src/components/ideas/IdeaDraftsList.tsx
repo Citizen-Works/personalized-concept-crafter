@@ -5,6 +5,7 @@ import { useDraftsByIdeaId } from '@/hooks/draft/useDraftsByIdeaId';
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Badge } from "@/components/ui/badge";
 import { ArrowRight, FileText } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 
@@ -72,28 +73,43 @@ export const IdeaDraftsList: React.FC<IdeaDraftsListProps> = ({ ideaId, ideaTitl
       <CardContent>
         {drafts.length > 0 ? (
           <div className="space-y-4">
-            {drafts.map((draft) => (
-              <div 
-                key={draft.id} 
-                className="flex flex-col sm:flex-row sm:items-center justify-between border-b pb-3 last:border-0 last:pb-0 hover:bg-muted/20 transition-colors rounded-md p-2 cursor-pointer"
-                onClick={() => navigateToDraft(draft.id)}
-              >
-                <div className="flex items-center gap-3">
-                  <div className="bg-primary/10 p-2 rounded">
-                    <FileText className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
+            {drafts.map((draft) => {
+              // Extract first 30 characters of content as a preview title
+              const contentPreview = draft.content && draft.content.length > 0
+                ? draft.content.split('\n')[0].substring(0, 30) + (draft.content.split('\n')[0].length > 30 ? '...' : '')
+                : 'Untitled Draft';
+                
+              return (
+                <div 
+                  key={draft.id} 
+                  className="flex flex-col sm:flex-row sm:items-center justify-between border-b pb-3 last:border-0 last:pb-0 hover:bg-muted/20 transition-colors rounded-md p-2 cursor-pointer"
+                  onClick={() => navigateToDraft(draft.id)}
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="bg-primary/10 p-2 rounded">
+                      <FileText className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
+                    </div>
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <h4 className="font-medium text-sm sm:text-base">{contentPreview}</h4>
+                        <Badge 
+                          variant="outline" 
+                          className="capitalize font-normal text-xs bg-blue-50 text-blue-700 border-blue-200"
+                        >
+                          {draft.contentType}
+                        </Badge>
+                      </div>
+                      <p className="text-xs text-muted-foreground">
+                        Created {formatDistanceToNow(draft.createdAt, { addSuffix: true })}
+                      </p>
+                    </div>
                   </div>
-                  <div>
-                    <h4 className="font-medium text-sm sm:text-base">{draft.contentType} Draft</h4>
-                    <p className="text-xs text-muted-foreground">
-                      Created {formatDistanceToNow(draft.createdAt, { addSuffix: true })}
-                    </p>
-                  </div>
+                  <Button variant="ghost" size="icon" className="hidden sm:flex mt-2 sm:mt-0">
+                    <ArrowRight className="h-4 w-4" />
+                  </Button>
                 </div>
-                <Button variant="ghost" size="icon" className="hidden sm:flex mt-2 sm:mt-0">
-                  <ArrowRight className="h-4 w-4" />
-                </Button>
-              </div>
-            ))}
+              );
+            })}
           </div>
         ) : (
           <div className="p-4 sm:p-8 text-center border rounded-lg bg-muted/10">

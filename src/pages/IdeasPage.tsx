@@ -23,9 +23,15 @@ const IdeasPage = () => {
     return matchesSearch && matchesStatus;
   });
   
-  const handleDeleteIdea = (id: string) => {
+  const handleDeleteIdea = async (id: string) => {
     if (window.confirm('Are you sure you want to delete this idea?')) {
-      deleteIdea(id);
+      try {
+        await deleteIdea(id);
+        toast.success("Idea moved to rejected status");
+      } catch (error) {
+        toast.error("Failed to delete idea");
+        console.error('Error deleting idea:', error);
+      }
     }
   };
   
