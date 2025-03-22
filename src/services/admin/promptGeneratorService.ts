@@ -1,3 +1,4 @@
+
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { 
@@ -9,7 +10,20 @@ import {
   buildWritingStyleSections
 } from '@/utils/promptBuilder';
 import { PromptTemplate } from './promptTemplateService';
-import { User, ContentPillar, TargetAudience, WritingStyleProfile } from '@/types';
+import { ContentPillar, TargetAudience } from '@/types';
+import { WritingStyleProfile } from '@/types/writingStyle';
+
+// Define a simple User interface that matches what's needed in this file
+interface User {
+  id: string;
+  name: string;
+  businessName: string;
+  businessDescription: string;
+  email: string;
+  linkedinUrl: string;
+  jobTitle: string;
+  createdAt: Date;
+}
 
 // Templates are organized into major categories
 const TEMPLATE_CATEGORIES = {
@@ -79,19 +93,28 @@ export async function extractAndGenerateBaseTemplates(): Promise<boolean> {
       createdAt: new Date()
     }];
     
+    // Create a dummy style profile that matches both interfaces
     const dummyStyleProfile: WritingStyleProfile = {
       id: 'dummy',
       userId: 'dummy',
+      user_id: 'dummy',
       voiceAnalysis: 'Test voice',
+      voice_analysis: 'Test voice',
       generalStyleGuide: 'Test style',
+      general_style_guide: 'Test style',
       exampleQuotes: [],
       vocabularyPatterns: '',
+      vocabulary_patterns: '',
       avoidPatterns: '',
+      avoid_patterns: '',
       linkedinStyleGuide: '',
+      linkedin_style_guide: '',
       linkedinExamples: [],
       newsletterStyleGuide: '',
+      newsletter_style_guide: '',
       newsletterExamples: [],
       marketingStyleGuide: '',
+      marketing_style_guide: '',
       marketingExamples: [],
       createdAt: new Date(),
       updatedAt: new Date()

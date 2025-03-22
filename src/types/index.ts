@@ -1,21 +1,12 @@
 
 // Re-export all type definitions for easier imports
 
-// Export the status.ts file first and use named exports to avoid conflicts
+// Import types from status.ts to avoid naming conflicts
 import { 
   ContentStatus,
   DraftStatus,
   DocumentStatus,
-  DocumentProcessingStatus
-} from './status';
-
-// Re-export status types to avoid ambiguity
-export {
-  ContentStatus,
-  DraftStatus,
-  DocumentStatus,
   DocumentProcessingStatus,
-  // Export other items from status
   getContentStatusProps,
   getDraftStatusProps,
   getContentStatusClasses,
@@ -24,19 +15,28 @@ export {
   isValidDraftStatusTransition
 } from './status';
 
+// Re-export status types
+export type { ContentStatus, DraftStatus, DocumentStatus, DocumentProcessingStatus };
+
+// Export status utility functions
+export {
+  getContentStatusProps,
+  getDraftStatusProps,
+  getContentStatusClasses,
+  getDraftStatusClasses,
+  isValidContentStatusTransition,
+  isValidDraftStatusTransition
+};
+
 // Then export all other type files 
 export * from './content';
 export * from './documents';
 export * from './strategy';
 export * from './ui';
 
-// For user types, we need to handle the WritingStyleProfile ambiguity
-// Export everything except WritingStyleProfile to avoid conflict
-export {
-  UserSettings,
-  UserRole,
-  BaseUser,
-  UserProfile
-} from './user';
+// Import and re-export User interface directly to avoid conflicts
+export type { User } from './user';
 
-export * from './writingStyle';
+// Export user sub-types directly to avoid naming conflicts
+// The WritingStyleProfile from user.ts will not be exported to avoid conflict
+export { WritingStyleProfile } from './writingStyle';

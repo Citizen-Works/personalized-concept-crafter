@@ -1,6 +1,18 @@
-
-import { ContentType, ContentPillar, User, TargetAudience, WritingStyleProfile } from '@/types';
 import { PromptSection, PromptStructure } from './types';
+import { ContentPillar, TargetAudience } from '@/types';
+import { WritingStyleProfile } from '@/types/writingStyle';
+
+// Define a simple User interface that matches what's needed in this file
+interface User {
+  id: string;
+  name: string;
+  businessName: string;
+  businessDescription: string;
+  email: string;
+  linkedinUrl: string;
+  jobTitle: string;
+  createdAt: Date;
+}
 
 /**
  * Creates the business context section for the prompt

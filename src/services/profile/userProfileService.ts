@@ -1,6 +1,17 @@
 
 import { supabase } from '@/integrations/supabase/client';
-import { User } from '@/types';
+
+// Define User type directly based on the existing structure in the codebase
+interface User {
+  id: string;
+  email: string;
+  name: string;
+  businessName: string;
+  businessDescription: string;
+  linkedinUrl: string;
+  jobTitle: string;
+  createdAt: Date;
+}
 
 /**
  * Fetches the user profile
