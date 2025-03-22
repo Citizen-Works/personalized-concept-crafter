@@ -23,7 +23,6 @@ import AdminPage from "./pages/AdminPage";
 import ReviewQueuePage from "@/pages/ReviewQueuePage";
 import ReadyToPublishPage from "@/pages/ReadyToPublishPage";
 import PublishedPage from "@/pages/PublishedPage";
-import NewContentIdeaPage from "@/pages/NewContentIdeaPage";
 import NewIdeaPage from "@/pages/NewIdeaPage";
 import GenerateDraftPage from "@/pages/GenerateDraftPage";
 import CallToActionsPage from "@/pages/CallToActionsPage";
@@ -86,7 +85,9 @@ function App() {
             <Route path="/ready-to-publish" element={<Navigate to="/pipeline?tab=ready" replace />} />
             <Route path="/published" element={<Navigate to="/pipeline?tab=published" replace />} />
             
-            <Route path="/new-content-idea" element={<NewContentIdeaPage />} />
+            {/* Redirect from old "new-content-idea" to the proper "ideas/new" page */}
+            <Route path="/new-content-idea" element={<Navigate to="/ideas/new" replace />} />
+            
             <Route path="/generate-draft" element={<GenerateDraftPage />} />
             
             <Route path="/source-materials" element={<SourceMaterialsPage />} />
