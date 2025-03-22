@@ -42,7 +42,7 @@ export const processTranscriptForIdeas = async (
     
     let document;
     try {
-      // Direct Supabase query to avoid UUID validation issues
+      // Always use direct query approach to handle both UUID and non-UUID IDs
       const { data, error } = await supabase
         .from("documents")
         .select("*")
@@ -50,11 +50,18 @@ export const processTranscriptForIdeas = async (
         .eq("user_id", userId)
         .single();
       
-      if (error) throw error;
-      if (!data) throw new Error("Document not found");
+      if (error) {
+        console.error("Error fetching document via Supabase query:", error);
+        throw error;
+      }
+      
+      if (!data) {
+        console.error("Document not found for ID:", documentId);
+        throw new Error("Document not found");
+      }
       
       document = data;
-      console.log(`Successfully fetched document: ${document.title}`);
+      console.log(`Successfully fetched document: ${document.title} (ID: ${document.id})`);
     } catch (docError) {
       console.error("Error fetching document:", docError);
       throw new Error(`Failed to find document: ${docError instanceof Error ? docError.message : 'Unknown error'}`);
@@ -82,12 +89,12 @@ export const processTranscriptForIdeas = async (
     // Step 4: Call the edge function directly with document content
     let contentIdeas;
     try {
-      console.log(`Calling edge function to generate ideas for: ${document.title}`);
+      console.log(`Calling edge function to generate ideas for: ${document.title} (ID: ${document.id})`);
       const { data: edgeFunctionData, error: edgeFunctionError } = await supabase.functions.invoke(
         "process-document", 
         {
           body: {
-            documentId, 
+            documentId: document.id, 
             userId,
             content: sanitizedContent,
             title: document.title,
@@ -96,7 +103,15 @@ export const processTranscriptForIdeas = async (
         }
       );
       
-      if (edgeFunctionError) throw edgeFunctionError;
+      if (edgeFunctionError) {
+        console.error("Edge function error:", edgeFunctionError);
+        throw edgeFunctionError;
+      }
+      
+      if (!edgeFunctionData) {
+        console.error("Edge function returned no data");
+        throw new Error("No data returned from edge function");
+      }
       
       contentIdeas = edgeFunctionData?.ideas || [];
       console.log(`Generated ${contentIdeas.length} ideas via edge function`);

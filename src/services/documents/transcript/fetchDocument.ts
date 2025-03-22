@@ -16,7 +16,9 @@ export const fetchDocument = async (userId: string, documentId: string): Promise
   }
 
   try {
-    // Use a direct query approach that works with both UUID and non-UUID IDs
+    console.log(`Attempting to fetch document with ID: ${documentId}`);
+    
+    // Always use direct query approach to handle both UUID and non-UUID IDs
     const { data, error } = await supabase
       .from("documents")
       .select("*")
@@ -30,8 +32,11 @@ export const fetchDocument = async (userId: string, documentId: string): Promise
     }
 
     if (!data) {
+      console.error("Document not found for ID:", documentId);
       throw new Error("Document not found");
     }
+
+    console.log(`Document found: ${data.title} (ID: ${data.id})`);
 
     // Handle decryption if the document is encrypted
     let content = data.content || "";

@@ -21,40 +21,28 @@ async function generateIdeasFromDocument(documentId: string, userId: string, typ
     let document: any = null;
     
     if (!content) {
-      // Fetch the document - use single() if documentId is a UUID, otherwise use a more flexible approach
-      let docData = null;
-      let docError = null;
-      
-      try {
-        // First try standard query without assuming UUID format
-        console.log(`Fetching document with ID: ${documentId}`);
-        const { data, error } = await supabase
-          .from('documents')
-          .select('*')
-          .eq('id', documentId)
-          .eq('user_id', userId)
-          .single();
-          
-        docData = data;
-        docError = error;
-      } catch (fetchError) {
-        console.error('Error in initial document fetch:', fetchError);
-        docError = fetchError;
+      // Fetch the document directly using a string-based query without assuming UUID format
+      console.log(`Fetching document with ID: ${documentId}`);
+      const { data, error } = await supabase
+        .from('documents')
+        .select('*')
+        .eq('id', documentId)
+        .eq('user_id', userId)
+        .single();
+        
+      if (error) {
+        console.error('Error fetching document:', error);
+        throw new Error(`Failed to fetch document: ${error.message}`);
       }
 
-      if (docError) {
-        console.error('Error fetching document:', docError);
-        throw new Error(`Failed to fetch document: ${docError.message}`);
-      }
-
-      if (!docData || !docData.content) {
+      if (!data || !data.content) {
         throw new Error('Document not found or has no content');
       }
       
-      document = docData;
-      content = docData.content;
-      title = docData.title;
-      type = docData.type || type;
+      document = data;
+      content = data.content;
+      title = data.title;
+      type = data.type || type;
     } else {
       // Create a temporary document object if content was provided directly
       document = {
