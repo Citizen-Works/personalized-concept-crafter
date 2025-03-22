@@ -11,9 +11,16 @@ import {
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import { 
+  Select, 
+  SelectContent, 
+  SelectItem, 
+  SelectTrigger, 
+  SelectValue 
+} from "@/components/ui/select";
 import { useDocuments } from '@/hooks/useDocuments';
 import { toast } from 'sonner';
-import type { DocumentType } from '@/types';
+import type { DocumentType, DocumentPurpose } from '@/types';
 
 interface UploadDialogProps {
   open: boolean;
@@ -30,7 +37,8 @@ const UploadDialog: React.FC<UploadDialogProps> = ({
   const [file, setFile] = useState<File | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [type, setType] = useState<DocumentType>("other" as DocumentType);
+  const [type, setType] = useState<DocumentType>("other");
+  const [purpose, setPurpose] = useState<DocumentPurpose>("business_context");
   
   const { uploadDocument } = useDocuments();
 
@@ -65,8 +73,8 @@ const UploadDialog: React.FC<UploadDialogProps> = ({
       // Call the uploadDocument function with the file and document data
       await uploadDocument(file, {
         title: title.trim(),
-        type: "other", // Using "other" type instead of "document"
-        purpose: "business_context",
+        type, // Use the selected document type
+        purpose, // Use the selected purpose
         content_type: null,
         status: "active"
       });
@@ -87,6 +95,8 @@ const UploadDialog: React.FC<UploadDialogProps> = ({
       setTitle("");
       setFile(null);
       setError(null);
+      setType("other");
+      setPurpose("business_context");
       onOpenChange(false);
     }
   };
@@ -115,6 +125,38 @@ const UploadDialog: React.FC<UploadDialogProps> = ({
               placeholder="Document title" 
             />
           </div>
+          
+          <div>
+            <Label htmlFor="document_type">Document Type</Label>
+            <Select value={type} onValueChange={(value) => setType(value as DocumentType)}>
+              <SelectTrigger id="document_type">
+                <SelectValue placeholder="Select document type" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="blog">Blog</SelectItem>
+                <SelectItem value="newsletter">Newsletter</SelectItem>
+                <SelectItem value="whitepaper">Whitepaper</SelectItem>
+                <SelectItem value="case-study">Case Study</SelectItem>
+                <SelectItem value="transcript">Transcript</SelectItem>
+                <SelectItem value="meeting_transcript">Meeting Transcript</SelectItem>
+                <SelectItem value="other">Other</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          
+          <div>
+            <Label htmlFor="purpose">Document Purpose</Label>
+            <Select value={purpose} onValueChange={(value) => setPurpose(value as DocumentPurpose)}>
+              <SelectTrigger id="purpose">
+                <SelectValue placeholder="Select document purpose" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="business_context">Business Context</SelectItem>
+                <SelectItem value="writing_sample">Writing Sample</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          
           <div>
             <Label htmlFor="file">File</Label>
             <Input 
