@@ -1,19 +1,9 @@
 
-/**
- * Re-export all types from domain-specific files
- */
-
-// User types
-export * from './user';
-
-// Content types
+// Re-export all type definitions for easier imports
 export * from './content';
-
-// Document types
 export * from './documents';
-
-// Strategy types
 export * from './strategy';
-
-// UI types
 export * from './ui';
+export * from './user';
+export * from './writingStyle';
+export * from './status';
