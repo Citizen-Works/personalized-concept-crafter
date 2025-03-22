@@ -2,7 +2,7 @@
 /**
  * Document-related type definitions
  */
-export type DocumentType = 'blog' | 'newsletter' | 'whitepaper' | 'case-study' | 'transcript' | 'meeting_transcript' | 'other';
+export type DocumentType = 'blog' | 'newsletter' | 'whitepaper' | 'case-study' | 'transcript' | 'other';
 export type DocumentPurpose = 'writing_sample' | 'business_context';
 export type DocumentStatus = 'active' | 'archived';
 export type DocumentContentType = 'linkedin' | 'newsletter' | 'marketing' | 'general' | null;

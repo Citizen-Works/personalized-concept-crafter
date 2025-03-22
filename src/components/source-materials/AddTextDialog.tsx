@@ -141,7 +141,6 @@ const AddTextDialog: React.FC<AddTextDialogProps> = ({
                 <SelectItem value="whitepaper">Whitepaper</SelectItem>
                 <SelectItem value="case-study">Case Study</SelectItem>
                 <SelectItem value="transcript">Transcript</SelectItem>
-                <SelectItem value="meeting_transcript">Meeting Transcript</SelectItem>
                 <SelectItem value="other">Other</SelectItem>
               </SelectContent>
             </Select>
