@@ -19,6 +19,25 @@ export const IdeaLinkCard: React.FC<IdeaLinkCardProps> = ({ contentIdeaId, conte
   const { getIdea } = useIdeas();
   const { data: idea, isLoading, error } = getIdea(contentIdeaId);
 
+  // Get a color for the content type badge
+  const getContentTypeBadgeClass = (type?: ContentType): string => {
+    switch (type?.toLowerCase()) {
+      case 'linkedin':
+        return 'bg-blue-50 text-blue-700 border-blue-200';
+      case 'newsletter':
+        return 'bg-purple-50 text-purple-700 border-purple-200';
+      case 'blog':
+        return 'bg-green-50 text-green-700 border-green-200';
+      case 'email':
+        return 'bg-amber-50 text-amber-700 border-amber-200';
+      case 'twitter':
+      case 'post':
+        return 'bg-sky-50 text-sky-700 border-sky-200';
+      default:
+        return 'bg-gray-50 text-gray-700 border-gray-200';
+    }
+  };
+
   if (isLoading) {
     return (
       <Card className="bg-muted/20">
@@ -74,7 +93,10 @@ export const IdeaLinkCard: React.FC<IdeaLinkCardProps> = ({ contentIdeaId, conte
         <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
           <p>Created: {new Date(idea.createdAt).toLocaleDateString()}</p>
           {contentType && (
-            <Badge variant="outline" className="capitalize bg-blue-50 text-blue-700 border-blue-200">
+            <Badge 
+              variant="outline" 
+              className={`capitalize ${getContentTypeBadgeClass(contentType)}`}
+            >
               {contentType.charAt(0).toUpperCase() + contentType.slice(1)} Content
             </Badge>
           )}

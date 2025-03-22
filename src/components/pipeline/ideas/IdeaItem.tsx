@@ -41,6 +41,12 @@ export const IdeaItem: React.FC<IdeaItemProps> = ({
     }
   };
 
+  const handleDelete = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation(); // Prevent event bubbling
+    onDelete(idea.id);
+  };
+
   return (
     <Card key={idea.id} className="overflow-hidden transition-all duration-200">
       <CardHeader className="pb-2">
@@ -98,7 +104,7 @@ export const IdeaItem: React.FC<IdeaItemProps> = ({
             variant="outline" 
             size="icon"
             className="text-destructive hover:text-destructive"
-            onClick={() => onDelete(idea.id)}
+            onClick={handleDelete}
             title="Delete"
             disabled={isUpdating}
           >

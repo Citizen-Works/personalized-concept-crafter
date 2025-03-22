@@ -1,3 +1,4 @@
+
 import { useState, useMemo, useCallback } from 'react';
 import { ContentIdea, ContentType } from '@/types';
 import { useIdeas } from '@/hooks/ideas';
@@ -51,6 +52,9 @@ export const useIdeasList = ({
     // if (contentTypeFilter && contentTypeFilter !== "all") {
     //   result = result.filter(idea => idea.contentType === contentTypeFilter);
     // }
+    
+    // Important: Filter out rejected ideas in the pipeline view
+    result = result.filter(idea => idea.status !== 'rejected');
     
     return result;
   }, [ideas, searchQuery, dateRange, contentTypeFilter]);
@@ -106,11 +110,13 @@ export const useIdeasList = ({
       
       // If a specific item is being deleted
       if (itemToDelete) {
+        console.log("Deleting specific item:", itemToDelete);
         await deleteIdea(itemToDelete);
         setSelectedItems(prev => prev.filter(id => id !== itemToDelete));
       } 
       // If batch delete is being performed
       else if (selectedItems.length > 0) {
+        console.log("Deleting multiple items:", selectedItems);
         // Currently, we delete items one by one
         for (const id of selectedItems) {
           await deleteIdea(id);

@@ -46,6 +46,13 @@ export const IdeasTab: React.FC<IdeasTabProps> = ({
     isDeleting,
   } = useIdeasList({ searchQuery, dateRange, contentTypeFilter });
   
+  const handleDeleteButtonClick = (id: string) => {
+    if (window.confirm('Are you sure you want to delete this idea?')) {
+      setItemToDelete(id);
+      handleDeleteConfirm();
+    }
+  };
+  
   if (isLoading) {
     return <IdeasLoadingState />;
   }
@@ -93,12 +100,9 @@ export const IdeasTab: React.FC<IdeasTabProps> = ({
           key={idea.id}
           idea={idea}
           isSelected={selectedItems.includes(idea.id)}
-          isUpdating={isDeleting}
+          isUpdating={isDeleting && (itemToDelete === idea.id || selectedItems.includes(idea.id))}
           onToggleSelect={handleToggleSelect}
-          onDelete={(id) => {
-            setItemToDelete(id);
-            setDeleteConfirmOpen(true);
-          }}
+          onDelete={handleDeleteButtonClick}
           getStatusBadgeClasses={getStatusBadgeClasses}
           getTypeBadgeClasses={getTypeBadgeClasses}
         />
