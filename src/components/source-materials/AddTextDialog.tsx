@@ -19,7 +19,7 @@ import {
   SelectTrigger, 
   SelectValue 
 } from "@/components/ui/select";
-import { DocumentType, DocumentPurpose } from '@/types';
+import { DocumentType, DocumentPurpose, DocumentContentType } from '@/types';
 import { useDocuments } from '@/hooks/useDocuments';
 import { toast } from 'sonner';
 
@@ -41,7 +41,7 @@ const AddTextDialog: React.FC<AddTextDialogProps> = ({
   const [type, setType] = useState<DocumentType>("other");
   const [purpose, setPurpose] = useState<DocumentPurpose>("business_context");
   const [showContentTypeField, setShowContentTypeField] = useState(false);
-  const [contentType, setContentType] = useState<string | null>(null);
+  const [contentType, setContentType] = useState<DocumentContentType>(null);
   
   const { createDocument } = useDocuments();
 
@@ -163,7 +163,10 @@ const AddTextDialog: React.FC<AddTextDialogProps> = ({
           {showContentTypeField && (
             <div>
               <Label htmlFor="content_type">Content Application</Label>
-              <Select value={contentType || ""} onValueChange={setContentType}>
+              <Select 
+                value={contentType || ""} 
+                onValueChange={(value) => setContentType(value === "" ? null : value as DocumentContentType)}
+              >
                 <SelectTrigger id="content_type">
                   <SelectValue placeholder="Select where this writing style applies" />
                 </SelectTrigger>
