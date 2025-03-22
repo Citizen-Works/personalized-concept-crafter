@@ -37,8 +37,11 @@ export const useFilteredIdeas = ({
       
       // Apply content type filter if specified
       if (contentTypeFilter !== "all") {
-        // If the idea doesn't have a type specified or doesn't match the filter, exclude it
-        if (!idea.contentType || idea.contentType !== contentTypeFilter) return false;
+        // Looking at the ContentIdea type definition, there's no contentType property
+        // Instead, we should check for the relevant property if it exists in the future
+        // For now, we'll skip this filter since the property doesn't exist
+        // TODO: Update this when contentType is added to ContentIdea type
+        // return false if no contentType match
       }
       
       return true;
