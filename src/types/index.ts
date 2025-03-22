@@ -3,18 +3,18 @@
 
 // Export the status.ts file first and use named exports to avoid conflicts
 import { 
-  ContentStatus as StatusContentStatus,
-  DraftStatus as StatusDraftStatus,
-  DocumentStatus as StatusDocumentStatus,
-  DocumentProcessingStatus as StatusDocumentProcessingStatus
+  ContentStatus,
+  DraftStatus,
+  DocumentStatus,
+  DocumentProcessingStatus
 } from './status';
 
-// Export renamed status types to avoid ambiguity
+// Re-export status types to avoid ambiguity
 export {
-  StatusContentStatus as ContentStatus,
-  StatusDraftStatus as DraftStatus,
-  StatusDocumentStatus as DocumentStatus,
-  StatusDocumentProcessingStatus as DocumentProcessingStatus,
+  ContentStatus,
+  DraftStatus,
+  DocumentStatus,
+  DocumentProcessingStatus,
   // Export other items from status
   getContentStatusProps,
   getDraftStatusProps,
@@ -29,5 +29,14 @@ export * from './content';
 export * from './documents';
 export * from './strategy';
 export * from './ui';
-export * from './user';
+
+// For user types, we need to handle the WritingStyleProfile ambiguity
+// Export everything except WritingStyleProfile to avoid conflict
+export {
+  UserSettings,
+  UserRole,
+  BaseUser,
+  UserProfile
+} from './user';
+
 export * from './writingStyle';

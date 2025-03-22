@@ -46,8 +46,8 @@ export const useContentIdeaApi = () => {
         hasBeenUsed: data.has_been_used,
         createdAt: new Date(data.created_at),
         // Handle arrays that might not exist in the database response
-        contentPillarIds: Array.isArray(data.content_pillar_ids) ? [...data.content_pillar_ids] : [], 
-        targetAudienceIds: Array.isArray(data.target_audience_ids) ? [...data.target_audience_ids] : []
+        contentPillarIds: data.content_pillar_ids ? [...data.content_pillar_ids] : [], 
+        targetAudienceIds: data.target_audience_ids ? [...data.target_audience_ids] : []
       };
       
       toast.success(`Idea updated to ${newStatus}`);
