@@ -6,11 +6,11 @@ import { useClaudeAI } from '@/hooks/useClaudeAI';
 import { useDrafts } from '@/hooks/useDrafts';
 import { useCallToActions } from '@/hooks/useCallToActions';
 import { toast } from 'sonner';
-import { ContentIdea, ContentType } from '@/types';
+import { ContentIdea, ContentType, DraftStatus } from '@/types';
 
 export function useGenerateDraft() {
   const navigate = useNavigate();
-  const { ideas, isLoading: isLoadingIdeas } = useIdeas();
+  const { ideas, isLoading: isLoadingIdeas, updateIdea } = useIdeas();
   const { generateContent, isGenerating, debugPrompt } = useClaudeAI();
   const { createDraft } = useDrafts();
   const { callToActions, isLoading: isLoadingCTAs } = useCallToActions();
@@ -87,9 +87,8 @@ export function useGenerateDraft() {
       }
       
       ideaWithParams.notes = notes;
-      ideaWithParams.contentType = contentType;
       
-      // Generate content
+      // Generate content with the selected content type
       const content = await generateContent(ideaWithParams, contentType);
       if (content) {
         setGeneratedContent(content);
@@ -124,7 +123,6 @@ export function useGenerateDraft() {
       }
       
       ideaWithParams.notes = notes;
-      ideaWithParams.contentType = contentType;
       
       // Generate content in debug mode (true as the third parameter)
       await generateContent(ideaWithParams, contentType, true);
@@ -146,16 +144,16 @@ export function useGenerateDraft() {
       await createDraft({
         contentIdeaId: selectedIdea.id,
         content: generatedContent,
+        contentType: contentType,
         version: 1,
         feedback: '',
+        status: 'draft' as DraftStatus
       });
       
-      // Update the idea status to drafted
-      const { updateIdea } = useIdeas();
+      // Update the idea's hasBeenUsed status
       await updateIdea({
         id: selectedIdea.id,
-        status: 'drafted',
-        contentType: contentType
+        hasBeenUsed: true
       });
       
       toast.success('Draft saved successfully');

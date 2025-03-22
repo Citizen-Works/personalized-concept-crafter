@@ -86,7 +86,7 @@ const IdeaDrafts: React.FC<IdeaDraftsProps> = ({ idea, onGenerateDraft }) => {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          {idea.status === 'drafted' ? (
+          {idea.hasBeenUsed ? (
             <div className="p-8 text-center border rounded-lg bg-blue-50">
               <p className="text-sm">
                 Drafts have been generated for this idea

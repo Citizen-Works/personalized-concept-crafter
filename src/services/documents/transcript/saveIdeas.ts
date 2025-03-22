@@ -29,11 +29,11 @@ export const saveIdeas = async (
           practicalTakeaway: idea.topicDetails.practicalTakeaway,
           ctaSuggestion: idea.topicDetails.ctaSuggestion,
         }),
-        source: "transcript" as ContentSource | null,
+        source: "transcript" as ContentSource,
         meetingTranscriptExcerpt: idea.transcriptExcerpt || "",
         sourceUrl: "",
-        status: "unreviewed" as ContentStatus,  // Explicitly set to "unreviewed"
-        contentType: null, // Set contentType to null explicitly
+        status: "unreviewed" as ContentStatus,
+        hasBeenUsed: false
       };
 
       // Save to database

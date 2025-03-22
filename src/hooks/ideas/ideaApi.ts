@@ -29,8 +29,8 @@ export const fetchIdeas = async (userId: string): Promise<ContentIdea[]> => {
     status: item.status as ContentStatus,
     hasBeenUsed: item.has_been_used || false,
     createdAt: new Date(item.created_at),
-    contentPillarIds: item.content_pillar_ids,
-    targetAudienceIds: item.target_audience_ids
+    contentPillarIds: item.content_pillar_ids || [],
+    targetAudienceIds: item.target_audience_ids || []
   }));
 };
 
@@ -64,8 +64,8 @@ export const fetchIdeaById = async (id: string, userId: string): Promise<Content
     status: data.status as ContentStatus,
     hasBeenUsed: data.has_been_used || false,
     createdAt: new Date(data.created_at),
-    contentPillarIds: data.content_pillar_ids,
-    targetAudienceIds: data.target_audience_ids
+    contentPillarIds: data.content_pillar_ids || [],
+    targetAudienceIds: data.target_audience_ids || []
   };
 };
 
@@ -84,8 +84,8 @@ export const createIdea = async (idea: IdeaCreateInput, userId: string): Promise
         source_url: idea.sourceUrl,
         status: idea.status,
         has_been_used: idea.hasBeenUsed || false,
-        content_pillar_ids: idea.contentPillarIds,
-        target_audience_ids: idea.targetAudienceIds,
+        content_pillar_ids: idea.contentPillarIds || [],
+        target_audience_ids: idea.targetAudienceIds || [],
         user_id: userId
       }
     ])
@@ -109,8 +109,8 @@ export const createIdea = async (idea: IdeaCreateInput, userId: string): Promise
     status: data.status as ContentStatus,
     hasBeenUsed: data.has_been_used || false,
     createdAt: new Date(data.created_at),
-    contentPillarIds: data.content_pillar_ids,
-    targetAudienceIds: data.target_audience_ids
+    contentPillarIds: data.content_pillar_ids || [],
+    targetAudienceIds: data.target_audience_ids || []
   };
 };
 
@@ -154,8 +154,8 @@ export const updateIdea = async ({ id, ...updates }: { id: string } & IdeaUpdate
       status: data.status as ContentStatus,
       hasBeenUsed: data.has_been_used || false,
       createdAt: new Date(data.created_at),
-      contentPillarIds: data.content_pillar_ids,
-      targetAudienceIds: data.target_audience_ids
+      contentPillarIds: data.content_pillar_ids || [],
+      targetAudienceIds: data.target_audience_ids || []
     };
   } catch (error) {
     console.error("Error in updateIdea:", error);

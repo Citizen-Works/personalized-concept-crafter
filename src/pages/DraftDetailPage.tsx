@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useDrafts } from '@/hooks/useDrafts';
@@ -54,8 +55,10 @@ const DraftDetailPage = () => {
         meetingTranscriptExcerpt: data.meeting_transcript_excerpt,
         sourceUrl: data.source_url,
         status: data.status as ContentStatus,
-        contentType: data.content_type as ContentType,
-        createdAt: new Date(data.created_at)
+        hasBeenUsed: data.has_been_used || false,
+        createdAt: new Date(data.created_at),
+        contentPillarIds: data.content_pillar_ids || [],
+        targetAudienceIds: data.target_audience_ids || []
       };
       
       setIdea(mappedIdea);
@@ -93,6 +96,7 @@ const DraftDetailPage = () => {
       await createDraft({
         contentIdeaId: draft.contentIdeaId,
         content: updatedContent,
+        contentType: draft.contentType,
         version: draft.version + 1,
         feedback: '',
         status: draft.status
@@ -181,7 +185,7 @@ const DraftDetailPage = () => {
             idea={idea || undefined}
           />
           
-          <IdeaLinkCard contentIdeaId={draft.contentIdeaId} />
+          <IdeaLinkCard contentIdeaId={draft.contentIdeaId} contentType={draft.contentType} />
         </div>
       </div>
     </div>

@@ -12,9 +12,10 @@ import { getStatusBadgeClasses, getTypeBadgeClasses } from '@/components/ideas/B
 
 type IdeaLinkCardProps = {
   contentIdeaId: string;
+  contentType?: ContentType; // Pass content type from parent draft
 };
 
-export const IdeaLinkCard: React.FC<IdeaLinkCardProps> = ({ contentIdeaId }) => {
+export const IdeaLinkCard: React.FC<IdeaLinkCardProps> = ({ contentIdeaId, contentType }) => {
   const { getIdea } = useIdeas();
   const { data: idea, isLoading, isError } = getIdea(contentIdeaId);
 
@@ -89,9 +90,11 @@ export const IdeaLinkCard: React.FC<IdeaLinkCardProps> = ({ contentIdeaId }) => 
           <Badge className={getStatusBadgeClasses(idea.status)}>
             {idea.status.charAt(0).toUpperCase() + idea.status.slice(1)}
           </Badge>
-          <Badge className={getTypeBadgeClasses(idea.contentType)}>
-            {idea.contentType.charAt(0).toUpperCase() + idea.contentType.slice(1)}
-          </Badge>
+          {contentType && (
+            <Badge className={getTypeBadgeClasses(contentType)}>
+              {contentType.charAt(0).toUpperCase() + contentType.slice(1)}
+            </Badge>
+          )}
         </div>
         
         <div className="flex items-center text-xs sm:text-sm text-muted-foreground">

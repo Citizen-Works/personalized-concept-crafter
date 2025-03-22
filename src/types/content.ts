@@ -17,7 +17,7 @@ export interface ContentIdea {
   meetingTranscriptExcerpt?: string;
   sourceUrl?: string;
   status: ContentStatus; // Simplified statuses
-  hasBeenUsed: boolean; // NEW: Tracks if idea has been used for drafts
+  hasBeenUsed: boolean; // Tracks if idea has been used for drafts
   createdAt: Date;
   contentPillarIds?: string[];  // Optional array of content pillar IDs
   targetAudienceIds?: string[]; // Optional array of target audience IDs

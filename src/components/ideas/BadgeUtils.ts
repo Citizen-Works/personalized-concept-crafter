@@ -1,5 +1,5 @@
 
-import { ContentStatus, ContentType, ContentSource } from '@/types';
+import { ContentStatus, ContentType, ContentSource, DraftStatus } from '@/types';
 
 export const getStatusBadgeClasses = (status: ContentStatus): string => {
   switch (status) {
@@ -14,7 +14,7 @@ export const getStatusBadgeClasses = (status: ContentStatus): string => {
   }
 };
 
-export const getDraftStatusBadgeClasses = (status: string): string => {
+export const getDraftStatusBadgeClasses = (status: DraftStatus): string => {
   switch (status) {
     case 'draft':
       return 'bg-blue-50 text-blue-700 border-blue-200';
@@ -59,4 +59,19 @@ export const getSourceBadgeClasses = (source: ContentSource): string => {
     default:
       return 'bg-gray-50 text-gray-700 border-gray-200';
   }
+};
+
+// Add helper functions for IdeaPageHeader
+export const getStatusBadgeProps = (status: ContentStatus) => {
+  return {
+    className: getStatusBadgeClasses(status),
+    children: status.charAt(0).toUpperCase() + status.slice(1)
+  };
+};
+
+export const getContentTypeBadgeProps = (contentType?: ContentType) => {
+  return {
+    className: getTypeBadgeClasses(contentType || null),
+    children: contentType ? contentType.charAt(0).toUpperCase() + contentType.slice(1) : 'No Type'
+  };
 };

@@ -1,7 +1,7 @@
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { createDraft, updateDraft, deleteDraft } from "@/services/draftService";
-import { ContentDraft, DraftStatus } from "@/types";
+import { ContentDraft, DraftStatus, ContentType } from "@/types";
 
 export const useDraftMutations = (userId: string | undefined) => {
   const queryClient = useQueryClient();
