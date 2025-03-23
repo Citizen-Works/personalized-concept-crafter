@@ -1,69 +1,70 @@
 
-import { useState } from 'react';
-import { supabase } from '@/integrations/supabase/client';
 import { TargetAudience } from '@/types';
-import { useApiRequest } from '@/hooks/useApiRequest';
+import { useAuth } from '@/context/auth';
+import { useTanstackApiQuery } from '../useTanstackApiQuery';
+import { supabase } from '@/integrations/supabase/client';
 import { transformToTargetAudience } from './transformUtils';
 
 /**
- * Hook for target audience fetch operations
+ * Hook for fetching target audiences data
  */
-export const useFetchTargetAudience = () => {
-  const api = useApiRequest<TargetAudience[]>('TargetAudienceFetchApi');
-  const [selectedAudience, setSelectedAudience] = useState<TargetAudience | null>(null);
+export const useFetchTargetAudiences = () => {
+  const { user } = useAuth();
+  const { createQuery } = useTanstackApiQuery('TargetAudienceApi');
 
-  /**
-   * Fetch all target audiences for a user
-   */
-  const fetchTargetAudiences = async (userId: string): Promise<TargetAudience[]> => {
-    return api.request(
+  const fetchTargetAudiences = (options = {}) => {
+    return createQuery<TargetAudience[]>(
       async () => {
-        const { data, error } = await supabase
-          .from('target_audiences')
-          .select('*')
-          .eq('user_id', userId);
+        if (!user?.id) throw new Error("User not authenticated");
         
+        const { data, error } = await supabase
+          .from("target_audiences")
+          .select("*")
+          .eq("user_id", user.id)
+          .order("created_at", { ascending: false });
+          
         if (error) throw error;
         
-        return data.map(audience => transformToTargetAudience(audience));
+        return data.map(item => transformToTargetAudience(item));
       },
       'fetching target audiences',
       {
-        errorMessage: 'Failed to fetch target audiences'
+        ...options,
+        queryKey: ['targetAudiences', user?.id],
+        enabled: !!user
       }
-    ) || [];
+    );
   };
-
-  /**
-   * Fetch a single target audience by ID
-   */
-  const fetchTargetAudienceById = async (id: string, userId: string): Promise<TargetAudience | null> => {
-    return api.request(
+  
+  const fetchTargetAudienceById = (id: string, options = {}) => {
+    return createQuery<TargetAudience | null>(
       async () => {
-        const { data, error } = await supabase
-          .from('target_audiences')
-          .select('*')
-          .eq('id', id)
-          .eq('user_id', userId)
-          .maybeSingle();
+        if (!user?.id) throw new Error("User not authenticated");
+        if (!id) throw new Error("Target audience ID is required");
         
+        const { data, error } = await supabase
+          .from("target_audiences")
+          .select("*")
+          .eq("id", id)
+          .eq("user_id", user.id)
+          .maybeSingle();
+          
         if (error) throw error;
         if (!data) return null;
         
         return transformToTargetAudience(data);
       },
-      'fetching target audience',
+      `fetching target audience ${id}`,
       {
-        errorMessage: `Failed to fetch target audience with ID: ${id}`
+        ...options,
+        queryKey: ['targetAudience', id, user?.id],
+        enabled: !!user && !!id
       }
     );
   };
 
   return {
     fetchTargetAudiences,
-    fetchTargetAudienceById,
-    selectedAudience,
-    setSelectedAudience,
-    isLoading: api.isLoading
+    fetchTargetAudienceById
   };
 };

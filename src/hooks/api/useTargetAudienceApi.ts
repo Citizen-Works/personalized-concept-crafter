@@ -1,38 +1,34 @@
 
-import { TargetAudienceApiResponse, TargetAudienceCreateInput, TargetAudienceUpdateInput } from './target-audience/types';
-import { useFetchTargetAudience } from './target-audience/fetchOperations';
+import { TargetAudience } from '@/types';
+import { useFetchTargetAudiences } from './target-audience/fetchOperations';
 import { useTargetAudienceMutations } from './target-audience/mutationOperations';
+import { TargetAudienceCreateInput, TargetAudienceUpdateInput } from './target-audience/types';
 
 /**
- * Hook for target audience API operations
+ * Hook for standardized Target Audience API operations
  */
-export const useTargetAudienceApi = (): TargetAudienceApiResponse => {
+export function useTargetAudienceApi() {
+  const { fetchTargetAudiences, fetchTargetAudienceById } = useFetchTargetAudiences();
   const { 
-    fetchTargetAudiences,
-    fetchTargetAudienceById,
-    selectedAudience,
-    setSelectedAudience,
-    isLoading: isFetchLoading
-  } = useFetchTargetAudience();
-
-  const {
-    createTargetAudience,
-    updateTargetAudience,
-    archiveTargetAudience,
-    isLoading: isMutationLoading
+    createTargetAudience, 
+    updateTargetAudience, 
+    archiveTargetAudience, 
+    incrementUsageCount,
+    isLoading 
   } = useTargetAudienceMutations();
-
+  
   return {
+    // Query operations
     fetchTargetAudiences,
     fetchTargetAudienceById,
+    
+    // Mutation operations
     createTargetAudience,
     updateTargetAudience,
     archiveTargetAudience,
-    selectedAudience,
-    setSelectedAudience,
-    isLoading: isFetchLoading || isMutationLoading
+    incrementUsageCount,
+    
+    // Loading state
+    isLoading
   };
-};
-
-// Re-export types for easier imports - using 'export type' for isolatedModules compatibility
-export type { TargetAudienceCreateInput, TargetAudienceUpdateInput } from './target-audience/types';
+}
