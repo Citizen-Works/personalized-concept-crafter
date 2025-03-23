@@ -1,6 +1,8 @@
 
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useWritingStyleApi } from '../useWritingStyleApi';
 import { WritingStyleProfile } from '@/types/writingStyle';
+import { useAuth } from '@/context/auth';
 
 // Backward compatibility adapter for writing style API
 export const useWritingStyleAdapter = () => {
@@ -11,13 +13,20 @@ export const useWritingStyleAdapter = () => {
     updateWritingStyleProfile,
     isLoading
   } = useWritingStyleApi();
+  
+  const queryClient = useQueryClient();
+  const { user } = useAuth();
+  const userId = user?.id;
 
   // Legacy function signatures for backward compatibility
-  const getWritingStyleProfile = async (userId: string): Promise<WritingStyleProfile | null> => {
+  const getWritingStyleProfile = async (): Promise<WritingStyleProfile | null> => {
     try {
-      // This ignores the userId parameter since the hook already uses the current user
-      const result = await fetchWritingStyleProfile.refetch();
-      return result.data || null;
+      if (!fetchWritingStyleProfile.data) {
+        // If no data is cached yet, force a refetch
+        const result = await fetchWritingStyleProfile.refetch();
+        return result.data || null;
+      }
+      return fetchWritingStyleProfile.data;
     } catch (error) {
       console.error('Error in getWritingStyleProfile:', error);
       throw error;
@@ -50,15 +59,17 @@ export const useWritingStyleAdapter = () => {
           avoidPatterns: profile.avoidPatterns || profile.avoid_patterns || ''
         });
       }
+      
+      // Invalidate queries after mutation
+      queryClient.invalidateQueries({ queryKey: ['writingStyleProfile', userId] });
     } catch (error) {
       console.error('Error in saveWritingStyleProfile:', error);
       throw error;
     }
   };
 
-  const getCustomPromptInstructions = async (userId: string): Promise<string | null> => {
+  const getCustomPromptInstructions = async (): Promise<string | null> => {
     try {
-      // This ignores the userId parameter since the hook already uses the current user
       const result = await fetchCustomPromptInstructions.refetch();
       return result.data || null;
     } catch (error) {

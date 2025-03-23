@@ -1,5 +1,5 @@
 
-import { useQuery, useMutation } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useTargetAudienceApi } from '../useTargetAudienceApi';
 import { TargetAudience } from '@/types';
 import { TargetAudienceCreateInput, TargetAudienceUpdateInput } from '../target-audience/types';
@@ -13,21 +13,25 @@ export const useTargetAudiencesAdapter = () => {
   const audienceApi = useTargetAudienceApi();
   const { user } = useAuth();
   const userId = user?.id;
+  const queryClient = useQueryClient();
   
   // Get all target audiences query
   const audiencesQuery = useQuery({
     queryKey: ['targetAudiences', userId],
-    queryFn: async () => {
-      return await audienceApi.fetchTargetAudiences.refetch().then(result => result.data || []);
-    },
-    enabled: !!userId,
-    initialData: []
+    queryFn: () => audienceApi.fetchTargetAudiences(),
+    enabled: !!userId
   });
   
   // Create target audience mutation
   const createAudienceMutation = useMutation({
     mutationFn: (audience: TargetAudienceCreateInput) => {
       return audienceApi.createTargetAudience(audience);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['targetAudiences', userId] });
+    },
+    onError: (error) => {
+      console.error('Error creating target audience:', error);
     }
   });
   
@@ -35,6 +39,9 @@ export const useTargetAudiencesAdapter = () => {
   const updateAudienceMutation = useMutation({
     mutationFn: (params: { id: string, updates: TargetAudienceUpdateInput }) => {
       return audienceApi.updateTargetAudience(params.id, params.updates);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['targetAudiences', userId] });
     }
   });
   
@@ -42,6 +49,9 @@ export const useTargetAudiencesAdapter = () => {
   const archiveAudienceMutation = useMutation({
     mutationFn: (id: string) => {
       return audienceApi.archiveTargetAudience(id);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['targetAudiences', userId] });
     }
   });
   
@@ -50,6 +60,9 @@ export const useTargetAudiencesAdapter = () => {
     mutationFn: (id: string) => {
       // In our new pattern, we don't actually delete but archive
       return audienceApi.archiveTargetAudience(id);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['targetAudiences', userId] });
     }
   });
   
@@ -57,16 +70,17 @@ export const useTargetAudiencesAdapter = () => {
   const incrementUsageCountMutation = useMutation({
     mutationFn: (id: string) => {
       return audienceApi.incrementUsageCount(id);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['targetAudiences', userId] });
     }
   });
   
   // Custom hook for getting a single target audience
   const getTargetAudience = (id: string) => {
     return useQuery({
-      queryKey: ['targetAudience', id],
-      queryFn: async () => {
-        return await audienceApi.fetchTargetAudienceById(id);
-      },
+      queryKey: ['targetAudience', id, userId],
+      queryFn: () => audienceApi.fetchTargetAudienceById(id),
       enabled: !!id && !!userId
     });
   };

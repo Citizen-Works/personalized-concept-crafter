@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useContentPillarsApi } from '../useContentPillarsApi';
 import { ContentPillar } from '@/types';
 import { ContentPillarCreateInput, ContentPillarUpdateInput } from '../content-pillars/types';
+import { useAuth } from '@/context/auth';
 
 /**
  * Adapter hook that provides the same interface as the original useContentPillars hook
@@ -11,11 +12,14 @@ import { ContentPillarCreateInput, ContentPillarUpdateInput } from '../content-p
 export const useContentPillarsAdapter = () => {
   const pillarsApi = useContentPillarsApi();
   const queryClient = useQueryClient();
+  const { user } = useAuth();
+  const userId = user?.id;
   
   // Get all pillars query
   const pillarsQuery = useQuery({
-    queryKey: ['contentPillars'],
-    queryFn: () => pillarsApi.fetchContentPillars()
+    queryKey: ['contentPillars', userId],
+    queryFn: () => pillarsApi.fetchContentPillars(),
+    enabled: !!userId
   });
   
   // Create pillar mutation
@@ -24,7 +28,10 @@ export const useContentPillarsAdapter = () => {
       return pillarsApi.createContentPillar(pillar);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['contentPillars'] });
+      queryClient.invalidateQueries({ queryKey: ['contentPillars', userId] });
+    },
+    onError: (error) => {
+      console.error('Error creating content pillar:', error);
     }
   });
   
@@ -34,7 +41,7 @@ export const useContentPillarsAdapter = () => {
       return pillarsApi.updateContentPillar(params.id, params.updates);
     },
     onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: ['contentPillars'] });
+      queryClient.invalidateQueries({ queryKey: ['contentPillars', userId] });
       queryClient.invalidateQueries({ queryKey: ['contentPillar', variables.id] });
     }
   });
@@ -45,7 +52,7 @@ export const useContentPillarsAdapter = () => {
       return pillarsApi.archiveContentPillar(id);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['contentPillars'] });
+      queryClient.invalidateQueries({ queryKey: ['contentPillars', userId] });
     }
   });
   
@@ -59,16 +66,16 @@ export const useContentPillarsAdapter = () => {
       );
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['contentPillars'] });
+      queryClient.invalidateQueries({ queryKey: ['contentPillars', userId] });
     }
   });
   
   // Custom hook for getting a single pillar
   const getPillar = (id: string) => {
     return useQuery({
-      queryKey: ['contentPillar', id],
+      queryKey: ['contentPillar', id, userId],
       queryFn: () => pillarsApi.fetchContentPillarById(id),
-      enabled: !!id
+      enabled: !!id && !!userId
     });
   };
   
@@ -80,7 +87,9 @@ export const useContentPillarsAdapter = () => {
     refetch: pillarsQuery.refetch,
     getPillar,
     createContentPillar: createPillarMutation.mutate,
+    createContentPillarAsync: createPillarMutation.mutateAsync,
     updateContentPillar: updatePillarMutation.mutate,
+    updateContentPillarAsync: updatePillarMutation.mutateAsync,
     updatePillarOrder: updatePillarOrderMutation.mutate,
     deleteContentPillar: archivePillarMutation.mutate
   };
