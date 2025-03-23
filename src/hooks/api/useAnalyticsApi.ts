@@ -27,6 +27,7 @@ export type ActivityFeedItem = {
   title: string;
   timestamp: Date;
   entityId?: string;
+  route?: string; // Added route property to match ActivityItem type
 };
 
 export function useAnalyticsApi() {
@@ -101,10 +102,7 @@ export function useAnalyticsApi() {
         const fromDate = lastWeek.toISOString().split('T')[0];
         const toDate = today.toISOString().split('T')[0];
 
-        // For a real implementation, you would query the database with time-based aggregations
-        // Here, we'll use a simplified approach with mocked data structure
-        // NOTE: We've removed the RPC call since it doesn't exist in the database
-        
+        // We've removed the RPC call since it doesn't exist in the database
         // Return example data as default
         const stats = generateExampleWeeklyStats();
         return stats;
@@ -152,7 +150,8 @@ export function useAnalyticsApi() {
           action: idea.created_at === idea.updated_at ? 'created' as const : 'updated' as const,
           title: idea.title || 'Untitled Idea',
           timestamp: new Date(idea.updated_at),
-          entityId: idea.id
+          entityId: idea.id,
+          route: `/ideas/${idea.id}` // Add route property to match ActivityItem
         }));
 
         // Get idea titles for drafts
@@ -182,7 +181,8 @@ export function useAnalyticsApi() {
                    (draft.created_at === draft.updated_at ? 'created' as const : 'updated' as const),
             title: ideaTitle,
             timestamp: new Date(draft.updated_at),
-            entityId: draft.id
+            entityId: draft.id,
+            route: `/drafts/${draft.id}` // Add route property to match ActivityItem
           };
         });
 

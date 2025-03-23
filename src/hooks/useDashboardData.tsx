@@ -4,7 +4,7 @@ import { useAnalytics } from './useAnalytics';
 import { useContentPillars } from './useContentPillars';
 import { useTargetAudiences } from './useTargetAudiences';
 import { useDrafts } from './useDrafts';
-import { useIdeas } from './useIdeas';
+import { useIdeas } from './ideas';
 
 export function useDashboardData() {
   const {
@@ -20,7 +20,7 @@ export function useDashboardData() {
   const { contentPillars, isLoading: isLoadingPillars } = useContentPillars();
   const { targetAudiences, isLoading: isLoadingAudiences } = useTargetAudiences();
   
-  // Use the drafts and ideas hooks without parameters
+  // Use the drafts and ideas hooks
   const { drafts, isLoading: isLoadingDrafts } = useDrafts();
   const { ideas, isLoading: isLoadingIdeas } = useIdeas();
 
@@ -41,12 +41,27 @@ export function useDashboardData() {
     contentPublished: weeklyStats.reduce((sum, stat) => sum + stat.published, 0)
   };
 
+  // Add route to activity feed items if not present
+  const activityFeedWithRoutes = activityFeed.map(item => {
+    if (!item.route) {
+      // Add default routes based on activity type
+      if (item.type === 'idea') {
+        return { ...item, route: `/ideas/${item.entityId}` };
+      } else if (item.type === 'draft' || item.type === 'published') {
+        return { ...item, route: `/drafts/${item.entityId}` };
+      } else {
+        return { ...item, route: '#' };
+      }
+    }
+    return item;
+  });
+
   return {
     // Analytics data
     contentStatusCounts,
     weeklyStats,
     weeklyMetrics,
-    activityFeed,
+    activityFeed: activityFeedWithRoutes,
     
     // Business data
     contentPillars,
