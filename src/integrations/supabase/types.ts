@@ -84,6 +84,7 @@ export type Database = {
       content_drafts: {
         Row: {
           content: string
+          content_goal: string | null
           content_idea_id: string
           content_type: string | null
           created_at: string
@@ -96,6 +97,7 @@ export type Database = {
         }
         Insert: {
           content: string
+          content_goal?: string | null
           content_idea_id: string
           content_type?: string | null
           created_at?: string
@@ -108,6 +110,7 @@ export type Database = {
         }
         Update: {
           content?: string
+          content_goal?: string | null
           content_idea_id?: string
           content_type?: string | null
           created_at?: string
@@ -130,6 +133,7 @@ export type Database = {
       }
       content_ideas: {
         Row: {
+          content_pillar_ids: string[] | null
           created_at: string
           description: string | null
           has_been_used: boolean | null
@@ -141,11 +145,13 @@ export type Database = {
           source_url: string | null
           status: string
           status_changed_at: string | null
+          target_audience_ids: string[] | null
           title: string
           updated_at: string
           user_id: string
         }
         Insert: {
+          content_pillar_ids?: string[] | null
           created_at?: string
           description?: string | null
           has_been_used?: boolean | null
@@ -157,11 +163,13 @@ export type Database = {
           source_url?: string | null
           status?: string
           status_changed_at?: string | null
+          target_audience_ids?: string[] | null
           title: string
           updated_at?: string
           user_id: string
         }
         Update: {
+          content_pillar_ids?: string[] | null
           created_at?: string
           description?: string | null
           has_been_used?: boolean | null
@@ -173,6 +181,7 @@ export type Database = {
           source_url?: string | null
           status?: string
           status_changed_at?: string | null
+          target_audience_ids?: string[] | null
           title?: string
           updated_at?: string
           user_id?: string
