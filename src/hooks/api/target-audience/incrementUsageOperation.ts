@@ -3,55 +3,37 @@ import { TargetAudience } from '@/types';
 import { useTanstackApiQuery } from '../useTanstackApiQuery';
 import { useAuth } from '@/context/auth';
 import { supabase } from '@/integrations/supabase/client';
-import { transformToTargetAudience } from './transformUtils';
+import { useUpdateTargetAudience } from './updateOperation';
 
 /**
- * Hook for incrementing the usage count of a target audience
+ * Hook for incrementing a target audience's usage count
  */
 export const useIncrementTargetAudienceUsage = () => {
-  const { user } = useAuth();
-  const { createMutation, invalidateQueries } = useTanstackApiQuery('TargetAudienceApi');
+  const { createMutation } = useTanstackApiQuery('TargetAudienceApi');
+  const { updateTargetAudience } = useUpdateTargetAudience();
 
-  const incrementUsageCountMutation = createMutation<TargetAudience, string>(
+  const incrementUsageCountMutation = createMutation<number, string>(
     async (id) => {
-      if (!user?.id) throw new Error("User not authenticated");
-      
-      // First get the current audience to get the current usage count
-      const { data: currentAudience, error: fetchError } = await supabase
-        .from("target_audiences")
-        .select("*")
-        .eq("id", id)
-        .eq("user_id", user.id)
+      const { data: audience } = await supabase
+        .from('target_audiences')
+        .select('usage_count')
+        .eq('id', id)
         .single();
         
-      if (fetchError) throw fetchError;
+      const newCount = (audience?.usage_count || 0) + 1;
       
-      // Increment the usage count directly
-      const newCount = (currentAudience.usage_count || 0) + 1;
+      await updateTargetAudience(id, { usageCount: newCount });
       
-      const { data, error } = await supabase
-        .from("target_audiences")
-        .update({ usage_count: newCount })
-        .eq("id", id)
-        .eq("user_id", user.id) // Security check
-        .select()
-        .single();
-        
-      if (error) throw error;
-      
-      return transformToTargetAudience(data);
+      return newCount;
     },
-    'incrementing target audience usage',
+    'incrementing target audience usage count',
     {
-      successMessage: 'Target audience usage incremented',
-      errorMessage: 'Failed to increment target audience usage',
-      onSuccess: () => {
-        invalidateQueries(['targetAudiences', user?.id]);
-      }
+      successMessage: 'Usage count updated',
+      suppressToast: true // No need for a toast on every usage increment
     }
   );
   
-  const incrementUsageCount = async (id: string): Promise<TargetAudience> => {
+  const incrementUsageCount = async (id: string): Promise<number> => {
     return incrementUsageCountMutation.mutateAsync(id);
   };
 

@@ -10,21 +10,24 @@ import { TargetAudienceCreateInput, TargetAudienceUpdateInput } from './target-a
 export function useTargetAudienceApi() {
   const { 
     fetchTargetAudiences, 
-    fetchTargetAudienceById
+    fetchTargetAudienceById,
+    fetchTargetAudiencesByIds,
+    isLoading: isFetchLoading 
   } = useFetchTargetAudiences();
   
   const { 
     createTargetAudience, 
     updateTargetAudience, 
-    archiveTargetAudience, 
+    archiveTargetAudience,
     incrementUsageCount,
-    isLoading 
+    isLoading: isMutationLoading 
   } = useTargetAudienceMutations();
   
   return {
     // Query operations
     fetchTargetAudiences,
     fetchTargetAudienceById,
+    fetchTargetAudiencesByIds,
     
     // Mutation operations
     createTargetAudience,
@@ -33,7 +36,7 @@ export function useTargetAudienceApi() {
     incrementUsageCount,
     
     // Loading state
-    isLoading
+    isLoading: isFetchLoading || isMutationLoading
   };
 }
 

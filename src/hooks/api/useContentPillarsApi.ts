@@ -1,38 +1,40 @@
 
-import { ContentPillarApiResponse, ContentPillarCreateInput, ContentPillarUpdateInput } from './content-pillars/types';
+import { ContentPillar } from '@/types';
 import { useFetchContentPillars } from './content-pillars/fetchOperations';
 import { useContentPillarMutations } from './content-pillars/mutationOperations';
+import { ContentPillarCreateInput, ContentPillarUpdateInput } from './content-pillars/types';
 
 /**
- * Hook for content pillar API operations
+ * Hook for standardized Content Pillars API operations
  */
-export const useContentPillarsApi = (): ContentPillarApiResponse => {
+export function useContentPillarsApi() {
   const { 
-    fetchContentPillars,
+    fetchContentPillars, 
     fetchContentPillarById,
-    selectedPillar,
-    setSelectedPillar,
-    isLoading: isFetchLoading
+    isLoading: isFetchLoading 
   } = useFetchContentPillars();
-
-  const {
-    createContentPillar,
-    updateContentPillar,
+  
+  const { 
+    createContentPillar, 
+    updateContentPillar, 
     archiveContentPillar,
-    isLoading: isMutationLoading
+    isLoading: isMutationLoading 
   } = useContentPillarMutations();
-
+  
   return {
+    // Query operations
     fetchContentPillars,
     fetchContentPillarById,
+    
+    // Mutation operations
     createContentPillar,
     updateContentPillar,
     archiveContentPillar,
-    selectedPillar,
-    setSelectedPillar,
+    
+    // Loading state
     isLoading: isFetchLoading || isMutationLoading
   };
-};
+}
 
-// Re-export types for easier imports
-export type { ContentPillarCreateInput, ContentPillarUpdateInput } from './content-pillars/types';
+// Re-export types for convenience
+export type { ContentPillarCreateInput, ContentPillarUpdateInput };

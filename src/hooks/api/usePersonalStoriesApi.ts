@@ -10,16 +10,17 @@ import { PersonalStoryCreateInput, PersonalStoryUpdateInput } from './personal-s
 export function usePersonalStoriesApi() {
   const { 
     fetchPersonalStories, 
-    fetchPersonalStoryById, 
-    fetchPersonalStoriesByTag 
+    fetchPersonalStoryById,
+    fetchPersonalStoriesByTag,
+    isLoading: isFetchLoading 
   } = useFetchPersonalStories();
   
   const { 
     createPersonalStory, 
     updatePersonalStory, 
-    archivePersonalStory, 
+    archivePersonalStory,
     incrementUsageCount,
-    isLoading 
+    isLoading: isMutationLoading 
   } = usePersonalStoryMutations();
   
   return {
@@ -35,7 +36,7 @@ export function usePersonalStoriesApi() {
     incrementUsageCount,
     
     // Loading state
-    isLoading
+    isLoading: isFetchLoading || isMutationLoading
   };
 }
 

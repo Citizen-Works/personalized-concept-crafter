@@ -1,58 +1,39 @@
 
 import { CallToAction } from '@/types';
-import { useAuth } from '@/context/auth';
 import { useTanstackApiQuery } from '../useTanstackApiQuery';
+import { useAuth } from '@/context/auth';
 import { supabase } from '@/integrations/supabase/client';
-import { transformToCallToAction } from './transformUtils';
+import { useUpdateCallToAction } from './updateOperation';
 
 /**
- * Hook for incrementing usage count for a call to action
+ * Hook for incrementing a call to action's usage count
  */
-export const useIncrementCallToActionUsage = () => {
-  const { user } = useAuth();
-  const { createMutation, invalidateQueries } = useTanstackApiQuery('CallToActionsApi');
+export const useIncrementUsageCount = () => {
+  const { createMutation } = useTanstackApiQuery('CallToActionsApi');
+  const { updateCallToAction } = useUpdateCallToAction();
 
-  const incrementUsageCountMutation = createMutation<CallToAction, string>(
+  const incrementUsageCountMutation = createMutation<number, string>(
     async (id) => {
-      if (!user?.id) throw new Error("User not authenticated");
-      
-      // First, get the current CTA to get its current usage count
-      const { data: currentCta, error: fetchError } = await supabase
-        .from("call_to_actions")
-        .select("usage_count")
-        .eq("id", id)
-        .eq("user_id", user.id)
+      const { data: cta } = await supabase
+        .from('call_to_actions')
+        .select('usage_count')
+        .eq('id', id)
         .single();
         
-      if (fetchError) throw fetchError;
+      const newCount = (cta?.usage_count || 0) + 1;
       
-      // Increment the usage count directly
-      const newCount = (currentCta.usage_count || 0) + 1;
+      await updateCallToAction(id, { usageCount: newCount });
       
-      const { data, error } = await supabase
-        .from("call_to_actions")
-        .update({ usage_count: newCount })
-        .eq("id", id)
-        .eq("user_id", user.id) // Security check
-        .select()
-        .single();
-        
-      if (error) throw error;
-      
-      return transformToCallToAction(data);
+      return newCount;
     },
-    'incrementing usage count',
+    'incrementing call to action usage count',
     {
-      successMessage: 'Usage count incremented',
-      errorMessage: 'Failed to increment usage count',
-      onSuccess: (data) => {
-        invalidateQueries(['callToActions', user?.id]);
-        invalidateQueries(['callToAction', data.id, user?.id]);
-      }
+      successMessage: 'Usage count updated',
+      suppressToast: true // No need for a toast on every usage increment
     }
   );
   
-  const incrementUsageCount = async (id: string): Promise<CallToAction> => {
+  const incrementUsageCount = async (id: string): Promise<number> => {
     return incrementUsageCountMutation.mutateAsync(id);
   };
 
