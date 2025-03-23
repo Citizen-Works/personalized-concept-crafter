@@ -16,17 +16,26 @@ export const useIncrementCallToActionUsage = () => {
     async (id) => {
       if (!user?.id) throw new Error("User not authenticated");
       
-      // Use RPC to increment the usage count
+      // First, get the current CTA to get its current usage count
+      const { data: currentCta, error: fetchError } = await supabase
+        .from("call_to_actions")
+        .select("usage_count")
+        .eq("id", id)
+        .eq("user_id", user.id)
+        .single();
+        
+      if (fetchError) throw fetchError;
+      
+      // Increment the usage count directly
+      const newCount = (currentCta.usage_count || 0) + 1;
+      
       const { data, error } = await supabase
-        .rpc('increment', { row_id: id })
-        .then(async () => {
-          // Fetch the updated record
-          return await supabase
-            .from("call_to_actions")
-            .select("*")
-            .eq("id", id)
-            .single();
-        });
+        .from("call_to_actions")
+        .update({ usage_count: newCount })
+        .eq("id", id)
+        .eq("user_id", user.id) // Security check
+        .select()
+        .single();
         
       if (error) throw error;
       
@@ -34,6 +43,7 @@ export const useIncrementCallToActionUsage = () => {
     },
     'incrementing usage count',
     {
+      successMessage: 'Usage count incremented',
       errorMessage: 'Failed to increment usage count',
       onSuccess: (data) => {
         invalidateQueries(['callToActions', user?.id]);
