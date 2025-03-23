@@ -7,7 +7,7 @@ import { useUpdatePersonalStory } from './updateOperation';
  * Hook for archiving a personal story (soft delete)
  */
 export const useArchivePersonalStory = () => {
-  const { createMutation } = useTanstackApiQuery('PersonalStoriesApi');
+  const { createMutation, invalidateQueries } = useTanstackApiQuery('PersonalStoriesApi');
   const { updatePersonalStory } = useUpdatePersonalStory();
 
   const archivePersonalStoryMutation = createMutation<PersonalStory, string>(

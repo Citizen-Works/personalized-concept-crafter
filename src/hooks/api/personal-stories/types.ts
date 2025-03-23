@@ -7,6 +7,8 @@ export interface PersonalStoryCreateInput {
   tags: string[];
   contentPillarIds?: string[];
   targetAudienceIds?: string[];
+  lesson?: string;
+  usageGuidance?: string;
 }
 
 export interface PersonalStoryUpdateInput {
@@ -16,6 +18,8 @@ export interface PersonalStoryUpdateInput {
   contentPillarIds?: string[];
   targetAudienceIds?: string[];
   isArchived?: boolean;
+  lesson?: string;
+  usageGuidance?: string;
 }
 
 export interface PersonalStoryApiResponse {
