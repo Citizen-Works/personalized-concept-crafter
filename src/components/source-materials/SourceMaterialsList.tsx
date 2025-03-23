@@ -1,9 +1,10 @@
 
 import React from 'react';
 import { Document } from '@/types';
-import { createResponsiveComponent } from '@/components/ui/responsive-container';
 import { Button } from "@/components/ui/button";
 import { DocumentContentCard } from '@/components/shared';
+import { ResponsiveDocumentGrid } from '@/components/ui/responsive-document-grid';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface SourceMaterialsListProps {
   filteredDocuments: Document[];
@@ -17,43 +18,27 @@ interface EmptyStateProps {
   onClearFilters: () => void;
 }
 
-// Desktop empty state
-const DesktopEmptyState: React.FC<EmptyStateProps> = ({ onClearFilters }) => (
-  <div className="text-center p-8 border rounded-md bg-muted/10">
-    <p className="text-muted-foreground mb-2">
-      No materials match your search or filter criteria
-    </p>
-    <Button 
-      variant="link" 
-      onClick={onClearFilters}
-      size="default"
-    >
-      Clear filters
-    </Button>
-  </div>
-);
-
-// Mobile empty state
-const MobileEmptyState: React.FC<EmptyStateProps> = ({ onClearFilters }) => (
-  <div className="text-center p-4 border rounded-md bg-muted/10">
-    <p className="text-muted-foreground text-sm mb-2">
-      No materials match your criteria
-    </p>
-    <Button 
-      variant="link" 
-      onClick={onClearFilters}
-      size="sm"
-    >
-      Clear filters
-    </Button>
-  </div>
-);
-
-// Responsive empty state
-const ResponsiveEmptyState = createResponsiveComponent<EmptyStateProps>(
-  DesktopEmptyState,
-  MobileEmptyState
-);
+/**
+ * Displays an empty state when no source materials match the filter criteria
+ */
+const EmptyState: React.FC<EmptyStateProps> = ({ onClearFilters }) => {
+  const isMobile = useIsMobile();
+  
+  return (
+    <div className={`text-center ${isMobile ? 'p-4' : 'p-8'} border rounded-md bg-muted/10`}>
+      <p className={`text-muted-foreground mb-2 ${isMobile ? 'text-sm' : ''}`}>
+        No materials match your {isMobile ? 'criteria' : 'search or filter criteria'}
+      </p>
+      <Button 
+        variant="link" 
+        onClick={onClearFilters}
+        size={isMobile ? "sm" : "default"}
+      >
+        Clear filters
+      </Button>
+    </div>
+  );
+};
 
 /**
  * Displays a list of source materials with responsive grid layout
@@ -67,7 +52,7 @@ const SourceMaterialsList: React.FC<SourceMaterialsListProps> = ({
   isDocumentProcessing = () => false
 }) => {
   if (filteredDocuments.length === 0) {
-    return <ResponsiveEmptyState onClearFilters={onClearFilters} />;
+    return <EmptyState onClearFilters={onClearFilters} />;
   }
 
   const handleViewDocument = (document: Document) => {
@@ -75,7 +60,7 @@ const SourceMaterialsList: React.FC<SourceMaterialsListProps> = ({
   };
 
   return (
-    <div className="grid gap-3 md:gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+    <ResponsiveDocumentGrid className="gap-3 md:gap-4">
       {filteredDocuments.map((doc) => (
         <DocumentContentCard
           key={doc.id}
@@ -85,7 +70,7 @@ const SourceMaterialsList: React.FC<SourceMaterialsListProps> = ({
           isProcessing={isDocumentProcessing(doc.id)}
         />
       ))}
-    </div>
+    </ResponsiveDocumentGrid>
   );
 };
 

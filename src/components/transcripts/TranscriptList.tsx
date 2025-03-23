@@ -6,6 +6,8 @@ import { DocumentContentCard } from '@/components/shared';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { FileText, PlusCircle, Upload, Mic } from "lucide-react";
+import { ResponsiveDocumentGrid } from '@/components/ui/responsive-document-grid';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface TranscriptListProps {
   documents: Document[];
@@ -30,13 +32,15 @@ const TranscriptList: React.FC<TranscriptListProps> = ({
   onProcess,
   onCancelProcessing
 }) => {
+  const isMobile = useIsMobile();
+  
   if (isLoading) {
     return (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <ResponsiveDocumentGrid>
         {[1, 2, 3].map((i) => (
           <Skeleton key={i} className="h-[200px] w-full" />
         ))}
-      </div>
+      </ResponsiveDocumentGrid>
     );
   }
 
@@ -45,7 +49,7 @@ const TranscriptList: React.FC<TranscriptListProps> = ({
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+    <ResponsiveDocumentGrid>
       {documents.map((doc) => (
         <DocumentContentCard
           key={doc.id}
@@ -55,42 +59,49 @@ const TranscriptList: React.FC<TranscriptListProps> = ({
           isProcessing={isDocumentProcessing(doc.id)}
         />
       ))}
-    </div>
+    </ResponsiveDocumentGrid>
   );
 };
 
-const TranscriptEmptyState: React.FC = () => (
-  <Card className="bg-muted/50">
-    <CardContent className="flex flex-col items-center justify-center py-12">
-      <FileText className="h-16 w-16 text-muted-foreground mb-4" />
-      <h3 className="text-xl font-semibold text-center">No Documents Yet</h3>
-      <p className="text-muted-foreground text-center mt-2 max-w-md">
-        Upload transcripts, add text, or record your voice to extract content ideas.
-      </p>
-      <div className="flex flex-wrap gap-2 mt-4 justify-center">
-        <Button 
-          variant="outline" 
-          onClick={() => window.dispatchEvent(new CustomEvent('open-add-text-dialog'))}
-        >
-          <PlusCircle className="h-4 w-4 mr-2" />
-          Add Text
-        </Button>
-        <Button 
-          variant="outline"
-          onClick={() => window.dispatchEvent(new CustomEvent('open-recording-dialog'))}
-        >
-          <Mic className="h-4 w-4 mr-2" />
-          Record Voice
-        </Button>
-        <Button 
-          onClick={() => window.dispatchEvent(new CustomEvent('open-upload-dialog'))}
-        >
-          <Upload className="h-4 w-4 mr-2" />
-          Upload Document
-        </Button>
-      </div>
-    </CardContent>
-  </Card>
-);
+const TranscriptEmptyState: React.FC = () => {
+  const isMobile = useIsMobile();
+  
+  return (
+    <Card className="bg-muted/50">
+      <CardContent className={`flex flex-col items-center justify-center ${isMobile ? 'py-8 px-4' : 'py-12'}`}>
+        <FileText className={`${isMobile ? 'h-12 w-12' : 'h-16 w-16'} text-muted-foreground mb-4`} />
+        <h3 className={`${isMobile ? 'text-lg' : 'text-xl'} font-semibold text-center`}>No Documents Yet</h3>
+        <p className="text-muted-foreground text-center mt-2 max-w-md">
+          Upload transcripts, add text, or record your voice to extract content ideas.
+        </p>
+        <div className="flex flex-wrap gap-2 mt-4 justify-center">
+          <Button 
+            variant="outline" 
+            size={isMobile ? "sm" : "default"}
+            onClick={() => window.dispatchEvent(new CustomEvent('open-add-text-dialog'))}
+          >
+            <PlusCircle className={`${isMobile ? 'h-3 w-3 mr-1' : 'h-4 w-4 mr-2'}`} />
+            Add Text
+          </Button>
+          <Button 
+            variant="outline"
+            size={isMobile ? "sm" : "default"}
+            onClick={() => window.dispatchEvent(new CustomEvent('open-recording-dialog'))}
+          >
+            <Mic className={`${isMobile ? 'h-3 w-3 mr-1' : 'h-4 w-4 mr-2'}`} />
+            Record Voice
+          </Button>
+          <Button 
+            size={isMobile ? "sm" : "default"}
+            onClick={() => window.dispatchEvent(new CustomEvent('open-upload-dialog'))}
+          >
+            <Upload className={`${isMobile ? 'h-3 w-3 mr-1' : 'h-4 w-4 mr-2'}`} />
+            Upload Document
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
+  );
+};
 
 export default TranscriptList;

@@ -11,7 +11,7 @@ interface ResponsiveTabsListProps {
 
 /**
  * A responsive tabs list component that adapts to different screen sizes.
- * On mobile, shows more compact tabs with icons and organizes them appropriately.
+ * On mobile, shows more compact tabs with icons and organizes them in a grid layout.
  * On desktop, shows the full tab names with more space.
  */
 export const ResponsiveTabsList: React.FC<ResponsiveTabsListProps> = ({
@@ -21,44 +21,60 @@ export const ResponsiveTabsList: React.FC<ResponsiveTabsListProps> = ({
   const isMobile = useIsMobile();
   
   if (isMobile) {
-    // Mobile layout with icons and compact display
+    // Mobile layout with icons in a scrollable horizontal list
     return (
-      <div className="space-y-2">
-        <TabsList className="grid grid-cols-3 w-full">
-          <TabsTrigger value="review" onClick={() => onTabChange('review')}>
-            <div className="flex flex-col items-center">
-              <Check className="h-4 w-4 mb-1" />
-              <span className="text-xs">Review</span>
-            </div>
-          </TabsTrigger>
-          <TabsTrigger value="ideas" onClick={() => onTabChange('ideas')}>
-            <div className="flex flex-col items-center">
-              <FileText className="h-4 w-4 mb-1" />
-              <span className="text-xs">Ideas</span>
-            </div>
-          </TabsTrigger>
-          <TabsTrigger value="drafts" onClick={() => onTabChange('drafts')}>
-            <div className="flex flex-col items-center">
-              <Pencil className="h-4 w-4 mb-1" />
-              <span className="text-xs">Drafts</span>
-            </div>
-          </TabsTrigger>
-        </TabsList>
-        <TabsList className="grid grid-cols-2 w-full">
-          <TabsTrigger value="ready" onClick={() => onTabChange('ready')}>
-            <div className="flex flex-col items-center">
-              <Send className="h-4 w-4 mb-1" />
-              <span className="text-xs">Ready</span>
-            </div>
-          </TabsTrigger>
-          <TabsTrigger value="published" onClick={() => onTabChange('published')}>
-            <div className="flex flex-col items-center">
-              <Book className="h-4 w-4 mb-1" />
-              <span className="text-xs">Published</span>
-            </div>
-          </TabsTrigger>
-        </TabsList>
-      </div>
+      <TabsList className="flex w-full overflow-x-auto snap-x snap-mandatory no-scrollbar">
+        <TabsTrigger 
+          value="review" 
+          onClick={() => onTabChange('review')}
+          className="flex-1 min-w-20 snap-start"
+        >
+          <div className="flex flex-col items-center">
+            <Check className="h-4 w-4 mb-1" />
+            <span className="text-xs">Review</span>
+          </div>
+        </TabsTrigger>
+        <TabsTrigger 
+          value="ideas" 
+          onClick={() => onTabChange('ideas')}
+          className="flex-1 min-w-20 snap-start"
+        >
+          <div className="flex flex-col items-center">
+            <FileText className="h-4 w-4 mb-1" />
+            <span className="text-xs">Ideas</span>
+          </div>
+        </TabsTrigger>
+        <TabsTrigger 
+          value="drafts" 
+          onClick={() => onTabChange('drafts')}
+          className="flex-1 min-w-20 snap-start"
+        >
+          <div className="flex flex-col items-center">
+            <Pencil className="h-4 w-4 mb-1" />
+            <span className="text-xs">Drafts</span>
+          </div>
+        </TabsTrigger>
+        <TabsTrigger 
+          value="ready" 
+          onClick={() => onTabChange('ready')}
+          className="flex-1 min-w-20 snap-start"
+        >
+          <div className="flex flex-col items-center">
+            <Send className="h-4 w-4 mb-1" />
+            <span className="text-xs">Ready</span>
+          </div>
+        </TabsTrigger>
+        <TabsTrigger 
+          value="published" 
+          onClick={() => onTabChange('published')}
+          className="flex-1 min-w-20 snap-start"
+        >
+          <div className="flex flex-col items-center">
+            <Book className="h-4 w-4 mb-1" />
+            <span className="text-xs">Published</span>
+          </div>
+        </TabsTrigger>
+      </TabsList>
     );
   }
   
