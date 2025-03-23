@@ -24,7 +24,9 @@ export const useFetchAnalytics = () => {
     createQuery<ContentStatusCounts, Error>(
       fetchContentStatusCounts,
       'fetch-content-status-counts',
-      getFetchContentStatusCountsOptions(options)
+      {
+        ...getFetchContentStatusCountsOptions(options)
+      }
     );
 
   /**
@@ -34,7 +36,9 @@ export const useFetchAnalytics = () => {
     createQuery<WeeklyStats[], Error>(
       fetchWeeklyStats,
       'fetch-weekly-stats',
-      getFetchWeeklyStatsOptions(options)
+      {
+        ...getFetchWeeklyStatsOptions(options)
+      }
     );
 
   /**
@@ -44,7 +48,9 @@ export const useFetchAnalytics = () => {
     createQuery<ActivityFeedItem[], Error>(
       fetchActivityFeed,
       'fetch-activity-feed',
-      getFetchActivityFeedOptions(options)
+      {
+        ...getFetchActivityFeedOptions(options)
+      }
     );
 
   // Create base queries to monitor loading state

@@ -32,7 +32,7 @@ export function useTanstackApiQuery(componentName: string) {
   const createQuery = useCallback(<TData, TError = Error>(
     queryFn: () => Promise<TData>,
     action: string,
-    options?: UseQueryOptions<TData, TError> & ApiOptions
+    options?: Partial<UseQueryOptions<TData, TError>> & ApiOptions
   ) => {
     const { 
       successMessage, 
@@ -42,8 +42,8 @@ export function useTanstackApiQuery(componentName: string) {
     } = options || {};
 
     // Create a final options object with required queryKey
-    const finalOptions: UseQueryOptions<TData, TError> = {
-      ...(queryOptions as UseQueryOptions<TData, TError>)
+    const finalOptions: Partial<UseQueryOptions<TData, TError>> = {
+      ...(queryOptions as Partial<UseQueryOptions<TData, TError>>)
     };
     
     if (!finalOptions.queryKey) {
