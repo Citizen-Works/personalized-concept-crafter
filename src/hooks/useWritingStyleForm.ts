@@ -1,14 +1,14 @@
 
 import { useState } from 'react';
 import { toast } from 'sonner';
-import { WritingStyleProfile } from '@/types/writingStyle';
+import { WritingStyleProfile, TestWritingStyleProfile } from '@/types/writingStyle';
 import { useAuth } from '@/context/auth';
 import { useWritingStyleApi, WritingStyleUpdateInput } from './api/useWritingStyleApi';
 
 /**
  * Hook for managing writing style form state and operations
  */
-export function useWritingStyleForm(initialProfile: WritingStyleProfile | null) {
+export function useWritingStyleForm(initialProfile: WritingStyleProfile | TestWritingStyleProfile | null) {
   const { user } = useAuth();
   const { createWritingStyleProfile, updateWritingStyleProfile, isLoading: isSaving } = useWritingStyleApi();
   
@@ -52,7 +52,10 @@ export function useWritingStyleForm(initialProfile: WritingStyleProfile | null) 
   const getPreviewProfile = () => {
     return {
       ...initialProfile,
-      ...formState
+      ...formState,
+      // Ensure required fields are present
+      user_id: initialProfile?.user_id || user?.id || '',
+      userId: initialProfile?.userId || user?.id || '',
     };
   };
 
@@ -84,6 +87,8 @@ export function useWritingStyleForm(initialProfile: WritingStyleProfile | null) 
         // Create new profile
         await createWritingStyleProfile(updateData as any);
       }
+      
+      toast.success('Writing style saved successfully');
     } catch (error) {
       console.error('Error saving writing style:', error);
       toast.error('Failed to save writing style: ' + (error.message || 'Unknown error'));

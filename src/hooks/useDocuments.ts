@@ -122,21 +122,24 @@ export function useDocuments() {
   /**
    * Update document status
    */
-  const updateDocumentStatus = async (documentId: string, status: DocumentStatus) => {
+  const updateDocumentStatus = async (document: {id: string, status: DocumentStatus}) => {
     try {
-      await updateDocumentApi(documentId, { status });
-      toast.success(`Document ${status === 'archived' ? 'archived' : 'restored'} successfully`);
+      await updateDocumentApi(document.id, { status: document.status });
+      toast.success(`Document ${document.status === 'archived' ? 'archived' : 'restored'} successfully`);
       return true;
     } catch (error) {
       console.error("Error updating document status:", error);
-      toast.error(`Failed to ${status === 'archived' ? 'archive' : 'restore'} document`);
+      toast.error(`Failed to ${document.status === 'archived' ? 'archive' : 'restore'} document`);
       return false;
     }
   };
 
   // For backward compatibility, implement methods that other components expect
   const refetch = () => {
-    return fetchDocuments.refetch ? fetchDocuments.refetch() : Promise.resolve(null);
+    if (fetchDocuments && typeof fetchDocuments.refetch === 'function') {
+      return fetchDocuments.refetch();
+    }
+    return Promise.resolve(null);
   };
 
   const createDocumentAsync = async (data: any) => {
@@ -145,14 +148,14 @@ export function useDocuments() {
 
   // Get document by ID
   const fetchDocument = (id: string) => {
-    const docs = fetchDocuments.data || [];
+    const docs = fetchDocuments && fetchDocuments.data ? fetchDocuments.data : [];
     const doc = docs.find(d => d.id === id);
     return doc || null;
   };
 
   // For backward compatibility with existing components
-  const error = fetchDocuments.error || null;
-  const documents = fetchDocuments.data || [];
+  const error = fetchDocuments && fetchDocuments.error ? fetchDocuments.error : null;
+  const documents = fetchDocuments && fetchDocuments.data ? fetchDocuments.data : [];
   const isLoading = isTranscriptsLoading || isDocumentsLoading;
   const isProcessing = processingIds.length > 0;
   const isDocumentProcessing = useCallback((documentId: string) => {
