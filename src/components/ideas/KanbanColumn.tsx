@@ -44,9 +44,7 @@ const KanbanColumn: React.FC<KanbanColumnProps> = ({
                 idea={idea}
                 onDeleteIdea={onDeleteIdea}
                 getStatusBadgeClasses={getStatusBadgeClasses}
-                getTypeBadgeClasses={getTypeBadgeClasses}
                 hideStatusBadge={true}
-                hideTypeBadge={true}
               />
             ))}
           </div>

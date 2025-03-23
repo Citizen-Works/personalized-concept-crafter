@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
@@ -37,6 +37,19 @@ const GenerateDraftPage = () => {
     handleDebugPrompt,
     handleSaveDraft
   } = useGenerateDraft();
+  
+  // Store the prompt text as string state
+  const [promptText, setPromptText] = useState("");
+  
+  // Update promptText whenever debugPrompt changes
+  useEffect(() => {
+    // If debugPrompt is a function, call it to get the string
+    if (typeof debugPrompt === 'function') {
+      setPromptText(debugPrompt());
+    } else if (typeof debugPrompt === 'string') {
+      setPromptText(debugPrompt);
+    }
+  }, [debugPrompt, showDebugDialog]);
   
   // Convert CallToAction objects to strings array
   const ctaTexts = callToActions.length > 0 
@@ -101,11 +114,11 @@ const GenerateDraftPage = () => {
         </div>
       </div>
 
-      {/* Debug Prompt Dialog */}
+      {/* Debug Prompt Dialog - now using promptText state instead of debugPrompt function */}
       <DebugPromptDialog
         showDialog={showDebugDialog}
         setShowDialog={setShowDebugDialog}
-        debugPrompt={debugPrompt}
+        debugPrompt={promptText}
       />
     </div>
   );

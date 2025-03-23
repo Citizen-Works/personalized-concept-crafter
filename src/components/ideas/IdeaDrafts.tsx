@@ -18,6 +18,7 @@ const IdeaDrafts: React.FC<IdeaDraftsProps> = ({ idea, onGenerateDraft }) => {
   const { generateContent, isGenerating, debugPrompt } = useClaudeAI();
   const [showDebugDialog, setShowDebugDialog] = useState(false);
   const [selectedContentType, setSelectedContentType] = useState<ContentType>("linkedin");
+  const [promptText, setPromptText] = useState<string>("");
   
   const handleGenerateDraft = async () => {
     try {
@@ -40,6 +41,9 @@ const IdeaDrafts: React.FC<IdeaDraftsProps> = ({ idea, onGenerateDraft }) => {
   const handleDebugPrompt = async () => {
     try {
       await generateContent(idea, selectedContentType, true);
+      // Capture the debug prompt text
+      const prompt = debugPrompt();
+      setPromptText(prompt || "No prompt available");
       setShowDebugDialog(true);
     } catch (error) {
       console.error('Error debugging prompt:', error);
@@ -167,13 +171,13 @@ const IdeaDrafts: React.FC<IdeaDraftsProps> = ({ idea, onGenerateDraft }) => {
             </DialogDescription>
           </DialogHeader>
           <div className="bg-slate-800 p-4 rounded border border-slate-700 whitespace-pre-wrap font-mono text-sm text-slate-100">
-            {debugPrompt}
+            {promptText}
           </div>
           <div className="flex justify-end gap-2">
             <Button 
               onClick={() => {
-                if (debugPrompt) {
-                  navigator.clipboard.writeText(debugPrompt);
+                if (promptText) {
+                  navigator.clipboard.writeText(promptText);
                   toast.success('Prompt copied to clipboard');
                 }
               }}
