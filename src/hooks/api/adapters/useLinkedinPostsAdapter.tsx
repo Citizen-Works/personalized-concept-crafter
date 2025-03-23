@@ -13,7 +13,7 @@ export const useLinkedinPostsAdapter = () => {
   
   // Get all LinkedIn posts query
   const postsQuery = useQuery({
-    queryKey: ['linkedin-posts'],
+    queryKey: ['linkedin-posts-adapter'],
     queryFn: () => postsApi.fetchLinkedinPosts()
   });
   
@@ -40,7 +40,7 @@ export const useLinkedinPostsAdapter = () => {
   
   return {
     posts: postsQuery.data || [],
-    isLoading: postsQuery.isLoading,
+    isLoading: postsQuery.isLoading || postsApi.isLoading,
     isError: postsQuery.isError,
     addPost: addPostMutation.mutate,
     updateTag: updateTagMutation.mutate,

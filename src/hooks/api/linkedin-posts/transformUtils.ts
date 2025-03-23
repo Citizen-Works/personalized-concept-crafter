@@ -13,7 +13,7 @@ export const transformToLinkedinPost = (data: any): LinkedinPost => {
     userId: transformedData.userId,
     content: transformedData.content,
     url: transformedData.url || '',
-    publishedAt: transformedData.publishedAt ? new Date(transformedData.publishedAt) : undefined,
+    publishedAt: transformedData.publishedAt ? new Date(transformedData.publishedAt) : new Date(),
     createdAt: new Date(transformedData.createdAt),
     tag: transformedData.tag || 'My post'
   } as LinkedinPost;

@@ -26,32 +26,45 @@ export const useFetchLinkedinPosts = () => {
 
       return data.map(item => transformToLinkedinPost(item));
     },
-    ['linkedin-posts', user?.id]
+    // Fix: Pass a proper string for the queryKey, not an array
+    `linkedin-posts-${user?.id || 'anonymous'}`
   );
   
-  const fetchLinkedinPostByIdQuery = createQuery<LinkedinPost | null, string>(
-    async (id) => {
-      if (!user?.id) throw new Error("User not authenticated");
+  // Fix: Define a function that takes an id parameter and properly configure the query
+  const createFetchByIdQuery = (id: string) => {
+    return createQuery<LinkedinPost | null>(
+      async () => {
+        if (!user?.id) throw new Error("User not authenticated");
 
-      const { data, error } = await supabase
-        .from("linkedin_posts")
-        .select("*")
-        .eq("id", id)
-        .eq("user_id", user.id)
-        .single();
+        const { data, error } = await supabase
+          .from("linkedin_posts")
+          .select("*")
+          .eq("id", id)
+          .eq("user_id", user.id)
+          .single();
 
-      if (error) {
-        if (error.code === 'PGRST116') return null; // Not found
-        throw error;
-      }
+        if (error) {
+          if (error.code === 'PGRST116') return null; // Not found
+          throw error;
+        }
 
-      return transformToLinkedinPost(data);
-    },
-    (id) => ['linkedin-post', id, user?.id]
-  );
+        return transformToLinkedinPost(data);
+      },
+      // Fix: Pass a proper string for the queryKey, not an array
+      `linkedin-post-${id}-${user?.id || 'anonymous'}`
+    );
+  };
   
   return {
-    fetchLinkedinPosts: fetchLinkedinPostsQuery.fetch,
-    fetchLinkedinPostById: fetchLinkedinPostByIdQuery.fetch
+    // Fix: Use refetch instead of fetch for queries
+    fetchLinkedinPosts: async () => {
+      const result = await fetchLinkedinPostsQuery.refetch();
+      return result.data || [];
+    },
+    fetchLinkedinPostById: async (id: string) => {
+      const query = createFetchByIdQuery(id);
+      const result = await query.refetch();
+      return result.data || null;
+    }
   };
 };

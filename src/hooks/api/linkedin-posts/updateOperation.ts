@@ -20,6 +20,7 @@ export const useUpdateLinkedinPost = () => {
       // Convert any Date objects to ISO strings for Supabase
       const prepared = { ...updates };
       if (updates.publishedAt instanceof Date) {
+        // Fix: Convert Date to string for database storage
         prepared.publishedAt = updates.publishedAt.toISOString();
       }
       
@@ -30,7 +31,7 @@ export const useUpdateLinkedinPost = () => {
           content: prepared.content,
           url: prepared.url,
           tag: prepared.tag,
-          published_at: prepared.publishedAt
+          published_at: prepared.publishedAt // This is now properly an ISO string
         })
         .eq("id", id)
         .eq("user_id", user.id) // Security check
@@ -46,8 +47,8 @@ export const useUpdateLinkedinPost = () => {
       successMessage: 'LinkedIn post updated successfully',
       errorMessage: 'Failed to update LinkedIn post',
       onSuccess: (data) => {
-        invalidateQueries(['linkedin-posts', user?.id]);
-        invalidateQueries(['linkedin-post', data.id, user?.id]);
+        invalidateQueries(`linkedin-posts-${user?.id || 'anonymous'}`);
+        invalidateQueries(`linkedin-post-${data.id}-${user?.id || 'anonymous'}`);
       }
     }
   );

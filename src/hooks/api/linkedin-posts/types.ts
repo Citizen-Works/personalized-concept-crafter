@@ -11,7 +11,7 @@ export interface LinkedinPostUpdateInput {
   content?: string;
   url?: string | null;
   tag?: string;
-  publishedAt?: Date;
+  publishedAt?: Date | string | null;
 }
 
 export interface LinkedinPostApiResponse {
