@@ -8,7 +8,11 @@ import { TargetAudienceCreateInput, TargetAudienceUpdateInput } from './target-a
  * Hook for standardized Target Audience API operations
  */
 export function useTargetAudienceApi() {
-  const { fetchTargetAudiences, fetchTargetAudienceById } = useFetchTargetAudiences();
+  const { 
+    fetchTargetAudiences, 
+    fetchTargetAudienceById
+  } = useFetchTargetAudiences();
+  
   const { 
     createTargetAudience, 
     updateTargetAudience, 
@@ -32,3 +36,6 @@ export function useTargetAudienceApi() {
     isLoading
   };
 }
+
+// Re-export types for convenience
+export type { TargetAudienceCreateInput, TargetAudienceUpdateInput };

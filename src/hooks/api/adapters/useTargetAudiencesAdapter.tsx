@@ -12,25 +12,36 @@ export const useTargetAudiencesAdapter = () => {
   const audienceApi = useTargetAudienceApi();
   
   // Get all target audiences query
-  const audiencesQuery = audienceApi.fetchTargetAudiences();
+  const audiencesQuery = useQuery({
+    queryKey: ['targetAudiences'],
+    queryFn: () => audienceApi.fetchTargetAudiences()
+  });
   
   // Create target audience mutation
-  const createTargetAudienceMutation = useMutation({
+  const createAudienceMutation = useMutation({
     mutationFn: (audience: TargetAudienceCreateInput) => {
       return audienceApi.createTargetAudience(audience);
     }
   });
   
   // Update target audience mutation
-  const updateTargetAudienceMutation = useMutation({
+  const updateAudienceMutation = useMutation({
     mutationFn: (params: { id: string, updates: TargetAudienceUpdateInput }) => {
       return audienceApi.updateTargetAudience(params.id, params.updates);
     }
   });
   
   // Archive target audience mutation
-  const archiveTargetAudienceMutation = useMutation({
+  const archiveAudienceMutation = useMutation({
     mutationFn: (id: string) => {
+      return audienceApi.archiveTargetAudience(id);
+    }
+  });
+  
+  // Delete target audience (for backward compatibility)
+  const deleteAudienceMutation = useMutation({
+    mutationFn: (id: string) => {
+      // In our new pattern, we don't actually delete but archive
       return audienceApi.archiveTargetAudience(id);
     }
   });
@@ -46,7 +57,8 @@ export const useTargetAudiencesAdapter = () => {
   const getTargetAudience = (id: string) => {
     return useQuery({
       queryKey: ['targetAudience', id],
-      queryFn: () => audienceApi.fetchTargetAudienceById(id).refetch().then(result => result.data)
+      queryFn: () => audienceApi.fetchTargetAudienceById(id),
+      enabled: !!id
     });
   };
   
@@ -54,13 +66,14 @@ export const useTargetAudiencesAdapter = () => {
     targetAudiences: audiencesQuery.data || [],
     isLoading: audiencesQuery.isLoading,
     isError: audiencesQuery.isError,
+    error: audiencesQuery.error,
+    refetch: audiencesQuery.refetch,
     getTargetAudience,
-    createTargetAudience: createTargetAudienceMutation.mutate,
-    updateTargetAudience: updateTargetAudienceMutation.mutate,
-    archiveTargetAudience: archiveTargetAudienceMutation.mutate,
+    deleteTargetAudience: deleteAudienceMutation.mutate,
+    updateTargetAudience: updateAudienceMutation.mutate,
     incrementUsageCount: incrementUsageCountMutation.mutate,
-    // For compatibility with the original hook
-    deleteTargetAudience: archiveTargetAudienceMutation.mutate,
-    updateTargetAudienceAsync: updateTargetAudienceMutation.mutateAsync
+    createTargetAudience: createAudienceMutation.mutate,
+    createTargetAudienceAsync: createAudienceMutation.mutateAsync,
+    updateTargetAudienceAsync: updateAudienceMutation.mutateAsync
   };
 };
