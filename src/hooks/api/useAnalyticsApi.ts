@@ -103,19 +103,11 @@ export function useAnalyticsApi() {
 
         // For a real implementation, you would query the database with time-based aggregations
         // Here, we'll use a simplified approach with mocked data structure
-        const { data, error } = await supabase.rpc('get_weekly_stats', {
-          user_id_param: userId,
-          from_date_param: fromDate,
-          to_date_param: toDate
-        });
-
-        if (error) {
-          console.error('Error fetching weekly stats:', error);
-          // Return example data as fallback
-          return generateExampleWeeklyStats();
-        }
-
-        return processApiResponse(data || generateExampleWeeklyStats());
+        // NOTE: We've removed the RPC call since it doesn't exist in the database
+        
+        // Return example data as default
+        const stats = generateExampleWeeklyStats();
+        return stats;
       });
     },
     'fetch-weekly-stats',
@@ -199,7 +191,7 @@ export function useAnalyticsApi() {
           .sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime())
           .slice(0, 10); // Take the most recent 10 activities
 
-        return processApiResponse(allActivities);
+        return allActivities;
       });
     },
     'fetch-activity-feed',

@@ -35,7 +35,8 @@ export function useUserSettingsApi() {
       if (error) throw error;
       if (!data) return null;
 
-      return processApiResponse({
+      // Return the user settings with proper type
+      return {
         id: data.id,
         userId: data.user_id,
         customInstructions: data.custom_instructions,
@@ -45,7 +46,7 @@ export function useUserSettingsApi() {
         notificationApp: data.notification_app,
         createdAt: new Date(data.created_at),
         updatedAt: new Date(data.updated_at)
-      });
+      };
     },
     'fetch-user-settings',
     {
@@ -88,7 +89,8 @@ export function useUserSettingsApi() {
       if (response.error) throw response.error;
       if (!response.data) throw new Error('Failed to update settings');
 
-      return processApiResponse({
+      // Return the updated settings with proper type
+      return {
         id: response.data.id,
         userId: response.data.user_id,
         customInstructions: response.data.custom_instructions,
@@ -98,7 +100,7 @@ export function useUserSettingsApi() {
         notificationApp: response.data.notification_app,
         createdAt: new Date(response.data.created_at),
         updatedAt: new Date(response.data.updated_at)
-      });
+      };
     },
     'update-user-settings',
     {

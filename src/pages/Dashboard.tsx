@@ -8,7 +8,12 @@ import { ActivityFeed } from '@/components/dashboard/ActivityFeed';
 import { WeeklyStats } from '@/components/dashboard/WeeklyStats';
 
 const Dashboard = () => {
-  const { statusCounts, weeklyStats, activities, isLoading } = useDashboardData();
+  const { 
+    contentStatusCounts, 
+    weeklyMetrics, 
+    activityFeed, 
+    isLoading 
+  } = useDashboardData();
   
   return (
     <div className="space-y-8">
@@ -18,36 +23,36 @@ const Dashboard = () => {
       />
       
       <ContentStatusCards 
-        needsReviewCount={statusCounts.needsReview}
-        approvedIdeasCount={statusCounts.approvedIdeas}
-        inProgressCount={statusCounts.inProgress}
-        readyToPublishCount={statusCounts.readyToPublish}
-        publishedCount={statusCounts.published}
-        isLoading={isLoading.ideas}
+        needsReviewCount={contentStatusCounts.reviewQueue}
+        approvedIdeasCount={contentStatusCounts.ideas - contentStatusCounts.reviewQueue}
+        inProgressCount={contentStatusCounts.drafts - contentStatusCounts.published}
+        readyToPublishCount={contentStatusCounts.drafts}
+        publishedCount={contentStatusCounts.published}
+        isLoading={isLoading.statusCounts}
       />
       
       <div className="grid gap-8 md:grid-cols-2">
         <QuickActionsCard />
         <WeeklyStats 
           ideasCreated={{
-            current: weeklyStats.ideasCreated,
-            previous: weeklyStats.ideasCreated > 0 ? Math.floor(weeklyStats.ideasCreated * 0.8) : 0
+            current: weeklyMetrics.ideasCreated,
+            previous: weeklyMetrics.ideasCreated > 0 ? Math.floor(weeklyMetrics.ideasCreated * 0.8) : 0
           }}
           draftsGenerated={{
-            current: weeklyStats.draftsGenerated,
-            previous: weeklyStats.draftsGenerated > 0 ? Math.floor(weeklyStats.draftsGenerated * 0.8) : 0
+            current: weeklyMetrics.draftsGenerated,
+            previous: weeklyMetrics.draftsGenerated > 0 ? Math.floor(weeklyMetrics.draftsGenerated * 0.8) : 0
           }}
           contentPublished={{
-            current: weeklyStats.contentPublished,
-            previous: weeklyStats.contentPublished > 0 ? Math.floor(weeklyStats.contentPublished * 0.8) : 0
+            current: weeklyMetrics.contentPublished,
+            previous: weeklyMetrics.contentPublished > 0 ? Math.floor(weeklyMetrics.contentPublished * 0.8) : 0
           }}
-          isLoading={isLoading.ideas || isLoading.drafts}
+          isLoading={isLoading.weeklyStats || isLoading.drafts}
         />
       </div>
       
       <ActivityFeed 
-        activities={activities}
-        isLoading={isLoading.activities}
+        activities={activityFeed}
+        isLoading={isLoading.activityFeed}
       />
     </div>
   );

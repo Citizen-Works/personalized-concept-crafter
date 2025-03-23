@@ -21,8 +21,8 @@ export function useUserProfileApi() {
       if (error) throw error;
       if (!data) return null;
 
-      // Process response to ensure consistent property naming
-      return processApiResponse({
+      // Return the user profile with proper type
+      return {
         id: data.id,
         email: '', // Not stored in profiles table
         name: data.name || '',
@@ -31,7 +31,7 @@ export function useUserProfileApi() {
         linkedinUrl: data.linkedin_url || '',
         jobTitle: data.job_title || '',
         createdAt: new Date(data.created_at)
-      });
+      };
     },
     'fetch-user-profile',
     {
@@ -65,7 +65,8 @@ export function useUserProfileApi() {
       if (error) throw error;
       if (!data) throw new Error('Failed to update profile');
 
-      return processApiResponse({
+      // Return the updated user profile with proper type
+      return {
         id: data.id,
         email: '', // Not stored in profiles table
         name: data.name || '',
@@ -74,7 +75,7 @@ export function useUserProfileApi() {
         linkedinUrl: data.linkedin_url || '',
         jobTitle: data.job_title || '',
         createdAt: new Date(data.created_at)
-      });
+      };
     },
     'update-user-profile',
     {
