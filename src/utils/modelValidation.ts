@@ -1,6 +1,6 @@
 
 import { ContentIdea, ContentDraft, ContentStatus, DraftStatus, ContentType, ContentSource } from '@/types';
-import { isValidContentStatusTransition, isValidDraftStatusTransition } from '@/types';
+import { isValidContentStatusTransition, isValidDraftStatusTransition } from '@/utils/statusValidation';
 
 /**
  * Validates a ContentIdea object

@@ -19,8 +19,8 @@ export interface ContentIdea {
   status: ContentStatus; // Using standardized ContentStatus type
   hasBeenUsed: boolean; // Tracks if idea has been used for drafts
   createdAt: Date;
-  contentPillarIds?: string[];  // Optional array of content pillar IDs
-  targetAudienceIds?: string[]; // Optional array of target audience IDs
+  contentPillarIds: string[];  // Array of content pillar IDs
+  targetAudienceIds: string[]; // Array of target audience IDs
 }
 
 export interface ContentDraft {

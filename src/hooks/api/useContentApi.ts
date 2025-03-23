@@ -4,7 +4,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { ContentIdea, ContentDraft, ContentStatus, DraftStatus, ContentSource, ContentType } from '@/types';
 import { toast } from 'sonner';
 import { processApiResponse, prepareApiRequest } from '@/utils/apiResponseUtils';
-import { createContentIdea, createContentDraft, isValidIdeaStatusTransition, isValidDraftStatusTransition } from '@/utils/modelFactory';
+import { createContentIdea, createContentDraft } from '@/utils/modelFactory';
+import { isValidContentStatusTransition, isValidDraftStatusTransition } from '@/utils/statusValidation';
 
 /**
  * Hook for content idea API operations
@@ -33,7 +34,7 @@ export const useContentIdeaApi = () => {
       if (fetchError) throw fetchError;
       
       // Validate status transition
-      if (!isValidIdeaStatusTransition(currentIdea.status as ContentStatus, newStatus)) {
+      if (!isValidContentStatusTransition(currentIdea.status as ContentStatus, newStatus)) {
         throw new Error(`Invalid status transition: ${currentIdea.status} to ${newStatus}`);
       }
       
@@ -62,6 +63,7 @@ export const useContentIdeaApi = () => {
         status: transformedData.status as ContentStatus,
         hasBeenUsed: transformedData.hasBeenUsed,
         createdAt: new Date(transformedData.createdAt),
+        // Handle potentially missing fields with default values
         contentPillarIds: transformedData.contentPillarIds || [],
         targetAudienceIds: transformedData.targetAudienceIds || []
       });

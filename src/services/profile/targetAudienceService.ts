@@ -19,13 +19,17 @@ export async function fetchTargetAudiences(userId: string): Promise<TargetAudien
     return data.map(audience => {
       const transformedData = processApiResponse(audience);
       
+      // Create a properly typed TargetAudience object
       return {
         id: transformedData.id,
         userId: transformedData.userId,
         name: transformedData.name,
         description: transformedData.description || '',
-        painPoints: transformedData.painPoints ? [...transformedData.painPoints] : [],
-        goals: transformedData.goals ? [...transformedData.goals] : [],
+        // Ensure arrays are handled correctly by converting to native arrays
+        painPoints: Array.isArray(transformedData.painPoints) ? 
+          [...transformedData.painPoints] : [],
+        goals: Array.isArray(transformedData.goals) ? 
+          [...transformedData.goals] : [],
         createdAt: new Date(transformedData.createdAt),
         isArchived: transformedData.isArchived || false,
         usageCount: transformedData.usageCount || 0
