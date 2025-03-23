@@ -7,10 +7,9 @@ import {
   SelectTrigger, 
   SelectValue 
 } from '@/components/ui/select';
-import { DraftStatus } from '@/types';
+import { DraftStatus, getDraftStatusClasses } from '@/types';
 import { Badge } from "@/components/ui/badge";
 import { validateDraftStatusChange } from '@/utils/statusValidation';
-import { getDraftStatusClasses } from '@/components/ui/StatusBadge';
 import { toast } from 'sonner';
 
 interface DraftStatusToggleProps {
