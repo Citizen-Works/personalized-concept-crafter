@@ -1,4 +1,3 @@
-
 import { useState, useCallback } from 'react';
 import { useAuth } from '@/context/auth';
 import { useTranscriptsApi } from './api/useTranscriptsApi';
@@ -136,10 +135,8 @@ export function useDocuments() {
 
   // For backward compatibility, implement methods that other components expect
   const refetch = () => {
-    if (fetchDocuments && typeof fetchDocuments === 'object' && typeof fetchDocuments.refetch === 'function') {
-      return fetchDocuments.refetch();
-    }
-    return Promise.resolve(null);
+    // Use optional chaining and nullish coalescing to safely access fetchDocuments.refetch
+    return fetchDocuments?.refetch?.() ?? Promise.resolve(null);
   };
 
   const createDocumentAsync = async (data: any) => {
@@ -148,27 +145,18 @@ export function useDocuments() {
 
   // Get document by ID
   const fetchDocument = (id: string) => {
-    if (!fetchDocuments || typeof fetchDocuments !== 'object' || !fetchDocuments.data) {
+    if (!fetchDocuments) {
       return null;
     }
     
-    const docs = fetchDocuments.data || [];
+    const docs = fetchDocuments?.data ?? [];
     const doc = docs.find(d => d.id === id);
     return doc || null;
   };
 
-  // For backward compatibility with existing components
-  const error = fetchDocuments && 
-    typeof fetchDocuments === 'object' && 
-    fetchDocuments.error ? 
-    fetchDocuments.error : 
-    null;
-    
-  const documents = fetchDocuments && 
-    typeof fetchDocuments === 'object' && 
-    fetchDocuments.data ? 
-    fetchDocuments.data : 
-    [];
+  // For backward compatibility with existing components - using optional chaining and nullish coalescing
+  const error = fetchDocuments?.error ?? null;
+  const documents = fetchDocuments?.data ?? [];
     
   const isLoading = isTranscriptsLoading || isDocumentsLoading;
   const isProcessing = processingIds.length > 0;
