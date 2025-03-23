@@ -12,8 +12,8 @@ export function useUserProfileApi() {
   // Fetch user profile
   const fetchUserProfile = createQuery<User | null>(
     async () => {
-      const userData = supabase.auth.getUser();
-      const userId = userData.data?.user?.id;
+      const { data: { user } } = await supabase.auth.getUser();
+      const userId = user?.id;
       if (!userId) return null;
 
       const { data, error } = await supabase
@@ -47,8 +47,8 @@ export function useUserProfileApi() {
   // Update user profile
   const updateUserProfile = createMutation<User, Partial<User>>(
     async (profileData) => {
-      const userData = supabase.auth.getUser();
-      const userId = userData.data?.user?.id;
+      const { data: { user } } = await supabase.auth.getUser();
+      const userId = user?.id;
       if (!userId) throw new Error('User not authenticated');
 
       // Transform data for API request

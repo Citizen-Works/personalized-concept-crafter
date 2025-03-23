@@ -50,8 +50,19 @@ const Dashboard = () => {
         />
       </div>
       
+      {/* Map ActivityFeedItem[] to ActivityItem[] for the ActivityFeed component */}
       <ActivityFeed 
-        activities={activityFeed}
+        activities={activityFeed.map(item => ({
+          id: item.id,
+          type: item.type === 'idea' ? 'idea_created' : 
+                item.type === 'draft' ? 'draft_generated' :
+                item.type === 'published' ? 'status_changed' : 'transcript_processed',
+          title: item.title,
+          timestamp: item.timestamp,
+          status: item.action === 'published' ? 'published' : undefined,
+          route: item.route || `/${item.type}s/${item.entityId}`,
+          entityId: item.entityId || ''
+        }))}
         isLoading={isLoading.activityFeed}
       />
     </div>

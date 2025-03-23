@@ -23,8 +23,8 @@ export function useUserSettingsApi() {
   // Fetch user settings
   const fetchUserSettings = createQuery<UserSettings | null>(
     async () => {
-      const userData = supabase.auth.getUser();
-      const userId = userData.data?.user?.id;
+      const { data: { user } } = await supabase.auth.getUser();
+      const userId = user?.id;
       if (!userId) return null;
 
       const { data, error } = await supabase
@@ -59,8 +59,8 @@ export function useUserSettingsApi() {
   // Update user settings
   const updateUserSettings = createMutation<UserSettings, Partial<UserSettings>>(
     async (settingsData) => {
-      const userData = supabase.auth.getUser();
-      const userId = userData.data?.user?.id;
+      const { data: { user } } = await supabase.auth.getUser();
+      const userId = user?.id;
       if (!userId) throw new Error('User not authenticated');
 
       // Prepare data for API

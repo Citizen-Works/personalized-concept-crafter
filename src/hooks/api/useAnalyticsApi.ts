@@ -37,7 +37,8 @@ export function useAnalyticsApi() {
   const fetchContentStatusCounts = createQuery<ContentStatusCounts>(
     async () => {
       return await measurePerformance('fetchContentStatusCounts', async () => {
-        const userId = supabase.auth.getUser()?.data?.user?.id;
+        const { data: { user } } = await supabase.auth.getUser();
+        const userId = user?.id;
         if (!userId) throw new Error('User not authenticated');
 
         // Fetch counts in parallel for better performance
@@ -90,7 +91,8 @@ export function useAnalyticsApi() {
   const fetchWeeklyStats = createQuery<WeeklyStats[]>(
     async () => {
       return await measurePerformance('fetchWeeklyStats', async () => {
-        const userId = supabase.auth.getUser()?.data?.user?.id;
+        const { data: { user } } = await supabase.auth.getUser();
+        const userId = user?.id;
         if (!userId) throw new Error('User not authenticated');
 
         // Get stats for the last 7 days
@@ -119,7 +121,8 @@ export function useAnalyticsApi() {
   const fetchActivityFeed = createQuery<ActivityFeedItem[]>(
     async () => {
       return await measurePerformance('fetchActivityFeed', async () => {
-        const userId = supabase.auth.getUser()?.data?.user?.id;
+        const { data: { user } } = await supabase.auth.getUser();
+        const userId = user?.id;
         if (!userId) throw new Error('User not authenticated');
 
         // Typically, you'd query a dedicated activity_log table
