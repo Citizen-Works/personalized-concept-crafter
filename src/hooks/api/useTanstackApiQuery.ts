@@ -68,19 +68,14 @@ export function useTanstackApiQuery(componentName: string) {
     };
 
     // Use Tanstack's useQuery with our wrapped function
-    return useQuery<TData, TError>({
+    return useQuery({
       ...finalOptions,
       queryFn: wrappedQueryFn,
-      onError: (error) => {
-        if (!suppressToast) {
-          const message = errorMessage || `Failed to ${action}`;
-          toast.error(message);
-        }
-        
-        // Call the original onError if it exists
-        if (queryOptions.onError) {
-          queryOptions.onError(error);
-        }
+      queryKey: finalOptions.queryKey,
+      meta: {
+        ...finalOptions.meta,
+        actionName: action,
+        componentName
       }
     });
   }, [handleError, componentName]);
@@ -100,7 +95,7 @@ export function useTanstackApiQuery(componentName: string) {
       ...mutationOptions 
     } = options || {};
 
-    return useMutation<TData, TError, TVariables>({
+    return useMutation({
       ...mutationOptions,
       mutationFn: async (variables) => {
         try {

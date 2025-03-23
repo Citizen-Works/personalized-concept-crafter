@@ -50,11 +50,11 @@ export const useContentIdeaApi = () => {
         
         // Properly handle array types with explicit conversion
         const contentPillarIds = Array.isArray(transformedData.contentPillarIds) 
-          ? transformedData.contentPillarIds as string[]
+          ? [...transformedData.contentPillarIds] as string[]
           : [];
           
         const targetAudienceIds = Array.isArray(transformedData.targetAudienceIds)
-          ? transformedData.targetAudienceIds as string[]
+          ? [...transformedData.targetAudienceIds] as string[]
           : [];
         
         // Create a properly typed ContentIdea object using the factory function

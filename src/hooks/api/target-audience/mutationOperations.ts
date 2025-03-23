@@ -1,4 +1,5 @@
 
+import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { TargetAudience } from '@/types';
 import { useApiRequest } from '@/hooks/useApiRequest';
@@ -20,15 +21,15 @@ export const useTargetAudienceMutations = () => {
   ): Promise<TargetAudience | null> => {
     return api.request(
       async () => {
-        // Transform input to snake_case for the database
+        // Manually create the snake_case object instead of using prepareApiRequest
         const snakeCaseInput = {
+          user_id: userId,
           name: input.name,
-          description: input.description,
-          pain_points: input.painPoints,
-          goals: input.goals,
-          user_id: userId
+          description: input.description || '',
+          pain_points: input.painPoints || [],
+          goals: input.goals || []
         };
-        
+
         const { data, error } = await supabase
           .from('target_audiences')
           .insert([snakeCaseInput])
@@ -41,24 +42,24 @@ export const useTargetAudienceMutations = () => {
       },
       'creating target audience',
       {
-        successMessage: `Target audience "${input.name}" created successfully`,
+        successMessage: 'Target audience created successfully',
         errorMessage: 'Failed to create target audience'
       }
     );
   };
 
   /**
-   * Update an existing target audience
+   * Update a target audience
    */
   const updateTargetAudience = async (
-    id: string,
-    updates: TargetAudienceUpdateInput,
+    id: string, 
+    updates: TargetAudienceUpdateInput, 
     userId: string
   ): Promise<TargetAudience | null> => {
     return api.request(
       async () => {
-        // Transform updates to snake_case for the database
-        const snakeCaseUpdates: any = {};
+        // Manually create the snake_case object for updates
+        const snakeCaseUpdates: Record<string, any> = {};
         
         if (updates.name !== undefined) snakeCaseUpdates.name = updates.name;
         if (updates.description !== undefined) snakeCaseUpdates.description = updates.description;
@@ -70,7 +71,7 @@ export const useTargetAudienceMutations = () => {
           .from('target_audiences')
           .update(snakeCaseUpdates)
           .eq('id', id)
-          .eq('user_id', userId)
+          .eq('user_id', userId) // Security check
           .select()
           .single();
         
@@ -87,16 +88,19 @@ export const useTargetAudienceMutations = () => {
   };
 
   /**
-   * Archive a target audience (soft delete)
+   * Archive a target audience
    */
-  const archiveTargetAudience = async (id: string, userId: string): Promise<boolean> => {
+  const archiveTargetAudience = async (
+    id: string, 
+    userId: string
+  ): Promise<boolean> => {
     return api.request(
       async () => {
         const { error } = await supabase
           .from('target_audiences')
           .update({ is_archived: true })
           .eq('id', id)
-          .eq('user_id', userId);
+          .eq('user_id', userId); // Security check
         
         if (error) throw error;
         
