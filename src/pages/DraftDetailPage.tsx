@@ -33,9 +33,17 @@ const DraftDetailPage = () => {
   // Fetch the associated idea only if we have a valid contentIdeaId
   const { 
     data: idea,
-    isLoading: isIdeaLoading
+    isLoading: isIdeaLoading,
+    error: ideaError
   } = ideasAdapter.getIdea(contentIdeaId);
   
+  console.log({
+    contentIdeaId,
+    idea,
+    isIdeaLoading,
+    draft
+  });
+
   // Handle updating the draft content
   const handleUpdateContent = async (content: string): Promise<void> => {
     if (!draft) return;

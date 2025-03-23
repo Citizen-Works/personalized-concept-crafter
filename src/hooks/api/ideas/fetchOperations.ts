@@ -41,23 +41,32 @@ export const useFetchIdeas = () => {
     createQuery<ContentIdea | null, Error>(
       async () => {
         if (!user?.id) return null;
-        if (id === "new") return null;
+        if (!id || id === "new") return null;
         
-        const { data, error } = await supabase
-          .from("content_ideas")
-          .select("*")
-          .eq("id", id)
-          .maybeSingle();
+        try {
+          const { data, error } = await supabase
+            .from("content_ideas")
+            .select("*")
+            .eq("id", id)
+            .maybeSingle();
           
-        if (error) throw error;
-        if (!data) return null;
-        
-        return transformToContentIdea(data);
+          if (error) throw error;
+          if (!data) {
+            console.error(`No idea found with ID: ${id}`);
+            return null;
+          }
+          
+          return transformToContentIdea(data);
+        } catch (error) {
+          console.error(`Error fetching idea with ID ${id}:`, error);
+          throw error;
+        }
       },
       'fetching idea by id',
       {
         queryKey: ['idea', id, user?.id],
         enabled: !!user && !!id && id !== 'new',
+        retry: 1, // Limit retries for better error handling
         ...options
       }
     );
@@ -71,9 +80,19 @@ export const useFetchIdeas = () => {
       return result.data || [];
     },
     fetchIdeaById: async (id: string) => {
-      const query = fetchIdeaByIdQuery(id);
-      const result = await query.refetch();
-      return result.data;
+      if (!id || id === 'new') {
+        console.warn("Invalid ID provided to fetchIdeaById:", id);
+        return null;
+      }
+      
+      try {
+        const query = fetchIdeaByIdQuery(id);
+        const result = await query.refetch();
+        return result.data;
+      } catch (error) {
+        console.error(`Error in fetchIdeaById for ID ${id}:`, error);
+        return null;
+      }
     },
     isLoading: baseQuery.isLoading
   };

@@ -25,8 +25,13 @@ const IdeaDetailPage = () => {
   const { createDraft } = useDrafts();
   const [isEditorOpen, setIsEditorOpen] = useState(false);
   
-  // Use the getIdea hook directly within the component body
-  const { data: idea, isLoading, isError } = ideasAdapter.getIdea(id || '');
+  // Fetch the idea directly within the component body
+  const { 
+    data: idea, 
+    isLoading, 
+    isError, 
+    error 
+  } = ideasAdapter.getIdea(id || '');
   
   const handleDeleteIdea = async () => {
     if (!idea) return;
@@ -97,6 +102,7 @@ const IdeaDetailPage = () => {
   }
 
   if (isError || !idea) {
+    console.error("Error loading idea:", error);
     return <IdeaDetailError />;
   }
   

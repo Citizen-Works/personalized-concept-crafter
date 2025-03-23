@@ -54,7 +54,9 @@ export const useIdeasAdapter = () => {
     return useQuery({
       queryKey: ['idea-adapter', id],
       queryFn: () => ideasApi.fetchIdeaById(id),
-      enabled: !!id && id !== 'new'
+      enabled: !!id && id !== 'new',
+      retry: 1, // Limit retries for better error handling
+      refetchOnWindowFocus: false // Prevent unnecessary refetches
     });
   };
   
