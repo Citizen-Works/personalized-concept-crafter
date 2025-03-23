@@ -6,65 +6,32 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Save, LogOut } from 'lucide-react';
 import { useAuth } from '@/context/auth';
-import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import AssignAdminRole from '@/components/admin/AssignAdminRole';
+import { useProfile } from '@/hooks/useProfile';
 
 const ProfileSettings = () => {
-  const { user, logout, isAdmin } = useAuth();
+  const { logout, isAdmin } = useAuth();
+  const { profile, isLoading, saveProfile, isSaving } = useProfile();
+  
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [jobTitle, setJobTitle] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   useEffect(() => {
-    if (user) {
-      // Load user profile data
-      const fetchProfile = async () => {
-        const { data, error } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('id', user.id)
-          .single();
-          
-        if (error) {
-          console.error('Error fetching profile:', error);
-          return;
-        }
-        
-        setName(data.name || '');
-        setEmail(user.email || '');
-        setJobTitle(data.job_title || '');
-      };
-      
-      fetchProfile();
+    if (profile && !isLoading) {
+      setName(profile.name || '');
+      setEmail(profile.email || '');
+      setJobTitle(profile.jobTitle || '');
     }
-  }, [user]);
+  }, [profile, isLoading]);
 
   const handleSaveProfile = async () => {
-    if (!user) return;
-    
-    setIsLoading(true);
-    
-    try {
-      const { error } = await supabase
-        .from('profiles')
-        .update({ 
-          name: name,
-          job_title: jobTitle,
-        })
-        .eq('id', user.id);
-        
-      if (error) throw error;
-      
-      toast.success('Profile updated successfully');
-    } catch (error) {
-      console.error('Error updating profile:', error);
-      toast.error('Failed to update profile');
-    } finally {
-      setIsLoading(false);
-    }
+    await saveProfile({ 
+      name, 
+      jobTitle,
+    });
   };
 
   const handleLogout = async () => {
@@ -141,10 +108,10 @@ const ProfileSettings = () => {
             <Button 
               className="gap-1" 
               onClick={handleSaveProfile}
-              disabled={isLoading}
+              disabled={isSaving}
             >
               <Save className="h-4 w-4" />
-              {isLoading ? 'Saving...' : 'Save Changes'}
+              {isSaving ? 'Saving...' : 'Save Changes'}
             </Button>
           </div>
         </CardContent>
