@@ -20,6 +20,7 @@ export interface PersonalStoryUpdateInput {
   isArchived?: boolean;
   lesson?: string;
   usageGuidance?: string;
+  usageCount?: number; // Add the missing usageCount property
 }
 
 export interface PersonalStoryApiResponse {

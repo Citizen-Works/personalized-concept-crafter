@@ -41,12 +41,11 @@ export const useIncrementUsageCount = () => {
         if (user?.id) {
           supabase
             .from("story_usage")
-            .insert([
-              {
-                story_id: id,
-                user_id: user.id,
-              }
-            ])
+            .insert({
+              story_id: id,
+              user_id: user.id,
+              content_id: null // Add the required content_id field, set to null if not applicable
+            })
             .then(() => {
               // We don't need to handle success/error here as this is just for analytics
             });
