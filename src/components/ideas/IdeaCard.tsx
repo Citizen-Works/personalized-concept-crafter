@@ -23,7 +23,9 @@ interface IdeaCardProps {
   onDeleteIdea?: (id: string) => void;
   onDeleteClick?: (id: string) => void;
   getStatusBadgeClasses: (status: ContentStatus) => string;
+  getTypeBadgeClasses: (type: ContentType | null) => string;
   hideStatusBadge?: boolean;
+  hideTypeBadge?: boolean;
 }
 
 export const IdeaCard: React.FC<IdeaCardProps> = ({ 
@@ -33,7 +35,9 @@ export const IdeaCard: React.FC<IdeaCardProps> = ({
   onDeleteIdea,
   onDeleteClick,
   getStatusBadgeClasses,
-  hideStatusBadge = false
+  getTypeBadgeClasses,
+  hideStatusBadge = false,
+  hideTypeBadge = true
 }) => {
   const isMobile = useIsMobile();
   const createdDate = new Date(idea.createdAt);
