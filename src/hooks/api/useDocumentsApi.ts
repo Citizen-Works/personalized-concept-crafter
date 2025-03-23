@@ -8,7 +8,7 @@ import { DocumentCreateInput, DocumentUpdateInput } from './documents/types';
  * Hook for standardized Document API operations
  */
 export function useDocumentsApi() {
-  const { fetchDocuments, fetchDocumentById } = useFetchDocuments();
+  const { fetchDocuments, fetchDocumentById, fetchDocumentsByType } = useFetchDocuments();
   const { 
     createDocument, 
     updateDocument, 
@@ -20,6 +20,7 @@ export function useDocumentsApi() {
     // Query operations
     fetchDocuments,
     fetchDocumentById,
+    fetchDocumentsByType,
     
     // Mutation operations
     createDocument,

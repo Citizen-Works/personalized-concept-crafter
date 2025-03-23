@@ -4,14 +4,19 @@ import { useAuth } from '@/context/auth';
 import { useTanstackApiQuery } from '../useTanstackApiQuery';
 import { supabase } from '@/integrations/supabase/client';
 import { transformToDocument } from './transformUtils';
+import { useMemo, useState } from 'react';
 
 /**
- * Hook for fetching documents data
+ * Hook for fetching documents with various operations
  */
 export const useFetchDocuments = () => {
   const { user } = useAuth();
   const { createQuery } = useTanstackApiQuery('DocumentsApi');
+  const [selectedDocument, setSelectedDocument] = useState<Document | null>(null);
 
+  /**
+   * Fetch all documents
+   */
   const fetchDocuments = (options = {}) => {
     return createQuery<Document[]>(
       async () => {
@@ -35,7 +40,10 @@ export const useFetchDocuments = () => {
       }
     );
   };
-  
+
+  /**
+   * Fetch a single document by ID
+   */
   const fetchDocumentById = (id: string, options = {}) => {
     return createQuery<Document | null>(
       async () => {
@@ -63,8 +71,40 @@ export const useFetchDocuments = () => {
     );
   };
 
-  return {
-    fetchDocuments,
-    fetchDocumentById
+  /**
+   * Fetch documents by type
+   */
+  const fetchDocumentsByType = (type: string, options = {}) => {
+    return createQuery<Document[]>(
+      async () => {
+        if (!user?.id) throw new Error("User not authenticated");
+        if (!type) throw new Error("Document type is required");
+        
+        const { data, error } = await supabase
+          .from("documents")
+          .select("*")
+          .eq("user_id", user.id)
+          .eq("type", type)
+          .order("created_at", { ascending: false });
+          
+        if (error) throw error;
+        
+        return data.map(item => transformToDocument(item));
+      },
+      `fetching documents by type ${type}`,
+      {
+        ...options,
+        queryKey: ['documents', 'type', type, user?.id],
+        enabled: !!user && !!type
+      }
+    );
   };
+
+  return useMemo(() => ({
+    fetchDocuments,
+    fetchDocumentById,
+    fetchDocumentsByType,
+    selectedDocument,
+    setSelectedDocument
+  }), [selectedDocument, user?.id]);
 };

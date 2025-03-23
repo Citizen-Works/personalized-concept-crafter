@@ -7,7 +7,7 @@ import { transformToDocument } from './transformUtils';
 import { DocumentUpdateInput } from './types';
 
 /**
- * Hook for updating a document
+ * Hook for updating documents
  */
 export const useUpdateDocument = () => {
   const { user } = useAuth();
@@ -17,9 +17,8 @@ export const useUpdateDocument = () => {
     async ({ id, updates }) => {
       if (!user?.id) throw new Error("User not authenticated");
       
-      // Convert camelCase to snake_case directly
+      // Create request data with appropriate field names
       const requestData: Record<string, any> = {};
-      
       if (updates.title !== undefined) requestData.title = updates.title;
       if (updates.content !== undefined) requestData.content = updates.content;
       if (updates.fileUrl !== undefined) requestData.file_url = updates.fileUrl;
@@ -28,12 +27,16 @@ export const useUpdateDocument = () => {
       if (updates.fileSize !== undefined) requestData.file_size = updates.fileSize;
       if (updates.metadata !== undefined) requestData.metadata = updates.metadata;
       if (updates.isArchived !== undefined) requestData.is_archived = updates.isArchived;
+      if (updates.type !== undefined) requestData.type = updates.type;
+      if (updates.purpose !== undefined) requestData.purpose = updates.purpose;
+      if (updates.contentType !== undefined) requestData.content_type = updates.contentType;
+      if (updates.status !== undefined) requestData.status = updates.status;
       
       const { data, error } = await supabase
         .from("documents")
         .update(requestData)
         .eq("id", id)
-        .eq("user_id", user.id) // Security check
+        .eq("user_id", user.id)
         .select()
         .single();
         
@@ -45,8 +48,9 @@ export const useUpdateDocument = () => {
     {
       successMessage: 'Document updated successfully',
       errorMessage: 'Failed to update document',
-      onSuccess: () => {
+      onSuccess: (_, variables) => {
         invalidateQueries(['documents', user?.id]);
+        invalidateQueries(['document', variables.id, user?.id]);
       }
     }
   );
