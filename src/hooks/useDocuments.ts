@@ -1,3 +1,4 @@
+
 import { useState, useCallback } from 'react';
 import { useAuth } from '@/context/auth';
 import { useTranscriptsApi } from './api/useTranscriptsApi';
@@ -135,8 +136,11 @@ export function useDocuments() {
 
   // For backward compatibility, implement methods that other components expect
   const refetch = () => {
-    // Use optional chaining and nullish coalescing to safely access fetchDocuments.refetch
-    return fetchDocuments?.refetch?.() ?? Promise.resolve(null);
+    // Check if fetchDocuments is a function that returns an object with refetch method
+    if (typeof fetchDocuments === 'object' && fetchDocuments && 'refetch' in fetchDocuments) {
+      return (fetchDocuments as any).refetch();
+    }
+    return Promise.resolve(null);
   };
 
   const createDocumentAsync = async (data: any) => {
@@ -149,14 +153,24 @@ export function useDocuments() {
       return null;
     }
     
-    const docs = fetchDocuments?.data ?? [];
-    const doc = docs.find(d => d.id === id);
+    // Check if fetchDocuments has a data property and use it
+    const docsData = typeof fetchDocuments === 'object' && fetchDocuments && 'data' in fetchDocuments 
+      ? (fetchDocuments as any).data 
+      : [];
+    
+    const docs = docsData || [];
+    const doc = docs.find((d: Document) => d.id === id);
     return doc || null;
   };
 
-  // For backward compatibility with existing components - using optional chaining and nullish coalescing
-  const error = fetchDocuments?.error ?? null;
-  const documents = fetchDocuments?.data ?? [];
+  // For backward compatibility with existing components
+  const error = typeof fetchDocuments === 'object' && fetchDocuments && 'error' in fetchDocuments 
+    ? (fetchDocuments as any).error 
+    : null;
+    
+  const documents = typeof fetchDocuments === 'object' && fetchDocuments && 'data' in fetchDocuments 
+    ? (fetchDocuments as any).data 
+    : [];
     
   const isLoading = isTranscriptsLoading || isDocumentsLoading;
   const isProcessing = processingIds.length > 0;
