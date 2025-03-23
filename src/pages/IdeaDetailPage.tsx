@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useIdeas } from '@/hooks/ideas';
+import { useIdeasAdapter } from '@/hooks/api/adapters/useIdeasAdapter';
 import { useDrafts } from '@/hooks/useDrafts';
 import { toast } from 'sonner';
 import { ContentType, DraftStatus } from '@/types';
@@ -20,10 +20,12 @@ import IdeaEditor from '@/components/ideas/IdeaEditor';
 const IdeaDetailPage = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { getIdea, updateIdea, deleteIdea } = useIdeas();
+  const { getIdea, updateIdea, deleteIdea } = useIdeasAdapter();
   const { createDraft } = useDrafts();
-  const { data: idea, isLoading, isError } = getIdea(id || '');
   const [isEditorOpen, setIsEditorOpen] = useState(false);
+  
+  // Use the getIdea hook directly within the component body
+  const { data: idea, isLoading, isError } = getIdea(id || '');
   
   const handleDeleteIdea = async () => {
     if (!idea) return;

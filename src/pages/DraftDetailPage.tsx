@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useIdeas } from '@/hooks/ideas';
+import { useIdeasAdapter } from '@/hooks/api/adapters/useIdeasAdapter';
 import { toast } from 'sonner';
 import { DraftHeader } from '@/components/drafts/DraftHeader';
 import { DraftContent } from '@/components/drafts/DraftContent';
@@ -17,9 +17,9 @@ const DraftDetailPage = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { getDraft, updateDraft, deleteDraft } = useDraftsAdapter();
-  const { getIdea } = useIdeas();
+  const { getIdea } = useIdeasAdapter();
   
-  // Fetch the draft
+  // Fetch the draft - ensure this is called directly in the component body
   const { 
     data: draft, 
     isLoading: isDraftLoading, 
