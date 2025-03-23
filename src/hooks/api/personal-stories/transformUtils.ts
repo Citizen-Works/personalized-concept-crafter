@@ -18,6 +18,10 @@ export const transformToPersonalStory = (data: any): PersonalStory => {
     targetAudienceIds: Array.isArray(transformedData.targetAudienceIds) ? transformedData.targetAudienceIds : [],
     isArchived: transformedData.isArchived || false,
     usageCount: transformedData.usageCount || 0,
-    createdAt: new Date(transformedData.createdAt)
+    lesson: transformedData.lesson || "",
+    usageGuidance: transformedData.usageGuidance || "",
+    lastUsedDate: transformedData.lastUsedDate || null,
+    createdAt: new Date(transformedData.createdAt),
+    updatedAt: new Date(transformedData.updatedAt || transformedData.createdAt)
   } as PersonalStory;
 };
