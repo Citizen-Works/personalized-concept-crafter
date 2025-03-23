@@ -1,7 +1,11 @@
 
 import { useCallback } from 'react';
+import { ContentStatusCounts, WeeklyStats, ActivityFeedItem } from '@/types';
 import { useAnalyticsApi } from './api/useAnalyticsApi';
 
+/**
+ * Hook that provides analytics data and loading states for the dashboard
+ */
 export function useAnalytics() {
   const { 
     fetchContentStatusCounts, 
@@ -32,9 +36,17 @@ export function useAnalytics() {
     fetchActivityFeed.refetch();
   }, [fetchContentStatusCounts, fetchWeeklyStats, fetchActivityFeed]);
 
+  // Calculate aggregate stats for dashboard components
+  const weeklyMetrics = {
+    ideasCreated: weeklyStats.reduce((sum, stat) => sum + stat.ideas, 0),
+    draftsGenerated: weeklyStats.reduce((sum, stat) => sum + stat.drafts, 0),
+    contentPublished: weeklyStats.reduce((sum, stat) => sum + stat.published, 0)
+  };
+
   return {
     contentStatusCounts,
     weeklyStats,
+    weeklyMetrics,
     activityFeed,
     isLoadingStatusCounts,
     isLoadingWeeklyStats,

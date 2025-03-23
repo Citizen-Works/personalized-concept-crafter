@@ -6,10 +6,22 @@ import { ContentStatusCounts, WeeklyStats, ActivityFeedItem } from '@/types';
  */
 export interface AnalyticsApiResponse {
   // Fetch operations
-  fetchContentStatusCounts: () => Promise<ContentStatusCounts>;
-  fetchWeeklyStats: () => Promise<WeeklyStats[]>;
-  fetchActivityFeed: () => Promise<ActivityFeedItem[]>;
+  fetchContentStatusCounts: {
+    data: ContentStatusCounts | undefined;
+    isLoading: boolean;
+    refetch: () => Promise<ContentStatusCounts>;
+  };
+  fetchWeeklyStats: {
+    data: WeeklyStats[] | undefined;
+    isLoading: boolean;
+    refetch: () => Promise<WeeklyStats[]>;
+  };
+  fetchActivityFeed: {
+    data: ActivityFeedItem[] | undefined;
+    isLoading: boolean;
+    refetch: () => Promise<ActivityFeedItem[]>;
+  };
   
-  // Loading state
+  // Overall loading state
   isLoading: boolean;
 }

@@ -37,6 +37,7 @@ export * from './content';
 export * from './documents';
 export * from './strategy';
 export * from './ui';
+export * from './analytics'; // Add export for analytics types
 
 // Import and re-export User interface directly to avoid conflicts
 export type { User } from './user';

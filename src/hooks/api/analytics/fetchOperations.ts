@@ -188,18 +188,9 @@ export const useFetchAnalytics = () => {
   const activityFeedQuery = fetchActivityFeedQuery();
   
   return {
-    fetchContentStatusCounts: async () => {
-      const result = await statusCountsQuery.refetch();
-      return result.data || { ideas: 0, drafts: 0, published: 0, reviewQueue: 0 };
-    },
-    fetchWeeklyStats: async () => {
-      const result = await weeklyStatsQuery.refetch();
-      return result.data || [];
-    },
-    fetchActivityFeed: async () => {
-      const result = await activityFeedQuery.refetch();
-      return result.data || [];
-    },
+    fetchContentStatusCounts: statusCountsQuery,
+    fetchWeeklyStats: weeklyStatsQuery,
+    fetchActivityFeed: activityFeedQuery,
     isLoading: statusCountsQuery.isLoading || weeklyStatsQuery.isLoading || activityFeedQuery.isLoading
   };
 };
