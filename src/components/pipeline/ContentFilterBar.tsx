@@ -73,7 +73,6 @@ export const ContentFilterBar: React.FC<ContentFilterBarProps> = ({
               value={dateRange} 
               onChange={setDateRange} 
               className="w-full"
-              id="mobile-date-range"
             />
           </div>
           
