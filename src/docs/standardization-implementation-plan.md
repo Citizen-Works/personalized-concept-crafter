@@ -20,11 +20,11 @@ This document outlines the step-by-step approach to implementing the codebase st
 1. ✅ Create shared card components
 2. ✅ Create shared badge components
 3. ✅ Refactor idea list views to use shared components
-4. ☐ Refactor draft list views to use shared components
+4. ✅ Refactor draft list views to use shared components
 5. ☐ Refactor document list views to use shared components
 6. ☐ Add Storybook documentation for shared components
 
-### Estimated Timeline: 2 weeks (In Progress)
+### Estimated Timeline: 2 weeks (Mostly Complete)
 
 ## Phase 3: Data Model Alignment
 
@@ -131,12 +131,15 @@ After each phase:
 8. ✅ Created shared IdeaContentCard component for idea list views
 9. ✅ Refactored IdeasTab and IdeasList to use shared components
 10. ✅ Updated RecentIdeasCard to use shared components
+11. ✅ Created shared DraftContentCard component for draft list views
+12. ✅ Refactored DraftListMobile and DraftListTable to use shared components
+13. ✅ Fixed TypeScript errors in components using debubPrompt function
 
 ## Next Steps
 
-1. Continue with Phase 2: Component Consolidation
-   - Refactor draft list views to use shared components
-   - Create consistent draft card components for content pipelines
+1. Complete Phase 2: Component Consolidation
+   - Refactor document list views to use shared components
+   - Add Storybook documentation for shared components
    
 2. Progress on Phase 3: Data Model Alignment
    - Standardize response processing from API calls

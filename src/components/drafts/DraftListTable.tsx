@@ -10,14 +10,14 @@ import {
   TableRow 
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { 
   Edit, 
   ArrowRight, 
   Trash,
   MoreHorizontal,
-  Clock
+  Clock,
+  Copy
 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { 
@@ -27,7 +27,8 @@ import {
   DropdownMenuTrigger 
 } from "@/components/ui/dropdown-menu";
 import { DraftWithIdea } from '@/hooks/useDrafts';
-import { getTypeBadgeClasses, getDraftStatusBadgeClasses } from '@/components/ideas/BadgeUtils';
+import { TypeBadge, StatusBadge } from '@/components/ui/StatusBadge';
+import { toast } from 'sonner';
 
 interface DraftListTableProps {
   drafts: DraftWithIdea[];
@@ -54,6 +55,14 @@ export const DraftListTable: React.FC<DraftListTableProps> = ({
       onDelete(draftId);
     }
   };
+  
+  const handleCopyContent = (content: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    e.preventDefault();
+    
+    navigator.clipboard.writeText(content);
+    toast.success("Content copied to clipboard");
+  };
 
   return (
     <div className="border rounded-md overflow-hidden">
@@ -72,7 +81,7 @@ export const DraftListTable: React.FC<DraftListTableProps> = ({
             <TableHead className="hidden md:table-cell">Version</TableHead>
             <TableHead className="hidden md:table-cell">Status</TableHead>
             <TableHead className="hidden md:table-cell">Created</TableHead>
-            <TableHead className="w-24">Actions</TableHead>
+            <TableHead className="w-[140px]">Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -99,19 +108,15 @@ export const DraftListTable: React.FC<DraftListTableProps> = ({
                 </div>
               </TableCell>
               <TableCell className="hidden md:table-cell p-4">
-                <Badge className={getTypeBadgeClasses(draft.contentType)}>
-                  {draft.contentType.charAt(0).toUpperCase() + draft.contentType.slice(1)}
-                </Badge>
+                <TypeBadge type={draft.contentType} />
               </TableCell>
               <TableCell className="hidden md:table-cell p-4">
-                <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-950 dark:text-blue-300 dark:border-blue-800">
+                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-50 text-blue-700 border border-blue-200">
                   v{draft.version}
-                </Badge>
+                </span>
               </TableCell>
               <TableCell className="hidden md:table-cell p-4">
-                <Badge className={getDraftStatusBadgeClasses(draft.status)}>
-                  {draft.status.charAt(0).toUpperCase() + draft.status.slice(1)}
-                </Badge>
+                <StatusBadge status={draft.status} type="draft" />
               </TableCell>
               <TableCell className="hidden md:table-cell text-muted-foreground p-4">
                 <div className="flex items-center gap-1">
@@ -125,6 +130,15 @@ export const DraftListTable: React.FC<DraftListTableProps> = ({
                     <Link to={`/drafts/${draft.id}`}>
                       <ArrowRight className="h-4 w-4" />
                     </Link>
+                  </Button>
+                  
+                  <Button 
+                    variant="ghost" 
+                    size="icon" 
+                    onClick={(e) => handleCopyContent(draft.content, e)}
+                    title="Copy content"
+                  >
+                    <Copy className="h-4 w-4" />
                   </Button>
                   
                   <DropdownMenu>

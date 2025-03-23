@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { ContentIdea, ContentStatus, ContentType } from '@/types';
+import { ContentIdea, ContentStatus } from '@/types';
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import IdeaCard from './IdeaCard';
 
@@ -10,7 +10,6 @@ interface KanbanColumnProps {
   status: ContentStatus;
   onDeleteIdea: (id: string) => void;
   getStatusBadgeClasses: (status: ContentStatus) => string;
-  getTypeBadgeClasses: (type: ContentType) => string;
 }
 
 const KanbanColumn: React.FC<KanbanColumnProps> = ({
@@ -18,8 +17,7 @@ const KanbanColumn: React.FC<KanbanColumnProps> = ({
   ideas,
   status,
   onDeleteIdea,
-  getStatusBadgeClasses,
-  getTypeBadgeClasses
+  getStatusBadgeClasses
 }) => {
   return (
     <Card className="flex flex-col h-full">
