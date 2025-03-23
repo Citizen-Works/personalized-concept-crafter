@@ -10,10 +10,11 @@ export function useAnalytics() {
   const { 
     fetchContentStatusCounts, 
     fetchWeeklyStats, 
-    fetchActivityFeed 
+    fetchActivityFeed,
+    isLoading 
   } = useAnalyticsApi();
-
-  // Extract data from the queries
+  
+  // Extract data from the queries with fallbacks for undefined data
   const contentStatusCounts = fetchContentStatusCounts.data || {
     ideas: 0,
     drafts: 0,
@@ -24,7 +25,7 @@ export function useAnalytics() {
   const weeklyStats = fetchWeeklyStats.data || [];
   const activityFeed = fetchActivityFeed.data || [];
   
-  // Loading states
+  // Loading states directly from React Query
   const isLoadingStatusCounts = fetchContentStatusCounts.isLoading;
   const isLoadingWeeklyStats = fetchWeeklyStats.isLoading;
   const isLoadingActivityFeed = fetchActivityFeed.isLoading;
