@@ -2,9 +2,9 @@
 /**
  * Content-related type definitions
  */
-export type ContentSource = 'manual' | 'meeting' | 'transcript' | 'ai' | 'other';
+export type ContentSource = 'manual' | 'meeting' | 'transcript' | 'document' | 'external' | 'ai' | 'other';
 export type ContentStatus = 'unreviewed' | 'approved' | 'rejected'; // Standard content idea statuses
-export type ContentType = 'linkedin' | 'newsletter' | 'marketing';
+export type ContentType = 'linkedin' | 'newsletter' | 'marketing' | 'social';
 export type DraftStatus = 'draft' | 'ready' | 'published' | 'archived'; // Status for drafts
 
 export interface ContentIdea {

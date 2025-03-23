@@ -1,6 +1,6 @@
 
 import { ContentIdea, ContentDraft, ContentStatus, DraftStatus, ContentType, ContentSource } from '@/types';
-import { isValidContentStatusTransition, isValidDraftStatusTransition } from './statusValidation';
+import { isValidContentStatusTransition, isValidDraftStatusTransition } from '@/types';
 
 /**
  * Validates a ContentIdea object
@@ -25,7 +25,7 @@ export const validateContentIdea = (idea: Partial<ContentIdea>): string[] => {
   }
   
   // Validate source value
-  const validSources: ContentSource[] = ['manual', 'meeting', 'document', 'external'];
+  const validSources: ContentSource[] = ['manual', 'meeting', 'transcript', 'document', 'external', 'ai', 'other'];
   if (idea.source && !validSources.includes(idea.source)) {
     errors.push(`Invalid source: ${idea.source}. Must be one of: ${validSources.join(', ')}`);
   }

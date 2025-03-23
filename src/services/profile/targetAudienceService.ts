@@ -24,10 +24,12 @@ export async function fetchTargetAudiences(userId: string): Promise<TargetAudien
         userId: transformedData.userId,
         name: transformedData.name,
         description: transformedData.description || '',
-        painPoints: transformedData.painPoints || [],
-        goals: transformedData.goals || [],
-        createdAt: new Date(transformedData.createdAt)
-      };
+        painPoints: transformedData.painPoints ? [...transformedData.painPoints] : [],
+        goals: transformedData.goals ? [...transformedData.goals] : [],
+        createdAt: new Date(transformedData.createdAt),
+        isArchived: transformedData.isArchived || false,
+        usageCount: transformedData.usageCount || 0
+      } as TargetAudience;
     });
   } catch (error) {
     console.error('Error fetching target audiences:', error);

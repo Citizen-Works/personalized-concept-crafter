@@ -11,9 +11,13 @@ import {
   getDraftStatusProps,
   getContentStatusClasses,
   getDraftStatusClasses,
+} from './status';
+
+// Import status validation functions
+import {
   isValidContentStatusTransition,
   isValidDraftStatusTransition
-} from './status';
+} from '@/utils/statusValidation';
 
 // Re-export status types
 export type { ContentStatus, DraftStatus, DocumentStatus, DocumentProcessingStatus };

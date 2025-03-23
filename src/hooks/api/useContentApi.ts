@@ -62,8 +62,8 @@ export const useContentIdeaApi = () => {
         status: transformedData.status as ContentStatus,
         hasBeenUsed: transformedData.hasBeenUsed,
         createdAt: new Date(transformedData.createdAt),
-        contentPillarIds: transformedData.contentPillarIds,
-        targetAudienceIds: transformedData.targetAudienceIds
+        contentPillarIds: transformedData.contentPillarIds || [],
+        targetAudienceIds: transformedData.targetAudienceIds || []
       });
       
       toast.success(`Idea updated to ${newStatus}`);
@@ -134,9 +134,9 @@ export const useContentDraftApi = () => {
         contentIdeaId: transformedData.contentIdeaId,
         content: transformedData.content,
         contentType: (transformedData.contentType || 'linkedin') as ContentType,
-        contentGoal: transformedData.contentGoal,
+        contentGoal: transformedData.contentGoal || undefined,
         version: transformedData.version,
-        feedback: transformedData.feedback,
+        feedback: transformedData.feedback || '',
         status: transformedData.status as DraftStatus,
         createdAt: new Date(transformedData.createdAt)
       });

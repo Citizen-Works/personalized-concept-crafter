@@ -1,10 +1,8 @@
 
 import { 
   ContentStatus, 
-  DraftStatus,
-  isValidContentStatusTransition,
-  isValidDraftStatusTransition
-} from '@/types/status';
+  DraftStatus
+} from '@/types';
 
 /**
  * Validates a content status value against allowed status values
@@ -72,4 +70,39 @@ export const validateDraftStatusChange = (
   }
 
   return { isValid: true };
+};
+
+/**
+ * Validates if an idea status transition is valid
+ */
+export const isValidContentStatusTransition = (
+  currentStatus: ContentStatus,
+  newStatus: ContentStatus
+): boolean => {
+  // Define valid transitions
+  const validTransitions: Record<ContentStatus, ContentStatus[]> = {
+    'unreviewed': ['approved', 'rejected'],
+    'approved': ['rejected'],
+    'rejected': ['approved']
+  };
+  
+  return validTransitions[currentStatus]?.includes(newStatus) || false;
+};
+
+/**
+ * Validates if a draft status transition is valid
+ */
+export const isValidDraftStatusTransition = (
+  currentStatus: DraftStatus,
+  newStatus: DraftStatus
+): boolean => {
+  // Define valid transitions
+  const validTransitions: Record<DraftStatus, DraftStatus[]> = {
+    'draft': ['ready', 'archived'],
+    'ready': ['published', 'draft', 'archived'],
+    'published': ['archived'],
+    'archived': ['draft']
+  };
+  
+  return validTransitions[currentStatus]?.includes(newStatus) || false;
 };
