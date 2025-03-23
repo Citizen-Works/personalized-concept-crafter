@@ -10,14 +10,15 @@ import { LinkedinPostCreateInput, LinkedinPostUpdateInput } from './linkedin-pos
 export function useLinkedinPostsApi() {
   const { 
     fetchLinkedinPosts, 
-    fetchLinkedinPostById
+    fetchLinkedinPostById,
+    isLoading: isFetchLoading 
   } = useFetchLinkedinPosts();
   
   const { 
     createLinkedinPost, 
     updateLinkedinPost, 
     deleteLinkedinPost,
-    isLoading 
+    isLoading: isMutationLoading 
   } = useLinkedinPostMutations();
   
   return {
@@ -31,7 +32,7 @@ export function useLinkedinPostsApi() {
     deleteLinkedinPost,
     
     // Loading state
-    isLoading
+    isLoading: isFetchLoading || isMutationLoading
   };
 }
 

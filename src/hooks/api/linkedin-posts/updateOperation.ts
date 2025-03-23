@@ -13,14 +13,13 @@ export const useUpdateLinkedinPost = () => {
   const { user } = useAuth();
   const { createMutation, invalidateQueries } = useTanstackApiQuery('LinkedinPostsApi');
 
-  const updateLinkedinPostMutation = createMutation<LinkedinPost, { id: string, updates: LinkedinPostUpdateInput }>(
+  const updateLinkedinPostMutation = createMutation<LinkedinPost, { id: string; updates: LinkedinPostUpdateInput }>(
     async ({ id, updates }) => {
       if (!user?.id) throw new Error("User not authenticated");
       
       // Convert any Date objects to ISO strings for Supabase
       const prepared = { ...updates };
       if (updates.publishedAt instanceof Date) {
-        // Fix: Convert Date to string for database storage
         prepared.publishedAt = updates.publishedAt.toISOString();
       }
       
@@ -35,7 +34,7 @@ export const useUpdateLinkedinPost = () => {
             ? null 
             : typeof prepared.publishedAt === 'string' 
               ? prepared.publishedAt 
-              : null // Fallback case, should not happen
+              : null
         })
         .eq("id", id)
         .eq("user_id", user.id) // Security check
@@ -50,10 +49,9 @@ export const useUpdateLinkedinPost = () => {
     {
       successMessage: 'LinkedIn post updated successfully',
       errorMessage: 'Failed to update LinkedIn post',
-      onSuccess: (data) => {
-        // Fix: Pass arrays instead of strings for queryKey
-        invalidateQueries([`linkedin-posts-${user?.id || 'anonymous'}`]);
-        invalidateQueries([`linkedin-post-${data.id}-${user?.id || 'anonymous'}`]);
+      onSuccess: () => {
+        invalidateQueries(['linkedinPosts', user?.id]);
+        invalidateQueries(['linkedinPost', undefined, user?.id]);
       }
     }
   );
