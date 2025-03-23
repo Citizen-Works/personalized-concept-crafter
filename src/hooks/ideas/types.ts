@@ -10,6 +10,8 @@ export interface IdeaCreateInput {
   sourceUrl?: string | null;
   status: ContentStatus;
   hasBeenUsed?: boolean; // Added to support marking an idea as used when it's created
+  contentPillarIds?: string[]; // Add this field
+  targetAudienceIds?: string[]; // Add this field
 }
 
 export interface IdeaUpdateInput {
@@ -21,4 +23,6 @@ export interface IdeaUpdateInput {
   sourceUrl?: string | null;
   status?: ContentStatus;
   hasBeenUsed?: boolean; // Added to support updating the hasBeenUsed field
+  contentPillarIds?: string[]; // Add this field
+  targetAudienceIds?: string[]; // Add this field
 }

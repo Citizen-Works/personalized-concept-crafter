@@ -124,6 +124,8 @@ export const updateIdea = async ({ id, ...updates }: { id: string } & IdeaUpdate
   if (updates.sourceUrl !== undefined) updateData.source_url = updates.sourceUrl;
   if (updates.status) updateData.status = updates.status; // This should accept 'rejected'
   if (updates.hasBeenUsed !== undefined) updateData.has_been_used = updates.hasBeenUsed; // Map to the database field
+  if (updates.contentPillarIds !== undefined) updateData.content_pillar_ids = updates.contentPillarIds;
+  if (updates.targetAudienceIds !== undefined) updateData.target_audience_ids = updates.targetAudienceIds;
 
   try {
     console.log("Updating idea with data:", updateData);
@@ -152,8 +154,8 @@ export const updateIdea = async ({ id, ...updates }: { id: string } & IdeaUpdate
       status: data.status as ContentStatus,
       hasBeenUsed: data.has_been_used || false, // Map from the database field
       createdAt: new Date(data.created_at),
-      contentPillarIds: [], // Default since field doesn't exist in DB yet
-      targetAudienceIds: [] // Default since field doesn't exist in DB yet
+      contentPillarIds: Array.isArray(data.content_pillar_ids) ? [...data.content_pillar_ids] : [], // Default since field doesn't exist in DB yet
+      targetAudienceIds: Array.isArray(data.target_audience_ids) ? [...data.target_audience_ids] : [] // Default since field doesn't exist in DB yet
     };
   } catch (error) {
     console.error("Error in updateIdea:", error);
