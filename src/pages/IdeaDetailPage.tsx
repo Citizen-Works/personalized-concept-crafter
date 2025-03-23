@@ -16,23 +16,24 @@ import IdeaDetailLoading from '@/components/ideas/IdeaDetailLoading';
 import IdeaDetailError from '@/components/ideas/IdeaDetailError';
 import { IdeaDraftsList } from '@/components/ideas/IdeaDraftsList';
 import IdeaEditor from '@/components/ideas/IdeaEditor';
+import Loading from '@/components/ui/loading';
 
 const IdeaDetailPage = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { getIdea, updateIdea, deleteIdea } = useIdeasAdapter();
+  const ideasAdapter = useIdeasAdapter();
   const { createDraft } = useDrafts();
   const [isEditorOpen, setIsEditorOpen] = useState(false);
   
   // Use the getIdea hook directly within the component body
-  const { data: idea, isLoading, isError } = getIdea(id || '');
+  const { data: idea, isLoading, isError } = ideasAdapter.getIdea(id || '');
   
   const handleDeleteIdea = async () => {
     if (!idea) return;
     
     if (window.confirm('Are you sure you want to delete this idea?')) {
       try {
-        await deleteIdea(idea.id);
+        await ideasAdapter.deleteIdea(idea.id);
         navigate('/ideas');
       } catch (error) {
         console.error('Error deleting idea:', error);
@@ -44,7 +45,7 @@ const IdeaDetailPage = () => {
     if (!idea) return;
     
     try {
-      await updateIdea({
+      await ideasAdapter.updateIdea({
         id: idea.id,
         status: 'approved'
       });
@@ -78,7 +79,7 @@ const IdeaDetailPage = () => {
       
       // Mark the idea as used
       if (!idea.hasBeenUsed) {
-        await updateIdea({
+        await ideasAdapter.updateIdea({
           id: idea.id,
           hasBeenUsed: true
         });

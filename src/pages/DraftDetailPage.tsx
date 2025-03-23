@@ -16,8 +16,8 @@ import { useDraftsAdapter } from '@/hooks/api/adapters/useDraftsAdapter';
 const DraftDetailPage = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { getDraft, updateDraft, deleteDraft } = useDraftsAdapter();
-  const { getIdea } = useIdeasAdapter();
+  const draftsAdapter = useDraftsAdapter();
+  const ideasAdapter = useIdeasAdapter();
   
   // Fetch the draft - ensure this is called directly in the component body
   const { 
@@ -25,20 +25,24 @@ const DraftDetailPage = () => {
     isLoading: isDraftLoading, 
     isError: isDraftError,
     error: draftError
-  } = getDraft(id || '');
+  } = draftsAdapter.getDraft(id || '');
   
-  // Fetch the associated idea if we have a contentIdeaId
-  // Only run the query when draft is loaded and has a contentIdeaId
+  // Only fetch the idea if we have a draft with a contentIdeaId
+  const contentIdeaId = draft?.contentIdeaId || '';
+  
+  // Fetch the associated idea only if we have a valid contentIdeaId
   const { 
     data: idea,
     isLoading: isIdeaLoading
-  } = getIdea(draft?.contentIdeaId || '');
+  } = ideasAdapter.getIdea(contentIdeaId, {
+    enabled: !!contentIdeaId && contentIdeaId !== '',
+  });
 
   // Handle updating the draft content
   const handleUpdateContent = async (content: string): Promise<void> => {
     if (!draft) return;
     try {
-      await updateDraft({
+      await draftsAdapter.updateDraft({
         id: draft.id,
         content
       });
@@ -52,7 +56,7 @@ const DraftDetailPage = () => {
   const handleCreateNewVersion = async (content: string) => {
     if (!draft) return;
     try {
-      await updateDraft({
+      await draftsAdapter.updateDraft({
         id: draft.id,
         content,
         version: (draft.version || 1) + 1
@@ -67,7 +71,7 @@ const DraftDetailPage = () => {
   // Handle deleting the draft
   const handleDeleteDraft = async (draftId: string): Promise<void> => {
     try {
-      await deleteDraft(draftId);
+      await draftsAdapter.deleteDraft(draftId);
       navigate('/drafts');
     } catch (error) {
       console.error('Error deleting draft:', error);
@@ -79,7 +83,7 @@ const DraftDetailPage = () => {
   const handleStatusChange = async (status: DraftStatus) => {
     if (!draft) return;
     try {
-      await updateDraft({
+      await draftsAdapter.updateDraft({
         id: draft.id,
         status
       });
