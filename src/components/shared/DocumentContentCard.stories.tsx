@@ -35,7 +35,7 @@ const sampleDocument: Document = {
   purpose: 'business_context',
   status: 'active',
   createdAt: new Date(),
-  updatedAt: new Date(),
+  content_type: null,
   has_ideas: true,
   ideas_count: 5,
 };
