@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { ContentIdea, ContentStatus, ContentType } from '@/types';
+import { ContentIdea, ContentStatus } from '@/types';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -17,18 +17,14 @@ interface IdeaCardProps {
   idea: ContentIdea;
   onDeleteIdea: (id: string) => void;
   getStatusBadgeClasses: (status: ContentStatus) => string;
-  getTypeBadgeClasses: (type: ContentType | null) => string;
   hideStatusBadge?: boolean;
-  hideTypeBadge?: boolean;
 }
 
 const IdeaCard: React.FC<IdeaCardProps> = ({ 
   idea, 
   onDeleteIdea,
   getStatusBadgeClasses,
-  getTypeBadgeClasses,
-  hideStatusBadge = false,
-  hideTypeBadge = false
+  hideStatusBadge = false
 }) => {
   return (
     <Card key={idea.id} className="overflow-hidden transition-all duration-200 hover:shadow-md">

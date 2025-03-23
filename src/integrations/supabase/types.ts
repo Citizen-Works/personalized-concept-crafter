@@ -85,6 +85,7 @@ export type Database = {
         Row: {
           content: string
           content_idea_id: string
+          content_type: string | null
           created_at: string
           feedback: string | null
           id: string
@@ -96,6 +97,7 @@ export type Database = {
         Insert: {
           content: string
           content_idea_id: string
+          content_type?: string | null
           created_at?: string
           feedback?: string | null
           id?: string
@@ -107,6 +109,7 @@ export type Database = {
         Update: {
           content?: string
           content_idea_id?: string
+          content_type?: string | null
           created_at?: string
           feedback?: string | null
           id?: string
@@ -127,7 +130,6 @@ export type Database = {
       }
       content_ideas: {
         Row: {
-          content_type: string | null
           created_at: string
           description: string | null
           has_been_used: boolean | null
@@ -144,7 +146,6 @@ export type Database = {
           user_id: string
         }
         Insert: {
-          content_type?: string | null
           created_at?: string
           description?: string | null
           has_been_used?: boolean | null
@@ -161,7 +162,6 @@ export type Database = {
           user_id: string
         }
         Update: {
-          content_type?: string | null
           created_at?: string
           description?: string | null
           has_been_used?: boolean | null

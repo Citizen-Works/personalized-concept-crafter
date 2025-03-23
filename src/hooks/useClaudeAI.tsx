@@ -1,125 +1,72 @@
 
 import { useState } from 'react';
 import { ContentIdea, ContentType } from '@/types';
-import { toast } from 'sonner';
-import { usePromptAssembly } from './usePromptAssembly';
-import { useAuth } from '@/context/auth';
-import { 
-  generateContentWithClaude, 
-  ClaudeErrorCategory, 
-  ClaudeErrorResponse 
-} from '../services/claudeAIService';
-import { useErrorHandling } from './useErrorHandling';
+import { buildBasePrompt, addContentIdeaToPrompt, addTaskToPrompt } from '@/utils/promptBuilder';
 
-/**
- * Hook for interacting with Claude AI to generate content
- * Enhanced with improved error handling for multi-tenant scenarios
- */
 export const useClaudeAI = () => {
   const [isGenerating, setIsGenerating] = useState(false);
-  const [error, setError] = useState<ClaudeErrorResponse | null>(null);
-  const [debugPrompt, setDebugPrompt] = useState<string | null>(null);
-  const { createFinalPrompt } = usePromptAssembly();
-  const { user } = useAuth();
-  const { handleError } = useErrorHandling('ClaudeAI');
+  const [error, setError] = useState<Error | null>(null);
+  const [lastPrompt, setLastPrompt] = useState<string | null>(null);
 
-  /**
-   * Generates content using Claude AI with enhanced error handling
-   */
+  // Generate content method now explicitly takes contentType as a separate parameter
   const generateContent = async (
-    idea: ContentIdea & { regenerationInstructions?: string },
+    idea: ContentIdea, 
     contentType: ContentType,
     debug = false
   ): Promise<string | null> => {
     setIsGenerating(true);
     setError(null);
-    setDebugPrompt(null);
-
+    
     try {
-      if (!user) {
-        throw {
-          message: 'User must be logged in to generate content',
-          category: ClaudeErrorCategory.AUTHORIZATION,
-          retryable: false
-        } as ClaudeErrorResponse;
-      }
+      // Build the prompt
+      let prompt = buildBasePrompt();
+      prompt = addContentIdeaToPrompt(prompt, idea);
+      prompt = addTaskToPrompt(prompt, contentType);
       
-      // Extract tenant ID from user email domain (simple approach)
-      const tenantId = user.email ? user.email.split('@')[1] : undefined;
+      // Store the prompt for debugging
+      setLastPrompt(prompt);
       
-      // Build the enhanced prompt using our prompt assembly system
-      let prompt = await createFinalPrompt(user.id, idea, contentType);
-      
-      // Add regeneration instructions if they exist
-      if (idea.regenerationInstructions) {
-        prompt += `\n\n# REGENERATION INSTRUCTIONS\nPlease improve the content based on the following feedback:\n${idea.regenerationInstructions}\n\n`;
-      }
-      
-      // If in debug mode, save the prompt and return it instead
+      // If in debug mode, don't make actual API call
       if (debug) {
-        setDebugPrompt(prompt);
-        setIsGenerating(false);
-        return prompt;
-      }
-
-      // Generate content using Claude AI with tenant awareness
-      const content = await generateContentWithClaude(prompt, contentType, idea, tenantId);
-      
-      return content;
-    } catch (err) {
-      // Handle different error types with appropriate UI feedback
-      const claudeError = err as ClaudeErrorResponse;
-      setError(claudeError);
-      
-      // Customize error message based on error category
-      let errorMessage = claudeError.message;
-      let severity: 'error' | 'warning' | 'info' = 'error';
-      
-      // Special handling for different error categories
-      switch (claudeError.category) {
-        case ClaudeErrorCategory.RATE_LIMIT:
-          errorMessage = 'Rate limit exceeded. Please try again in a few minutes.';
-          severity = 'warning';
-          break;
-        case ClaudeErrorCategory.CONTENT_POLICY:
-          errorMessage = 'Content policy violation detected. Please revise your input.';
-          break;
-        case ClaudeErrorCategory.AUTHORIZATION:
-          errorMessage = 'Authorization error. Please check your account settings.';
-          break;
-        case ClaudeErrorCategory.SERVER_ERROR:
-          errorMessage = 'Server error. Our team has been notified.';
-          break;
-        case ClaudeErrorCategory.NETWORK_ERROR:
-          errorMessage = 'Network connection issue. Please check your internet connection.';
-          severity = 'warning';
-          break;
-        case ClaudeErrorCategory.TIMEOUT:
-          errorMessage = 'Request timed out. Please try again.';
-          severity = 'warning';
-          break;
+        return null;
       }
       
-      // Use the error handling hook for consistent error handling
-      handleError(new Error(errorMessage), 'content generation', severity, {
-        tenantId: user?.email?.split('@')[1],
-        requestId: claudeError.requestId,
-        timestamp: claudeError.timestamp
+      // Call Claude API with the prompt
+      const response = await fetch('/api/claude', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          prompt,
+          contentType,
+        }),
       });
       
+      if (!response.ok) {
+        throw new Error(`API request failed with status ${response.status}`);
+      }
+      
+      const data = await response.json();
+      return data.content;
+    } catch (err) {
       console.error('Error generating content:', err);
+      setError(err as Error);
       return null;
     } finally {
       setIsGenerating(false);
     }
   };
-
+  
+  // For debugging purpose, expose the last prompt
+  const debugPrompt = () => {
+    return lastPrompt;
+  };
+  
   return {
     generateContent,
     isGenerating,
     error,
-    debugPrompt,
-    // Add helper method to check if error is retryable
-    canRetry: error?.retryable ?? false
+    debugPrompt
   };
 };

@@ -35,14 +35,9 @@ export const useFilteredIdeas = ({
         if (ideaDate > endDate) return false;
       }
       
-      // Apply content type filter if specified
-      if (contentTypeFilter !== "all") {
-        // Looking at the ContentIdea type definition, there's no contentType property
-        // Instead, we should check for the relevant property if it exists in the future
-        // For now, we'll skip this filter since the property doesn't exist
-        // TODO: Update this when contentType is added to ContentIdea type
-        // return false if no contentType match
-      }
+      // Skip content type filtering since content_type is now on drafts, not ideas
+      // We'll need to join with drafts table if we want to filter by content type
+      // For now, we're just returning all ideas when a content type filter is set
       
       return true;
     });

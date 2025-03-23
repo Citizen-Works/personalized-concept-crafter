@@ -1,10 +1,9 @@
 
 import React from 'react';
 import { ContentCard } from './ContentCard';
-import { ContentIdea, ContentStatus, ContentType } from '@/types';
+import { ContentIdea, ContentStatus } from '@/types';
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
-import { getContentStatusClasses } from '@/types/status';
 import { Link } from 'react-router-dom';
 import { Trash, Lightbulb, CheckCircle } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -105,7 +104,6 @@ export const IdeaContentCard: React.FC<IdeaContentCardProps> = ({
       description={idea.description}
       status={idea.status}
       statusType="content"
-      // Remove the contentType prop since it doesn't exist on ContentIdea
       createdAt={createdDate}
       detailPath={`/ideas/${idea.id}`}
       actions={actions}

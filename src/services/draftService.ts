@@ -17,8 +17,7 @@ export const fetchDrafts = async (userId: string): Promise<DraftWithIdea[]> => {
     .select(`
       *,
       content_ideas:content_idea_id (
-        title,
-        content_type
+        title
       )
     `)
     .order("created_at", { ascending: false });
@@ -35,7 +34,7 @@ export const fetchDrafts = async (userId: string): Promise<DraftWithIdea[]> => {
     content: item.content,
     version: item.version,
     feedback: item.feedback || "",
-    contentType: (item.content_ideas?.content_type as ContentType) || "linkedin",
+    contentType: (item.content_type as ContentType) || "linkedin",
     status: (item.status || "draft") as DraftStatus,
     createdAt: new Date(item.created_at)
   }));
@@ -49,8 +48,7 @@ export const fetchDraftsByIdeaId = async (ideaId: string, userId: string): Promi
     .select(`
       *,
       content_ideas:content_idea_id (
-        title,
-        content_type
+        title
       )
     `)
     .eq("content_idea_id", ideaId)
@@ -68,7 +66,7 @@ export const fetchDraftsByIdeaId = async (ideaId: string, userId: string): Promi
     content: item.content,
     version: item.version,
     feedback: item.feedback || "",
-    contentType: (item.content_ideas?.content_type as ContentType) || "linkedin",
+    contentType: (item.content_type as ContentType) || "linkedin",
     status: (item.status || "draft") as DraftStatus,
     createdAt: new Date(item.created_at)
   }));
@@ -82,8 +80,7 @@ export const fetchDraftById = async (id: string, userId: string): Promise<DraftW
     .select(`
       *,
       content_ideas:content_idea_id (
-        title,
-        content_type
+        title
       )
     `)
     .eq("id", id)
@@ -101,7 +98,7 @@ export const fetchDraftById = async (id: string, userId: string): Promise<DraftW
     content: data.content,
     version: data.version,
     feedback: data.feedback || "",
-    contentType: (data.content_ideas?.content_type as ContentType) || "linkedin",
+    contentType: (data.content_type as ContentType) || "linkedin",
     status: (data.status || "draft") as DraftStatus,
     createdAt: new Date(data.created_at)
   };
@@ -116,13 +113,12 @@ export const createDraft = async (
   // Ensure we're using the standardized status values
   const validStatus: DraftStatus = draft.status || "draft";
 
-  const { contentType, ...draftData } = draft as any;
-
   console.log("Creating draft with data:", {
-    content_idea_id: draftData.contentIdeaId,
-    content: draftData.content,
-    version: draftData.version,
-    feedback: draftData.feedback,
+    content_idea_id: draft.contentIdeaId,
+    content: draft.content,
+    content_type: draft.contentType, // Send content_type to the database
+    version: draft.version,
+    feedback: draft.feedback,
     status: validStatus
   });
 
@@ -130,10 +126,11 @@ export const createDraft = async (
     .from("content_drafts")
     .insert([
       {
-        content_idea_id: draftData.contentIdeaId,
-        content: draftData.content,
-        version: draftData.version,
-        feedback: draftData.feedback,
+        content_idea_id: draft.contentIdeaId,
+        content: draft.content,
+        content_type: draft.contentType, // Store content_type in the database
+        version: draft.version,
+        feedback: draft.feedback,
         status: validStatus
       }
     ])
@@ -161,6 +158,7 @@ export const updateDraft = async (
   if (draft.feedback !== undefined) updates.feedback = draft.feedback;
   if (draft.version !== undefined) updates.version = draft.version;
   if (draft.status !== undefined) updates.status = draft.status;
+  if (draft.contentType !== undefined) updates.content_type = draft.contentType;
 
   const { data, error } = await supabase
     .from("content_drafts")

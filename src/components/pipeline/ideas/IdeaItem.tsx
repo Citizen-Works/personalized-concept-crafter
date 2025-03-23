@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { ContentIdea, ContentType } from '@/types';
+import { ContentIdea, ContentStatus } from '@/types';
 import { formatDistanceToNow } from 'date-fns';
 import { Card, CardHeader, CardContent, CardFooter, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -18,7 +18,6 @@ interface IdeaItemProps {
   onToggleSelect: (id: string) => void;
   onDelete: (id: string) => void;
   getStatusBadgeClasses: (status: string) => string;
-  getTypeBadgeClasses: (type: ContentType | null) => string;
 }
 
 export const IdeaItem: React.FC<IdeaItemProps> = ({
@@ -27,8 +26,7 @@ export const IdeaItem: React.FC<IdeaItemProps> = ({
   isUpdating,
   onToggleSelect,
   onDelete,
-  getStatusBadgeClasses,
-  getTypeBadgeClasses
+  getStatusBadgeClasses
 }) => {
   const isMobile = useIsMobile();
   
