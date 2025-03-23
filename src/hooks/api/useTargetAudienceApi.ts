@@ -34,5 +34,5 @@ export const useTargetAudienceApi = (): TargetAudienceApiResponse => {
   };
 };
 
-// Re-export types for easier imports
-export { TargetAudienceCreateInput, TargetAudienceUpdateInput } from './target-audience/types';
+// Re-export types for easier imports - using 'export type' for isolatedModules compatibility
+export type { TargetAudienceCreateInput, TargetAudienceUpdateInput } from './target-audience/types';

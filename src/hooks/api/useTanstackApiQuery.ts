@@ -41,7 +41,7 @@ export function useTanstackApiQuery(componentName: string) {
       ...queryOptions 
     } = options || {};
 
-    // Ensure queryKey is provided - this is required by TanStack Query
+    // Create a final options object with required queryKey
     const finalOptions: UseQueryOptions<TData, TError> = {
       ...(queryOptions as UseQueryOptions<TData, TError>)
     };
@@ -51,27 +51,26 @@ export function useTanstackApiQuery(componentName: string) {
       finalOptions.queryKey = [`${componentName}-${action}`];
     }
 
+    // Wrap the queryFn to handle errors
+    const wrappedQueryFn = async () => {
+      try {
+        return await queryFn();
+      } catch (error) {
+        // Handle the error and propagate it for React Query
+        handleError(
+          error, 
+          action, 
+          'error', 
+          { componentName }
+        );
+        throw error;
+      }
+    };
+
+    // Use Tanstack's useQuery with our wrapped function
     return useQuery<TData, TError>({
       ...finalOptions,
-      queryFn: async () => {
-        try {
-          return await queryFn();
-        } catch (error) {
-          // Handle the error and propagate it for React Query
-          handleError(
-            error, 
-            action, 
-            'error', 
-            { componentName }
-          );
-          throw error;
-        }
-      },
-      onSuccess: (data) => {
-        if (finalOptions.onSuccess) {
-          finalOptions.onSuccess(data);
-        }
-      },
+      queryFn: wrappedQueryFn,
       onError: (error) => {
         if (!suppressToast) {
           const message = errorMessage || `Failed to ${action}`;
@@ -79,8 +78,8 @@ export function useTanstackApiQuery(componentName: string) {
         }
         
         // Call the original onError if it exists
-        if (finalOptions.onError) {
-          finalOptions.onError(error);
+        if (queryOptions.onError) {
+          queryOptions.onError(error);
         }
       }
     });
