@@ -14,8 +14,8 @@ export const useFetchTargetAudiences = () => {
   const { createQuery } = useTanstackApiQuery('TargetAudienceApi');
 
   // Query to fetch all target audiences
-  const fetchTargetAudiencesQuery = (options?: Partial<UseQueryOptions>) => 
-    createQuery<TargetAudience[]>(
+  const fetchTargetAudiencesQuery = (options?: Partial<UseQueryOptions<TargetAudience[], Error>>) => 
+    createQuery<TargetAudience[], Error>(
       async () => {
         if (!user?.id) return [];
         
@@ -38,8 +38,8 @@ export const useFetchTargetAudiences = () => {
     );
   
   // Query to fetch a specific target audience by ID
-  const fetchTargetAudienceByIdQuery = (id: string, options?: Partial<UseQueryOptions>) => 
-    createQuery<TargetAudience | null>(
+  const fetchTargetAudienceByIdQuery = (id: string, options?: Partial<UseQueryOptions<TargetAudience | null, Error>>) => 
+    createQuery<TargetAudience | null, Error>(
       async () => {
         if (!user?.id || !id) return null;
         
@@ -66,8 +66,8 @@ export const useFetchTargetAudiences = () => {
     );
   
   // Query to fetch target audiences by ids
-  const fetchTargetAudiencesByIdsQuery = (ids: string[], options?: Partial<UseQueryOptions>) => 
-    createQuery<TargetAudience[]>(
+  const fetchTargetAudiencesByIdsQuery = (ids: string[], options?: Partial<UseQueryOptions<TargetAudience[], Error>>) => 
+    createQuery<TargetAudience[], Error>(
       async () => {
         if (!user?.id || ids.length === 0) return [];
         
