@@ -1,13 +1,13 @@
 
 import { TargetAudience } from '@/types';
-import { useAuth } from '@/context/auth';
 import { useTanstackApiQuery } from '../useTanstackApiQuery';
+import { useAuth } from '@/context/auth';
 import { supabase } from '@/integrations/supabase/client';
 import { transformToTargetAudience } from './transformUtils';
 import { TargetAudienceUpdateInput } from './types';
 
 /**
- * Hook for updating a target audience
+ * Hook for updating an existing target audience
  */
 export const useUpdateTargetAudience = () => {
   const { user } = useAuth();
@@ -17,21 +17,21 @@ export const useUpdateTargetAudience = () => {
     async ({ id, updates }) => {
       if (!user?.id) throw new Error("User not authenticated");
       
-      // Convert camelCase to snake_case directly
-      const requestData: Record<string, any> = {};
+      // Convert camelCase to snake_case for the database
+      const updateData: Record<string, any> = {};
       
-      if (updates.name !== undefined) requestData.name = updates.name;
-      if (updates.description !== undefined) requestData.description = updates.description;
-      if (updates.painPoints !== undefined) requestData.pain_points = updates.painPoints;
-      if (updates.goals !== undefined) requestData.goals = updates.goals;
-      if (updates.isArchived !== undefined) requestData.is_archived = updates.isArchived;
-      if (updates.usageCount !== undefined) requestData.usage_count = updates.usageCount;
+      if (updates.name !== undefined) updateData.name = updates.name;
+      if (updates.description !== undefined) updateData.description = updates.description;
+      if (updates.painPoints !== undefined) updateData.pain_points = updates.painPoints;
+      if (updates.goals !== undefined) updateData.goals = updates.goals;
+      if (updates.isArchived !== undefined) updateData.is_archived = updates.isArchived;
+      if (updates.usageCount !== undefined) updateData.usage_count = updates.usageCount;
       
       const { data, error } = await supabase
         .from("target_audiences")
-        .update(requestData)
+        .update(updateData)
         .eq("id", id)
-        .eq("user_id", user.id) // Security check
+        .eq("user_id", user.id)
         .select()
         .single();
         
@@ -43,8 +43,9 @@ export const useUpdateTargetAudience = () => {
     {
       successMessage: 'Target audience updated successfully',
       errorMessage: 'Failed to update target audience',
-      onSuccess: () => {
+      onSuccess: (_, { id }) => {
         invalidateQueries(['targetAudiences', user?.id]);
+        invalidateQueries(['targetAudience', id]);
       }
     }
   );

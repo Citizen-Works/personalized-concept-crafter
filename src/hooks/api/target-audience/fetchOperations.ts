@@ -1,102 +1,115 @@
 
 import { TargetAudience } from '@/types';
-import { useAuth } from '@/context/auth';
 import { useTanstackApiQuery } from '../useTanstackApiQuery';
+import { UseQueryOptions } from '@tanstack/react-query';
+import { useAuth } from '@/context/auth';
 import { supabase } from '@/integrations/supabase/client';
 import { transformToTargetAudience } from './transformUtils';
-import { UseQueryOptions } from '@tanstack/react-query';
 
 /**
- * Hook for fetching target audience data
+ * Hook containing target audience fetch operations
  */
 export const useFetchTargetAudiences = () => {
   const { user } = useAuth();
   const { createQuery } = useTanstackApiQuery('TargetAudienceApi');
 
-  // Query to fetch all target audiences
+  /**
+   * Fetch all target audiences for the current user
+   */
+  const fetchTargetAudiences = async (): Promise<TargetAudience[]> => {
+    if (!user?.id) return [];
+    
+    const { data, error } = await supabase
+      .from('target_audiences')
+      .select('*')
+      .eq('user_id', user.id);
+    
+    if (error) throw error;
+    
+    return data.map(transformToTargetAudience);
+  };
+  
+  /**
+   * Fetch a single target audience by ID
+   */
+  const fetchTargetAudienceById = async (id: string): Promise<TargetAudience> => {
+    if (!user?.id) throw new Error("User not authenticated");
+    
+    const { data, error } = await supabase
+      .from('target_audiences')
+      .select('*')
+      .eq('id', id)
+      .eq('user_id', user.id)
+      .single();
+    
+    if (error) throw error;
+    
+    return transformToTargetAudience(data);
+  };
+  
+  /**
+   * Fetch multiple target audiences by IDs
+   */
+  const fetchTargetAudiencesByIds = async (ids: string[]): Promise<TargetAudience[]> => {
+    if (!user?.id || !ids.length) return [];
+    
+    const { data, error } = await supabase
+      .from('target_audiences')
+      .select('*')
+      .eq('user_id', user.id)
+      .in('id', ids);
+    
+    if (error) throw error;
+    
+    return data.map(transformToTargetAudience);
+  };
+
+  /**
+   * Query hook for fetching all target audiences
+   */
   const fetchTargetAudiencesQuery = (options?: Partial<UseQueryOptions<TargetAudience[], Error>>) => 
     createQuery<TargetAudience[], Error>(
-      async () => {
-        if (!user?.id) return [];
-        
-        const { data, error } = await supabase
-          .from("target_audiences")
-          .select("*")
-          .eq("user_id", user.id)
-          .order("name");
-          
-        if (error) throw error;
-        
-        return data.map(transformToTargetAudience);
-      },
-      'fetching target audiences',
+      fetchTargetAudiences,
+      'fetch-target-audiences',
       {
-        queryKey: ['targetAudiences', user?.id],
-        enabled: !!user,
+        enabled: !!user?.id,
         ...options
       }
     );
-  
-  // Query to fetch a specific target audience by ID
-  const fetchTargetAudienceByIdQuery = (id: string, options?: Partial<UseQueryOptions<TargetAudience | null, Error>>) => 
-    createQuery<TargetAudience | null, Error>(
-      async () => {
-        if (!user?.id || !id) return null;
-        
-        const { data, error } = await supabase
-          .from("target_audiences")
-          .select("*")
-          .eq("id", id)
-          .eq("user_id", user.id)
-          .single();
-          
-        if (error) {
-          if (error.code === 'PGRST116') return null; // No data found
-          throw error;
-        }
-        
-        return transformToTargetAudience(data);
-      },
-      'fetching target audience by id',
+
+  /**
+   * Query hook for fetching a single target audience by ID
+   */
+  const fetchTargetAudienceByIdQuery = (id: string, options?: Partial<UseQueryOptions<TargetAudience, Error>>) => 
+    createQuery<TargetAudience, Error>(
+      () => fetchTargetAudienceById(id),
+      'fetch-target-audience-by-id',
       {
-        queryKey: ['targetAudience', id, user?.id],
-        enabled: !!user && !!id,
+        enabled: !!user?.id && !!id,
         ...options
       }
     );
-  
-  // Query to fetch target audiences by ids
+
+  /**
+   * Query hook for fetching multiple target audiences by IDs
+   */
   const fetchTargetAudiencesByIdsQuery = (ids: string[], options?: Partial<UseQueryOptions<TargetAudience[], Error>>) => 
     createQuery<TargetAudience[], Error>(
-      async () => {
-        if (!user?.id || ids.length === 0) return [];
-        
-        const { data, error } = await supabase
-          .from("target_audiences")
-          .select("*")
-          .eq("user_id", user.id)
-          .in("id", ids)
-          .order("name");
-          
-        if (error) throw error;
-        
-        return data.map(transformToTargetAudience);
-      },
-      'fetching target audiences by ids',
+      () => fetchTargetAudiencesByIds(ids),
+      'fetch-target-audiences-by-ids',
       {
-        queryKey: ['targetAudiences', 'byIds', ids, user?.id],
-        enabled: !!user && ids.length > 0,
+        enabled: !!user?.id && ids.length > 0,
         ...options
       }
     );
   
-  // Create a base query to monitor loading state
+  // Create base queries to monitor loading state
   const baseQuery = fetchTargetAudiencesQuery();
   
   return {
-    fetchTargetAudiences: fetchTargetAudiencesQuery,
-    fetchTargetAudienceById: fetchTargetAudienceByIdQuery,
-    fetchTargetAudiencesByIds: fetchTargetAudiencesByIdsQuery,
+    fetchTargetAudiences: baseQuery,
+    fetchTargetAudienceById: (id: string) => fetchTargetAudienceByIdQuery(id),
+    fetchTargetAudiencesByIds: (ids: string[]) => fetchTargetAudiencesByIdsQuery(ids),
     isLoading: baseQuery.isLoading
   };
 };

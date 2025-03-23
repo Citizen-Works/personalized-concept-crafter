@@ -1,23 +1,41 @@
 
 import { TargetAudience } from '@/types';
 import { useTanstackApiQuery } from '../useTanstackApiQuery';
-import { useUpdateTargetAudience } from './updateOperation';
+import { useAuth } from '@/context/auth';
+import { supabase } from '@/integrations/supabase/client';
+import { transformToTargetAudience } from './transformUtils';
 
 /**
- * Hook for archiving a target audience (soft delete)
+ * Hook for archiving a target audience
  */
 export const useArchiveTargetAudience = () => {
-  const { createMutation } = useTanstackApiQuery('TargetAudienceApi');
-  const { updateTargetAudience } = useUpdateTargetAudience();
+  const { user } = useAuth();
+  const { createMutation, invalidateQueries } = useTanstackApiQuery('TargetAudienceApi');
 
   const archiveTargetAudienceMutation = createMutation<TargetAudience, string>(
     async (id) => {
-      return updateTargetAudience(id, { isArchived: true });
+      if (!user?.id) throw new Error("User not authenticated");
+      
+      const { data, error } = await supabase
+        .from("target_audiences")
+        .update({ is_archived: true })
+        .eq("id", id)
+        .eq("user_id", user.id)
+        .select()
+        .single();
+        
+      if (error) throw error;
+      
+      return transformToTargetAudience(data);
     },
     'archiving target audience',
     {
-      successMessage: 'Target audience archived successfully',
-      errorMessage: 'Failed to archive target audience'
+      successMessage: 'Target audience archived',
+      errorMessage: 'Failed to archive target audience',
+      onSuccess: (_, id) => {
+        invalidateQueries(['targetAudiences', user?.id]);
+        invalidateQueries(['targetAudience', id]);
+      }
     }
   );
   

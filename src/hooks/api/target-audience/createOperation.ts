@@ -1,7 +1,7 @@
 
 import { TargetAudience } from '@/types';
-import { useAuth } from '@/context/auth';
 import { useTanstackApiQuery } from '../useTanstackApiQuery';
+import { useAuth } from '@/context/auth';
 import { supabase } from '@/integrations/supabase/client';
 import { transformToTargetAudience } from './transformUtils';
 import { TargetAudienceCreateInput } from './types';
@@ -17,18 +17,18 @@ export const useCreateTargetAudience = () => {
     async (input) => {
       if (!user?.id) throw new Error("User not authenticated");
       
-      // Create the request data with appropriate field names
-      const requestData = {
+      // Convert camelCase to snake_case for the database
+      const audienceData = {
+        user_id: user.id,
         name: input.name,
-        description: input.description,
-        pain_points: input.painPoints,
-        goals: input.goals,
-        user_id: user.id
+        description: input.description || null,
+        pain_points: input.painPoints || [],
+        goals: input.goals || []
       };
       
       const { data, error } = await supabase
         .from("target_audiences")
-        .insert(requestData)
+        .insert([audienceData])
         .select()
         .single();
         
@@ -46,8 +46,8 @@ export const useCreateTargetAudience = () => {
     }
   );
   
-  const createTargetAudience = async (audience: TargetAudienceCreateInput): Promise<TargetAudience> => {
-    return createTargetAudienceMutation.mutateAsync(audience);
+  const createTargetAudience = async (input: TargetAudienceCreateInput): Promise<TargetAudience> => {
+    return createTargetAudienceMutation.mutateAsync(input);
   };
 
   return {

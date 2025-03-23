@@ -1,99 +1,86 @@
 
 import { ActivityFeedItem } from '@/types';
-import { supabase } from '@/integrations/supabase/client';
-import { measurePerformance } from '@/utils/monitoringUtils';
 import { UseQueryOptions } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/context/auth';
 
 /**
- * Fetch activity feed
+ * Fetches activity feed for the dashboard
  */
 export const fetchActivityFeed = async (): Promise<ActivityFeedItem[]> => {
-  return await measurePerformance('fetchActivityFeed', async () => {
-    const { data: { user } } = await supabase.auth.getUser();
-    const userId = user?.id;
-    if (!userId) throw new Error('User not authenticated');
+  const { user } = useAuth.getState();
+  
+  if (!user?.id) {
+    return [];
+  }
 
-    // Query recent ideas and drafts to build an activity feed
-    const [ideasResponse, draftsResponse] = await Promise.all([
-      supabase
-        .from('content_ideas')
-        .select('id, title, created_at, updated_at, status')
-        .eq('user_id', userId)
-        .order('updated_at', { ascending: false })
-        .limit(5),
+  // Create an array to store all activity items
+  const activityItems: ActivityFeedItem[] = [];
 
-      supabase
-        .from('content_drafts')
-        .select('id, content_idea_id, created_at, updated_at, status')
-        .eq('user_id', userId)
-        .order('updated_at', { ascending: false })
-        .limit(5)
-    ]);
+  // Get recent content ideas
+  const { data: ideas, error: ideasError } = await supabase
+    .from('content_ideas')
+    .select('id, title, created_at, status_changed_at')
+    .eq('user_id', user.id)
+    .order('created_at', { ascending: false })
+    .limit(10);
+    
+  if (ideasError) {
+    console.error('Error fetching recent ideas:', ideasError);
+  } else {
+    // Add ideas to activity feed
+    ideas?.forEach(idea => {
+      activityItems.push({
+        id: `idea-${idea.id}`,
+        type: 'idea',
+        action: 'created',
+        title: idea.title,
+        timestamp: new Date(idea.created_at),
+        entityId: idea.id,
+        route: `/ideas/${idea.id}`
+      });
+    });
+  }
 
-    if (ideasResponse.error) throw ideasResponse.error;
-    if (draftsResponse.error) throw draftsResponse.error;
-
-    // Process ideas into activity items
-    const ideaActivities = (ideasResponse.data || []).map(idea => ({
-      id: `idea-${idea.id}`,
-      type: 'idea' as const,
-      action: idea.created_at === idea.updated_at ? 'created' as const : 'updated' as const,
-      title: idea.title || 'Untitled Idea',
-      timestamp: new Date(idea.updated_at),
-      entityId: idea.id,
-      route: `/ideas/${idea.id}`
-    }));
-
-    // Get idea titles for drafts
-    const ideaIds = draftsResponse.data?.map(draft => draft.content_idea_id) || [];
-    const ideasForDrafts = ideaIds.length > 0
-      ? await supabase
-          .from('content_ideas')
-          .select('id, title')
-          .in('id', ideaIds)
-      : { data: [] };
-
-    // Create a map of idea IDs to titles for quick lookup
-    const ideaTitlesMap = (ideasForDrafts.data || []).reduce(
-      (map, idea) => ({ ...map, [idea.id]: idea.title }), 
-      {} as Record<string, string>
-    );
-
-    // Process drafts into activity items
-    const draftActivities = (draftsResponse.data || []).map(draft => {
-      const ideaTitle = ideaTitlesMap[draft.content_idea_id] || 'Untitled Idea';
-      const isPublished = draft.status === 'published';
+  // Get recent drafts
+  const { data: drafts, error: draftsError } = await supabase
+    .from('content_drafts')
+    .select('id, content_idea_id, created_at, status, updated_at')
+    .eq('user_id', user.id)
+    .order('created_at', { ascending: false })
+    .limit(10);
+    
+  if (draftsError) {
+    console.error('Error fetching recent drafts:', draftsError);
+  } else {
+    // Add drafts to activity feed
+    drafts?.forEach(draft => {
+      const action = draft.status === 'published' ? 'published' : 'created';
+      const type = draft.status === 'published' ? 'published' : 'draft';
       
-      return {
+      activityItems.push({
         id: `draft-${draft.id}`,
-        type: isPublished ? 'published' as const : 'draft' as const,
-        action: isPublished ? 'published' as const : 
-               (draft.created_at === draft.updated_at ? 'created' as const : 'updated' as const),
-        title: ideaTitle,
-        timestamp: new Date(draft.updated_at),
+        type,
+        action,
+        title: `Draft #${draft.id.substring(0, 6)}`,
+        timestamp: new Date(draft.status === 'published' ? draft.updated_at : draft.created_at),
         entityId: draft.id,
         route: `/drafts/${draft.id}`
-      };
+      });
     });
+  }
 
-    // Combine and sort all activities by timestamp
-    const allActivities = [...ideaActivities, ...draftActivities]
-      .sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime())
-      .slice(0, 10); // Take the most recent 10 activities
-
-    return allActivities;
-  });
+  // Sort all activity items by timestamp (newest first)
+  return activityItems
+    .sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime())
+    .slice(0, 15); // Return only the 15 most recent items
 };
 
 /**
- * Create fetchActivityFeed query options
+ * Query options for activity feed
  */
-export const getFetchActivityFeedOptions = (
-  options?: Partial<UseQueryOptions<ActivityFeedItem[], Error>>
-): Partial<UseQueryOptions<ActivityFeedItem[], Error>> => {
-  return {
-    queryKey: ['analytics', 'activity-feed'],
-    staleTime: 1000 * 60 * 5, // 5 minutes
-    ...options
-  };
-};
+export const getFetchActivityFeedOptions = (options?: Partial<UseQueryOptions<ActivityFeedItem[], Error>>) => ({
+  queryKey: ['activity-feed'],
+  staleTime: 1000 * 60 * 5, // 5 minutes
+  ...options
+});

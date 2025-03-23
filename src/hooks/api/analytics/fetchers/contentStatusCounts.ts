@@ -1,67 +1,73 @@
 
 import { ContentStatusCounts } from '@/types';
-import { supabase } from '@/integrations/supabase/client';
-import { measurePerformance } from '@/utils/monitoringUtils';
 import { UseQueryOptions } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/context/auth';
 
 /**
- * Fetch content status counts
+ * Fetches content status counts for the dashboard
  */
 export const fetchContentStatusCounts = async (): Promise<ContentStatusCounts> => {
-  return await measurePerformance('fetchContentStatusCounts', async () => {
-    const { data: { user } } = await supabase.auth.getUser();
-    const userId = user?.id;
-    if (!userId) throw new Error('User not authenticated');
-
-    // Fetch counts in parallel for better performance
-    const [ideasResponse, draftsResponse, publishedResponse] = await Promise.all([
-      supabase
-        .from('content_ideas')
-        .select('id', { count: 'exact', head: true })
-        .eq('user_id', userId),
-
-      supabase
-        .from('content_drafts')
-        .select('id', { count: 'exact', head: true })
-        .eq('user_id', userId),
-
-      supabase
-        .from('content_drafts')
-        .select('id', { count: 'exact', head: true })
-        .eq('user_id', userId)
-        .eq('status', 'published')
-    ]);
-
-    // Get review queue count (ideas with status 'pending_review')
-    const reviewQueueResponse = await supabase
-      .from('content_ideas')
-      .select('id', { count: 'exact', head: true })
-      .eq('user_id', userId)
-      .eq('status', 'pending_review');
-
-    if (ideasResponse.error) throw ideasResponse.error;
-    if (draftsResponse.error) throw draftsResponse.error;
-    if (publishedResponse.error) throw publishedResponse.error;
-    if (reviewQueueResponse.error) throw reviewQueueResponse.error;
-
+  const { user } = useAuth.getState();
+  
+  if (!user?.id) {
     return {
-      ideas: ideasResponse.count || 0,
-      drafts: draftsResponse.count || 0,
-      published: publishedResponse.count || 0,
-      reviewQueue: reviewQueueResponse.count || 0
+      ideas: 0,
+      drafts: 0,
+      published: 0,
+      reviewQueue: 0
     };
-  });
+  }
+
+  // Get ideas count
+  const { count: ideasCount, error: ideasError } = await supabase
+    .from('content_ideas')
+    .select('*', { count: 'exact', head: true })
+    .eq('user_id', user.id)
+    .eq('status', 'approved');
+    
+  if (ideasError) console.error('Error fetching ideas count:', ideasError);
+
+  // Get drafts count
+  const { count: draftsCount, error: draftsError } = await supabase
+    .from('content_drafts')
+    .select('*', { count: 'exact', head: true })
+    .eq('user_id', user.id)
+    .eq('status', 'draft');
+    
+  if (draftsError) console.error('Error fetching drafts count:', draftsError);
+
+  // Get published count
+  const { count: publishedCount, error: publishedError } = await supabase
+    .from('content_drafts')
+    .select('*', { count: 'exact', head: true })
+    .eq('user_id', user.id)
+    .eq('status', 'published');
+    
+  if (publishedError) console.error('Error fetching published count:', publishedError);
+
+  // Get review queue count
+  const { count: reviewCount, error: reviewError } = await supabase
+    .from('content_drafts')
+    .select('*', { count: 'exact', head: true })
+    .eq('user_id', user.id)
+    .eq('status', 'review');
+    
+  if (reviewError) console.error('Error fetching review count:', reviewError);
+
+  return {
+    ideas: ideasCount || 0,
+    drafts: draftsCount || 0,
+    published: publishedCount || 0,
+    reviewQueue: reviewCount || 0
+  };
 };
 
 /**
- * Create fetchContentStatusCounts query options
+ * Query options for content status counts
  */
-export const getFetchContentStatusCountsOptions = (
-  options?: Partial<UseQueryOptions<ContentStatusCounts, Error>>
-): Partial<UseQueryOptions<ContentStatusCounts, Error>> => {
-  return {
-    queryKey: ['analytics', 'content-status-counts'],
-    staleTime: 1000 * 60 * 5, // 5 minutes
-    ...options
-  };
-};
+export const getFetchContentStatusCountsOptions = (options?: Partial<UseQueryOptions<ContentStatusCounts, Error>>) => ({
+  queryKey: ['content-status-counts'],
+  staleTime: 1000 * 60 * 5, // 5 minutes
+  ...options
+});
