@@ -1,12 +1,11 @@
 
 import React from 'react';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { FileText, Calendar, AlignLeft, BrainCircuit, PlusCircle, Upload, Mic, Loader2, XCircle } from "lucide-react";
-import { format } from "date-fns";
 import { Document } from "@/types";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Badge } from "@/components/ui/badge";
+import { DocumentContentCard } from '@/components/shared';
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { FileText, PlusCircle, Upload, Mic } from "lucide-react";
 
 interface TranscriptListProps {
   documents: Document[];
@@ -47,79 +46,15 @@ const TranscriptList: React.FC<TranscriptListProps> = ({
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-      {documents.map((doc) => {
-        const isCurrentlyProcessing = isDocumentProcessing(doc.id) || doc.processing_status === 'processing';
-        
-        return (
-          <Card key={doc.id} className="overflow-hidden">
-            <CardHeader>
-              <div className="flex justify-between items-start">
-                <CardTitle className="line-clamp-1 text-lg">{doc.title}</CardTitle>
-                {isCurrentlyProcessing ? (
-                  <Badge variant="outline" className="bg-yellow-50 text-yellow-700 border-yellow-300 flex items-center gap-1">
-                    <Loader2 className="h-3 w-3 animate-spin" />
-                    Processing
-                  </Badge>
-                ) : (
-                  doc.has_ideas && (
-                    <Badge variant="outline" className="bg-green-50 text-green-700 border-green-300">
-                      {doc.ideas_count} Ideas
-                    </Badge>
-                  )
-                )}
-              </div>
-              <CardDescription className="flex items-center gap-1">
-                <Calendar className="h-3 w-3" />
-                {format(doc.createdAt, "MMM d, yyyy")}
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm text-muted-foreground line-clamp-3">
-                {doc.content.substring(0, 150)}...
-              </p>
-            </CardContent>
-            <CardFooter className="flex justify-between gap-2">
-              <Button 
-                variant="outline" 
-                size="sm"
-                onClick={() => onView(doc.content)}
-              >
-                <AlignLeft className="h-4 w-4 mr-1" />
-                View
-              </Button>
-              {isCurrentlyProcessing && onCancelProcessing ? (
-                <Button 
-                  variant="destructive" 
-                  size="sm"
-                  onClick={() => onCancelProcessing(doc.id)}
-                >
-                  <XCircle className="h-4 w-4 mr-1" />
-                  Cancel
-                </Button>
-              ) : (
-                <Button 
-                  variant="default" 
-                  size="sm"
-                  onClick={() => onProcess(doc.id)}
-                  disabled={isCurrentlyProcessing || (isProcessing && selectedTranscript === doc.id)}
-                >
-                  {isCurrentlyProcessing ? (
-                    <>
-                      <Loader2 className="h-4 w-4 mr-1 animate-spin" />
-                      Processing...
-                    </>
-                  ) : (
-                    <>
-                      <BrainCircuit className="h-4 w-4 mr-1" />
-                      {doc.has_ideas ? "View Ideas" : "Extract Ideas"}
-                    </>
-                  )}
-                </Button>
-              )}
-            </CardFooter>
-          </Card>
-        );
-      })}
+      {documents.map((doc) => (
+        <DocumentContentCard
+          key={doc.id}
+          document={doc}
+          onView={() => onView(doc.content)}
+          onProcess={onProcess}
+          isProcessing={isDocumentProcessing(doc.id)}
+        />
+      ))}
     </div>
   );
 };

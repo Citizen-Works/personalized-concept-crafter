@@ -9,10 +9,11 @@ import {
   SelectTrigger, 
   SelectValue 
 } from "@/components/ui/select";
-import { Search, SortDesc, SlidersHorizontal } from "lucide-react";
-import DocumentCard from "@/components/documents/DocumentCard";
-import DocumentsEmptyState from "@/components/documents/DocumentsEmptyState";
+import { Search, SortDesc, SlidersHorizontal, Upload, Plus } from "lucide-react";
+import SourceMaterialsList from "./SourceMaterialsList";
+import { DocumentContentCard } from '@/components/shared';
 import { Document } from "@/types";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface SourceMaterialsContentProps {
   documents: Document[];
@@ -29,6 +30,7 @@ interface SourceMaterialsContentProps {
   onOpenAddText: () => void;
   onEditDocument: (document: Document) => void;
   isDocumentProcessing: (id: string) => boolean;
+  isLoading?: boolean;
 }
 
 const SourceMaterialsContent: React.FC<SourceMaterialsContentProps> = ({
@@ -45,19 +47,45 @@ const SourceMaterialsContent: React.FC<SourceMaterialsContentProps> = ({
   onOpenUpload,
   onOpenAddText,
   onEditDocument,
-  isDocumentProcessing
+  isDocumentProcessing,
+  isLoading = false
 }) => {
-  console.log('SourceMaterialsContent - documents:', documents);
-  console.log('SourceMaterialsContent - filteredDocuments:', filteredDocuments);
+  if (isLoading) {
+    return (
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {[1, 2, 3, 4, 5, 6].map((i) => (
+          <Skeleton key={i} className="h-[200px] w-full" />
+        ))}
+      </div>
+    );
+  }
 
   if (documents.length === 0) {
     return (
-      <DocumentsEmptyState
-        onOpenUpload={onOpenUpload}
-        onOpenAddText={onOpenAddText}
-      />
+      <div className="flex flex-col items-center justify-center p-8 text-center border rounded-lg bg-muted/10">
+        <h3 className="text-lg font-medium mb-2">No Source Materials Yet</h3>
+        <p className="text-sm text-muted-foreground mb-6 max-w-md">
+          Add source materials to extract content ideas and improve your content generation.
+        </p>
+        <div className="flex flex-wrap gap-2">
+          <Button variant="outline" onClick={onOpenAddText}>
+            <Plus className="h-4 w-4 mr-2" />
+            Add Text
+          </Button>
+          <Button onClick={onOpenUpload}>
+            <Upload className="h-4 w-4 mr-2" />
+            Upload Document
+          </Button>
+        </div>
+      </div>
     );
   }
+
+  const clearFilters = () => {
+    setSearchQuery("");
+    setMaterialType("all");
+    setSortOrder("newest");
+  };
 
   return (
     <div className="space-y-6">
@@ -101,34 +129,13 @@ const SourceMaterialsContent: React.FC<SourceMaterialsContentProps> = ({
         </Select>
       </div>
       
-      {filteredDocuments.length === 0 ? (
-        <div className="text-center py-10">
-          <p className="text-muted-foreground">No materials match your filters</p>
-          <Button 
-            variant="outline" 
-            className="mt-4"
-            onClick={() => {
-              setSearchQuery("");
-              setMaterialType("all");
-            }}
-          >
-            Clear Filters
-          </Button>
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredDocuments.map((doc) => (
-            <DocumentCard
-              key={doc.id}
-              document={doc}
-              onView={() => onViewDocument(doc.id)}
-              onProcess={onProcessTranscript}
-              isProcessing={isDocumentProcessing(doc.id)}
-              onEdit={onEditDocument}
-            />
-          ))}
-        </div>
-      )}
+      <SourceMaterialsList
+        filteredDocuments={filteredDocuments}
+        onViewDocument={onViewDocument}
+        onProcessTranscript={onProcessTranscript}
+        onClearFilters={clearFilters}
+        isDocumentProcessing={isDocumentProcessing}
+      />
     </div>
   );
 };

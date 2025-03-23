@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Plus, FileText, Upload, Search, Filter } from 'lucide-react';
@@ -10,9 +11,10 @@ import {
   SelectValue 
 } from "@/components/ui/select";
 import DocumentUploadModal from '@/components/documents/DocumentUploadModal';
-import DocumentCard from '@/components/documents/DocumentCard';
 import { useDocuments } from '@/hooks/useDocuments';
 import { Document } from '@/types';
+import { DocumentContentCard } from '@/components/shared';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const DocumentsPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -21,7 +23,13 @@ const DocumentsPage = () => {
   const [typeFilter, setTypeFilter] = useState<string>("all");
   const [statusFilter, setStatusFilter] = useState<string>("active");
   
-  const { documents, isLoading } = useDocuments();
+  const { 
+    documents, 
+    isLoading, 
+    updateDocumentStatus,
+    processTranscript,
+    isDocumentProcessing,
+  } = useDocuments();
   
   const filteredDocuments = documents.filter((doc: Document) => {
     const matchesSearch = doc.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
@@ -35,6 +43,29 @@ const DocumentsPage = () => {
   
   const noDocuments = documents.length === 0 && !isLoading;
   const noFilteredResults = documents.length > 0 && filteredDocuments.length === 0;
+
+  const handleArchive = (id: string) => {
+    updateDocumentStatus({ id, status: 'archived' });
+  };
+
+  const handleViewDocument = (document: Document) => {
+    // Navigate to document detail page
+    window.location.href = `/documents/${document.id}`;
+  };
+
+  const handleEditDocument = (document: Document) => {
+    // Open edit dialog
+    window.dispatchEvent(
+      new CustomEvent('edit-document', { detail: { document } })
+    );
+  };
+
+  const resetFilters = () => {
+    setSearchTerm("");
+    setPurposeFilter("all");
+    setTypeFilter("all");
+    setStatusFilter("active");
+  };
 
   return (
     <div className="space-y-6 sm:space-y-8">
@@ -82,7 +113,6 @@ const DocumentsPage = () => {
                   <SelectItem value="whitepaper">Whitepaper</SelectItem>
                   <SelectItem value="case-study">Case Study</SelectItem>
                   <SelectItem value="transcript">Transcript</SelectItem>
-                  <SelectItem value="meeting_transcript">Meeting Transcript</SelectItem>
                   <SelectItem value="other">Other</SelectItem>
                 </SelectContent>
               </Select>
@@ -116,7 +146,7 @@ const DocumentsPage = () => {
       {isLoading ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {Array.from({ length: 6 }).map((_, index) => (
-            <div key={index} className="h-48 rounded-lg bg-muted animate-pulse"></div>
+            <Skeleton key={index} className="h-[220px] rounded-lg" />
           ))}
         </div>
       ) : noDocuments ? (
@@ -144,19 +174,22 @@ const DocumentsPage = () => {
           <p className="text-sm text-muted-foreground mt-2 mb-6">
             Try adjusting your search or filters to find what you're looking for.
           </p>
-          <Button variant="outline" onClick={() => {
-            setSearchTerm("");
-            setPurposeFilter("all");
-            setTypeFilter("all");
-            setStatusFilter("active");
-          }}>
+          <Button variant="outline" onClick={resetFilters}>
             Reset Filters
           </Button>
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {filteredDocuments.map((document) => (
-            <DocumentCard key={document.id} document={document} />
+            <DocumentContentCard
+              key={document.id}
+              document={document}
+              onView={handleViewDocument}
+              onEdit={handleEditDocument}
+              onArchive={handleArchive}
+              onProcess={processTranscript}
+              isProcessing={isDocumentProcessing(document.id)}
+            />
           ))}
         </div>
       )}

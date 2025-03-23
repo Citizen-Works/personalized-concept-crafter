@@ -1,16 +1,16 @@
 
 import React from 'react';
-import { Button } from "@/components/ui/button";
 import { Document } from '@/types';
-import { SourceMaterialCard } from './SourceMaterialCard';
-import { useIsMobile } from '@/hooks/use-mobile';
 import { createResponsiveComponent } from '@/components/ui/responsive-container';
+import { Button } from "@/components/ui/button";
+import { DocumentContentCard } from '@/components/shared';
 
 interface SourceMaterialsListProps {
   filteredDocuments: Document[];
   onViewDocument: (id: string) => void;
   onProcessTranscript: (id: string) => void;
   onClearFilters: () => void;
+  isDocumentProcessing?: (id: string) => boolean;
 }
 
 interface EmptyStateProps {
@@ -63,20 +63,26 @@ const SourceMaterialsList: React.FC<SourceMaterialsListProps> = ({
   filteredDocuments,
   onViewDocument,
   onProcessTranscript,
-  onClearFilters
+  onClearFilters,
+  isDocumentProcessing = () => false
 }) => {
   if (filteredDocuments.length === 0) {
     return <ResponsiveEmptyState onClearFilters={onClearFilters} />;
   }
 
+  const handleViewDocument = (document: Document) => {
+    onViewDocument(document.id);
+  };
+
   return (
-    <div className="grid gap-3 md:gap-4 grid-cols-1">
+    <div className="grid gap-3 md:gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
       {filteredDocuments.map((doc) => (
-        <SourceMaterialCard 
+        <DocumentContentCard
           key={doc.id}
           document={doc}
-          onView={() => onViewDocument(doc.id)}
-          onProcess={() => onProcessTranscript(doc.id)}
+          onView={handleViewDocument}
+          onProcess={onProcessTranscript}
+          isProcessing={isDocumentProcessing(doc.id)}
         />
       ))}
     </div>
