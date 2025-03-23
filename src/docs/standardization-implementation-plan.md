@@ -51,14 +51,14 @@ This document outlines the step-by-step approach to implementing the codebase st
    - ✅ Analytics API
    - ✅ Target Audience API
    - ✅ Personal Stories API
-   - ☐ Content Pillars API
-   - ☐ Drafts API
+   - ✅ Content Pillars API
+   - ✅ Drafts API
    - ☐ LinkedIn Posts API
    - ☐ Documents API
 4. ✅ Add error handling and retry logic
 5. ✅ Add caching and optimistic updates
 
-### Estimated Timeline: 2 weeks (Partially Complete - 65%)
+### Estimated Timeline: 2 weeks (Partially Complete - 85%)
 
 ## Phase 5: Dead Code Removal
 
@@ -143,13 +143,12 @@ After each phase:
 9. ✅ Implemented standardized API for Ideas, Transcripts, Analytics, Target Audiences, and Personal Stories
 10. ✅ Added retry logic and error handling for API operations
 11. ✅ Created adapter hooks for backward compatibility
+12. ✅ Implemented standardized API for Content Pillars and Drafts
 
 ## Next Steps
 
 1. Continue with Phase 4: API Standardization
    - Update remaining API modules:
-     - Content Pillars API
-     - Drafts API
      - LinkedIn Posts API
      - Documents API
    - Test API interactions end-to-end

@@ -8,12 +8,12 @@ import { DraftCreateInput, DraftUpdateInput, DraftWithIdea } from './drafts/type
  * Hook for standardized Draft API operations
  */
 export function useDraftsApi() {
-  const { fetchDrafts, fetchDraftById, fetchDraftsByIdeaId } = useFetchDrafts();
+  const { fetchDrafts, fetchDraftById, fetchDraftsByIdeaId, isLoading: isFetchLoading } = useFetchDrafts();
   const { 
     createDraft, 
     updateDraft, 
     deleteDraft, 
-    isLoading 
+    isLoading: isMutationLoading 
   } = useDraftMutations();
   
   return {
@@ -28,7 +28,7 @@ export function useDraftsApi() {
     deleteDraft,
     
     // Loading state
-    isLoading
+    isLoading: isFetchLoading || isMutationLoading
   };
 }
 

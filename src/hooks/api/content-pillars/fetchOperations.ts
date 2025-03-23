@@ -4,7 +4,7 @@ import { ContentPillar } from '@/types';
 import { useAuth } from '@/context/auth';
 import { useTanstackApiQuery } from '../useTanstackApiQuery';
 import { supabase } from '@/integrations/supabase/client';
-import { processApiResponse } from '@/utils/apiResponseUtils';
+import { transformToContentPillar } from './transformUtils';
 
 /**
  * Hook for fetching content pillar data
@@ -25,25 +25,13 @@ export const useFetchContentPillars = () => {
         const { data, error } = await supabase
           .from("content_pillars")
           .select("*")
+          .eq("user_id", user.id)
           .order("display_order", { ascending: true })
           .order("name", { ascending: true });
           
         if (error) throw error;
         
-        return data.map(pillar => {
-          const transformedData = processApiResponse(pillar);
-          
-          return {
-            id: transformedData.id,
-            name: transformedData.name,
-            description: transformedData.description || "",
-            userId: transformedData.userId,
-            isArchived: transformedData.isArchived || false,
-            displayOrder: transformedData.displayOrder || 0,
-            usageCount: transformedData.usageCount || 0,
-            createdAt: new Date(transformedData.createdAt)
-          } as ContentPillar;
-        });
+        return data.map(transformToContentPillar);
       },
       'fetching content pillars',
       {
@@ -68,23 +56,13 @@ export const useFetchContentPillars = () => {
           .from("content_pillars")
           .select("*")
           .eq("id", id)
+          .eq("user_id", user.id)
           .maybeSingle();
           
         if (error) throw error;
         if (!data) return null;
         
-        const transformedData = processApiResponse(data);
-        
-        return {
-          id: transformedData.id,
-          name: transformedData.name,
-          description: transformedData.description || "",
-          userId: transformedData.userId,
-          isArchived: transformedData.isArchived || false,
-          displayOrder: transformedData.displayOrder || 0,
-          usageCount: transformedData.usageCount || 0,
-          createdAt: new Date(transformedData.createdAt)
-        } as ContentPillar;
+        return transformToContentPillar(data);
       },
       `fetching content pillar ${id}`,
       {

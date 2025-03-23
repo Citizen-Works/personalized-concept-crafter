@@ -1,5 +1,4 @@
 
-import { ContentDraft } from '@/types';
 import { DraftCreateInput, DraftUpdateInput } from './types';
 import { useCreateDraft } from './createOperation';
 import { useUpdateDraft } from './updateOperation';

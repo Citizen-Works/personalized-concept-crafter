@@ -1,5 +1,5 @@
 
-import { useQuery, useMutation } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useContentPillarsApi } from '../useContentPillarsApi';
 import { ContentPillar } from '@/types';
 import { ContentPillarCreateInput, ContentPillarUpdateInput } from '../content-pillars/types';
@@ -10,6 +10,7 @@ import { ContentPillarCreateInput, ContentPillarUpdateInput } from '../content-p
  */
 export const useContentPillarsAdapter = () => {
   const pillarsApi = useContentPillarsApi();
+  const queryClient = useQueryClient();
   
   // Get all pillars query
   const pillarsQuery = useQuery({
@@ -21,6 +22,9 @@ export const useContentPillarsAdapter = () => {
   const createPillarMutation = useMutation({
     mutationFn: (pillar: ContentPillarCreateInput) => {
       return pillarsApi.createContentPillar(pillar);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['contentPillars'] });
     }
   });
   
@@ -28,6 +32,10 @@ export const useContentPillarsAdapter = () => {
   const updatePillarMutation = useMutation({
     mutationFn: (params: { id: string, updates: ContentPillarUpdateInput }) => {
       return pillarsApi.updateContentPillar(params.id, params.updates);
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['contentPillars'] });
+      queryClient.invalidateQueries({ queryKey: ['contentPillar', variables.id] });
     }
   });
   
@@ -35,6 +43,23 @@ export const useContentPillarsAdapter = () => {
   const archivePillarMutation = useMutation({
     mutationFn: (id: string) => {
       return pillarsApi.archiveContentPillar(id);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['contentPillars'] });
+    }
+  });
+  
+  // Update pillar order mutation
+  const updatePillarOrderMutation = useMutation({
+    mutationFn: (pillarOrders: { id: string; displayOrder: number }[]) => {
+      return Promise.all(
+        pillarOrders.map(({ id, displayOrder }) => 
+          pillarsApi.updateContentPillar(id, { displayOrder })
+        )
+      );
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['contentPillars'] });
     }
   });
   
@@ -42,19 +67,21 @@ export const useContentPillarsAdapter = () => {
   const getPillar = (id: string) => {
     return useQuery({
       queryKey: ['contentPillar', id],
-      queryFn: () => pillarsApi.fetchContentPillarById(id)
+      queryFn: () => pillarsApi.fetchContentPillarById(id),
+      enabled: !!id
     });
   };
   
   return {
-    pillars: pillarsQuery.data || [],
+    contentPillars: pillarsQuery.data || [],
     isLoading: pillarsQuery.isLoading,
     isError: pillarsQuery.isError,
+    error: pillarsQuery.error,
+    refetch: pillarsQuery.refetch,
     getPillar,
-    createPillar: createPillarMutation.mutate,
-    createPillarAsync: createPillarMutation.mutateAsync,
-    updatePillar: updatePillarMutation.mutate,
-    updatePillarAsync: updatePillarMutation.mutateAsync,
-    archivePillar: archivePillarMutation.mutate
+    createContentPillar: createPillarMutation.mutate,
+    updateContentPillar: updatePillarMutation.mutate,
+    updatePillarOrder: updatePillarOrderMutation.mutate,
+    deleteContentPillar: archivePillarMutation.mutate
   };
 };

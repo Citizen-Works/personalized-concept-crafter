@@ -46,6 +46,8 @@ export const useCreateDraft = () => {
       onSuccess: (draft) => {
         invalidateQueries(['drafts', user?.id]);
         invalidateQueries(['drafts', 'idea', draft.contentIdeaId, user?.id]);
+        // Also invalidate ideas query since hasBeenUsed might have changed
+        invalidateQueries(['ideas', user?.id]);
       }
     }
   );

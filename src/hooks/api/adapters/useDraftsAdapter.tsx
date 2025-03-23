@@ -24,6 +24,8 @@ export const useDraftsAdapter = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['drafts'] });
+      // Also invalidate ideas query since hasBeenUsed might have changed
+      queryClient.invalidateQueries({ queryKey: ['ideas'] });
     }
   });
   
@@ -52,7 +54,8 @@ export const useDraftsAdapter = () => {
   const getDraftsByIdeaId = (ideaId: string) => {
     return useQuery({
       queryKey: ['drafts', 'byIdeaId', ideaId],
-      queryFn: () => draftsApi.fetchDraftsByIdeaId(ideaId)
+      queryFn: () => draftsApi.fetchDraftsByIdeaId(ideaId),
+      enabled: !!ideaId
     });
   };
   
@@ -72,9 +75,8 @@ export const useDraftsAdapter = () => {
     getDraftsByIdeaId,
     getDraft,
     createDraft: (draft: DraftCreateInput) => createDraftMutation.mutate(draft),
-    createDraftAsync: (draft: DraftCreateInput) => createDraftMutation.mutateAsync(draft),
     updateDraft: (params: { id: string } & DraftUpdateInput) => updateDraftMutation.mutate(params),
-    updateDraftAsync: (params: { id: string } & DraftUpdateInput) => updateDraftMutation.mutateAsync(params),
-    deleteDraft: (id: string) => deleteDraftMutation.mutate(id)
+    deleteDraft: (id: string) => deleteDraftMutation.mutate(id),
+    refetch: draftsQuery.refetch
   };
 };
