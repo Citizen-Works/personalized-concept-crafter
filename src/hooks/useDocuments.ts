@@ -136,7 +136,7 @@ export function useDocuments() {
 
   // For backward compatibility, implement methods that other components expect
   const refetch = () => {
-    if (fetchDocuments && typeof fetchDocuments.refetch === 'function') {
+    if (fetchDocuments && typeof fetchDocuments === 'object' && fetchDocuments.refetch) {
       return fetchDocuments.refetch();
     }
     return Promise.resolve(null);
@@ -148,14 +148,20 @@ export function useDocuments() {
 
   // Get document by ID
   const fetchDocument = (id: string) => {
-    const docs = fetchDocuments && fetchDocuments.data ? fetchDocuments.data : [];
+    const docs = fetchDocuments && typeof fetchDocuments === 'object' && fetchDocuments.data 
+      ? fetchDocuments.data 
+      : [];
     const doc = docs.find(d => d.id === id);
     return doc || null;
   };
 
   // For backward compatibility with existing components
-  const error = fetchDocuments && fetchDocuments.error ? fetchDocuments.error : null;
-  const documents = fetchDocuments && fetchDocuments.data ? fetchDocuments.data : [];
+  const error = fetchDocuments && typeof fetchDocuments === 'object' && fetchDocuments.error 
+    ? fetchDocuments.error 
+    : null;
+  const documents = fetchDocuments && typeof fetchDocuments === 'object' && fetchDocuments.data 
+    ? fetchDocuments.data 
+    : [];
   const isLoading = isTranscriptsLoading || isDocumentsLoading;
   const isProcessing = processingIds.length > 0;
   const isDocumentProcessing = useCallback((documentId: string) => {
