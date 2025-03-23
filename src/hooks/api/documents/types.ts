@@ -10,6 +10,7 @@ export interface DocumentCreateInput {
   type: string; // Required by the database schema
   purpose?: string;
   contentType?: string;
+  status?: string;
 }
 
 export interface DocumentUpdateInput {

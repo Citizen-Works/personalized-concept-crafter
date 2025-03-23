@@ -63,7 +63,7 @@ export function useDocuments() {
         type: documentData.type as DocumentType, 
         purpose: documentData.purpose,
         contentType: documentData.content_type,
-        status: documentData.status
+        metadata: documentData.metadata || {}
       });
 
       clearInterval(progressInterval);
@@ -136,7 +136,7 @@ export function useDocuments() {
 
   // For backward compatibility, implement methods that other components expect
   const refetch = () => {
-    return fetchDocuments.refetch();
+    return fetchDocuments.refetch ? fetchDocuments.refetch() : Promise.resolve(null);
   };
 
   const createDocumentAsync = async (data: any) => {
@@ -145,7 +145,8 @@ export function useDocuments() {
 
   // Get document by ID
   const fetchDocument = (id: string) => {
-    const doc = fetchDocuments.data?.find(d => d.id === id);
+    const docs = fetchDocuments.data || [];
+    const doc = docs.find(d => d.id === id);
     return doc || null;
   };
 

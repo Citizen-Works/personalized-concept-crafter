@@ -55,7 +55,7 @@ describe('useWritingStyleForm', () => {
   });
 
   it('initializes with empty form state when no initial profile is provided', () => {
-    const { result } = renderHook(() => useWritingStyleForm({ user_id: 'test-user-id' }));
+    const { result } = renderHook(() => useWritingStyleForm({ user_id: 'test-user-id' } as TestWritingStyleProfile));
     
     expect(result.current.formState).toEqual({
       voiceAnalysis: '',
@@ -72,7 +72,7 @@ describe('useWritingStyleForm', () => {
     const { result } = renderHook(() => useWritingStyleForm({ 
       ...mockInitialProfile, 
       user_id: 'test-user-id' 
-    } as any));
+    } as TestWritingStyleProfile));
     
     expect(result.current.formState).toEqual({
       voiceAnalysis: 'Initial voice analysis',
@@ -89,7 +89,7 @@ describe('useWritingStyleForm', () => {
     const { result } = renderHook(() => useWritingStyleForm({ 
       ...mockInitialProfile, 
       user_id: 'test-user-id' 
-    } as any));
+    } as TestWritingStyleProfile));
     
     act(() => {
       result.current.handleInputChange({
@@ -110,7 +110,7 @@ describe('useWritingStyleForm', () => {
     const { result } = renderHook(() => useWritingStyleForm({ 
       ...mockInitialProfile, 
       user_id: 'test-user-id' 
-    } as any));
+    } as TestWritingStyleProfile));
     
     await act(async () => {
       await result.current.saveWritingStyle();
@@ -137,7 +137,7 @@ describe('useWritingStyleForm', () => {
     // @ts-ignore - we're mocking
     (supabase.from as any) = fromMock;
     
-    const { result } = renderHook(() => useWritingStyleForm({ user_id: 'test-user-id' })); // No initial profile
+    const { result } = renderHook(() => useWritingStyleForm({ user_id: 'test-user-id' } as TestWritingStyleProfile)); // No initial profile
     
     await act(async () => {
       await result.current.saveWritingStyle();
@@ -178,7 +178,7 @@ describe('useWritingStyleForm', () => {
     const { result } = renderHook(() => useWritingStyleForm({ 
       ...mockInitialProfile, 
       user_id: 'test-user-id' 
-    } as any));
+    } as TestWritingStyleProfile));
     
     await act(async () => {
       await result.current.saveWritingStyle();
@@ -194,7 +194,7 @@ describe('useWritingStyleForm', () => {
     const { result } = renderHook(() => useWritingStyleForm({ 
       ...mockInitialProfile, 
       user_id: 'test-user-id' 
-    } as any));
+    } as TestWritingStyleProfile));
     
     const previewProfile = result.current.getPreviewProfile();
     

@@ -28,8 +28,12 @@ export const useTranscriptsAdapter = () => {
 
   const getTranscriptById = async (id: string): Promise<Document | null> => {
     try {
-      const result = await fetchTranscriptById.refetch();
-      return result.data || null;
+      const query = fetchTranscriptById(id);
+      if (query && query.refetch) {
+        const result = await query.refetch();
+        return result.data || null;
+      }
+      return null;
     } catch (error) {
       console.error('Error in getTranscriptById:', error);
       return null;
