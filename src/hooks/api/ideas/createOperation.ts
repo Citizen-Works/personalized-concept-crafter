@@ -14,27 +14,27 @@ export const useCreateIdea = () => {
   const { createMutation, invalidateQueries } = useTanstackApiQuery('IdeasApi');
 
   const createIdeaMutation = createMutation<ContentIdea, IdeaCreateInput>(
-    async (idea) => {
+    async (input) => {
       if (!user?.id) throw new Error("User not authenticated");
       
-      // Prepare the snake_case input for Supabase
-      const snakeCaseInput = {
-        title: idea.title,
-        description: idea.description || "",
-        notes: idea.notes || "",
-        source: idea.source,
-        meeting_transcript_excerpt: idea.meetingTranscriptExcerpt,
-        source_url: idea.sourceUrl || null,
-        status: idea.status,
-        has_been_used: idea.hasBeenUsed || false,
-        content_pillar_ids: idea.contentPillarIds || [],
-        target_audience_ids: idea.targetAudienceIds || [],
-        user_id: user.id
+      // Convert camelCase to snake_case for the database
+      const ideaData = {
+        user_id: user.id,
+        title: input.title,
+        description: input.description || null,
+        notes: input.notes || null,
+        source: input.source,
+        meeting_transcript_excerpt: input.meetingTranscriptExcerpt || null,
+        source_url: input.sourceUrl || null,
+        status: input.status,
+        has_been_used: input.hasBeenUsed || false,
+        content_pillar_ids: input.contentPillarIds || [],
+        target_audience_ids: input.targetAudienceIds || []
       };
       
       const { data, error } = await supabase
         .from("content_ideas")
-        .insert([snakeCaseInput])
+        .insert([ideaData])
         .select()
         .single();
         
@@ -52,8 +52,8 @@ export const useCreateIdea = () => {
     }
   );
   
-  const createIdea = async (idea: IdeaCreateInput): Promise<ContentIdea> => {
-    return createIdeaMutation.mutateAsync(idea);
+  const createIdea = async (input: IdeaCreateInput): Promise<ContentIdea> => {
+    return createIdeaMutation.mutateAsync(input);
   };
 
   return {
