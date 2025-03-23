@@ -1,139 +1,86 @@
 
 import { useState, useCallback } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/context/auth';
-import { useTenant } from '@/context/tenant/TenantContext';
-import { Document, DocumentFilterOptions, DocumentCreateInput } from '@/types';
-import { 
-  fetchDocuments, 
-  createDocument, 
-  updateDocumentStatus,
-  updateDocument, 
-  getDocumentById as fetchDocument
-} from '@/services/documents/baseDocumentService';
-import { processTranscriptForIdeas } from '@/services/documents/transcript/processTranscript';
-import { toast } from 'sonner';
-import { useDocumentUpload } from './documents/useDocumentUpload';
+import { useTranscriptsApi } from './api/useTranscriptsApi';
+import { Document } from '@/types';
 
-export const useDocuments = (filters?: DocumentFilterOptions) => {
+/**
+ * Hook for managing document operations
+ */
+export function useDocuments() {
   const { user } = useAuth();
-  const { currentTenant } = useTenant();
-  const queryClient = useQueryClient();
-  const [processingDocumentIds, setProcessingDocumentIds] = useState<string[]>([]);
-  const { uploadDocument, uploadProgress } = useDocumentUpload(user?.id);
-
-  // Query documents with tenant awareness
   const { 
-    data = [], 
-    isLoading, 
-    error, 
-    refetch 
-  } = useQuery({
-    queryKey: ['documents', filters, user?.id, currentTenant?.id],
-    queryFn: async () => {
-      if (!user?.id) return [];
-      
-      try {
-        const documents = await fetchDocuments(user.id, filters);
-        console.log('Fetched documents:', documents);
-        return documents;
-      } catch (error) {
-        console.error('Error in useDocuments query:', error);
-        return [];
-      }
-    },
-    enabled: !!user?.id,
-  });
+    fetchTranscripts, 
+    createTranscript, 
+    updateTranscript, 
+    deleteTranscript,
+    processTranscript,
+    isLoading 
+  } = useTranscriptsApi();
 
-  // Fetch a single document by ID
-  const fetchSingleDocument = useCallback(async (id: string) => {
-    if (!user?.id) throw new Error("User not authenticated");
-    return await fetchDocument(user.id, id);
-  }, [user?.id]);
+  const [processingIds, setProcessingIds] = useState<string[]>([]);
 
-  // Create document mutation
-  const createDocumentMutation = useMutation({
-    mutationFn: async (newDocument: DocumentCreateInput) => {
-      if (!user?.id) throw new Error("User not authenticated");
-      return await createDocument(user.id, newDocument);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['documents', user?.id, currentTenant?.id] });
-    },
-  });
-
-  // Update document status mutation
-  const updateDocumentStatusMutation = useMutation({
-    mutationFn: async ({ id, status }: { id: string; status: 'active' | 'archived' }) => {
-      if (!user?.id) throw new Error("User not authenticated");
-      await updateDocumentStatus(user.id, id, status);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['documents', user?.id, currentTenant?.id] });
-    },
-  });
-
-  // Update document mutation
-  const updateDocumentMutation = useMutation({
-    mutationFn: async (docUpdates: Parameters<typeof updateDocument>[1]) => {
-      if (!user?.id) throw new Error("User not authenticated");
-      await updateDocument(user.id, docUpdates);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['documents', user?.id, currentTenant?.id] });
-    },
-  });
-
-  // Process transcript for ideas
-  const processTranscript = useCallback(async (documentId: string) => {
-    if (!user?.id) throw new Error("User not authenticated");
-    
-    setProcessingDocumentIds(prev => [...prev, documentId]);
-    
-    try {
-      const result = await processTranscriptForIdeas(user.id, documentId, true);
-      
-      if (result.ideas.length === 0) {
-        toast.info("No content ideas found in this transcript");
-      } else {
-        toast.success(`Found ${result.ideas.length} content ideas`);
-      }
-      
-      // Invalidate queries to ensure tenant-aware cache is updated
-      queryClient.invalidateQueries({ queryKey: ['documents', user?.id, currentTenant?.id] });
-      
-      return result;
-    } catch (error) {
-      console.error("Error processing transcript:", error);
-      toast.error("Failed to process transcript");
-      throw error;
-    } finally {
-      setProcessingDocumentIds(prev => prev.filter(id => id !== documentId));
+  /**
+   * Upload a new document (transcript)
+   */
+  const uploadDocument = async (title: string, content: string, type = 'transcript') => {
+    if (!user) {
+      console.error("User not authenticated");
+      return null;
     }
-  }, [user?.id, currentTenant?.id, queryClient]);
 
-  // Check if a document is currently being processed
+    try {
+      return await createTranscript({
+        title,
+        content,
+        type: type as any, // Type assertion for compatibility
+        purpose: 'business_context'
+      });
+    } catch (error) {
+      console.error("Error uploading document:", error);
+      throw error;
+    }
+  };
+
+  /**
+   * Process a document to extract ideas
+   */
+  const processDocumentForIdeas = useCallback(async (documentId: string): Promise<boolean> => {
+    if (!user) {
+      console.error("User not authenticated");
+      return false;
+    }
+
+    if (processingIds.includes(documentId)) {
+      console.log(`Document ${documentId} is already being processed`);
+      return false;
+    }
+
+    try {
+      setProcessingIds(prev => [...prev, documentId]);
+      
+      await processTranscript(documentId);
+      
+      return true;
+    } catch (error) {
+      console.error("Error processing document:", error);
+      return false;
+    } finally {
+      setProcessingIds(prev => prev.filter(id => id !== documentId));
+    }
+  }, [user, processingIds, processTranscript]);
+
+  const documents = fetchTranscripts.data || [];
   const isDocumentProcessing = useCallback((documentId: string) => {
-    return processingDocumentIds.includes(documentId);
-  }, [processingDocumentIds]);
+    return processingIds.includes(documentId);
+  }, [processingIds]);
 
   return {
-    documents: data,
+    documents,
     isLoading,
-    error,
-    refetch,
-    fetchDocument: fetchSingleDocument,
-    createDocument: createDocumentMutation.mutate,
-    createDocumentAsync: createDocumentMutation.mutateAsync,
-    isCreating: createDocumentMutation.isPending,
-    updateDocumentStatus: updateDocumentStatusMutation.mutate,
-    isUpdatingStatus: updateDocumentStatusMutation.isPending,
-    updateDocument: updateDocumentMutation.mutateAsync,
-    isUpdating: updateDocumentMutation.isPending,
-    processTranscript,
-    processingDocuments: processingDocumentIds,
-    isDocumentProcessing,
+    isProcessing: processingIds.length > 0,
     uploadDocument,
-    uploadProgress
+    processTranscript: processDocumentForIdeas,
+    isDocumentProcessing
   };
-};
+}
