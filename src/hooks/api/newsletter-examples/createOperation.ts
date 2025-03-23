@@ -19,15 +19,14 @@ export const useCreateNewsletterExample = () => {
 
       const { data, error } = await supabase
         .from("documents")
-        .insert([
-          {
-            title: example.title,
-            content: example.content,
-            content_type: "newsletter",
-            purpose: "writing_sample",
-            user_id: user.id
-          }
-        ])
+        .insert({
+          title: example.title,
+          content: example.content,
+          content_type: "newsletter",
+          purpose: "writing_sample",
+          type: "newsletter", // Add the missing 'type' field
+          user_id: user.id
+        })
         .select()
         .single();
         
