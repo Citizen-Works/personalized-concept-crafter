@@ -6,14 +6,14 @@ import { DraftList } from '@/components/drafts/DraftList';
 import { DraftsEmptyState } from '@/components/drafts/DraftsEmptyState';
 import { BulkActions } from '@/components/drafts/BulkActions';
 import { ContentType, DraftStatus } from '@/types';
-import { useDrafts } from '@/hooks/useDrafts';
 import { Skeleton } from '@/components/ui/skeleton';
 import { toast } from 'sonner';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { DraftError } from '@/components/drafts/DraftError';
+import { useDraftsAdapter } from '@/hooks/api/adapters/useDraftsAdapter';
 
 const DraftsPage = () => {
-  const { drafts, isLoading, isError, deleteDraft, updateDraft } = useDrafts();
+  const { drafts, isLoading, isError, deleteDraft, updateDraft } = useDraftsAdapter();
   const [searchQuery, setSearchQuery] = useState('');
   const [typeFilter, setTypeFilter] = useState<ContentType | 'all'>('all');
   const [selectedDrafts, setSelectedDrafts] = useState<string[]>([]);

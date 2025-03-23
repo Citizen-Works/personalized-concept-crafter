@@ -33,4 +33,4 @@ export function useDraftsApi() {
 }
 
 // Re-export types for convenience
-export { DraftCreateInput, DraftUpdateInput };
+export type { DraftCreateInput, DraftUpdateInput };

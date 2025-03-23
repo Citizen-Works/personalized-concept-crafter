@@ -1,7 +1,6 @@
 
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useDrafts } from '@/hooks/useDrafts';
 import { useIdeas } from '@/hooks/ideas';
 import { toast } from 'sonner';
 import { DraftHeader } from '@/components/drafts/DraftHeader';
@@ -12,11 +11,12 @@ import ErrorDisplay from '@/components/ideas/content-generation/ErrorDisplay';
 import { DraftStatusToggle } from '@/components/drafts/DraftStatusToggle';
 import { DraftStatus } from '@/types';
 import { IdeaLinkCard } from '@/components/drafts/IdeaLinkCard';
+import { useDraftsAdapter } from '@/hooks/api/adapters/useDraftsAdapter';
 
 const DraftDetailPage = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { getDraft, updateDraft, deleteDraft } = useDrafts();
+  const { getDraft, updateDraft, deleteDraft } = useDraftsAdapter();
   
   // Fetch the draft
   const { 
