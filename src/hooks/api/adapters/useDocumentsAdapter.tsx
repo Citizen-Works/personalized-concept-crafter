@@ -17,7 +17,12 @@ export const useDocumentsAdapter = () => {
   // Create document mutation
   const createDocumentMutation = useMutation({
     mutationFn: (document: DocumentCreateInput) => {
-      return documentsApi.createDocument(document);
+      // Ensure document has type field
+      const enrichedDocument = {
+        ...document,
+        type: document.type || 'other' // Default to 'other' if not provided
+      };
+      return documentsApi.createDocument(enrichedDocument);
     }
   });
   

@@ -7,6 +7,9 @@ export interface DocumentCreateInput {
   fileName?: string;
   fileSize?: number;
   metadata?: Record<string, any>;
+  type: string; // Required by the database schema
+  purpose?: string;
+  contentType?: string;
 }
 
 export interface DocumentUpdateInput {
@@ -18,4 +21,8 @@ export interface DocumentUpdateInput {
   fileSize?: number;
   metadata?: Record<string, any>;
   isArchived?: boolean;
+  type?: string;
+  purpose?: string;
+  contentType?: string;
+  status?: string;
 }

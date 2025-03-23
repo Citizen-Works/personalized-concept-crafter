@@ -19,6 +19,15 @@ export const transformToDocument = (data: any): Document => {
     fileSize: transformedData.fileSize || 0,
     metadata: transformedData.metadata || {},
     isArchived: transformedData.isArchived || false,
-    createdAt: new Date(transformedData.createdAt)
+    type: transformedData.type || "other", // Default values for required fields
+    purpose: transformedData.purpose || "business_context",
+    status: transformedData.status || "active",
+    content_type: transformedData.contentType || null,
+    createdAt: new Date(transformedData.createdAt),
+    // Add other required Document fields
+    isEncrypted: transformedData.isEncrypted || false,
+    processing_status: transformedData.processingStatus || "idle",
+    has_ideas: transformedData.hasIdeas || false,
+    ideas_count: transformedData.ideasCount || 0
   } as Document;
 };

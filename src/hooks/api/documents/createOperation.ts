@@ -26,6 +26,9 @@ export const useCreateDocument = () => {
         file_name: input.fileName,
         file_size: input.fileSize,
         metadata: input.metadata,
+        type: input.type, // Required field
+        purpose: input.purpose || 'business_context',
+        content_type: input.contentType,
         user_id: user.id
       };
       
