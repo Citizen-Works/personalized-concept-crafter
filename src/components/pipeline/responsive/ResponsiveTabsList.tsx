@@ -1,8 +1,9 @@
 
-import React from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import { TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Check, FileText, Pencil, Send, Book } from 'lucide-react';
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 
 interface ResponsiveTabsListProps {
   activeTab: string;
@@ -21,60 +22,67 @@ export const ResponsiveTabsList: React.FC<ResponsiveTabsListProps> = ({
   const isMobile = useIsMobile();
   
   if (isMobile) {
-    // Mobile layout with icons in a scrollable horizontal list
+    // Mobile layout with icons in a scrollable horizontal list with visual scroll indicator
     return (
-      <TabsList className="flex w-full overflow-x-auto snap-x snap-mandatory no-scrollbar">
-        <TabsTrigger 
-          value="review" 
-          onClick={() => onTabChange('review')}
-          className="flex-1 min-w-20 snap-start"
-        >
-          <div className="flex flex-col items-center">
-            <Check className="h-4 w-4 mb-1" />
-            <span className="text-xs">Review</span>
+      <div className="relative">
+        <ScrollArea className="w-full pb-2">
+          <div className="flex w-full min-w-max">
+            <TabsList className="flex w-full overflow-x-auto snap-x snap-mandatory">
+              <TabsTrigger 
+                value="review" 
+                onClick={() => onTabChange('review')}
+                className="flex-1 min-w-20 snap-start"
+              >
+                <div className="flex flex-col items-center">
+                  <Check className="h-4 w-4 mb-1" />
+                  <span className="text-xs">Review</span>
+                </div>
+              </TabsTrigger>
+              <TabsTrigger 
+                value="ideas" 
+                onClick={() => onTabChange('ideas')}
+                className="flex-1 min-w-20 snap-start"
+              >
+                <div className="flex flex-col items-center">
+                  <FileText className="h-4 w-4 mb-1" />
+                  <span className="text-xs">Ideas</span>
+                </div>
+              </TabsTrigger>
+              <TabsTrigger 
+                value="drafts" 
+                onClick={() => onTabChange('drafts')}
+                className="flex-1 min-w-20 snap-start"
+              >
+                <div className="flex flex-col items-center">
+                  <Pencil className="h-4 w-4 mb-1" />
+                  <span className="text-xs">Drafts</span>
+                </div>
+              </TabsTrigger>
+              <TabsTrigger 
+                value="ready" 
+                onClick={() => onTabChange('ready')}
+                className="flex-1 min-w-20 snap-start"
+              >
+                <div className="flex flex-col items-center">
+                  <Send className="h-4 w-4 mb-1" />
+                  <span className="text-xs">Ready</span>
+                </div>
+              </TabsTrigger>
+              <TabsTrigger 
+                value="published" 
+                onClick={() => onTabChange('published')}
+                className="flex-1 min-w-20 snap-start"
+              >
+                <div className="flex flex-col items-center">
+                  <Book className="h-4 w-4 mb-1" />
+                  <span className="text-xs">Published</span>
+                </div>
+              </TabsTrigger>
+            </TabsList>
           </div>
-        </TabsTrigger>
-        <TabsTrigger 
-          value="ideas" 
-          onClick={() => onTabChange('ideas')}
-          className="flex-1 min-w-20 snap-start"
-        >
-          <div className="flex flex-col items-center">
-            <FileText className="h-4 w-4 mb-1" />
-            <span className="text-xs">Ideas</span>
-          </div>
-        </TabsTrigger>
-        <TabsTrigger 
-          value="drafts" 
-          onClick={() => onTabChange('drafts')}
-          className="flex-1 min-w-20 snap-start"
-        >
-          <div className="flex flex-col items-center">
-            <Pencil className="h-4 w-4 mb-1" />
-            <span className="text-xs">Drafts</span>
-          </div>
-        </TabsTrigger>
-        <TabsTrigger 
-          value="ready" 
-          onClick={() => onTabChange('ready')}
-          className="flex-1 min-w-20 snap-start"
-        >
-          <div className="flex flex-col items-center">
-            <Send className="h-4 w-4 mb-1" />
-            <span className="text-xs">Ready</span>
-          </div>
-        </TabsTrigger>
-        <TabsTrigger 
-          value="published" 
-          onClick={() => onTabChange('published')}
-          className="flex-1 min-w-20 snap-start"
-        >
-          <div className="flex flex-col items-center">
-            <Book className="h-4 w-4 mb-1" />
-            <span className="text-xs">Published</span>
-          </div>
-        </TabsTrigger>
-      </TabsList>
+          <ScrollBar orientation="horizontal" className="h-1.5 opacity-100" />
+        </ScrollArea>
+      </div>
     );
   }
   

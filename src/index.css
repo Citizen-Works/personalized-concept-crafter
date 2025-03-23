@@ -49,7 +49,7 @@
     --sidebar-background: 180 5% 4%;
     --sidebar-foreground: 0 0% 95%;
     --sidebar-primary: 311 51% 45%;
-    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 350 57% 58%;
     --sidebar-accent-foreground: 0 0% 98%;
     --sidebar-border: 240 3.7% 15.9%;
@@ -158,6 +158,18 @@
   @apply bg-muted-foreground/40;
 }
 
+/* Custom styles for the horizontal scroll indicator */
+.horizontal-scroll-indicator {
+  @apply h-1 bg-primary/20 rounded-full relative mb-2;
+  width: 100%;
+}
+
+.horizontal-scroll-indicator::after {
+  @apply absolute top-0 left-0 h-full bg-primary rounded-full;
+  content: '';
+  width: var(--scroll-progress, 30%);
+}
+
 /* Input autofill styling */
 input:-webkit-autofill,
 input:-webkit-autofill:hover,
@@ -194,13 +206,34 @@ input:-webkit-autofill:focus {
     @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4;
   }
   
+  /* Enhanced no-scrollbar utility to ensure it's still accessible */
   .no-scrollbar::-webkit-scrollbar {
+    width: 0;
+    height: 0;
     display: none;
   }
   
   .no-scrollbar {
     -ms-overflow-style: none;
     scrollbar-width: none;
+  }
+  
+  /* Custom scrollbar styles for the horizontal tabs */
+  .tabs-scrollbar::-webkit-scrollbar {
+    height: 3px;
+    @apply block;
+  }
+  
+  .tabs-scrollbar::-webkit-scrollbar-track {
+    @apply bg-muted/30 rounded-full;
+  }
+  
+  .tabs-scrollbar::-webkit-scrollbar-thumb {
+    @apply bg-primary/40 rounded-full;
+  }
+  
+  .tabs-scrollbar::-webkit-scrollbar-thumb:hover {
+    @apply bg-primary/60;
   }
   
   .snap-x {
