@@ -89,6 +89,7 @@ export function useGenerateDraft() {
       ideaWithParams.notes = notes;
       
       // Generate content with the selected content type
+      // We pass contentType as a separate parameter, not as part of the idea
       const content = await generateContent(ideaWithParams, contentType);
       if (content) {
         setGeneratedContent(content);
@@ -125,6 +126,7 @@ export function useGenerateDraft() {
       ideaWithParams.notes = notes;
       
       // Generate content in debug mode (true as the third parameter)
+      // Pass contentType as a separate parameter
       await generateContent(ideaWithParams, contentType, true);
       setShowDebugDialog(true);
     } catch (error) {

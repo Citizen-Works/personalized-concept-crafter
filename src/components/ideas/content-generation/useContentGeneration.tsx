@@ -61,13 +61,9 @@ export const useContentGeneration = (idea: ContentIdea) => {
   
   const handleGenerateContent = async () => {
     try {
-      // Create temporary object with contentType for generation
-      const ideaWithType = {
-        ...idea,
-        contentType: selectedContentType // Temporary for generation only
-      };
-      
-      const content = await generateContent(ideaWithType, selectedContentType);
+      // Call generateContent with the idea and selected content type
+      // Do NOT modify the idea object with contentType
+      const content = await generateContent(idea, selectedContentType);
       if (content) {
         setGeneratedContent(content);
         

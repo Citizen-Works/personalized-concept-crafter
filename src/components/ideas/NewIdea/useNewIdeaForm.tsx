@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useIdeas } from '@/hooks/ideas';
@@ -104,13 +103,8 @@ export const useNewIdeaForm = () => {
       
       // 2. Generate content for the idea
       if (savedIdea && savedIdea.id) {
-        // Add contentType only for generation purpose, not stored on the idea
-        const ideaWithType = {
-          ...savedIdea,
-          contentType: contentType // Used temporarily for content generation
-        };
-        
-        const generatedContent = await generateContent(ideaWithType, contentType);
+        // Don't add contentType to the idea, pass it as a separate parameter
+        const generatedContent = await generateContent(savedIdea, contentType);
         
         if (generatedContent) {
           // 3. Create a draft with the generated content

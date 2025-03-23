@@ -112,6 +112,7 @@ export const addPersonalStoriesToPrompt = (prompt: string, stories: any[]): stri
 /**
  * Build a complete prompt structure with all content sections
  * Function kept for compatibility with test files
+ * Note: contentType is passed separately and not part of the ContentIdea
  */
 export function buildPrompt(idea: ContentIdea, contentType: ContentType): PromptStructure {
   // Create basic sections from the idea
