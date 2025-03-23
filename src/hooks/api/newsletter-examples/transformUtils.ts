@@ -14,7 +14,7 @@ export const transformToNewsletterExample = (data: any): Document => {
     userId: transformedData.userId,
     title: transformedData.title,
     content: transformedData.content || '',
-    type: transformedData.type || 'newsletter',
+    type: transformedData.type || 'other',
     purpose: 'writing_sample',
     content_type: 'newsletter',
     status: transformedData.status || 'active',
