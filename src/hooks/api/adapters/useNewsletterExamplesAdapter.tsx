@@ -2,7 +2,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNewsletterExamplesApi } from '../useNewsletterExamplesApi';
 import { Document } from '@/types';
-import { NewsletterExampleCreateInput, NewsletterExampleUpdateInput } from '../newsletter-examples/types';
+import { NewsletterExampleCreateInput } from '../newsletter-examples/types';
 import { useAuth } from '@/context/auth';
 
 /**
