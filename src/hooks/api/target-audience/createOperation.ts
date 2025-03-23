@@ -5,7 +5,6 @@ import { useTanstackApiQuery } from '../useTanstackApiQuery';
 import { supabase } from '@/integrations/supabase/client';
 import { transformToTargetAudience } from './transformUtils';
 import { TargetAudienceCreateInput } from './types';
-import { prepareApiRequest } from '@/utils/apiResponseUtils';
 
 /**
  * Hook for creating a new target audience
@@ -18,9 +17,12 @@ export const useCreateTargetAudience = () => {
     async (input) => {
       if (!user?.id) throw new Error("User not authenticated");
       
-      // Prepare the input for Supabase with snake_case keys
+      // Create the request data with appropriate field names
       const requestData = {
-        ...prepareApiRequest(input),
+        name: input.name,
+        description: input.description,
+        pain_points: input.painPoints,
+        goals: input.goals,
         user_id: user.id
       };
       

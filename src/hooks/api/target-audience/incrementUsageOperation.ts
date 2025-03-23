@@ -16,10 +16,22 @@ export const useIncrementTargetAudienceUsage = () => {
     async (id) => {
       if (!user?.id) throw new Error("User not authenticated");
       
-      // Increment the usage_count directly in the update
+      // First get the current audience to get the current usage count
+      const { data: currentAudience, error: fetchError } = await supabase
+        .from("target_audiences")
+        .select("*")
+        .eq("id", id)
+        .eq("user_id", user.id)
+        .single();
+        
+      if (fetchError) throw fetchError;
+      
+      // Increment the usage count directly
+      const newCount = (currentAudience.usage_count || 0) + 1;
+      
       const { data, error } = await supabase
         .from("target_audiences")
-        .update({ usage_count: supabase.rpc('increment', { row_id: id }) })
+        .update({ usage_count: newCount })
         .eq("id", id)
         .eq("user_id", user.id) // Security check
         .select()
