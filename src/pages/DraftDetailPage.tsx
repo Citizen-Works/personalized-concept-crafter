@@ -34,10 +34,8 @@ const DraftDetailPage = () => {
   const { 
     data: idea,
     isLoading: isIdeaLoading
-  } = ideasAdapter.getIdea(contentIdeaId, {
-    enabled: !!contentIdeaId && contentIdeaId !== '',
-  });
-
+  } = ideasAdapter.getIdea(contentIdeaId);
+  
   // Handle updating the draft content
   const handleUpdateContent = async (content: string): Promise<void> => {
     if (!draft) return;
