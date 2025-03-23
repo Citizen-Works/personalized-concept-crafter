@@ -3,6 +3,7 @@ import { useQuery, useMutation } from '@tanstack/react-query';
 import { useTargetAudienceApi } from '../useTargetAudienceApi';
 import { TargetAudience } from '@/types';
 import { TargetAudienceCreateInput, TargetAudienceUpdateInput } from '../target-audience/types';
+import { useAuth } from '@/context/auth';
 
 /**
  * Adapter hook that provides the same interface as the original useTargetAudiences hook
@@ -10,11 +11,17 @@ import { TargetAudienceCreateInput, TargetAudienceUpdateInput } from '../target-
  */
 export const useTargetAudiencesAdapter = () => {
   const audienceApi = useTargetAudienceApi();
+  const { user } = useAuth();
+  const userId = user?.id;
   
   // Get all target audiences query
   const audiencesQuery = useQuery({
-    queryKey: ['targetAudiences'],
-    queryFn: () => audienceApi.fetchTargetAudiences()
+    queryKey: ['targetAudiences', userId],
+    queryFn: async () => {
+      return await audienceApi.fetchTargetAudiences.refetch().then(result => result.data || []);
+    },
+    enabled: !!userId,
+    initialData: []
   });
   
   // Create target audience mutation
@@ -57,8 +64,10 @@ export const useTargetAudiencesAdapter = () => {
   const getTargetAudience = (id: string) => {
     return useQuery({
       queryKey: ['targetAudience', id],
-      queryFn: () => audienceApi.fetchTargetAudienceById(id),
-      enabled: !!id
+      queryFn: async () => {
+        return await audienceApi.fetchTargetAudienceById(id);
+      },
+      enabled: !!id && !!userId
     });
   };
   

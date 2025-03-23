@@ -7,10 +7,8 @@ import { useAuth } from '@/context/auth';
 /**
  * Fetches content status counts for the dashboard
  */
-export const fetchContentStatusCounts = async (): Promise<ContentStatusCounts> => {
-  const { user } = useAuth.getState();
-  
-  if (!user?.id) {
+export const fetchContentStatusCounts = async (userId?: string): Promise<ContentStatusCounts> => {
+  if (!userId) {
     return {
       ideas: 0,
       drafts: 0,
@@ -23,7 +21,7 @@ export const fetchContentStatusCounts = async (): Promise<ContentStatusCounts> =
   const { count: ideasCount, error: ideasError } = await supabase
     .from('content_ideas')
     .select('*', { count: 'exact', head: true })
-    .eq('user_id', user.id)
+    .eq('user_id', userId)
     .eq('status', 'approved');
     
   if (ideasError) console.error('Error fetching ideas count:', ideasError);
@@ -32,7 +30,7 @@ export const fetchContentStatusCounts = async (): Promise<ContentStatusCounts> =
   const { count: draftsCount, error: draftsError } = await supabase
     .from('content_drafts')
     .select('*', { count: 'exact', head: true })
-    .eq('user_id', user.id)
+    .eq('user_id', userId)
     .eq('status', 'draft');
     
   if (draftsError) console.error('Error fetching drafts count:', draftsError);
@@ -41,7 +39,7 @@ export const fetchContentStatusCounts = async (): Promise<ContentStatusCounts> =
   const { count: publishedCount, error: publishedError } = await supabase
     .from('content_drafts')
     .select('*', { count: 'exact', head: true })
-    .eq('user_id', user.id)
+    .eq('user_id', userId)
     .eq('status', 'published');
     
   if (publishedError) console.error('Error fetching published count:', publishedError);
@@ -50,7 +48,7 @@ export const fetchContentStatusCounts = async (): Promise<ContentStatusCounts> =
   const { count: reviewCount, error: reviewError } = await supabase
     .from('content_drafts')
     .select('*', { count: 'exact', head: true })
-    .eq('user_id', user.id)
+    .eq('user_id', userId)
     .eq('status', 'review');
     
   if (reviewError) console.error('Error fetching review count:', reviewError);
@@ -66,8 +64,10 @@ export const fetchContentStatusCounts = async (): Promise<ContentStatusCounts> =
 /**
  * Query options for content status counts
  */
-export const getFetchContentStatusCountsOptions = (options?: Partial<UseQueryOptions<ContentStatusCounts, Error>>) => ({
-  queryKey: ['content-status-counts'],
+export const getFetchContentStatusCountsOptions = (userId?: string, options?: Partial<UseQueryOptions<ContentStatusCounts, Error>>) => ({
+  queryKey: ['content-status-counts', userId],
+  queryFn: () => fetchContentStatusCounts(userId),
+  enabled: !!userId,
   staleTime: 1000 * 60 * 5, // 5 minutes
   ...options
 });

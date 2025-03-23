@@ -2,6 +2,7 @@
 import { ContentStatusCounts, WeeklyStats, ActivityFeedItem } from '@/types';
 import { useTanstackApiQuery } from '../useTanstackApiQuery';
 import { UseQueryOptions } from '@tanstack/react-query';
+import { useAuth } from '@/context/auth';
 import { 
   fetchContentStatusCounts,
   getFetchContentStatusCountsOptions,
@@ -16,16 +17,18 @@ import {
  */
 export const useFetchAnalytics = () => {
   const { createQuery } = useTanstackApiQuery('AnalyticsApi');
+  const { user } = useAuth();
+  const userId = user?.id;
 
   /**
    * Fetch content status counts
    */
   const fetchContentStatusCountsQuery = (options?: Partial<UseQueryOptions<ContentStatusCounts, Error>>) => 
     createQuery<ContentStatusCounts, Error>(
-      fetchContentStatusCounts,
+      () => fetchContentStatusCounts(userId),
       'fetch-content-status-counts',
       {
-        ...getFetchContentStatusCountsOptions(options)
+        ...getFetchContentStatusCountsOptions(userId, options)
       }
     );
 
@@ -34,10 +37,10 @@ export const useFetchAnalytics = () => {
    */
   const fetchWeeklyStatsQuery = (options?: Partial<UseQueryOptions<WeeklyStats[], Error>>) => 
     createQuery<WeeklyStats[], Error>(
-      fetchWeeklyStats,
+      () => fetchWeeklyStats(userId),
       'fetch-weekly-stats',
       {
-        ...getFetchWeeklyStatsOptions(options)
+        ...getFetchWeeklyStatsOptions(userId, options)
       }
     );
 
@@ -46,10 +49,10 @@ export const useFetchAnalytics = () => {
    */
   const fetchActivityFeedQuery = (options?: Partial<UseQueryOptions<ActivityFeedItem[], Error>>) => 
     createQuery<ActivityFeedItem[], Error>(
-      fetchActivityFeed,
+      () => fetchActivityFeed(userId),
       'fetch-activity-feed',
       {
-        ...getFetchActivityFeedOptions(options)
+        ...getFetchActivityFeedOptions(userId, options)
       }
     );
 

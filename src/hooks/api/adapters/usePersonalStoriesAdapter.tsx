@@ -3,6 +3,7 @@ import { useQuery, useMutation } from '@tanstack/react-query';
 import { usePersonalStoriesApi } from '../usePersonalStoriesApi';
 import { PersonalStory } from '@/types';
 import { PersonalStoryCreateInput, PersonalStoryUpdateInput } from '../personal-stories/types';
+import { useAuth } from '@/context/auth';
 
 /**
  * Adapter hook that provides the same interface as the original usePersonalStories hook
@@ -10,11 +11,17 @@ import { PersonalStoryCreateInput, PersonalStoryUpdateInput } from '../personal-
  */
 export const usePersonalStoriesAdapter = () => {
   const storiesApi = usePersonalStoriesApi();
+  const { user } = useAuth();
+  const userId = user?.id;
   
   // Get all stories query
   const storiesQuery = useQuery({
-    queryKey: ['personalStories'],
-    queryFn: () => storiesApi.fetchPersonalStories()
+    queryKey: ['personalStories', userId],
+    queryFn: async () => {
+      return await storiesApi.fetchPersonalStories.refetch().then(result => result.data || []);
+    },
+    enabled: !!userId,
+    initialData: []
   });
   
   // Create story mutation
@@ -49,7 +56,11 @@ export const usePersonalStoriesAdapter = () => {
   const getPersonalStory = (id: string) => {
     return useQuery({
       queryKey: ['personalStory', id],
-      queryFn: () => storiesApi.fetchPersonalStoryById(id)
+      queryFn: async () => {
+        const result = await storiesApi.fetchPersonalStoryById(id);
+        return result;
+      },
+      enabled: !!id && !!userId
     });
   };
   
@@ -57,8 +68,11 @@ export const usePersonalStoriesAdapter = () => {
   const getPersonalStoriesByTag = (tag: string) => {
     return useQuery({
       queryKey: ['personalStories', 'byTag', tag],
-      queryFn: () => storiesApi.fetchPersonalStoriesByTag(tag),
-      enabled: !!tag
+      queryFn: async () => {
+        const result = await storiesApi.fetchPersonalStoriesByTag(tag);
+        return result;
+      },
+      enabled: !!tag && !!userId
     });
   };
   

@@ -2,15 +2,12 @@
 import { ActivityFeedItem } from '@/types';
 import { UseQueryOptions } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/context/auth';
 
 /**
  * Fetches activity feed for the dashboard
  */
-export const fetchActivityFeed = async (): Promise<ActivityFeedItem[]> => {
-  const { user } = useAuth.getState();
-  
-  if (!user?.id) {
+export const fetchActivityFeed = async (userId?: string): Promise<ActivityFeedItem[]> => {
+  if (!userId) {
     return [];
   }
 
@@ -21,7 +18,7 @@ export const fetchActivityFeed = async (): Promise<ActivityFeedItem[]> => {
   const { data: ideas, error: ideasError } = await supabase
     .from('content_ideas')
     .select('id, title, created_at, status_changed_at')
-    .eq('user_id', user.id)
+    .eq('user_id', userId)
     .order('created_at', { ascending: false })
     .limit(10);
     
@@ -46,7 +43,7 @@ export const fetchActivityFeed = async (): Promise<ActivityFeedItem[]> => {
   const { data: drafts, error: draftsError } = await supabase
     .from('content_drafts')
     .select('id, content_idea_id, created_at, status, updated_at')
-    .eq('user_id', user.id)
+    .eq('user_id', userId)
     .order('created_at', { ascending: false })
     .limit(10);
     
@@ -79,8 +76,10 @@ export const fetchActivityFeed = async (): Promise<ActivityFeedItem[]> => {
 /**
  * Query options for activity feed
  */
-export const getFetchActivityFeedOptions = (options?: Partial<UseQueryOptions<ActivityFeedItem[], Error>>) => ({
-  queryKey: ['activity-feed'],
+export const getFetchActivityFeedOptions = (userId?: string, options?: Partial<UseQueryOptions<ActivityFeedItem[], Error>>) => ({
+  queryKey: ['activity-feed', userId],
+  queryFn: () => fetchActivityFeed(userId),
+  enabled: !!userId,
   staleTime: 1000 * 60 * 5, // 5 minutes
   ...options
 });

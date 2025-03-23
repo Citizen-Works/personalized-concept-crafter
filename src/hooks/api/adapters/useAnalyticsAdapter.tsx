@@ -2,6 +2,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { useAnalyticsApi } from '../useAnalyticsApi';
 import { ContentStatusCounts, WeeklyStats, ActivityFeedItem } from '@/types';
+import { useAuth } from '@/context/auth';
 
 /**
  * Adapter hook that provides the same interface as the original useAnalytics hook
@@ -9,6 +10,7 @@ import { ContentStatusCounts, WeeklyStats, ActivityFeedItem } from '@/types';
  */
 export const useAnalyticsAdapter = () => {
   const analyticsApi = useAnalyticsApi();
+  const { user } = useAuth();
   
   // Access the queries from the API hook
   const statusCountsQuery = analyticsApi.fetchContentStatusCounts;
