@@ -42,13 +42,17 @@ export function useTanstackApiQuery(componentName: string) {
     } = options || {};
 
     // Ensure queryKey is provided - this is required by TanStack Query
-    if (!queryOptions.queryKey) {
+    const finalOptions: UseQueryOptions<TData, TError> = {
+      ...(queryOptions as UseQueryOptions<TData, TError>)
+    };
+    
+    if (!finalOptions.queryKey) {
       console.warn(`No queryKey provided for query: ${action}. Using fallback key.`);
-      queryOptions.queryKey = [`${componentName}-${action}`];
+      finalOptions.queryKey = [`${componentName}-${action}`];
     }
 
     return useQuery<TData, TError>({
-      ...queryOptions,
+      ...finalOptions,
       queryFn: async () => {
         try {
           return await queryFn();
@@ -63,6 +67,11 @@ export function useTanstackApiQuery(componentName: string) {
           throw error;
         }
       },
+      onSuccess: (data) => {
+        if (finalOptions.onSuccess) {
+          finalOptions.onSuccess(data);
+        }
+      },
       onError: (error) => {
         if (!suppressToast) {
           const message = errorMessage || `Failed to ${action}`;
@@ -70,11 +79,8 @@ export function useTanstackApiQuery(componentName: string) {
         }
         
         // Call the original onError if it exists
-        if (queryOptions.onError) {
-          queryOptions.onError(error, queryOptions.queryKey!, {
-            queryKey: queryOptions.queryKey!,
-            type: 'error'
-          });
+        if (finalOptions.onError) {
+          finalOptions.onError(error);
         }
       }
     });
