@@ -31,7 +31,11 @@ export const useUpdateLinkedinPost = () => {
           content: prepared.content,
           url: prepared.url,
           tag: prepared.tag,
-          published_at: prepared.publishedAt // This is now properly an ISO string
+          published_at: prepared.publishedAt === null 
+            ? null 
+            : typeof prepared.publishedAt === 'string' 
+              ? prepared.publishedAt 
+              : null // Fallback case, should not happen
         })
         .eq("id", id)
         .eq("user_id", user.id) // Security check
@@ -47,8 +51,9 @@ export const useUpdateLinkedinPost = () => {
       successMessage: 'LinkedIn post updated successfully',
       errorMessage: 'Failed to update LinkedIn post',
       onSuccess: (data) => {
-        invalidateQueries(`linkedin-posts-${user?.id || 'anonymous'}`);
-        invalidateQueries(`linkedin-post-${data.id}-${user?.id || 'anonymous'}`);
+        // Fix: Pass arrays instead of strings for queryKey
+        invalidateQueries([`linkedin-posts-${user?.id || 'anonymous'}`]);
+        invalidateQueries([`linkedin-post-${data.id}-${user?.id || 'anonymous'}`]);
       }
     }
   );

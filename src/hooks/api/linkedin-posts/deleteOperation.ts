@@ -27,7 +27,8 @@ export const useDeleteLinkedinPost = () => {
       successMessage: 'LinkedIn post deleted successfully',
       errorMessage: 'Failed to delete LinkedIn post',
       onSuccess: () => {
-        invalidateQueries(['linkedin-posts', user?.id]);
+        // Update to use array for queryKey
+        invalidateQueries([`linkedin-posts-${user?.id || 'anonymous'}`]);
       }
     }
   );
