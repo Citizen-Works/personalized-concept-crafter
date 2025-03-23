@@ -1,27 +1,26 @@
 
 import { PersonalStory } from '@/types';
-import { useTanstackApiQuery } from '../useTanstackApiQuery';
 import { useAuth } from '@/context/auth';
+import { useTanstackApiQuery } from '../useTanstackApiQuery';
 import { supabase } from '@/integrations/supabase/client';
 import { transformToPersonalStory } from './transformUtils';
 
 /**
- * Hook for personal story query operations
+ * Hook for fetching personal stories data
  */
 export const useFetchPersonalStories = () => {
   const { user } = useAuth();
   const { createQuery } = useTanstackApiQuery('PersonalStoriesApi');
 
-  // Fetch all personal stories
+  // Query to fetch all personal stories
   const fetchPersonalStoriesQuery = createQuery<PersonalStory[]>(
     async () => {
-      if (!user?.id) throw new Error("User not authenticated");
+      if (!user?.id) return [];
       
       const { data, error } = await supabase
         .from("personal_stories")
         .select("*")
         .eq("user_id", user.id)
-        .eq("is_archived", false)
         .order("created_at", { ascending: false });
         
       if (error) throw error;
@@ -35,49 +34,81 @@ export const useFetchPersonalStories = () => {
     }
   );
   
+  // Function to fetch a specific personal story by ID
+  const fetchPersonalStoryByIdQuery = (id: string) => 
+    createQuery<PersonalStory | null>(
+      async () => {
+        if (!user?.id || !id) return null;
+        
+        const { data, error } = await supabase
+          .from("personal_stories")
+          .select("*")
+          .eq("id", id)
+          .eq("user_id", user.id)
+          .single();
+          
+        if (error) {
+          if (error.code === 'PGRST116') return null; // No data found
+          throw error;
+        }
+        
+        return transformToPersonalStory(data);
+      },
+      'fetching personal story by id',
+      {
+        queryKey: ['personalStory', id, user?.id],
+        enabled: !!user && !!id
+      }
+    );
+  
+  // Function to fetch personal stories by tag
+  const fetchPersonalStoriesByTagQuery = (tag: string) => 
+    createQuery<PersonalStory[]>(
+      async () => {
+        if (!user?.id || !tag) return [];
+        
+        const { data, error } = await supabase
+          .from("personal_stories")
+          .select("*")
+          .eq("user_id", user.id)
+          .contains("tags", [tag])
+          .order("created_at", { ascending: false });
+          
+        if (error) throw error;
+        
+        return data.map(transformToPersonalStory);
+      },
+      'fetching personal stories by tag',
+      {
+        queryKey: ['personalStories', 'byTag', tag, user?.id],
+        enabled: !!user && !!tag
+      }
+    );
+  
+  // Function to fetch all personal stories
   const fetchPersonalStories = async (): Promise<PersonalStory[]> => {
     const result = await fetchPersonalStoriesQuery.refetch();
     return result.data || [];
   };
   
-  // Fetch a single personal story by ID
+  // Function to fetch a personal story by ID
   const fetchPersonalStoryById = async (id: string): Promise<PersonalStory | null> => {
-    if (!user?.id) throw new Error("User not authenticated");
-    
-    const { data, error } = await supabase
-      .from("personal_stories")
-      .select("*")
-      .eq("id", id)
-      .eq("user_id", user.id)
-      .maybeSingle();
-      
-    if (error) throw error;
-    if (!data) return null;
-    
-    return transformToPersonalStory(data);
+    const query = fetchPersonalStoryByIdQuery(id);
+    const result = await query.refetch();
+    return result.data || null;
   };
   
-  // Fetch personal stories by tag
+  // Function to fetch personal stories by tag
   const fetchPersonalStoriesByTag = async (tag: string): Promise<PersonalStory[]> => {
-    if (!user?.id) throw new Error("User not authenticated");
-    if (!tag) return [];
-    
-    const { data, error } = await supabase
-      .from("personal_stories")
-      .select("*")
-      .eq("user_id", user.id)
-      .eq("is_archived", false)
-      .contains("tags", [tag])
-      .order("created_at", { ascending: false });
-      
-    if (error) throw error;
-    
-    return data.map(transformToPersonalStory);
+    const query = fetchPersonalStoriesByTagQuery(tag);
+    const result = await query.refetch();
+    return result.data || [];
   };
   
   return {
     fetchPersonalStories,
     fetchPersonalStoryById,
-    fetchPersonalStoriesByTag
+    fetchPersonalStoriesByTag,
+    isLoading: fetchPersonalStoriesQuery.isLoading
   };
 };

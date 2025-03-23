@@ -18,6 +18,7 @@ export function useContentPillarsApi() {
     createContentPillar, 
     updateContentPillar, 
     archiveContentPillar,
+    incrementUsageCount,
     isLoading: isMutationLoading 
   } = useContentPillarMutations();
   
@@ -30,6 +31,7 @@ export function useContentPillarsApi() {
     createContentPillar,
     updateContentPillar,
     archiveContentPillar,
+    incrementUsageCount,
     
     // Loading state
     isLoading: isFetchLoading || isMutationLoading

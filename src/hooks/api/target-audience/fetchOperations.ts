@@ -4,67 +4,99 @@ import { useAuth } from '@/context/auth';
 import { useTanstackApiQuery } from '../useTanstackApiQuery';
 import { supabase } from '@/integrations/supabase/client';
 import { transformToTargetAudience } from './transformUtils';
+import { UseQueryOptions } from '@tanstack/react-query';
 
 /**
- * Hook for fetching target audiences data
+ * Hook for fetching target audience data
  */
 export const useFetchTargetAudiences = () => {
   const { user } = useAuth();
   const { createQuery } = useTanstackApiQuery('TargetAudienceApi');
 
-  const fetchTargetAudiences = (options = {}) => {
-    return createQuery<TargetAudience[]>(
+  // Query to fetch all target audiences
+  const fetchTargetAudiencesQuery = (options?: Partial<UseQueryOptions>) => 
+    createQuery<TargetAudience[]>(
       async () => {
-        if (!user?.id) throw new Error("User not authenticated");
+        if (!user?.id) return [];
         
         const { data, error } = await supabase
           .from("target_audiences")
           .select("*")
           .eq("user_id", user.id)
-          .order("created_at", { ascending: false });
+          .order("name");
           
         if (error) throw error;
         
-        return data.map(item => transformToTargetAudience(item));
+        return data.map(transformToTargetAudience);
       },
       'fetching target audiences',
       {
-        ...options,
         queryKey: ['targetAudiences', user?.id],
-        enabled: !!user
+        enabled: !!user,
+        ...options
       }
     );
-  };
   
-  const fetchTargetAudienceById = (id: string, options = {}) => {
-    return createQuery<TargetAudience | null>(
+  // Query to fetch a specific target audience by ID
+  const fetchTargetAudienceByIdQuery = (id: string, options?: Partial<UseQueryOptions>) => 
+    createQuery<TargetAudience | null>(
       async () => {
-        if (!user?.id) throw new Error("User not authenticated");
-        if (!id) throw new Error("Target audience ID is required");
+        if (!user?.id || !id) return null;
         
         const { data, error } = await supabase
           .from("target_audiences")
           .select("*")
           .eq("id", id)
           .eq("user_id", user.id)
-          .maybeSingle();
+          .single();
           
-        if (error) throw error;
-        if (!data) return null;
+        if (error) {
+          if (error.code === 'PGRST116') return null; // No data found
+          throw error;
+        }
         
         return transformToTargetAudience(data);
       },
-      `fetching target audience ${id}`,
+      'fetching target audience by id',
       {
-        ...options,
         queryKey: ['targetAudience', id, user?.id],
-        enabled: !!user && !!id
+        enabled: !!user && !!id,
+        ...options
       }
     );
-  };
-
+  
+  // Query to fetch target audiences by ids
+  const fetchTargetAudiencesByIdsQuery = (ids: string[], options?: Partial<UseQueryOptions>) => 
+    createQuery<TargetAudience[]>(
+      async () => {
+        if (!user?.id || ids.length === 0) return [];
+        
+        const { data, error } = await supabase
+          .from("target_audiences")
+          .select("*")
+          .eq("user_id", user.id)
+          .in("id", ids)
+          .order("name");
+          
+        if (error) throw error;
+        
+        return data.map(transformToTargetAudience);
+      },
+      'fetching target audiences by ids',
+      {
+        queryKey: ['targetAudiences', 'byIds', ids, user?.id],
+        enabled: !!user && ids.length > 0,
+        ...options
+      }
+    );
+  
+  // Create a base query to monitor loading state
+  const baseQuery = fetchTargetAudiencesQuery();
+  
   return {
-    fetchTargetAudiences,
-    fetchTargetAudienceById
+    fetchTargetAudiences: fetchTargetAudiencesQuery,
+    fetchTargetAudienceById: fetchTargetAudienceByIdQuery,
+    fetchTargetAudiencesByIds: fetchTargetAudiencesByIdsQuery,
+    isLoading: baseQuery.isLoading
   };
 };

@@ -14,6 +14,7 @@ export interface CallToActionUpdateInput {
   description?: string;
   url?: string;
   isArchived?: boolean;
+  usageCount?: number;
 }
 
 export interface CallToActionApiResponse {
@@ -22,8 +23,6 @@ export interface CallToActionApiResponse {
   createCallToAction: (cta: CallToActionCreateInput) => Promise<CallToAction>;
   updateCallToAction: (id: string, cta: CallToActionUpdateInput) => Promise<CallToAction>;
   archiveCallToAction: (id: string) => Promise<CallToAction>;
-  incrementUsageCount: (id: string) => Promise<CallToAction>;
-  selectedCallToAction: CallToAction | null;
-  setSelectedCallToAction: (cta: CallToAction | null) => void;
+  incrementUsageCount: (id: string) => Promise<number>;
   isLoading: boolean;
 }
