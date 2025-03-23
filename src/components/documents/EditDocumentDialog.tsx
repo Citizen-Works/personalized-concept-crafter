@@ -59,12 +59,11 @@ const EditDocumentDialog: React.FC<EditDocumentDialogProps> = ({
     try {
       setIsSubmitting(true);
       
-      await updateDocument({
-        id: document.id,
+      await updateDocument(document.id, {
         title,
         purpose,
         type,
-        content_type: contentType,
+        contentType
       });
       
       toast.success("Document updated successfully");

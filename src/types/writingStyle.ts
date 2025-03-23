@@ -37,3 +37,6 @@ export type WritingStyleProfile = {
   createdAt?: Date;
   updatedAt?: Date;
 };
+
+// Create a test profile type with optional fields for testing
+export type TestWritingStyleProfile = Partial<WritingStyleProfile>;

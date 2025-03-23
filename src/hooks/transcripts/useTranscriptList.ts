@@ -1,51 +1,43 @@
 
 import { useState, useCallback } from 'react';
-import { useDocuments } from '@/hooks/useDocuments';
-import { toast } from 'sonner';
-import { DocumentType } from '@/types';
+import { useTranscriptsApi } from '@/hooks/api/useTranscriptsApi';
+import { Document } from '@/types';
+import { saveAs } from 'file-saver';
 
-export const useTranscriptList = () => {
+/**
+ * Hook for managing transcript list functionality
+ */
+export function useTranscriptList() {
+  const { fetchTranscripts } = useTranscriptsApi();
   const [selectedTranscript, setSelectedTranscript] = useState<string | null>(null);
-  const [transcriptContent, setTranscriptContent] = useState<string>("");
+  const [transcriptContent, setTranscriptContent] = useState<string>('');
 
-  // Use the correct document type for the query
-  const { documents, isLoading } = useDocuments({ 
-    type: "transcript" as DocumentType,
-    status: "active"
-  });
+  const documents = fetchTranscripts.data || [];
+  const isLoading = fetchTranscripts.isPending;
 
+  /**
+   * Handle viewing a transcript
+   */
   const handleViewTranscript = useCallback((content: string) => {
     setTranscriptContent(content);
   }, []);
 
+  /**
+   * Handle exporting transcripts
+   */
   const handleExportTranscripts = useCallback(() => {
-    if (!documents || documents.length === 0) {
-      toast.error("No transcripts available to export");
-      return;
-    }
-    
-    try {
-      const formattedData = documents.map(doc => {
-        return `# ${doc.title}\nDate: ${doc.createdAt.toLocaleString()}\n\n${doc.content}\n\n---\n\n`;
-      }).join('');
-      
-      const blob = new Blob([formattedData], { type: 'text/plain' });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      
-      link.href = url;
-      link.download = `transcripts-export-${new Date().toISOString().split('T')[0]}.txt`;
-      
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      URL.revokeObjectURL(url);
-      
-      toast.success("Transcripts exported successfully");
-    } catch (error) {
-      console.error("Error exporting transcripts:", error);
-      toast.error("Failed to export transcripts");
-    }
+    // Generate a CSV string from the documents
+    const header = "Title,Created At,Content\n";
+    const csvContent = documents.reduce((acc, doc) => {
+      const title = doc.title.replace(/,/g, ' ');
+      const content = doc.content.replace(/,/g, ' ').replace(/\n/g, ' ');
+      const createdAt = doc.createdAt.toLocaleDateString();
+      return acc + `"${title}","${createdAt}","${content}"\n`;
+    }, header);
+
+    // Create a blob and save it
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8' });
+    saveAs(blob, `transcripts-export-${new Date().toISOString().slice(0, 10)}.csv`);
   }, [documents]);
 
   return {
@@ -56,4 +48,4 @@ export const useTranscriptList = () => {
     handleViewTranscript,
     handleExportTranscripts
   };
-};
+}

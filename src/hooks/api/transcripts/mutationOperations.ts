@@ -1,10 +1,31 @@
 
-import { Document } from '@/types';
+import { Document, DocumentType, DocumentPurpose } from '@/types';
 import { useAuth } from '@/context/auth';
 import { useTanstackApiQuery } from '../useTanstackApiQuery';
 import { supabase } from '@/integrations/supabase/client';
 import { processTranscriptForIdeas } from '@/services/documents/transcript/processTranscript';
 import { TranscriptCreateInput, TranscriptUpdateInput, TranscriptProcessingResult } from './types';
+
+/**
+ * Transform database record to Document type
+ */
+const transformToDocument = (doc: any): Document => {
+  return {
+    id: doc.id,
+    userId: doc.user_id,
+    title: doc.title,
+    content: doc.content || '',
+    type: doc.type as DocumentType,
+    purpose: doc.purpose as DocumentPurpose,
+    status: doc.status || 'active',
+    content_type: doc.content_type,
+    createdAt: new Date(doc.created_at),
+    isEncrypted: doc.is_encrypted || false,
+    processing_status: doc.processing_status || 'idle',
+    has_ideas: doc.has_ideas || false,
+    ideas_count: doc.ideas_count || 0
+  };
+};
 
 /**
  * Hook for transcript mutation operations
@@ -24,7 +45,7 @@ export const useTranscriptMutations = () => {
         user_id: user.id,
         title: input.title,
         content: input.content,
-        type: 'transcript',
+        type: 'transcript' as DocumentType,
         purpose: input.purpose || 'business_context',
         is_encrypted: input.isEncrypted || false,
         processing_status: 'idle'
@@ -38,21 +59,7 @@ export const useTranscriptMutations = () => {
       
       if (error) throw error;
       
-      return {
-        id: data.id,
-        userId: data.user_id,
-        title: data.title,
-        content: data.content || '',
-        type: data.type,
-        purpose: data.purpose,
-        status: data.status,
-        content_type: data.content_type,
-        createdAt: new Date(data.created_at),
-        isEncrypted: data.is_encrypted || false,
-        processing_status: data.processing_status || 'idle',
-        has_ideas: data.has_ideas || false,
-        ideas_count: data.ideas_count || 0
-      };
+      return transformToDocument(data);
     },
     'creating transcript',
     {
@@ -82,21 +89,7 @@ export const useTranscriptMutations = () => {
       
       if (error) throw error;
       
-      return {
-        id: updatedData.id,
-        userId: updatedData.user_id,
-        title: updatedData.title,
-        content: updatedData.content || '',
-        type: updatedData.type,
-        purpose: updatedData.purpose,
-        status: updatedData.status,
-        content_type: updatedData.content_type,
-        createdAt: new Date(updatedData.created_at),
-        isEncrypted: updatedData.is_encrypted || false,
-        processing_status: updatedData.processing_status || 'idle',
-        has_ideas: updatedData.has_ideas || false,
-        ideas_count: updatedData.ideas_count || 0
-      };
+      return transformToDocument(updatedData);
     },
     'updating transcript',
     {

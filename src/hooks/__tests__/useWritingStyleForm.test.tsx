@@ -2,7 +2,7 @@
 import { renderHook, act } from '@testing-library/react';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { useWritingStyleForm } from '../useWritingStyleForm';
-import { WritingStyleProfile } from '@/types/writingStyle';
+import { TestWritingStyleProfile } from '@/types/writingStyle';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
@@ -39,7 +39,7 @@ Object.defineProperty(window, 'location', {
 });
 
 describe('useWritingStyleForm', () => {
-  const mockInitialProfile: Partial<WritingStyleProfile> = {
+  const mockInitialProfile: TestWritingStyleProfile = {
     id: 'test-profile-id',
     voiceAnalysis: 'Initial voice analysis',
     generalStyleGuide: 'Initial general style',
@@ -55,7 +55,7 @@ describe('useWritingStyleForm', () => {
   });
 
   it('initializes with empty form state when no initial profile is provided', () => {
-    const { result } = renderHook(() => useWritingStyleForm());
+    const { result } = renderHook(() => useWritingStyleForm({ user_id: 'test-user-id' }));
     
     expect(result.current.formState).toEqual({
       voiceAnalysis: '',
@@ -69,7 +69,10 @@ describe('useWritingStyleForm', () => {
   });
 
   it('initializes with initial profile data when provided', () => {
-    const { result } = renderHook(() => useWritingStyleForm(mockInitialProfile));
+    const { result } = renderHook(() => useWritingStyleForm({ 
+      ...mockInitialProfile, 
+      user_id: 'test-user-id' 
+    } as any));
     
     expect(result.current.formState).toEqual({
       voiceAnalysis: 'Initial voice analysis',
@@ -83,7 +86,10 @@ describe('useWritingStyleForm', () => {
   });
 
   it('updates form state when handleInputChange is called', () => {
-    const { result } = renderHook(() => useWritingStyleForm(mockInitialProfile));
+    const { result } = renderHook(() => useWritingStyleForm({ 
+      ...mockInitialProfile, 
+      user_id: 'test-user-id' 
+    } as any));
     
     act(() => {
       result.current.handleInputChange({
@@ -101,7 +107,10 @@ describe('useWritingStyleForm', () => {
     // @ts-ignore - we're mocking
     (supabase.from as any) = fromMock;
     
-    const { result } = renderHook(() => useWritingStyleForm(mockInitialProfile));
+    const { result } = renderHook(() => useWritingStyleForm({ 
+      ...mockInitialProfile, 
+      user_id: 'test-user-id' 
+    } as any));
     
     await act(async () => {
       await result.current.saveWritingStyle();
@@ -128,7 +137,7 @@ describe('useWritingStyleForm', () => {
     // @ts-ignore - we're mocking
     (supabase.from as any) = fromMock;
     
-    const { result } = renderHook(() => useWritingStyleForm()); // No initial profile
+    const { result } = renderHook(() => useWritingStyleForm({ user_id: 'test-user-id' })); // No initial profile
     
     await act(async () => {
       await result.current.saveWritingStyle();
@@ -166,7 +175,10 @@ describe('useWritingStyleForm', () => {
     
     const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
     
-    const { result } = renderHook(() => useWritingStyleForm(mockInitialProfile));
+    const { result } = renderHook(() => useWritingStyleForm({ 
+      ...mockInitialProfile, 
+      user_id: 'test-user-id' 
+    } as any));
     
     await act(async () => {
       await result.current.saveWritingStyle();
@@ -179,7 +191,10 @@ describe('useWritingStyleForm', () => {
   });
 
   it('getPreviewProfile returns a complete profile with both camelCase and snake_case properties', () => {
-    const { result } = renderHook(() => useWritingStyleForm(mockInitialProfile));
+    const { result } = renderHook(() => useWritingStyleForm({ 
+      ...mockInitialProfile, 
+      user_id: 'test-user-id' 
+    } as any));
     
     const previewProfile = result.current.getPreviewProfile();
     

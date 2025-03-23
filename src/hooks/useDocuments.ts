@@ -2,7 +2,9 @@
 import { useState, useCallback } from 'react';
 import { useAuth } from '@/context/auth';
 import { useTranscriptsApi } from './api/useTranscriptsApi';
-import { Document } from '@/types';
+import { useDocumentsApi } from './api/useDocumentsApi'; 
+import { Document, DocumentType, DocumentStatus } from '@/types';
+import { toast } from 'sonner';
 
 /**
  * Hook for managing document operations
@@ -14,38 +16,85 @@ export function useDocuments() {
     createTranscript, 
     updateTranscript, 
     deleteTranscript,
-    processTranscript,
-    isLoading 
+    processTranscript: processTranscriptApi,
+    isLoading: isTranscriptsLoading 
   } = useTranscriptsApi();
 
+  const {
+    fetchDocuments,
+    createDocument,
+    updateDocument: updateDocumentApi,
+    deleteDocument,
+    isLoading: isDocumentsLoading
+  } = useDocumentsApi();
+
   const [processingIds, setProcessingIds] = useState<string[]>([]);
+  const [uploadProgress, setUploadProgress] = useState(0);
 
   /**
    * Upload a new document (transcript)
    */
-  const uploadDocument = async (title: string, content: string, type = 'transcript') => {
+  const uploadDocument = async (file: File, documentData: any) => {
     if (!user) {
       console.error("User not authenticated");
       return null;
     }
 
     try {
-      return await createTranscript({
-        title,
+      // Simulate upload progress
+      setUploadProgress(0);
+      const progressInterval = setInterval(() => {
+        setUploadProgress(prev => {
+          if (prev >= 95) {
+            clearInterval(progressInterval);
+            return 95;
+          }
+          return prev + 5;
+        });
+      }, 200);
+
+      // Read the file content
+      const content = await readFileAsText(file);
+      
+      // Create the document
+      const result = await createDocument({
+        title: documentData.title,
         content,
-        type: type as any, // Type assertion for compatibility
-        purpose: 'business_context'
+        type: documentData.type as DocumentType, 
+        purpose: documentData.purpose,
+        contentType: documentData.content_type,
+        status: documentData.status
       });
+
+      clearInterval(progressInterval);
+      setUploadProgress(100);
+      
+      toast.success("Document uploaded successfully");
+      return result;
     } catch (error) {
       console.error("Error uploading document:", error);
+      setUploadProgress(0);
+      toast.error("Failed to upload document");
       throw error;
     }
   };
 
   /**
+   * Helper function to read file content
+   */
+  const readFileAsText = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (e) => resolve(e.target?.result as string);
+      reader.onerror = (e) => reject(e);
+      reader.readAsText(file);
+    });
+  };
+
+  /**
    * Process a document to extract ideas
    */
-  const processDocumentForIdeas = useCallback(async (documentId: string): Promise<boolean> => {
+  const processTranscript = useCallback(async (documentId: string): Promise<boolean> => {
     if (!user) {
       console.error("User not authenticated");
       return false;
@@ -59,7 +108,7 @@ export function useDocuments() {
     try {
       setProcessingIds(prev => [...prev, documentId]);
       
-      await processTranscript(documentId);
+      await processTranscriptApi(documentId);
       
       return true;
     } catch (error) {
@@ -68,9 +117,43 @@ export function useDocuments() {
     } finally {
       setProcessingIds(prev => prev.filter(id => id !== documentId));
     }
-  }, [user, processingIds, processTranscript]);
+  }, [user, processingIds, processTranscriptApi]);
 
-  const documents = fetchTranscripts.data || [];
+  /**
+   * Update document status
+   */
+  const updateDocumentStatus = async (documentId: string, status: DocumentStatus) => {
+    try {
+      await updateDocumentApi(documentId, { status });
+      toast.success(`Document ${status === 'archived' ? 'archived' : 'restored'} successfully`);
+      return true;
+    } catch (error) {
+      console.error("Error updating document status:", error);
+      toast.error(`Failed to ${status === 'archived' ? 'archive' : 'restore'} document`);
+      return false;
+    }
+  };
+
+  // For backward compatibility, implement methods that other components expect
+  const refetch = () => {
+    return fetchDocuments.refetch();
+  };
+
+  const createDocumentAsync = async (data: any) => {
+    return createDocument(data);
+  };
+
+  // Get document by ID
+  const fetchDocument = (id: string) => {
+    const doc = fetchDocuments.data?.find(d => d.id === id);
+    return doc || null;
+  };
+
+  // For backward compatibility with existing components
+  const error = fetchDocuments.error || null;
+  const documents = fetchDocuments.data || [];
+  const isLoading = isTranscriptsLoading || isDocumentsLoading;
+  const isProcessing = processingIds.length > 0;
   const isDocumentProcessing = useCallback((documentId: string) => {
     return processingIds.includes(documentId);
   }, [processingIds]);
@@ -78,9 +161,17 @@ export function useDocuments() {
   return {
     documents,
     isLoading,
-    isProcessing: processingIds.length > 0,
+    isProcessing,
+    error,
     uploadDocument,
-    processTranscript: processDocumentForIdeas,
-    isDocumentProcessing
+    uploadProgress,
+    processTranscript,
+    isDocumentProcessing,
+    refetch,
+    createDocument,
+    createDocumentAsync,
+    updateDocument: updateDocumentApi,
+    updateDocumentStatus,
+    fetchDocument
   };
 }

@@ -1,75 +1,118 @@
 
-import { useCallback } from 'react';
-import { useDocuments } from '@/hooks/useDocuments';
+import { useState } from 'react';
+import { useTranscriptsApi } from '@/hooks/api/useTranscriptsApi';
+import { Document, DocumentType } from '@/types';
 import { toast } from 'sonner';
-import { DocumentType } from '@/types';
 
-export const useTranscriptUpload = () => {
-  const { createDocumentAsync, uploadDocument } = useDocuments();
+/**
+ * Hook for managing transcript upload functionality
+ */
+export function useTranscriptUpload() {
+  const { createTranscript } = useTranscriptsApi();
+  const [isUploading, setIsUploading] = useState(false);
 
-  const handleUploadDocument = useCallback(async (file: File, title: string) => {
+  /**
+   * Handle file upload
+   */
+  const handleUploadDocument = async (file: File, title: string): Promise<Document | null> => {
     try {
-      // Using "transcript" type to match database constraints
-      const documentData = {
-        title: title,
-        type: "transcript" as DocumentType,
-        purpose: "business_context" as const,
-        content_type: null,
-        status: "active" as const
-      };
+      setIsUploading(true);
       
-      await uploadDocument(file, documentData);
-      toast.success("Transcript uploaded successfully");
+      // Read the file content
+      const content = await readFileAsText(file);
+      
+      // Create the transcript
+      const document = await createTranscript({
+        title,
+        content,
+        type: 'transcript' as DocumentType
+      });
+      
+      toast.success("Document uploaded successfully");
+      return document;
     } catch (error) {
       console.error("Error uploading document:", error);
       toast.error("Failed to upload document");
-      throw error;
+      return null;
+    } finally {
+      setIsUploading(false);
     }
-  }, [uploadDocument]);
-  
-  const handleAddText = useCallback(async (text: string, title: string) => {
-    if (!text.trim()) {
-      toast.error("Text content cannot be empty");
-      throw new Error("Text content cannot be empty");
-    }
-    
+  };
+
+  /**
+   * Read file as text
+   */
+  const readFileAsText = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (e) => resolve(e.target?.result as string);
+      reader.onerror = (e) => reject(e);
+      reader.readAsText(file);
+    });
+  };
+
+  /**
+   * Handle adding text
+   */
+  const handleAddText = async (title: string, content: string): Promise<Document | null> => {
     try {
-      await createDocumentAsync({
-        title: title,
-        content: text,
-        type: "transcript" as DocumentType,
-        purpose: "business_context" as const,
-        content_type: null,
-        status: "active" as const
+      // Create the transcript
+      const document = await createTranscript({
+        title,
+        content,
+        type: 'transcript' as DocumentType
       });
       
       toast.success("Text added successfully");
+      return document;
     } catch (error) {
       console.error("Error adding text:", error);
       toast.error("Failed to add text");
-      throw error;
+      return null;
     }
-  }, [createDocumentAsync]);
+  };
 
-  const handleAddRecording = useCallback(async (text: string, title: string): Promise<void> => {
-    if (!text.trim()) {
-      toast.error("Recorded text cannot be empty");
-      throw new Error("Recorded text cannot be empty");
-    }
-    
+  /**
+   * Handle adding a recording
+   */
+  const handleAddRecording = async (title: string, audioBlob: Blob): Promise<Document | null> => {
     try {
-      await handleAddText(text, title);
-      toast.success("Recording transcript added successfully");
+      // Convert the audio blob to base64
+      const base64Audio = await blobToBase64(audioBlob);
+      
+      // Create the transcript with audio metadata
+      const document = await createTranscript({
+        title,
+        content: "Audio recording - awaiting transcription",
+        type: 'transcript' as DocumentType,
+        isEncrypted: false
+      });
+      
+      toast.success("Recording added successfully");
+      return document;
     } catch (error) {
       console.error("Error adding recording:", error);
-      toast.error("Failed to add recording transcript");
-      throw error;
+      toast.error("Failed to add recording");
+      return null;
     }
-  }, [handleAddText]);
+  };
+
+  /**
+   * Convert blob to base64
+   */
+  const blobToBase64 = (blob: Blob): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = reject;
+      reader.readAsDataURL(blob);
+    });
+  };
 
   return {
     handleUploadDocument,
     handleAddText,
-    handleAddRecording
+    handleAddRecording,
+    isUploading
   };
-};
+}

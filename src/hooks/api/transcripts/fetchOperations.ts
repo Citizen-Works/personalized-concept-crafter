@@ -1,9 +1,30 @@
 
-import { Document } from '@/types';
+import { Document, DocumentType, DocumentPurpose, DocumentStatus, DocumentContentType } from '@/types';
 import { useAuth } from '@/context/auth';
 import { useTanstackApiQuery } from '../useTanstackApiQuery';
 import { supabase } from '@/integrations/supabase/client';
 import { TranscriptFilterOptions } from './types';
+
+/**
+ * Transform database record to Document type
+ */
+const transformToDocument = (doc: any): Document => {
+  return {
+    id: doc.id,
+    userId: doc.user_id,
+    title: doc.title,
+    content: doc.content || '',
+    type: doc.type as DocumentType, // Type assertion to ensure compatibility
+    purpose: doc.purpose as DocumentPurpose,
+    status: doc.status as DocumentStatus,
+    content_type: doc.content_type as DocumentContentType,
+    createdAt: new Date(doc.created_at),
+    isEncrypted: doc.is_encrypted || false,
+    processing_status: doc.processing_status || 'idle',
+    has_ideas: doc.has_ideas || false,
+    ideas_count: doc.ideas_count || 0
+  };
+};
 
 /**
  * Hook for fetching transcript operations
@@ -15,7 +36,7 @@ export const useFetchTranscripts = () => {
   /**
    * Fetch all transcripts for the current user
    */
-  const fetchTranscripts = createQuery<Document[], Error>(
+  const fetchTranscripts = createQuery<Document[]>(
     async () => {
       if (!user?.id) throw new Error("User not authenticated");
       
@@ -30,21 +51,7 @@ export const useFetchTranscripts = () => {
       
       if (!data) return [];
       
-      return data.map(doc => ({
-        id: doc.id,
-        userId: doc.user_id,
-        title: doc.title,
-        content: doc.content || '',
-        type: doc.type,
-        purpose: doc.purpose,
-        status: doc.status,
-        content_type: doc.content_type,
-        createdAt: new Date(doc.created_at),
-        isEncrypted: doc.is_encrypted || false,
-        processing_status: doc.processing_status || 'idle',
-        has_ideas: doc.has_ideas || false,
-        ideas_count: doc.ideas_count || 0
-      }));
+      return data.map(doc => transformToDocument(doc));
     },
     'fetching transcripts',
     {
@@ -56,8 +63,8 @@ export const useFetchTranscripts = () => {
   /**
    * Fetch a single transcript by ID
    */
-  const fetchTranscriptById = createQuery<Document, Error>(
-    async (id: string) => {
+  const fetchTranscriptById = (id?: string) => createQuery<Document>(
+    async () => {
       if (!user?.id) throw new Error("User not authenticated");
       if (!id) throw new Error("Transcript ID is required");
       
@@ -71,33 +78,20 @@ export const useFetchTranscripts = () => {
       
       if (error) throw error;
       
-      return {
-        id: data.id,
-        userId: data.user_id,
-        title: data.title,
-        content: data.content || '',
-        type: data.type,
-        purpose: data.purpose,
-        status: data.status,
-        content_type: data.content_type,
-        createdAt: new Date(data.created_at),
-        isEncrypted: data.is_encrypted || false,
-        processing_status: data.processing_status || 'idle',
-        has_ideas: data.has_ideas || false,
-        ideas_count: data.ideas_count || 0
-      };
+      return transformToDocument(data);
     },
-    'fetching transcript by ID',
+    `fetching transcript ${id}`,
     {
-      enabled: false // This query won't run automatically
+      queryKey: ['transcript', id, user?.id],
+      enabled: !!user?.id && !!id
     }
   );
   
   /**
    * Fetch filtered transcripts
    */
-  const fetchFilteredTranscripts = createQuery<Document[], Error>(
-    async (filters: TranscriptFilterOptions) => {
+  const fetchFilteredTranscripts = (filters?: TranscriptFilterOptions) => createQuery<Document[]>(
+    async () => {
       if (!user?.id) throw new Error("User not authenticated");
       
       let query = supabase
@@ -107,7 +101,7 @@ export const useFetchTranscripts = () => {
         .eq('type', 'transcript');
       
       // Apply filters if provided
-      if (filters.purpose) {
+      if (filters?.purpose) {
         query = query.eq('purpose', filters.purpose);
       }
       
@@ -117,25 +111,12 @@ export const useFetchTranscripts = () => {
       
       if (!data) return [];
       
-      return data.map(doc => ({
-        id: doc.id,
-        userId: doc.user_id,
-        title: doc.title,
-        content: doc.content || '',
-        type: doc.type,
-        purpose: doc.purpose,
-        status: doc.status,
-        content_type: doc.content_type,
-        createdAt: new Date(doc.created_at),
-        isEncrypted: doc.is_encrypted || false,
-        processing_status: doc.processing_status || 'idle',
-        has_ideas: doc.has_ideas || false,
-        ideas_count: doc.ideas_count || 0
-      }));
+      return data.map(doc => transformToDocument(doc));
     },
     'fetching filtered transcripts',
     {
-      enabled: false // This query won't run automatically
+      queryKey: ['transcripts', 'filtered', user?.id, filters],
+      enabled: !!user?.id
     }
   );
   
