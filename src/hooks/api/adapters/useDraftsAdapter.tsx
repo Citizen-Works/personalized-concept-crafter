@@ -30,8 +30,7 @@ export const useDraftsAdapter = () => {
   // Update draft mutation
   const updateDraftMutation = useMutation({
     mutationFn: (params: { id: string } & DraftUpdateInput) => {
-      const { id, ...updateData } = params;
-      return draftsApi.updateDraft(id, updateData);
+      return draftsApi.updateDraft(params);
     },
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['drafts'] });

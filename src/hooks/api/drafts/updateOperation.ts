@@ -14,8 +14,10 @@ export const useUpdateDraft = () => {
   const { createMutation, invalidateQueries } = useTanstackApiQuery('DraftsApi');
 
   const updateDraftMutation = createMutation<ContentDraft, { id: string } & DraftUpdateInput>(
-    async ({ id, ...updates }) => {
+    async (params) => {
       if (!user?.id) throw new Error("User not authenticated");
+      
+      const { id, ...updates } = params;
       
       // Prepare the snake_case update data for Supabase
       const updateData: Record<string, any> = {};
