@@ -124,14 +124,17 @@ export const useTargetAudienceApi = () => {
     return api.request(
       async () => {
         // Transform input to snake_case for the database
-        const dbInput = prepareApiRequest({
-          ...input,
-          userId
-        });
+        const snakeCaseInput = {
+          name: input.name,
+          description: input.description,
+          pain_points: input.painPoints,
+          goals: input.goals,
+          user_id: userId
+        };
         
         const { data, error } = await supabase
           .from('target_audiences')
-          .insert([dbInput])
+          .insert([snakeCaseInput])
           .select()
           .single();
         
@@ -172,11 +175,17 @@ export const useTargetAudienceApi = () => {
     return api.request(
       async () => {
         // Transform updates to snake_case for the database
-        const dbUpdates = prepareApiRequest(updates);
+        const snakeCaseUpdates: any = {};
+        
+        if (updates.name !== undefined) snakeCaseUpdates.name = updates.name;
+        if (updates.description !== undefined) snakeCaseUpdates.description = updates.description;
+        if (updates.painPoints !== undefined) snakeCaseUpdates.pain_points = updates.painPoints;
+        if (updates.goals !== undefined) snakeCaseUpdates.goals = updates.goals;
+        if (updates.isArchived !== undefined) snakeCaseUpdates.is_archived = updates.isArchived;
         
         const { data, error } = await supabase
           .from('target_audiences')
-          .update(dbUpdates)
+          .update(snakeCaseUpdates)
           .eq('id', id)
           .eq('user_id', userId)
           .select()
