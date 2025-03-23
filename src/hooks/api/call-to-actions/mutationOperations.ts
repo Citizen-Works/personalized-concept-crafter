@@ -175,8 +175,8 @@ export const useCallToActionMutations = () => {
     return result;
   };
   
-  // Get the isLoading state from one of the mutations
-  const { isLoading } = createMutation<any, any>(
+  // Create a dummy mutation to track loading state
+  const dummyMutation = createMutation<any, any>(
     async () => null,
     'dummy mutation for loading state',
     { onSuccess: () => {} }
@@ -187,6 +187,6 @@ export const useCallToActionMutations = () => {
     updateCallToAction,
     archiveCallToAction,
     incrementUsageCount,
-    isLoading
+    isLoading: dummyMutation.isPending // Use isPending instead of isLoading
   };
 };

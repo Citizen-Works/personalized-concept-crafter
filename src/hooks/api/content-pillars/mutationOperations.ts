@@ -122,8 +122,8 @@ export const useContentPillarMutations = () => {
     return updateContentPillar(id, { isArchived: true });
   };
   
-  // Get the isLoading state from one of the mutations
-  const { isLoading } = createMutation<any, any>(
+  // Create a dummy mutation to track loading state
+  const dummyMutation = createMutation<any, any>(
     async () => null,
     'dummy mutation for loading state',
     { onSuccess: () => {} }
@@ -133,6 +133,6 @@ export const useContentPillarMutations = () => {
     createContentPillar,
     updateContentPillar,
     archiveContentPillar,
-    isLoading
+    isLoading: dummyMutation.isPending // Use isPending instead of isLoading
   };
 };
