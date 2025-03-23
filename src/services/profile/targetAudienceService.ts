@@ -25,11 +25,11 @@ export async function fetchTargetAudiences(userId: string): Promise<TargetAudien
         userId: transformedData.userId,
         name: transformedData.name,
         description: transformedData.description || '',
-        // Ensure arrays are handled correctly by converting to native arrays
+        // Ensure arrays are handled correctly by explicitly converting to native arrays
         painPoints: Array.isArray(transformedData.painPoints) ? 
-          [...transformedData.painPoints] : [],
+          [...transformedData.painPoints] as string[] : [],
         goals: Array.isArray(transformedData.goals) ? 
-          [...transformedData.goals] : [],
+          [...transformedData.goals] as string[] : [],
         createdAt: new Date(transformedData.createdAt),
         isArchived: transformedData.isArchived || false,
         usageCount: transformedData.usageCount || 0

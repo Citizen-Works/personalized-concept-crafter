@@ -50,6 +50,15 @@ export const useContentIdeaApi = () => {
       // Transform database response to match ContentIdea interface
       const transformedData = processApiResponse(data);
       
+      // Properly handle array types with explicit conversion
+      const contentPillarIds = Array.isArray(transformedData.contentPillarIds) 
+        ? transformedData.contentPillarIds as string[]
+        : [];
+        
+      const targetAudienceIds = Array.isArray(transformedData.targetAudienceIds)
+        ? transformedData.targetAudienceIds as string[]
+        : [];
+      
       // Create a properly typed ContentIdea object using the factory function
       const contentIdea = createContentIdea({
         id: transformedData.id,
@@ -63,9 +72,8 @@ export const useContentIdeaApi = () => {
         status: transformedData.status as ContentStatus,
         hasBeenUsed: transformedData.hasBeenUsed,
         createdAt: new Date(transformedData.createdAt),
-        // Handle potentially missing fields with default values
-        contentPillarIds: transformedData.contentPillarIds || [],
-        targetAudienceIds: transformedData.targetAudienceIds || []
+        contentPillarIds: contentPillarIds,
+        targetAudienceIds: targetAudienceIds
       });
       
       toast.success(`Idea updated to ${newStatus}`);
