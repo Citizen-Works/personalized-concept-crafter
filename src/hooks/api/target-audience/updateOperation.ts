@@ -5,7 +5,6 @@ import { useTanstackApiQuery } from '../useTanstackApiQuery';
 import { supabase } from '@/integrations/supabase/client';
 import { transformToTargetAudience } from './transformUtils';
 import { TargetAudienceUpdateInput } from './types';
-import { prepareApiRequest } from '@/utils/apiResponseUtils';
 
 /**
  * Hook for updating a target audience
@@ -18,8 +17,15 @@ export const useUpdateTargetAudience = () => {
     async ({ id, updates }) => {
       if (!user?.id) throw new Error("User not authenticated");
       
-      // Prepare the updates for Supabase with snake_case keys
-      const requestData = prepareApiRequest(updates);
+      // Convert camelCase to snake_case directly
+      const requestData: Record<string, any> = {};
+      
+      if (updates.name !== undefined) requestData.name = updates.name;
+      if (updates.description !== undefined) requestData.description = updates.description;
+      if (updates.painPoints !== undefined) requestData.pain_points = updates.painPoints;
+      if (updates.goals !== undefined) requestData.goals = updates.goals;
+      if (updates.isArchived !== undefined) requestData.is_archived = updates.isArchived;
+      if (updates.usageCount !== undefined) requestData.usage_count = updates.usageCount;
       
       const { data, error } = await supabase
         .from("target_audiences")

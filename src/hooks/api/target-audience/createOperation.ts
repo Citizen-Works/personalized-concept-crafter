@@ -26,7 +26,7 @@ export const useCreateTargetAudience = () => {
       
       const { data, error } = await supabase
         .from("target_audiences")
-        .insert([requestData])
+        .insert(requestData)
         .select()
         .single();
         

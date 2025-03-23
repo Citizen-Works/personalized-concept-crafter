@@ -101,6 +101,16 @@ export const processApiResponse = <T extends Record<string, any>>(response: T): 
 /**
  * Transforms frontend model to database format for requests
  */
-export const prepareApiRequest = <T extends Record<string, any>>(request: T): SnakeCase<T> => {
-  return transformToSnakeCase(request);
+export const prepareApiRequest = <T extends Record<string, any>>(request: T): Record<string, any> => {
+  // Use regular JS conversion instead of type transformations to avoid TypeScript issues with arrays
+  const result: Record<string, any> = {};
+  
+  for (const key in request) {
+    if (Object.prototype.hasOwnProperty.call(request, key)) {
+      const snakeKey = camelToSnake(key);
+      result[snakeKey] = request[key];
+    }
+  }
+  
+  return result;
 };

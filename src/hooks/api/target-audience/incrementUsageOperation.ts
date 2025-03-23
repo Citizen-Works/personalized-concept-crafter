@@ -16,10 +16,10 @@ export const useIncrementTargetAudienceUsage = () => {
     async (id) => {
       if (!user?.id) throw new Error("User not authenticated");
       
-      // Increment the usage_count using a Postgres operation
+      // Increment the usage_count directly in the update
       const { data, error } = await supabase
         .from("target_audiences")
-        .update({ usage_count: supabase.rpc('increment_counter', { row_id: id, table_name: 'target_audiences', counter_name: 'usage_count' }) })
+        .update({ usage_count: supabase.rpc('increment', { row_id: id }) })
         .eq("id", id)
         .eq("user_id", user.id) // Security check
         .select()
