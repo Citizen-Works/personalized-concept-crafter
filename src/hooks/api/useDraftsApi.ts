@@ -2,7 +2,7 @@
 import { ContentDraft } from '@/types';
 import { useFetchDrafts } from './drafts/fetchOperations';
 import { useDraftMutations } from './drafts/mutationOperations';
-import { DraftCreateInput, DraftUpdateInput } from './drafts/types';
+import { DraftCreateInput, DraftUpdateInput, DraftWithIdea } from './drafts/types';
 
 /**
  * Hook for standardized Draft API operations
@@ -33,4 +33,4 @@ export function useDraftsApi() {
 }
 
 // Re-export types for convenience
-export type { DraftCreateInput, DraftUpdateInput };
+export type { DraftCreateInput, DraftUpdateInput, DraftWithIdea };

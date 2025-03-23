@@ -2,7 +2,8 @@
 import { useQuery } from '@tanstack/react-query';
 import { ContentDraft } from '@/types';
 import { supabase } from '@/integrations/supabase/client';
-import { transformToDraft } from './transformUtils';
+import { transformToDraft, transformToJoinedDraft } from './transformUtils';
+import { DraftWithIdea } from './types';
 
 /**
  * Hook for fetching all drafts
@@ -11,10 +12,13 @@ export const useFetchDrafts = () => {
   /**
    * Fetch all drafts
    */
-  const fetchDrafts = async (): Promise<ContentDraft[]> => {
+  const fetchDrafts = async (): Promise<DraftWithIdea[]> => {
     const { data, error } = await supabase
       .from('content_drafts')
-      .select('*')
+      .select(`
+        *,
+        content_ideas:content_idea_id (title)
+      `)
       .order('created_at', { ascending: false });
 
     if (error) {
@@ -22,13 +26,13 @@ export const useFetchDrafts = () => {
       throw error;
     }
 
-    return data.map(transformToDraft);
+    return data.map(transformToJoinedDraft);
   };
 
   /**
    * Fetch a single draft by ID
    */
-  const fetchDraftById = async (id: string): Promise<ContentDraft> => {
+  const fetchDraftById = async (id: string): Promise<DraftWithIdea> => {
     const { data, error } = await supabase
       .from('content_drafts')
       .select(`
@@ -43,13 +47,13 @@ export const useFetchDrafts = () => {
       throw error;
     }
 
-    return transformToDraft(data);
+    return transformToJoinedDraft(data);
   };
 
   /**
    * Fetch drafts by content idea ID
    */
-  const fetchDraftsByIdeaId = async (ideaId: string): Promise<ContentDraft[]> => {
+  const fetchDraftsByIdeaId = async (ideaId: string): Promise<DraftWithIdea[]> => {
     const { data, error } = await supabase
       .from('content_drafts')
       .select(`
@@ -64,7 +68,7 @@ export const useFetchDrafts = () => {
       throw error;
     }
 
-    return data.map(transformToDraft);
+    return data.map(transformToJoinedDraft);
   };
 
   return {

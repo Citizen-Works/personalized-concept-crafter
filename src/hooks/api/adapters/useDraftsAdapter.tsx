@@ -1,10 +1,7 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useDraftsApi, DraftCreateInput, DraftUpdateInput } from '../useDraftsApi';
-import { ContentDraft, ContentType, DraftStatus } from '@/types';
-
-// Import the DraftWithIdea type
-import { DraftWithIdea } from '@/services/draftService';
+import { DraftWithIdea } from '../drafts/types';
 
 /**
  * Adapter hook that provides the same interface as the original useDrafts hook
@@ -51,22 +48,11 @@ export const useDraftsAdapter = () => {
     }
   });
   
-  // Convert ContentDraft[] to DraftWithIdea[]
-  const transformToDraftWithIdea = (drafts: ContentDraft[]): DraftWithIdea[] => {
-    return drafts.map(draft => ({
-      ...draft,
-      ideaTitle: 'Untitled Draft', // Default title as fallback
-      contentType: draft.contentType,
-      status: draft.status
-    }));
-  };
-  
   // Custom hook for getting drafts by idea ID
   const getDraftsByIdeaId = (ideaId: string) => {
     return useQuery({
       queryKey: ['drafts', 'byIdeaId', ideaId],
-      queryFn: () => draftsApi.fetchDraftsByIdeaId(ideaId),
-      select: (data) => transformToDraftWithIdea(data)
+      queryFn: () => draftsApi.fetchDraftsByIdeaId(ideaId)
     });
   };
   
@@ -75,18 +61,12 @@ export const useDraftsAdapter = () => {
     return useQuery({
       queryKey: ['draft', id],
       queryFn: () => draftsApi.fetchDraftById(id),
-      enabled: !!id,
-      select: (data) => ({
-        ...data,
-        ideaTitle: 'Untitled Draft',
-        contentType: data.contentType,
-        status: data.status
-      })
+      enabled: !!id
     });
   };
   
   return {
-    drafts: transformToDraftWithIdea(draftsQuery.data || []),
+    drafts: draftsQuery.data || [],
     isLoading: draftsQuery.isLoading,
     isError: draftsQuery.isError,
     getDraftsByIdeaId,
