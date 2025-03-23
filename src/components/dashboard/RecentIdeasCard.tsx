@@ -5,16 +5,11 @@ import { ArrowRight } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-
-interface RecentIdea {
-  id: string;
-  title: string;
-  status: string;
-  date: string;
-}
+import { ContentIdea } from '@/types';
+import { IdeaContentCard } from '@/components/shared/IdeaContentCard';
 
 interface RecentIdeasCardProps {
-  ideas: RecentIdea[];
+  ideas: ContentIdea[];
   isLoading: boolean;
 }
 
@@ -51,28 +46,11 @@ export const RecentIdeasCard = ({ ideas, isLoading }: RecentIdeasCardProps) => {
         ) : ideas.length > 0 ? (
           <div className="space-y-4">
             {ideas.map((idea) => (
-              <div key={idea.id} className="flex flex-col sm:flex-row sm:items-center justify-between border-b pb-3 last:border-0 last:pb-0">
-                <div>
-                  <h4 className="font-medium text-sm sm:text-base line-clamp-1">{idea.title}</h4>
-                  <div className="flex items-center gap-2 mt-1">
-                    <span className="text-xs text-muted-foreground">{idea.date}</span>
-                    <div className={`inline-flex items-center rounded-full border px-2 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 ${
-                      idea.status === 'approved' 
-                        ? 'bg-green-50 text-green-700 border-green-200' 
-                        : idea.status === 'drafted' 
-                        ? 'bg-blue-50 text-blue-700 border-blue-200'
-                        : 'bg-gray-50 text-gray-700 border-gray-200'
-                    }`}>
-                      {idea.status.charAt(0).toUpperCase() + idea.status.slice(1)}
-                    </div>
-                  </div>
-                </div>
-                <Button variant="ghost" size="sm" className="p-2 hidden sm:flex mt-2 sm:mt-0">
-                  <Link to={`/ideas/${idea.id}`} className="flex items-center">
-                    <ArrowRight className="h-4 w-4" />
-                  </Link>
-                </Button>
-              </div>
+              <IdeaContentCard
+                key={idea.id}
+                idea={idea}
+                showActions={false}
+              />
             ))}
           </div>
         ) : (

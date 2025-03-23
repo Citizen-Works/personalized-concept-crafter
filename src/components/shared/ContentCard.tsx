@@ -2,7 +2,6 @@
 import React from 'react';
 import { Card, CardHeader, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
 import { ContentStatus, DraftStatus } from '@/types/status';
 import { ContentType } from '@/types';
 import { StatusBadge, TypeBadge } from '@/components/ui/StatusBadge';
@@ -18,9 +17,8 @@ interface ContentCardProps {
   status?: ContentStatus | DraftStatus;
   statusType?: 'content' | 'draft';
   createdAt?: Date;
-  isSelectable?: boolean;
+  selectionElement?: React.ReactNode;
   isSelected?: boolean;
-  onToggleSelect?: (id: string) => void;
   actions?: React.ReactNode;
   detailPath?: string;
   children?: React.ReactNode;
@@ -34,26 +32,18 @@ export const ContentCard: React.FC<ContentCardProps> = ({
   status,
   statusType = 'content',
   createdAt,
-  isSelectable = false,
+  selectionElement,
   isSelected = false,
-  onToggleSelect,
   actions,
   detailPath,
   children
 }) => {
   return (
-    <Card key={id} className="overflow-hidden transition-all duration-200">
+    <Card key={id} className={`overflow-hidden transition-all duration-200 ${isSelected ? 'border-primary' : ''}`}>
       <CardHeader className="pb-2">
         <div className="flex items-start">
-          {isSelectable && onToggleSelect && (
-            <Checkbox 
-              id={`select-${id}`} 
-              className="mr-2 mt-1"
-              checked={isSelected}
-              onCheckedChange={() => onToggleSelect(id)}
-            />
-          )}
-          <div className="flex flex-col">
+          {selectionElement}
+          <div className="flex flex-col w-full">
             <div className="flex flex-col sm:flex-row sm:items-center gap-2">
               <h3 className="text-base font-medium">{title}</h3>
               <div className="flex flex-wrap gap-1">
@@ -70,7 +60,7 @@ export const ContentCard: React.FC<ContentCardProps> = ({
             </div>
             {createdAt && (
               <p className="text-xs text-muted-foreground mt-1">
-                {formatDistanceToNow(new Date(createdAt), { addSuffix: true })}
+                {formatDistanceToNow(createdAt, { addSuffix: true })}
               </p>
             )}
           </div>

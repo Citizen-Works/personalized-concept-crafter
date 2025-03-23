@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { ContentIdea, ContentStatus, ContentType } from '@/types';
-import IdeaCard from './IdeaCard';
+import { IdeaContentCard } from '@/components/shared/IdeaContentCard';
 import EmptyIdeasState from './EmptyIdeasState';
 
 interface IdeasListProps {
@@ -37,12 +37,12 @@ const IdeasList: React.FC<IdeasListProps> = ({
   return (
     <div className="space-y-4">
       {filteredIdeas.map((idea) => (
-        <IdeaCard
+        <IdeaContentCard
           key={idea.id}
           idea={idea}
-          onDeleteIdea={onDeleteIdea}
-          getStatusBadgeClasses={getStatusBadgeClasses}
-          getTypeBadgeClasses={getTypeBadgeClasses}
+          onDelete={onDeleteIdea}
+          showCheckbox={false}
+          onGenerate={(id) => window.location.href = `/ideas/${id}`}
         />
       ))}
     </div>

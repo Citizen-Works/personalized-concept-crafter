@@ -19,7 +19,7 @@ This document outlines the step-by-step approach to implementing the codebase st
 ### Tasks:
 1. ✅ Create shared card components
 2. ✅ Create shared badge components
-3. ☐ Refactor idea list views to use shared components
+3. ✅ Refactor idea list views to use shared components
 4. ☐ Refactor draft list views to use shared components
 5. ☐ Refactor document list views to use shared components
 6. ☐ Add Storybook documentation for shared components
@@ -128,12 +128,15 @@ After each phase:
 5. ✅ Fixed WritingStyleProfile type consistency issues
 6. ✅ Added proper data refetching to WritingStylePage
 7. ✅ Ensured both camelCase and snake_case property support in WritingStyle hooks
+8. ✅ Created shared IdeaContentCard component for idea list views
+9. ✅ Refactored IdeasTab and IdeasList to use shared components
+10. ✅ Updated RecentIdeasCard to use shared components
 
 ## Next Steps
 
 1. Continue with Phase 2: Component Consolidation
-   - Prioritize refactoring idea list views to use shared components
-   - Create consistent card and list item components for content pipelines
+   - Refactor draft list views to use shared components
+   - Create consistent draft card components for content pipelines
    
 2. Progress on Phase 3: Data Model Alignment
    - Standardize response processing from API calls

@@ -1,9 +1,7 @@
 
 import React from 'react';
 import { ContentType } from '@/types';
-import { getTypeBadgeClasses, getStatusBadgeClasses } from '@/components/ideas/BadgeUtils';
 import { 
-  IdeaItem,
   IdeasEmptyState, 
   IdeasDeleteDialog,
   IdeasLoadingState,
@@ -18,6 +16,7 @@ import {
   SelectTrigger,
   SelectValue
 } from "@/components/ui/select";
+import { IdeaContentCard } from '@/components/shared/IdeaContentCard';
 
 interface IdeasTabProps {
   searchQuery: string;
@@ -47,10 +46,8 @@ export const IdeasTab: React.FC<IdeasTabProps> = ({
   } = useIdeasList({ searchQuery, dateRange, contentTypeFilter });
   
   const handleDeleteButtonClick = (id: string) => {
-    if (window.confirm('Are you sure you want to delete this idea?')) {
-      setItemToDelete(id);
-      handleDeleteConfirm();
-    }
+    setItemToDelete(id);
+    setDeleteConfirmOpen(true);
   };
   
   if (isLoading) {
@@ -95,18 +92,20 @@ export const IdeasTab: React.FC<IdeasTabProps> = ({
       />
       
       {/* Ideas list */}
-      {sortedIdeas.map((idea) => (
-        <IdeaItem
-          key={idea.id}
-          idea={idea}
-          isSelected={selectedItems.includes(idea.id)}
-          isUpdating={isDeleting && (itemToDelete === idea.id || selectedItems.includes(idea.id))}
-          onToggleSelect={handleToggleSelect}
-          onDelete={handleDeleteButtonClick}
-          getStatusBadgeClasses={getStatusBadgeClasses}
-          getTypeBadgeClasses={getTypeBadgeClasses}
-        />
-      ))}
+      <div className="space-y-4">
+        {sortedIdeas.map((idea) => (
+          <IdeaContentCard
+            key={idea.id}
+            idea={idea}
+            isSelected={selectedItems.includes(idea.id)}
+            isUpdating={isDeleting && (itemToDelete === idea.id || selectedItems.includes(idea.id))}
+            onToggleSelect={handleToggleSelect}
+            onDelete={handleDeleteButtonClick}
+            showCheckbox={true}
+            showActions={true}
+          />
+        ))}
+      </div>
       
       {/* Delete confirmation */}
       <IdeasDeleteDialog
