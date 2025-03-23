@@ -17,6 +17,7 @@ const DraftDetailPage = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { getDraft, updateDraft, deleteDraft } = useDraftsAdapter();
+  const { getIdea } = useIdeas();
   
   // Fetch the draft
   const { 
@@ -27,7 +28,7 @@ const DraftDetailPage = () => {
   } = getDraft(id || '');
   
   // Fetch the associated idea if we have a contentIdeaId
-  const { getIdea } = useIdeas();
+  // Only run the query when draft is loaded and has a contentIdeaId
   const { 
     data: idea,
     isLoading: isIdeaLoading
@@ -41,7 +42,6 @@ const DraftDetailPage = () => {
         id: draft.id,
         content
       });
-      // We don't need to return a boolean anymore
     } catch (error) {
       console.error('Error updating draft content:', error);
       toast.error('Failed to update content');
