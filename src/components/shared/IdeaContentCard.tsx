@@ -105,7 +105,7 @@ export const IdeaContentCard: React.FC<IdeaContentCardProps> = ({
       description={idea.description}
       status={idea.status}
       statusType="content"
-      contentType={idea.contentType}
+      // Remove the contentType prop since it doesn't exist on ContentIdea
       createdAt={createdDate}
       detailPath={`/ideas/${idea.id}`}
       actions={actions}
