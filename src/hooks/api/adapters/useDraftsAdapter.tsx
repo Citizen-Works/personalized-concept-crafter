@@ -16,21 +16,21 @@ export const useDraftsAdapter = () => {
   // Create draft mutation
   const createDraftMutation = useMutation({
     mutationFn: (draft: DraftCreateInput) => {
-      return draftsApi.createDraft().mutateAsync(draft);
+      return draftsApi.createDraft(draft);
     }
   });
   
   // Update draft mutation
   const updateDraftMutation = useMutation({
     mutationFn: (params: { id: string } & DraftUpdateInput) => {
-      return draftsApi.updateDraft().mutateAsync(params);
+      return draftsApi.updateDraft(params);
     }
   });
   
   // Delete draft mutation
   const deleteDraftMutation = useMutation({
     mutationFn: (params: { id: string, contentIdeaId: string }) => {
-      return draftsApi.deleteDraft().mutateAsync(params);
+      return draftsApi.deleteDraft(params.id, params.contentIdeaId);
     }
   });
   
@@ -50,10 +50,19 @@ export const useDraftsAdapter = () => {
     isError: draftsQuery.isError,
     getDraftsByIdeaId,
     getDraft,
-    createDraft: createDraftMutation.mutate,
-    createDraftAsync: createDraftMutation.mutateAsync,
-    updateDraft: updateDraftMutation.mutate,
-    updateDraftAsync: updateDraftMutation.mutateAsync,
-    deleteDraft: deleteDraftMutation.mutate
+    createDraft: (draft: DraftCreateInput) => createDraftMutation.mutate(draft),
+    createDraftAsync: (draft: DraftCreateInput) => createDraftMutation.mutateAsync(draft),
+    updateDraft: (params: { id: string } & DraftUpdateInput) => updateDraftMutation.mutate(params),
+    updateDraftAsync: (params: { id: string } & DraftUpdateInput) => updateDraftMutation.mutateAsync(params),
+    deleteDraft: (id: string) => {
+      // Since our new API requires contentIdeaId for optimal cache invalidation,
+      // we first need to get the draft to obtain its contentIdeaId
+      getDraft(id).refetch().then(result => {
+        const draft = result.data as ContentDraft;
+        if (draft) {
+          deleteDraftMutation.mutate({ id, contentIdeaId: draft.contentIdeaId });
+        }
+      });
+    }
   };
 };
