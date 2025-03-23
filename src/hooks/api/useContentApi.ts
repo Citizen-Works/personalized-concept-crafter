@@ -3,6 +3,8 @@ import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { ContentIdea, ContentDraft, ContentStatus, DraftStatus, ContentSource, ContentType } from '@/types';
 import { toast } from 'sonner';
+import { processApiResponse, prepareApiRequest } from '@/utils/apiResponseUtils';
+import { createContentIdea, createContentDraft, isValidIdeaStatusTransition, isValidDraftStatusTransition } from '@/utils/modelFactory';
 
 /**
  * Hook for content idea API operations
@@ -22,6 +24,19 @@ export const useContentIdeaApi = () => {
     setError(null);
     
     try {
+      const { data: currentIdea, error: fetchError } = await supabase
+        .from('content_ideas')
+        .select('status')
+        .eq('id', ideaId)
+        .single();
+      
+      if (fetchError) throw fetchError;
+      
+      // Validate status transition
+      if (!isValidIdeaStatusTransition(currentIdea.status as ContentStatus, newStatus)) {
+        throw new Error(`Invalid status transition: ${currentIdea.status} to ${newStatus}`);
+      }
+      
       const { data, error } = await supabase
         .from('content_ideas')
         .update({ status: newStatus })
@@ -32,27 +47,27 @@ export const useContentIdeaApi = () => {
       if (error) throw error;
       
       // Transform database response to match ContentIdea interface
-      // Handle missing or undefined fields with defaults
-      const transformedData: ContentIdea = {
-        id: data.id,
-        userId: data.user_id,
-        title: data.title,
-        description: data.description || '',
-        notes: data.notes || '',
-        source: (data.source || 'manual') as ContentSource, // Cast to ContentSource type
-        meetingTranscriptExcerpt: data.meeting_transcript_excerpt,
-        sourceUrl: data.source_url,
-        status: data.status as ContentStatus,
-        hasBeenUsed: data.has_been_used || false,
-        createdAt: new Date(data.created_at),
-        // The database schema may not have these fields yet
-        // Using optional chaining and nullish coalescing to safely handle
-        contentPillarIds: (data as any)?.content_pillar_ids || [], 
-        targetAudienceIds: (data as any)?.target_audience_ids || [] 
-      };
+      const transformedData = processApiResponse(data);
+      
+      // Create a properly typed ContentIdea object using the factory function
+      const contentIdea = createContentIdea({
+        id: transformedData.id,
+        userId: transformedData.userId,
+        title: transformedData.title,
+        description: transformedData.description,
+        notes: transformedData.notes,
+        source: transformedData.source as ContentSource,
+        meetingTranscriptExcerpt: transformedData.meetingTranscriptExcerpt,
+        sourceUrl: transformedData.sourceUrl,
+        status: transformedData.status as ContentStatus,
+        hasBeenUsed: transformedData.hasBeenUsed,
+        createdAt: new Date(transformedData.createdAt),
+        contentPillarIds: transformedData.contentPillarIds,
+        targetAudienceIds: transformedData.targetAudienceIds
+      });
       
       toast.success(`Idea updated to ${newStatus}`);
-      return transformedData;
+      return contentIdea;
     } catch (err) {
       console.error('Error updating idea status:', err);
       setError(err as Error);
@@ -88,6 +103,19 @@ export const useContentDraftApi = () => {
     setError(null);
     
     try {
+      const { data: currentDraft, error: fetchError } = await supabase
+        .from('content_drafts')
+        .select('status')
+        .eq('id', draftId)
+        .single();
+      
+      if (fetchError) throw fetchError;
+      
+      // Validate status transition
+      if (!isValidDraftStatusTransition(currentDraft.status as DraftStatus, newStatus)) {
+        throw new Error(`Invalid status transition: ${currentDraft.status} to ${newStatus}`);
+      }
+      
       const { data, error } = await supabase
         .from('content_drafts')
         .update({ status: newStatus })
@@ -97,24 +125,24 @@ export const useContentDraftApi = () => {
       
       if (error) throw error;
       
-      // Transform database response to match ContentDraft interface with proper handling for missing fields
-      const transformedData: ContentDraft = {
-        id: data.id,
-        contentIdeaId: data.content_idea_id,
-        content: data.content,
-        // Handle potentially missing content_type field with a default
-        // Using type assertion to avoid TypeScript errors
-        contentType: ((data as any)?.content_type || 'linkedin') as ContentType,
-        // Handle potentially missing content_goal field
-        contentGoal: (data as any)?.content_goal || undefined,
-        version: data.version,
-        feedback: data.feedback || '',
-        status: data.status as DraftStatus,
-        createdAt: new Date(data.created_at)
-      };
+      // Transform database response to match ContentDraft interface
+      const transformedData = processApiResponse(data);
+      
+      // Create a properly typed ContentDraft object using the factory function
+      const contentDraft = createContentDraft({
+        id: transformedData.id,
+        contentIdeaId: transformedData.contentIdeaId,
+        content: transformedData.content,
+        contentType: (transformedData.contentType || 'linkedin') as ContentType,
+        contentGoal: transformedData.contentGoal,
+        version: transformedData.version,
+        feedback: transformedData.feedback,
+        status: transformedData.status as DraftStatus,
+        createdAt: new Date(transformedData.createdAt)
+      });
       
       toast.success(`Draft updated to ${newStatus}`);
-      return transformedData;
+      return contentDraft;
     } catch (err) {
       console.error('Error updating draft status:', err);
       setError(err as Error);

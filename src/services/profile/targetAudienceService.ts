@@ -1,6 +1,7 @@
 
 import { supabase } from '@/integrations/supabase/client';
 import { TargetAudience } from '@/types';
+import { processApiResponse } from '@/utils/apiResponseUtils';
 
 /**
  * Fetches the target audiences for a user
@@ -14,15 +15,20 @@ export async function fetchTargetAudiences(userId: string): Promise<TargetAudien
     
     if (error) throw error;
     
-    return data.map(audience => ({
-      id: audience.id,
-      userId: audience.user_id,
-      name: audience.name,
-      description: audience.description || '',
-      painPoints: audience.pain_points || [],
-      goals: audience.goals || [],
-      createdAt: new Date(audience.created_at)
-    }));
+    // Transform response data to ensure consistent property naming
+    return data.map(audience => {
+      const transformedData = processApiResponse(audience);
+      
+      return {
+        id: transformedData.id,
+        userId: transformedData.userId,
+        name: transformedData.name,
+        description: transformedData.description || '',
+        painPoints: transformedData.painPoints || [],
+        goals: transformedData.goals || [],
+        createdAt: new Date(transformedData.createdAt)
+      };
+    });
   } catch (error) {
     console.error('Error fetching target audiences:', error);
     return [];

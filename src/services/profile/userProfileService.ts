@@ -1,5 +1,6 @@
 
 import { supabase } from '@/integrations/supabase/client';
+import { processApiResponse } from '@/utils/apiResponseUtils';
 
 // Define User type directly based on the existing structure in the codebase
 interface User {
@@ -28,15 +29,18 @@ export async function fetchUserProfile(userId: string): Promise<User | null> {
     
     if (!profile) return null;
     
+    // Process response to ensure consistent property naming
+    const transformedData = processApiResponse(profile);
+    
     return {
-      id: profile.id,
+      id: transformedData.id,
       email: '', // Not stored in profiles table
-      name: profile.name || '',
-      businessName: profile.business_name || '',
-      businessDescription: profile.business_description || '',
-      linkedinUrl: profile.linkedin_url || '',
-      jobTitle: profile.job_title || '',
-      createdAt: new Date(profile.created_at)
+      name: transformedData.name || '',
+      businessName: transformedData.businessName || '',
+      businessDescription: transformedData.businessDescription || '',
+      linkedinUrl: transformedData.linkedinUrl || '',
+      jobTitle: transformedData.jobTitle || '',
+      createdAt: new Date(transformedData.createdAt)
     };
   } catch (error) {
     console.error('Error fetching user profile:', error);

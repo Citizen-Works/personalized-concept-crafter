@@ -1,6 +1,7 @@
 
 import { supabase } from '@/integrations/supabase/client';
 import { ContentPillar } from '@/types';
+import { processApiResponse } from '@/utils/apiResponseUtils';
 
 /**
  * Fetches the content pillars for a user
@@ -14,13 +15,18 @@ export async function fetchContentPillars(userId: string): Promise<ContentPillar
     
     if (error) throw error;
     
-    return data.map(pillar => ({
-      id: pillar.id,
-      userId: pillar.user_id,
-      name: pillar.name,
-      description: pillar.description || '',
-      createdAt: new Date(pillar.created_at)
-    }));
+    // Transform response data to ensure consistent property naming
+    return data.map(pillar => {
+      const transformedData = processApiResponse(pillar);
+      
+      return {
+        id: transformedData.id,
+        userId: transformedData.userId,
+        name: transformedData.name,
+        description: transformedData.description || '',
+        createdAt: new Date(transformedData.createdAt)
+      };
+    });
   } catch (error) {
     console.error('Error fetching content pillars:', error);
     return [];
