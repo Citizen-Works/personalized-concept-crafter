@@ -62,7 +62,7 @@ export const Transcript: Story = {
       ...sampleDocument,
       title: 'Customer Interview Transcript',
       type: 'transcript',
-      content: 'Interviewer: Can you tell us about your experience with our product? Customer: I've been using it for about 6 months now and I find it very intuitive. The interface is clean, though I sometimes struggle with the export functionality.',
+      content: 'Interviewer: Can you tell us about your experience with our product? Customer: I\'ve been using it for about 6 months now and I find it very intuitive. The interface is clean, though I sometimes struggle with the export functionality.',
     },
   },
 };
