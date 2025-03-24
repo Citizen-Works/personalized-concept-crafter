@@ -31,14 +31,14 @@ export function AddContentPillarDialog({ onPillarAdded }: AddContentPillarDialog
   const [open, setOpen] = React.useState(false);
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const { user } = useAuth();
-  const { createContentPillarAsync } = useContentPillarsAdapter();
+  const { createContentPillar } = useContentPillarsAdapter();
 
   const handleSubmit = async (values: ContentPillarFormValues) => {
     if (!user) return;
     
     setIsSubmitting(true);
     try {
-      await createContentPillarAsync({
+      await createContentPillar({
         name: values.name,
         description: values.description || "",
       });
