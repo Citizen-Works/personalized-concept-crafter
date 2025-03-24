@@ -76,8 +76,9 @@ export const useTargetAudiencesAdapter = () => {
     }
   });
   
-  // Custom hook for getting a single target audience - Modified to fix the error
+  // Custom hook for getting a single target audience
   const getTargetAudience = (id: string) => {
+    // Return the hook configuration directly instead of trying to call the result
     return useQuery({
       queryKey: ['targetAudience', id, userId],
       queryFn: () => audienceApi.fetchTargetAudienceById(id),
