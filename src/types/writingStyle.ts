@@ -2,29 +2,29 @@
 export type WritingStyleProfile = {
   id?: string;
   userId?: string;
-  user_id?: string; // Make user_id optional
+  user_id?: string;
   
   // Map from snake_case DB fields to camelCase for frontend use
   voice_analysis?: string;
-  voiceAnalysis: string;
+  voiceAnalysis?: string;
   
   general_style_guide?: string;
-  generalStyleGuide: string;
+  generalStyleGuide?: string;
   
   linkedin_style_guide?: string;
-  linkedinStyleGuide: string;
+  linkedinStyleGuide?: string;
   
   newsletter_style_guide?: string;
-  newsletterStyleGuide: string;
+  newsletterStyleGuide?: string;
   
   marketing_style_guide?: string;
-  marketingStyleGuide: string;
+  marketingStyleGuide?: string;
   
   vocabulary_patterns?: string;
-  vocabularyPatterns: string;
+  vocabularyPatterns?: string;
   
   avoid_patterns?: string;
-  avoidPatterns: string;
+  avoidPatterns?: string;
   
   // Arrays for examples
   exampleQuotes?: string[];
