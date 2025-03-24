@@ -63,16 +63,23 @@ const WaitlistPage = () => {
         
         <HeroSection scrollToSection={scrollToSection} painPointsRef={painPointsRef} />
         <PainPointsSection scrollToSection={scrollToSection} solutionRef={solutionRef} />
-        <SolutionSection />
+        <SolutionSection ref={solutionRef} />
+        
         <div className="bg-black">
           <BenefitsList />
         </div>
+        
         <div className="bg-black">
-          <ScreenshotsCarousel />
+          <ScreenshotsCarousel 
+            title="See Content Engine in Action" 
+            description="Our platform transforms your expertise into engaging content for multiple channels" 
+          />
         </div>
+        
         <div className="bg-black">
           <TrustedBySection />
         </div>
+        
         <CTASection />
         
         <footer className="bg-black border-t border-border mt-24 py-8">

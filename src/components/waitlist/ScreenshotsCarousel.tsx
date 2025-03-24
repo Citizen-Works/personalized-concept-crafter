@@ -67,7 +67,7 @@ const ScreenshotsCarousel = ({ className, title, description }: ScreenshotsCarou
   };
 
   return (
-    <div className={cn("py-16 px-4 text-center", className)}>
+    <div className={cn("py-16 px-4 text-center bg-black", className)}>
       {title && (
         <h2 className="text-3xl md:text-4xl font-bold mb-4 text-white">
           {title}

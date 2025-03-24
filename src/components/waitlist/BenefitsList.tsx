@@ -42,7 +42,7 @@ const BenefitsList = ({ className }: BenefitsListProps) => {
   ];
 
   return (
-    <div className={`grid md:grid-cols-2 gap-3 md:gap-4 max-w-4xl mx-auto mb-8 md:mb-10 bg-dark/95 ${className}`}>
+    <div className={`grid md:grid-cols-2 gap-3 md:gap-4 max-w-4xl mx-auto mb-8 md:mb-10 bg-black ${className}`}>
       {benefits.map((benefit, index) => (
         <ResponsiveBenefitItem key={index} text={benefit} />
       ))}
