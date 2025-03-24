@@ -1,4 +1,3 @@
-
 import React from "react";
 import {
   Dialog,
@@ -12,7 +11,8 @@ import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { TargetAudienceForm } from "./TargetAudienceForm";
 import { z } from "zod";
-import { useTargetAudiencesAdapter } from "@/hooks/api/adapters/useTargetAudiencesAdapter";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/context/auth";
 import { toast } from "sonner";
 
 const formSchema = z.object({
@@ -31,17 +31,22 @@ interface AddTargetAudienceDialogProps {
 export function AddTargetAudienceDialog({ onAudienceAdded }: AddTargetAudienceDialogProps) {
   const [open, setOpen] = React.useState(false);
   const [isSubmitting, setIsSubmitting] = React.useState(false);
-  const { createTargetAudienceAsync } = useTargetAudiencesAdapter();
+  const { user } = useAuth();
 
   const handleSubmit = async (values: TargetAudienceFormValues) => {
+    if (!user) return;
+    
     setIsSubmitting(true);
     try {
-      await createTargetAudienceAsync({
+      const { error } = await supabase.from("target_audiences").insert({
         name: values.name,
         description: values.description || "",
-        painPoints: values.painPoints || [],
+        pain_points: values.painPoints || [],
         goals: values.goals || [],
+        user_id: user.id,
       });
+
+      if (error) throw error;
       
       toast.success("Target audience created successfully!");
       setOpen(false);

@@ -1,9 +1,8 @@
 
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation } from '@tanstack/react-query';
 import { useCallToActionsApi } from '../useCallToActionsApi';
 import { CallToAction } from '@/types';
 import { CallToActionCreateInput, CallToActionUpdateInput } from '../call-to-actions/types';
-import { useAuth } from '@/context/auth';
 
 /**
  * Adapter hook that provides the same interface as the original useCallToActions hook
@@ -11,27 +10,17 @@ import { useAuth } from '@/context/auth';
  */
 export const useCallToActionsAdapter = () => {
   const ctaApi = useCallToActionsApi();
-  const queryClient = useQueryClient();
-  const { user } = useAuth();
-  const userId = user?.id;
   
   // Get all call to actions query
   const ctasQuery = useQuery({
-    queryKey: ['callToActions', userId],
-    queryFn: () => ctaApi.fetchCallToActions(),
-    enabled: !!userId
+    queryKey: ['callToActions'],
+    queryFn: () => ctaApi.fetchCallToActions()
   });
   
   // Create call to action mutation
   const createCtaMutation = useMutation({
     mutationFn: (cta: CallToActionCreateInput) => {
       return ctaApi.createCallToAction(cta);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['callToActions', userId] });
-    },
-    onError: (error) => {
-      console.error('Error creating call to action:', error);
     }
   });
   
@@ -39,9 +28,6 @@ export const useCallToActionsAdapter = () => {
   const updateCtaMutation = useMutation({
     mutationFn: (params: { id: string, updates: CallToActionUpdateInput }) => {
       return ctaApi.updateCallToAction(params.id, params.updates);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['callToActions', userId] });
     }
   });
   
@@ -49,9 +35,6 @@ export const useCallToActionsAdapter = () => {
   const archiveCtaMutation = useMutation({
     mutationFn: (id: string) => {
       return ctaApi.archiveCallToAction(id);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['callToActions', userId] });
     }
   });
   
@@ -59,18 +42,14 @@ export const useCallToActionsAdapter = () => {
   const incrementUsageCountMutation = useMutation({
     mutationFn: (id: string) => {
       return ctaApi.incrementUsageCount(id);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['callToActions', userId] });
     }
   });
   
   // Custom hook for getting a single call to action
   const getCallToAction = (id: string) => {
     return useQuery({
-      queryKey: ['callToAction', id, userId],
-      queryFn: () => ctaApi.fetchCallToActionById(id),
-      enabled: !!id && !!userId
+      queryKey: ['callToAction', id],
+      queryFn: () => ctaApi.fetchCallToActionById(id)
     });
   };
   

@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react';
 import { WritingStyleProfile } from '@/types/writingStyle';
 import { useAuth } from '@/context/auth';
@@ -38,23 +37,23 @@ export function useWritingStyle() {
     try {
       if (profile.id) {
         await updateWritingStyleProfile(profile.id, {
-          voiceAnalysis: profile.voiceAnalysis || profile.voice_analysis || '',
-          generalStyleGuide: profile.generalStyleGuide || profile.general_style_guide || '',
-          linkedinStyleGuide: profile.linkedinStyleGuide || profile.linkedin_style_guide || '',
-          newsletterStyleGuide: profile.newsletterStyleGuide || profile.newsletter_style_guide || '',
-          marketingStyleGuide: profile.marketingStyleGuide || profile.marketing_style_guide || '',
-          vocabularyPatterns: profile.vocabularyPatterns || profile.vocabulary_patterns || '',
-          avoidPatterns: profile.avoidPatterns || profile.avoid_patterns || ''
+          voiceAnalysis: profile.voiceAnalysis,
+          generalStyleGuide: profile.generalStyleGuide,
+          linkedinStyleGuide: profile.linkedinStyleGuide,
+          newsletterStyleGuide: profile.newsletterStyleGuide,
+          marketingStyleGuide: profile.marketingStyleGuide,
+          vocabularyPatterns: profile.vocabularyPatterns,
+          avoidPatterns: profile.avoidPatterns
         });
       } else {
         await createWritingStyleProfile({
-          voiceAnalysis: profile.voiceAnalysis || profile.voice_analysis || '',
-          generalStyleGuide: profile.generalStyleGuide || profile.general_style_guide || '',
-          linkedinStyleGuide: profile.linkedinStyleGuide || profile.linkedin_style_guide || '',
-          newsletterStyleGuide: profile.newsletterStyleGuide || profile.newsletter_style_guide || '',
-          marketingStyleGuide: profile.marketingStyleGuide || profile.marketing_style_guide || '',
-          vocabularyPatterns: profile.vocabularyPatterns || profile.vocabulary_patterns || '',
-          avoidPatterns: profile.avoidPatterns || profile.avoid_patterns || ''
+          voiceAnalysis: profile.voiceAnalysis,
+          generalStyleGuide: profile.generalStyleGuide,
+          linkedinStyleGuide: profile.linkedinStyleGuide,
+          newsletterStyleGuide: profile.newsletterStyleGuide,
+          marketingStyleGuide: profile.marketingStyleGuide,
+          vocabularyPatterns: profile.vocabularyPatterns,
+          avoidPatterns: profile.avoidPatterns
         });
       }
       toast.success('Writing style profile saved successfully');
