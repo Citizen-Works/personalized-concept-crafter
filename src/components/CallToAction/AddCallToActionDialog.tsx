@@ -11,7 +11,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { CallToActionForm } from "./CallToActionForm";
-import { supabase } from "@/integrations/supabase/client";
+import { useCallToActionsAdapter } from "@/hooks/api/adapters/useCallToActionsAdapter";
 import { useAuth } from '@/context/auth';
 import { toast } from "sonner";
 
@@ -27,21 +27,19 @@ export function AddCallToActionDialog({
   const [open, setOpen] = React.useState(false);
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const { user } = useAuth();
+  const { createCallToActionAsync } = useCallToActionsAdapter();
 
   const handleSubmit = async (values: { text: string; description: string; type: string; url: string }) => {
     if (!user) return;
     
     setIsSubmitting(true);
     try {
-      const { error } = await supabase.from("call_to_actions").insert({
+      await createCallToActionAsync({
         text: values.text,
         description: values.description || null,
         type: values.type,
         url: values.url || null,
-        user_id: user.id,
       });
-
-      if (error) throw error;
       
       toast.success("Call to action created successfully!");
       setOpen(false);

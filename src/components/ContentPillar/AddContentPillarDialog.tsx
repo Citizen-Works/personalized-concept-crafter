@@ -1,3 +1,4 @@
+
 import React from "react";
 import {
   Dialog,
@@ -11,7 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { ContentPillarForm } from "./ContentPillarForm";
 import { z } from "zod";
-import { supabase } from "@/integrations/supabase/client";
+import { useContentPillarsAdapter } from "@/hooks/api/adapters/useContentPillarsAdapter";
 import { useAuth } from "@/context/auth";
 import { toast } from "sonner";
 
@@ -30,19 +31,17 @@ export function AddContentPillarDialog({ onPillarAdded }: AddContentPillarDialog
   const [open, setOpen] = React.useState(false);
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const { user } = useAuth();
+  const { createContentPillarAsync } = useContentPillarsAdapter();
 
   const handleSubmit = async (values: ContentPillarFormValues) => {
     if (!user) return;
     
     setIsSubmitting(true);
     try {
-      const { error } = await supabase.from("content_pillars").insert({
+      await createContentPillarAsync({
         name: values.name,
         description: values.description || "",
-        user_id: user.id,
       });
-
-      if (error) throw error;
       
       toast.success("Content pillar created successfully!");
       setOpen(false);

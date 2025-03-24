@@ -15,7 +15,7 @@ const TrustedBySection = ({ className }: TrustedBySectionProps) => {
   ];
 
   return (
-    <div className={`flex flex-col items-center gap-6 py-4 ${className}`}>
+    <div className={`flex flex-col items-center gap-6 py-4 bg-black ${className}`}>
       <div className="text-white text-lg font-medium">Trusted by professionals from:</div>
       
       <Carousel className="w-full max-w-sm md:max-w-md lg:max-w-lg">

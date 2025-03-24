@@ -37,7 +37,9 @@ const HeroSection = ({ scrollToSection, painPointsRef }: HeroSectionProps) => {
           Our AI learns <span className="font-semibold text-secondary">your unique voice</span> and extracts the best insights from your meeting transcripts, turning your expertise into LinkedIn posts and newsletters that grow your audience.
         </p>
         
-        <BenefitsList />
+        <div className="bg-dark/95">
+          <BenefitsList />
+        </div>
         
         <EmailSignupForm />
         
@@ -52,7 +54,9 @@ const HeroSection = ({ scrollToSection, painPointsRef }: HeroSectionProps) => {
           </Button>
         </div>
         
-        <TrustedBySection />
+        <div className="bg-black">
+          <TrustedBySection />
+        </div>
       </div>
 
       <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce hidden md:block">
