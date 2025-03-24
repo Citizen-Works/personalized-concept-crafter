@@ -38,13 +38,13 @@ export const useWritingStyleAdapter = () => {
       if (profile.id) {
         // Strip off any non-updateable fields
         const updateData = {
-          voiceAnalysis: profile.voiceAnalysis || profile.voice_analysis,
-          generalStyleGuide: profile.generalStyleGuide || profile.general_style_guide,
-          linkedinStyleGuide: profile.linkedinStyleGuide || profile.linkedin_style_guide,
-          newsletterStyleGuide: profile.newsletterStyleGuide || profile.newsletter_style_guide,
-          marketingStyleGuide: profile.marketingStyleGuide || profile.marketing_style_guide,
-          vocabularyPatterns: profile.vocabularyPatterns || profile.vocabulary_patterns,
-          avoidPatterns: profile.avoidPatterns || profile.avoid_patterns
+          voiceAnalysis: profile.voiceAnalysis || profile.voice_analysis || '',
+          generalStyleGuide: profile.generalStyleGuide || profile.general_style_guide || '',
+          linkedinStyleGuide: profile.linkedinStyleGuide || profile.linkedin_style_guide || '',
+          newsletterStyleGuide: profile.newsletterStyleGuide || profile.newsletter_style_guide || '',
+          marketingStyleGuide: profile.marketingStyleGuide || profile.marketing_style_guide || '',
+          vocabularyPatterns: profile.vocabularyPatterns || profile.vocabulary_patterns || '',
+          avoidPatterns: profile.avoidPatterns || profile.avoid_patterns || ''
         };
         
         await updateWritingStyleProfile(profile.id, updateData);
