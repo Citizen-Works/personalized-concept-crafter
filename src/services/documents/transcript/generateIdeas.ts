@@ -109,8 +109,8 @@ export const generateIdeas = async (
 
   let allIdeas: ContentIdea[] = [];
 
-  // First try to use the edge function if document ID and user ID are provided
-  if (documentId && userId && !isMobileDevice()) {
+  // Try to use the edge function if document ID and user ID are provided
+  if (documentId && userId) {
     try {
       return await generateIdeasViaEdgeFunction(
         sanitizedContent, 

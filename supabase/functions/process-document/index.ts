@@ -1,4 +1,3 @@
-
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.4.0";
 
@@ -15,10 +14,42 @@ const supabase = createClient(supabaseUrl, supabaseKey);
 // Generate content ideas from document
 async function generateIdeasFromDocument(documentId: string, userId: string, type: string = 'extract_ideas', content?: string, title?: string) {
   try {
-    console.log(`Processing document ${documentId} for user ${userId} with type ${type}`);
+    let document;
+    
+    // Fetch user's business context, ICPs, and content pillars
+    const { data: userContext, error: contextError } = await supabase
+      .from('user_context')
+      .select('*')
+      .eq('user_id', userId)
+      .single();
+      
+    if (contextError) {
+      console.error('Error fetching user context:', contextError);
+      // Continue without context but log the error
+    }
 
-    // Only fetch the document if content wasn't provided
-    let document: any = null;
+    const { data: contentPillars, error: pillarsError } = await supabase
+      .from('content_pillars')
+      .select('*')
+      .eq('user_id', userId)
+      .eq('is_archived', false)
+      .order('display_order', { ascending: true });
+      
+    if (pillarsError) {
+      console.error('Error fetching content pillars:', pillarsError);
+      // Continue without pillars but log the error
+    }
+
+    const { data: targetAudiences, error: audiencesError } = await supabase
+      .from('target_audiences')
+      .select('*')
+      .eq('user_id', userId)
+      .eq('is_archived', false);
+      
+    if (audiencesError) {
+      console.error('Error fetching target audiences:', audiencesError);
+      // Continue without audiences but log the error
+    }
     
     if (!content) {
       // Fetch document with extra debugging for mobile
@@ -52,27 +83,142 @@ async function generateIdeasFromDocument(documentId: string, userId: string, typ
         throw fetchError;
       }
     } else {
-      // Create a temporary document object if content was provided directly
       document = {
         id: documentId,
         title: title || 'Document',
         content,
         type: type || 'generic'
       };
-      console.log(`Using provided content for document ${documentId} with title ${title || 'Document'}`);
     }
 
     console.log(`Processing document: ${title} (${type})`);
 
-    // For demo purposes, let's generate some simple ideas from the document
-    // In a real implementation, you would use AI with higher temperature here
-    const ideas = generateSimpleIdeas(content, title || 'Document', type);
+    // Call Claude API to generate ideas
+    const { data: claudeResponse, error: claudeError } = await supabase.functions.invoke(
+      "generate-with-claude",
+      {
+        body: {
+          prompt: `You are an expert content strategist and writer tasked with identifying high-value content opportunities from source material. Your goal is to find SPECIFIC insights that would be valuable to the target audience.
+
+BUSINESS CONTEXT:
+${userContext?.business_context || 'No specific business context provided'}
+
+CONTENT PILLARS:
+${contentPillars?.map(pillar => `- ${pillar.name}: ${pillar.description}`).join('\n') || 'No specific content pillars defined'}
+
+TARGET AUDIENCES (ICPs):
+${targetAudiences?.map(icp => `- ${icp.name}: ${icp.description}`).join('\n') || 'No specific target audiences defined'}
+
+SOURCE MATERIAL (${type}):
+---
+${content}
+---
+
+EVALUATION INSTRUCTIONS:
+1. Carefully analyze the source material for SPECIFIC insights, examples, or learnings that would be valuable to the target audience
+2. Only generate ideas if you find concrete, unique value that aligns with the business context and content pillars
+3. If you don't find any strong, specific opportunities, return an empty array []
+4. Each idea must be based on a specific quote, example, or insight from the source material
+5. Avoid generic, surface-level observations that could apply to any content
+6. Focus on unique angles and specific details that make the content valuable
+
+OUTPUT FORMAT:
+Generate 2-3 high-value content ideas in this exact JSON format:
+[
+  {
+    "title": "Clear, specific, SEO-optimized title that communicates unique value (NOT generic like 'Key insights from X')",
+    "description": "Detailed writer brief that includes:
+    - Specific insights/examples from the source material (with context)
+    - Clear angle and unique value proposition
+    - Key points to be developed
+    - Supporting evidence/quotes
+    - Target audience and their pain points
+    - How this aligns with business goals
+    The description should give writers everything needed without referencing the original material."
+  }
+]
+
+CRITICAL REQUIREMENTS:
+1. NO generic titles like 'Key insights from X' or 'Questions raised by X'
+2. Each idea MUST be based on SPECIFIC content from the source material
+3. Ideas MUST clearly align with at least one content pillar and target audience
+4. Descriptions must be comprehensive writer briefs
+5. Return ONLY the JSON array
+6. Return [] if no strong, specific opportunities exist
+7. Each idea must include at least one specific quote or example from the source material
+8. Avoid surface-level observations that could apply to any content
+9. Focus on unique angles and specific details that make the content valuable`,
+          contentType: "ideas",
+          task: "content_analysis",
+          idea: { title }
+        }
+      }
+    );
+
+    if (claudeError) {
+      console.error('Error calling Claude API:', claudeError);
+      throw new Error(`Failed to generate ideas: ${claudeError.message}`);
+    }
+
+    if (!claudeResponse || !claudeResponse.content) {
+      throw new Error('Invalid response from Claude API');
+    }
+
+    // Parse the ideas from Claude's response
+    let ideas;
+    try {
+      ideas = JSON.parse(claudeResponse.content);
+      if (!Array.isArray(ideas)) {
+        throw new Error('Claude response is not a valid array');
+      }
+      
+      // If no ideas were generated, that's valid - just return early
+      if (ideas.length === 0) {
+        console.log('No valuable content opportunities identified');
+        
+        // Update document status
+        if (!content || (document && document.id)) {
+          try {
+            await supabase
+              .from('documents')
+              .update({
+                processing_status: 'completed',
+                has_ideas: false,
+                ideas_count: 0,
+              })
+              .eq('id', documentId);
+          } catch (updateError) {
+            console.error('Error updating document status:', updateError);
+          }
+        }
+        
+        return { 
+          success: true, 
+          ideasCount: 0, 
+          ideas: [],
+          message: 'No valuable content opportunities identified that align with business goals and context.'
+        };
+      }
+      
+      // Validate each idea has required fields
+      ideas.forEach((idea, index) => {
+        if (!idea.title || !idea.description) {
+          console.error(`Idea ${index} is missing required fields:`, idea);
+          throw new Error(`Idea ${index} is missing required fields`);
+        }
+      });
+    } catch (parseError) {
+      console.error('Failed to parse Claude response:', parseError);
+      console.error('Raw response:', claudeResponse.content);
+      throw new Error('Failed to parse ideas from Claude response');
+    }
+
     console.log(`Generated ${ideas.length} ideas for document ${documentId}`);
 
     // Save the generated ideas if we have a valid document ID
     let savedCount = 0;
     
-    // Only save ideas to database if given a real document ID (not when content was provided directly)
+    // Only save ideas to database if given a real document ID
     if (!content || (document && document.id)) {
       for (const idea of ideas) {
         try {
@@ -83,7 +229,9 @@ async function generateIdeasFromDocument(documentId: string, userId: string, typ
               title: idea.title,
               description: idea.description,
               source: 'source_material',
-              source_url: document.id
+              source_url: document.id,
+              status: 'unreviewed',
+              has_been_used: false
             });
 
           if (ideaError) {
@@ -104,14 +252,13 @@ async function generateIdeasFromDocument(documentId: string, userId: string, typ
           .from('documents')
           .update({
             processing_status: 'completed',
-            has_ideas: true,
+            has_ideas: savedCount > 0,
             ideas_count: savedCount,
           })
           .eq('id', documentId);
   
         if (updateError) {
           console.error('Error updating document status:', updateError);
-          // Log but don't throw to ensure we still return ideas
           console.log(`Warning: Could not update document status: ${updateError.message}`);
         }
       } catch (updateError) {
@@ -121,7 +268,12 @@ async function generateIdeasFromDocument(documentId: string, userId: string, typ
     }
 
     console.log(`Successfully generated ${ideas.length} ideas from document ${documentId}`);
-    return { success: true, ideasCount: ideas.length, ideas };
+    return { 
+      success: true, 
+      ideasCount: ideas.length, 
+      ideas,
+      message: ideas.length > 0 ? 'Successfully generated content ideas.' : 'No valuable content opportunities identified.'
+    };
 
   } catch (error) {
     console.error('Error processing document:', error);
@@ -144,68 +296,6 @@ async function generateIdeasFromDocument(documentId: string, userId: string, typ
       
     throw error;
   }
-}
-
-// Simplified idea generation function that adapts to different document types
-// In a real implementation, this would use Claude API with higher temperature
-function generateSimpleIdeas(content: string, title: string, docType: string) {
-  const ideas = [];
-  const contentSample = content.substring(0, 500); // Take just a sample for simple processing
-  
-  // Generate ideas based on document type
-  if (docType === 'transcript') {
-    ideas.push({
-      title: `Key insights from "${title}" transcript`,
-      description: `Extract the main insights and learnings from this meeting transcript. The document contains valuable information that can be transformed into actionable content.`
-    });
-    
-    ideas.push({
-      title: `How to apply learnings from "${title}" meeting`,
-      description: `Create a practical guide based on the information in this meeting transcript. Focus on implementation steps and real-world applications.`
-    });
-  } 
-  else if (docType === 'blog') {
-    ideas.push({
-      title: `Expand on "${title}" for deeper audience engagement`,
-      description: `Take the key points from this blog post and develop them into more comprehensive content. Focus on providing additional value and insights.`
-    });
-    
-    ideas.push({
-      title: `Turn "${title}" into a series`,
-      description: `Identify subtopics within this blog post that could be expanded into a multi-part series, increasing engagement and content depth.`
-    });
-  }
-  else if (docType === 'whitepaper') {
-    ideas.push({
-      title: `Key takeaways from "${title}" whitepaper`,
-      description: `Extract and simplify the most important points from this technical whitepaper to create more accessible content for a broader audience.`
-    });
-    
-    ideas.push({
-      title: `Case study based on "${title}"`,
-      description: `Transform the theoretical concepts in this whitepaper into a real-world case study showing practical applications and results.`
-    });
-  }
-  else {
-    // Generic ideas for any document type
-    ideas.push({
-      title: `Key insights from "${title}"`,
-      description: `Extract the main points and insights from this document to create valuable, shareable content.`
-    });
-    
-    ideas.push({
-      title: `How to apply concepts from "${title}"`,
-      description: `Create a practical guide based on the information in this document. Focus on implementation steps and real-world applications.`
-    });
-  }
-  
-  // Add a generic third idea for all document types
-  ideas.push({
-    title: `Questions raised by "${title}"`,
-    description: `Identify and explore important questions that emerge from this material. This could form the basis for a thought-provoking article or discussion.`
-  });
-  
-  return ideas;
 }
 
 serve(async (req) => {

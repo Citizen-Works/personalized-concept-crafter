@@ -25,10 +25,14 @@ export const useTranscriptProcessing = (documents: Document[] = []) => {
     isProcessing,
     ideas,
     processingDocuments,
-    handleProcessTranscript,
+    processingError,
+    isProgressDialogOpen,
+    handleProcessTranscript: baseHandleProcessTranscript,
     isDocumentProcessing,
     updateProcessingDocuments,
-    cancelProcessing
+    cancelProcessing,
+    handleViewIdeas,
+    setIsProgressDialogOpen
   } = useDocumentProcessing(documents);
   
   // Convert the array to Set<string> for the status monitor
@@ -56,24 +60,38 @@ export const useTranscriptProcessing = (documents: Document[] = []) => {
     documents,
     processingDocumentsSet,
     updateProcessingDocumentsWrapper,
-    handleProcessTranscript
+    baseHandleProcessTranscript
   );
+
+  // Wrap the base handleProcessTranscript to ensure the dialog is shown
+  const handleProcessTranscript = useCallback(async (id: string) => {
+    setIsProgressDialogOpen(true);
+    await baseHandleProcessTranscript(id);
+  }, [baseHandleProcessTranscript, setIsProgressDialogOpen]);
   
   return useMemo(() => ({
     isProcessing,
     processingDocuments,
     ideas,
+    processingError,
+    isProgressDialogOpen,
     handleProcessTranscript,
     isDocumentProcessing,
     retryCount: (id: string) => getRetryCount(id),
-    cancelProcessing
+    cancelProcessing,
+    handleViewIdeas,
+    setIsProgressDialogOpen
   }), [
     isProcessing,
     processingDocuments,
     ideas,
+    processingError,
+    isProgressDialogOpen,
     handleProcessTranscript,
     isDocumentProcessing,
     getRetryCount,
-    cancelProcessing
+    cancelProcessing,
+    handleViewIdeas,
+    setIsProgressDialogOpen
   ]);
 };

@@ -1,4 +1,3 @@
-
 import { CLAUDE_API_URL, MODEL_NAME, MAX_TOKENS, DEFAULT_TEMPERATURE, IDEAS_TEMPERATURE, corsHeaders } from "./config.ts";
 import { callClaudeApi } from "./claudeService.ts";
 
@@ -88,6 +87,37 @@ export async function processContentRequest(requestData: any) {
       return { 
         content, 
         task: requestData.task,
+        requestId // Return request ID for client-side logging
+      };
+    }
+    
+    else if (requestData.task === "content_analysis") {
+      if (!requestData?.prompt) {
+        throw new Error("Content analysis requires a prompt field");
+      }
+      
+      // Use higher temperature for idea generation
+      const temperature = IDEAS_TEMPERATURE;
+      
+      console.log(`[${requestId}] Analyzing content with temperature: ${temperature}`);
+      const claudeResponse = await callClaudeApi(requestData.prompt, temperature);
+      
+      // Improved error handling for Claude API response
+      if (!claudeResponse) {
+        throw new Error("Empty response from Claude API");
+      }
+      
+      // Extract content from Claude's response with better validation
+      const content = claudeResponse?.content?.[0]?.text;
+      if (!content) {
+        throw new Error("Claude API response missing expected content structure");
+      }
+      
+      console.log(`[${requestId}] Content analysis completed successfully (${content.length} chars)`);
+      return { 
+        content, 
+        task: requestData.task,
+        contentType: requestData.contentType,
         requestId // Return request ID for client-side logging
       };
     }

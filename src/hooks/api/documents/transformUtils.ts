@@ -1,4 +1,3 @@
-
 import { Document } from '@/types';
 import { processApiResponse } from '@/utils/apiResponseUtils';
 
@@ -17,7 +16,6 @@ export const transformToDocument = (data: any): Document => {
     fileType: transformedData.fileType || "",
     fileName: transformedData.fileName || "",
     fileSize: transformedData.fileSize || 0,
-    metadata: transformedData.metadata || {},
     isArchived: transformedData.isArchived || false,
     type: transformedData.type || "other", // Default values for required fields
     purpose: transformedData.purpose || "business_context",

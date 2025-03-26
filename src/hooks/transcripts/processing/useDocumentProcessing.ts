@@ -14,6 +14,8 @@ export const useDocumentProcessing = (
 ) => {
   const [processingDocuments, setProcessingDocuments] = useState<string[]>([]);
   const [ideas, setIdeas] = useState<IdeaItem[]>([]);
+  const [processingError, setProcessingError] = useState<string>();
+  const [isProgressDialogOpen, setIsProgressDialogOpen] = useState(false);
   const { setIsIdeasDialogOpen } = useTranscriptDialogs();
   const { processTranscript } = useTranscriptsApi();
 
@@ -38,6 +40,8 @@ export const useDocumentProcessing = (
 
       try {
         setProcessingDocuments((prev) => [...prev, id]);
+        setProcessingError(undefined);
+        setIsProgressDialogOpen(true);
         
         // Process the transcript and get the results
         const result = await processTranscript(id);
@@ -45,43 +49,56 @@ export const useDocumentProcessing = (
         // Update the ideas state with the results
         if (result && result.ideas) {
           setIdeas(result.ideas);
-          
-          // Show the ideas dialog after successful processing
-          setIsIdeasDialogOpen(true);
         }
         
       } catch (error) {
         console.error('Error processing document:', error);
+        setProcessingError(error instanceof Error ? error.message : 'Failed to process document');
       } finally {
         setProcessingDocuments((prev) => prev.filter((docId) => docId !== id));
       }
     },
-    [isDocumentProcessing, processTranscript, setIsIdeasDialogOpen]
+    [isDocumentProcessing, processTranscript]
   );
 
   // Cancel processing for all documents
   const cancelProcessing = useCallback(() => {
     setProcessingDocuments([]);
+    setIsProgressDialogOpen(false);
   }, []);
+
+  // Handle viewing all ideas
+  const handleViewIdeas = useCallback(() => {
+    setIsProgressDialogOpen(false);
+    setIsIdeasDialogOpen(true);
+  }, [setIsIdeasDialogOpen]);
 
   return useMemo(
     () => ({
       isProcessing,
       processingDocuments,
       ideas,
+      processingError,
+      isProgressDialogOpen,
       handleProcessTranscript,
       isDocumentProcessing,
       updateProcessingDocuments,
-      cancelProcessing
+      cancelProcessing,
+      handleViewIdeas,
+      setIsProgressDialogOpen
     }),
     [
       isProcessing,
       processingDocuments,
       ideas,
+      processingError,
+      isProgressDialogOpen,
       handleProcessTranscript,
       isDocumentProcessing,
       updateProcessingDocuments,
-      cancelProcessing
+      cancelProcessing,
+      handleViewIdeas,
+      setIsProgressDialogOpen
     ]
   );
 };

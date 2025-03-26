@@ -1,4 +1,3 @@
-
 import { Document } from '@/types';
 import { useAuth } from '@/context/auth';
 import { useTanstackApiQuery } from '../useTanstackApiQuery';
@@ -25,7 +24,6 @@ export const useCreateDocument = () => {
         file_type: input.fileType,
         file_name: input.fileName,
         file_size: input.fileSize,
-        metadata: input.metadata,
         type: input.type, // Required field
         purpose: input.purpose || 'business_context',
         content_type: input.contentType,

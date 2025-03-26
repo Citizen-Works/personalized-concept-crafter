@@ -1,4 +1,3 @@
-
 import { useState, useMemo, useCallback } from 'react';
 import { ContentIdea, ContentType } from '@/types';
 import { useIdeas } from '@/hooks/ideas';
@@ -53,8 +52,8 @@ export const useIdeasList = ({
     //   result = result.filter(idea => idea.contentType === contentTypeFilter);
     // }
     
-    // Important: Filter out rejected ideas in the pipeline view
-    result = result.filter(idea => idea.status !== 'rejected');
+    // Important: Filter out unreviewed and rejected ideas in the pipeline view
+    result = result.filter(idea => idea.status === 'approved');
     
     return result;
   }, [ideas, searchQuery, dateRange, contentTypeFilter]);

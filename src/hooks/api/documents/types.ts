@@ -1,4 +1,3 @@
-
 export interface DocumentCreateInput {
   title: string;
   content?: string;
@@ -6,7 +5,6 @@ export interface DocumentCreateInput {
   fileType?: string;
   fileName?: string;
   fileSize?: number;
-  metadata?: Record<string, any>;
   type: string; // Required by the database schema
   purpose?: string;
   contentType?: string;

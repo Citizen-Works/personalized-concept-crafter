@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useIdeas } from '@/hooks/ideas';
 import { toast } from 'sonner';
@@ -15,10 +14,19 @@ const IdeasPage = () => {
   const [typeFilter, setTypeFilter] = useState<ContentType | 'all'>('all');
   
   const filteredIdeas = ideas.filter((idea) => {
-    // Make sure to include "unreviewed" ideas in the filter
+    // Filter by search
     const matchesSearch = (idea.title?.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                          (idea.description && idea.description.toLowerCase().includes(searchQuery.toLowerCase()))) || false;
-    const matchesStatus = statusFilter === 'all' || idea.status === statusFilter;
+                        (idea.description && idea.description.toLowerCase().includes(searchQuery.toLowerCase()))) || false;
+    
+    // Filter by status
+    let matchesStatus;
+    if (statusFilter === 'all') {
+      // In "all" view, only show approved ideas
+      matchesStatus = idea.status === 'approved';
+    } else {
+      // Otherwise, show ideas matching the selected status
+      matchesStatus = idea.status === statusFilter;
+    }
     
     return matchesSearch && matchesStatus;
   });

@@ -1,5 +1,4 @@
-
-import React from 'react';
+import React, { useCallback } from 'react';
 import TranscriptList from '@/components/transcripts/TranscriptList';
 import TranscriptActions from '@/components/transcripts/TranscriptActions';
 import TranscriptViewDialog from '@/components/transcripts/TranscriptViewDialog';
@@ -8,6 +7,9 @@ import UploadDialog from '@/components/transcripts/UploadDialog';
 import AddTextDialog from '@/components/transcripts/AddTextDialog';
 import RecordingDialog from '@/components/transcripts/RecordingDialog';
 import { useTranscripts } from '@/components/transcripts/useTranscripts';
+import { useTranscriptProcessing } from '@/hooks/transcripts/useTranscriptProcessing';
+import { useTranscriptDialogs } from '@/hooks/transcripts/useTranscriptDialogs';
+import { useIsMobile } from '@/hooks/use-mobile';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
@@ -15,17 +17,14 @@ import { Button } from "@/components/ui/button";
 import { Calendar, FileText, BrainCircuit, Loader2, XCircle } from "lucide-react";
 import { format } from "date-fns";
 import { Card, CardContent } from "@/components/ui/card";
+import { ProcessingProgressDialog } from '@/components/documents/ProcessingProgressDialog';
 
 const TranscriptsPage = () => {
   const {
     documents,
     isLoading,
-    isProcessing,
     selectedTranscript,
     transcriptContent,
-    ideas,
-    processingDocuments,
-    isDocumentProcessing,
     isViewOpen,
     isIdeasDialogOpen,
     isUploadDialogOpen,
@@ -36,14 +35,30 @@ const TranscriptsPage = () => {
     setIsUploadDialogOpen,
     setIsAddTextDialogOpen,
     setIsRecordingDialogOpen,
-    handleViewTranscript,
-    handleProcessTranscript,
+    handleViewTranscript: baseHandleViewTranscript,
     handleUploadDocument,
     handleAddText,
     handleAddRecording,
-    handleExportTranscripts,
-    cancelProcessing
+    handleExportTranscripts
   } = useTranscripts();
+
+  const {
+    isProcessing,
+    processingDocuments,
+    ideas,
+    processingError,
+    isProgressDialogOpen,
+    handleProcessTranscript,
+    isDocumentProcessing,
+    cancelProcessing,
+    handleViewIdeas,
+    setIsProgressDialogOpen
+  } = useTranscriptProcessing(documents);
+
+  const handleViewTranscript = useCallback((content: string) => {
+    baseHandleViewTranscript(content);
+    setIsViewOpen(true);
+  }, [baseHandleViewTranscript, setIsViewOpen]);
 
   const hasTranscripts = documents && documents.length > 0;
 
@@ -193,6 +208,15 @@ const TranscriptsPage = () => {
         isOpen={isRecordingDialogOpen}
         onOpenChange={setIsRecordingDialogOpen}
         onSaveRecording={handleAddRecording}
+      />
+
+      <ProcessingProgressDialog
+        isOpen={isProgressDialogOpen}
+        onOpenChange={setIsProgressDialogOpen}
+        isProcessing={isProcessing}
+        ideas={ideas}
+        error={processingError}
+        onViewIdeas={handleViewIdeas}
       />
     </div>
   );
