@@ -1,4 +1,3 @@
-
 import { useCallback } from 'react';
 import { ContentStatusCounts, WeeklyStats, ActivityFeedItem } from '@/types';
 import { useAnalyticsApi } from './api/useAnalyticsApi';
@@ -16,10 +15,11 @@ export function useAnalytics() {
   
   // Extract data from the queries with fallbacks for undefined data
   const contentStatusCounts = fetchContentStatusCounts.data || {
-    ideas: 0,
-    drafts: 0,
-    published: 0,
-    reviewQueue: 0
+    needsReview: 0,
+    approvedIdeas: 0,
+    inProgress: 0,
+    readyToPublish: 0,
+    published: 0
   };
   
   const weeklyStats = fetchWeeklyStats.data || [];

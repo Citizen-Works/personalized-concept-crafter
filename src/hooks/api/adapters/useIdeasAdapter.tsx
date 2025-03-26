@@ -1,8 +1,10 @@
-
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useIdeasApi } from '../useIdeasApi';
 import { ContentIdea } from '@/types';
 import { IdeaCreateInput, IdeaUpdateInput } from '../ideas/types';
+import { useAuth } from '@/context/auth';
+import { supabase } from '@/integrations/supabase/client';
+import { transformToContentIdea } from '../ideas/transformUtils';
 
 /**
  * Adapter hook that provides the same interface as the original useIdeas hook
@@ -49,26 +51,50 @@ export const useIdeasAdapter = () => {
     }
   });
   
-  // Custom hook for getting a single idea
-  const getIdea = (id: string) => {
-    return useQuery({
-      queryKey: ['idea-adapter', id],
-      queryFn: () => ideasApi.fetchIdeaById(id),
-      enabled: !!id && id !== 'new',
-      retry: 1, // Limit retries for better error handling
-      refetchOnWindowFocus: false // Prevent unnecessary refetches
-    });
-  };
-  
   return {
     ideas: ideasQuery.data || [],
     isLoading: ideasQuery.isLoading || ideasApi.isLoading,
     isError: ideasQuery.isError,
-    getIdea,
     createIdea: createIdeaMutation.mutate,
     createIdeaAsync: createIdeaMutation.mutateAsync,
     updateIdea: updateIdeaMutation.mutate,
     updateIdeaAsync: updateIdeaMutation.mutateAsync,
     deleteIdea: deleteIdeaMutation.mutate
   };
+};
+
+/**
+ * Hook for fetching a single idea
+ */
+export const useIdea = (id: string | undefined) => {
+  const { user } = useAuth();
+  const queryClient = useQueryClient();
+
+  return useQuery({
+    queryKey: ['idea', id],
+    queryFn: async () => {
+      if (!id || id === 'new') return null;
+      if (!user?.id) throw new Error('User not authenticated');
+      
+      const { data, error } = await supabase
+        .from("content_ideas")
+        .select("*")
+        .eq("id", id)
+        .single();
+
+      if (error) {
+        console.error(`Error fetching idea with ID ${id}:`, error);
+        throw error;
+      }
+      
+      if (!data) {
+        throw new Error('Idea not found');
+      }
+
+      return transformToContentIdea(data);
+    },
+    enabled: !!id && id !== 'new' && !!user?.id,
+    retry: 1,
+    refetchOnWindowFocus: false
+  });
 };

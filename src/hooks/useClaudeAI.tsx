@@ -1,12 +1,14 @@
-
 import { useState } from 'react';
 import { ContentIdea, ContentType } from '@/types';
 import { buildBasePrompt, addContentIdeaToPrompt, addTaskToPrompt } from '@/utils/promptBuilder';
+import { supabase } from '@/integrations/supabase/client';
+import { useQueryClient } from '@tanstack/react-query';
 
 export const useClaudeAI = () => {
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState<Error | null>(null);
   const [lastPrompt, setLastPrompt] = useState<string | null>(null);
+  const queryClient = useQueryClient();
 
   // Generate content method now explicitly takes contentType as a separate parameter
   const generateContent = async (
@@ -31,23 +33,34 @@ export const useClaudeAI = () => {
         return null;
       }
       
-      // Call Claude API with the prompt
-      const response = await fetch('/api/claude', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
+      // Call Claude API through Supabase Edge Function
+      const { data, error } = await supabase.functions.invoke('generate-with-claude', {
+        body: {
           prompt,
           contentType,
-        }),
+          task: 'content_generation',
+          idea: {
+            id: idea.id,
+            title: idea.title,
+            description: idea.description
+          }
+        }
       });
-      
-      if (!response.ok) {
-        throw new Error(`API request failed with status ${response.status}`);
+
+      if (error) {
+        console.error('Edge function error:', error);
+        throw error;
+      }
+
+      if (!data?.content) {
+        console.error('No content in response:', data);
+        throw new Error('No content generated');
       }
       
-      const data = await response.json();
+      // Invalidate relevant queries
+      queryClient.invalidateQueries({ queryKey: ['drafts-by-idea', idea.id] });
+      queryClient.invalidateQueries({ queryKey: ['ideas'] });
+      
       return data.content;
     } catch (err) {
       console.error('Error generating content:', err);

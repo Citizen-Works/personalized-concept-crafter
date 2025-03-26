@@ -1,10 +1,9 @@
-
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { useIdeas } from '@/hooks/ideas';
+import { useIdea } from '@/hooks/api/adapters/useIdeasAdapter';
 import { Loader2, FileText, ExternalLink, CheckCircle } from 'lucide-react';
 import { ContentType } from '@/types';
 import { getStatusBadgeClasses } from '@/components/ideas/BadgeUtils';
@@ -16,8 +15,7 @@ interface IdeaLinkCardProps {
 
 export const IdeaLinkCard: React.FC<IdeaLinkCardProps> = ({ contentIdeaId, contentType }) => {
   const navigate = useNavigate();
-  const { getIdea } = useIdeas();
-  const { data: idea, isLoading, error } = getIdea(contentIdeaId);
+  const { data: idea, isLoading, isError } = useIdea(contentIdeaId);
 
   // Get a color for the content type badge
   const getContentTypeBadgeClass = (type?: ContentType): string => {
@@ -48,7 +46,7 @@ export const IdeaLinkCard: React.FC<IdeaLinkCardProps> = ({ contentIdeaId, conte
     );
   }
 
-  if (error || !idea) {
+  if (isError || !idea) {
     return (
       <Card className="bg-muted/20 border-destructive/20">
         <CardContent className="p-4">

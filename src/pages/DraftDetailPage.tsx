@@ -1,7 +1,6 @@
-
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useIdeasAdapter } from '@/hooks/api/adapters/useIdeasAdapter';
+import { useIdeasAdapter, useIdea } from '@/hooks/api/adapters/useIdeasAdapter';
 import { toast } from 'sonner';
 import { DraftHeader } from '@/components/drafts/DraftHeader';
 import { DraftContent } from '@/components/drafts/DraftContent';
@@ -17,15 +16,12 @@ const DraftDetailPage = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const draftsAdapter = useDraftsAdapter();
-  const ideasAdapter = useIdeasAdapter();
   
-  // Fetch the draft - ensure this is called directly in the component body
-  const { 
-    data: draft, 
-    isLoading: isDraftLoading, 
-    isError: isDraftError,
-    error: draftError
-  } = draftsAdapter.getDraft(id || '');
+  // Fetch the draft
+  const draftQuery = draftsAdapter.getDraft(id || '');
+  const draft = draftQuery.data;
+  const isDraftLoading = draftQuery.isLoading;
+  const isDraftError = draftQuery.isError;
   
   // Only fetch the idea if we have a draft with a contentIdeaId
   const contentIdeaId = draft?.contentIdeaId || '';
@@ -34,8 +30,7 @@ const DraftDetailPage = () => {
   const { 
     data: idea,
     isLoading: isIdeaLoading,
-    error: ideaError
-  } = ideasAdapter.getIdea(contentIdeaId);
+  } = useIdea(contentIdeaId);
   
   console.log({
     contentIdeaId,
@@ -124,7 +119,7 @@ const DraftDetailPage = () => {
   if (isDraftError || !draft) {
     return (
       <div className="container mx-auto p-6">
-        <ErrorDisplay error={draftError || new Error('Failed to load draft')} />
+        <ErrorDisplay error={new Error('Failed to load draft')} />
         <div className="mt-4">
           <button 
             onClick={() => navigate('/drafts')}

@@ -1,4 +1,3 @@
-
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNewsletterExamplesApi } from '../useNewsletterExamplesApi';
 import { Document } from '@/types';
@@ -32,6 +31,8 @@ export const useNewsletterExamplesAdapter = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['newsletter-examples', user?.id] });
+      queryClient.invalidateQueries({ queryKey: ['documents', user?.id] });
+      queryClient.invalidateQueries({ queryKey: ['all-documents', user?.id] });
     }
   });
 
@@ -42,6 +43,8 @@ export const useNewsletterExamplesAdapter = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['newsletter-examples', user?.id] });
+      queryClient.invalidateQueries({ queryKey: ['documents', user?.id] });
+      queryClient.invalidateQueries({ queryKey: ['all-documents', user?.id] });
     }
   });
 

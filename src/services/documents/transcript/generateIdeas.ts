@@ -141,44 +141,50 @@ export const generateIdeas = async (
         body: {
           prompt: `You are an elite content strategist who transforms meeting insights into standout content.
 
-          YOUR OBJECTIVE: Analyze the provided meeting transcript and extract the MOST VALUABLE content ideas. Format your response as a JSON array of content ideas.
-          
-          ${businessContext}
-          
-          ${chunkContext}
-          
-          OUTPUT INSTRUCTIONS:
-          Generate ${chunks.length > 1 ? '1-2' : '3'} EXCEPTIONAL content ideas from the transcript, formatted as JSON objects with these detailed keys:
-          
-          [
-            {
-              "topic": "Compelling headline that captures the essence of the idea",
-              "topicDetails": {
-                "targetIcp": "Primary audience for this content (Operations, Marketing, Sales Leaders, etc)",
-                "contentPillar": "Which content category this fits into (Strategic Automation, Employee Empowerment, Case Studies, etc)",
-                "coreInsight": "The valuable perspective that addresses a specific pain point",
-                "businessImpact": "The measurable outcomes this content addresses (time/cost/efficiency)",
-                "employeeImpact": "How this affects team members and their work experience",
-                "strategicImpact": "Longer-term competitive or operational advantages",
-                "keyPoints": ["3-5 substantive points with actual value (including specific metrics)"],
-                "specificExamples": "Real-world scenarios that demonstrate implementation",
-                "uniqueAngle": "What makes this perspective different from standard advice",
-                "practicalTakeaway": "The immediate, actionable step readers can implement",
-                "ctaSuggestion": "A natural next step aligned with the target audience's goals"
-              },
-              "transcriptExcerpt": "Brief excerpt from the transcript that inspired this idea"
-            }
-          ]
-          
-          If the transcript doesn't contain any valuable content ideas, respond with an empty array: []
-          
-          VERY IMPORTANT: Your response MUST be valid JSON that can be parsed directly. DO NOT include any text before or after the JSON array.
-          
-          Meeting Transcript:
-          ${chunks[i]}`,
-          contentType: "structured_content_ideas",
-          idea: { title: documentTitle },
-          task: "transcript_analysis"
+YOUR OBJECTIVE: Analyze the provided meeting transcript and extract the MOST VALUABLE content ideas. Format your response as a JSON array of content ideas.
+
+${businessContext}
+
+${chunkContext}
+
+OUTPUT INSTRUCTIONS:
+Generate ${chunks.length > 1 ? '1-2' : '3'} EXCEPTIONAL content ideas from the transcript, formatted as JSON objects with these detailed keys:
+
+[
+  {
+    "topic": "Compelling headline that captures the essence of the idea",
+    "topicDetails": {
+      "targetIcp": "Primary audience for this content (Operations, Marketing, Sales Leaders, etc)",
+      "contentPillar": "Which content category this fits into (Strategic Automation, Employee Empowerment, Case Studies, etc)",
+      "coreInsight": "The valuable perspective that addresses a specific pain point",
+      "businessImpact": "The measurable outcomes this content addresses (time/cost/efficiency)",
+      "employeeImpact": "How this affects team members and their work experience",
+      "strategicImpact": "Longer-term competitive or operational advantages",
+      "keyPoints": ["3-5 substantive points with actual value (including specific metrics)"],
+      "specificExamples": "Real-world scenarios that demonstrate implementation",
+      "uniqueAngle": "What makes this perspective different from standard advice",
+      "practicalTakeaway": "The immediate, actionable step readers can implement",
+      "ctaSuggestion": "A natural next step aligned with the target audience's goals"
+    },
+    "transcriptExcerpt": "Brief excerpt from the transcript that inspired this idea"
+  }
+]
+
+CRITICAL FORMATTING REQUIREMENTS:
+1. Each idea MUST have both 'topic' and 'topicDetails' fields
+2. The 'topicDetails' object MUST contain ALL the fields shown in the example
+3. The 'keyPoints' field MUST be an array of strings
+4. Do not add any fields that are not shown in the example
+5. Do not include any explanatory text before or after the JSON array
+6. The response must be valid JSON that can be parsed directly
+
+If the transcript doesn't contain any valuable content ideas, respond with an empty array: []
+
+Meeting Transcript:
+${sanitizedContent}`,
+          contentType: "ideas",
+          task: "transcript_analysis",
+          idea: { title: documentTitle }
         }
       });
 
@@ -195,15 +201,59 @@ export const generateIdeas = async (
       // Parse the ideas from the JSON response
       let chunkIdeas: ContentIdea[];
       try {
+        console.log(`Raw Claude response for chunk ${i+1}:`, data.content);
+        
+        // Try to parse the response
         chunkIdeas = JSON.parse(data.content);
+        
+        // Validate the response structure
         if (!Array.isArray(chunkIdeas)) {
+          console.error("Response is not a valid array:", chunkIdeas);
           throw new Error("Response is not a valid array");
         }
-        console.log(`Extracted ${chunkIdeas.length} ideas from chunk ${i+1}`);
+        
+        // Validate each idea
+        chunkIdeas.forEach((idea, index) => {
+          if (!idea.topic || !idea.topicDetails) {
+            console.error(`Idea ${index} is missing required fields:`, idea);
+            throw new Error(`Idea ${index} is missing required fields`);
+          }
+          
+          // Check all required topicDetails fields
+          const requiredFields = [
+            'targetIcp',
+            'contentPillar',
+            'coreInsight',
+            'businessImpact',
+            'employeeImpact',
+            'strategicImpact',
+            'keyPoints',
+            'specificExamples',
+            'uniqueAngle',
+            'practicalTakeaway',
+            'ctaSuggestion'
+          ];
+          
+          requiredFields.forEach(field => {
+            if (!(field in idea.topicDetails)) {
+              console.error(`Idea ${index} is missing required field ${field}:`, idea);
+              throw new Error(`Idea ${index} is missing required field ${field}`);
+            }
+          });
+          
+          // Ensure keyPoints is an array
+          if (!Array.isArray(idea.topicDetails.keyPoints)) {
+            console.error(`Idea ${index} keyPoints is not an array:`, idea);
+            throw new Error(`Idea ${index} keyPoints must be an array`);
+          }
+        });
+        
+        console.log(`Extracted ${chunkIdeas.length} valid ideas from chunk ${i+1}`);
         allIdeas = [...allIdeas, ...chunkIdeas];
       } catch (parseError) {
         console.error(`Failed to parse content ideas from chunk ${i+1}:`, parseError);
         console.error("Raw content:", data.content);
+        // Continue with next chunk
       }
     } catch (chunkError) {
       console.error(`Error processing chunk ${i+1}:`, chunkError);

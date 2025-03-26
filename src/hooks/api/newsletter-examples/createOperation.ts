@@ -1,4 +1,3 @@
-
 import { Document } from '@/types';
 import { useTanstackApiQuery } from '../useTanstackApiQuery';
 import { useAuth } from '@/context/auth';
@@ -22,7 +21,7 @@ export const useCreateNewsletterExample = () => {
         .insert({
           title: example.title,
           content: example.content,
-          content_type: "newsletter",
+          content_type: null,
           purpose: "writing_sample",
           type: "newsletter", // Add the missing 'type' field
           user_id: user.id
@@ -40,6 +39,8 @@ export const useCreateNewsletterExample = () => {
       errorMessage: 'Failed to create newsletter example',
       onSuccess: () => {
         invalidateQueries(['newsletter-examples', user?.id]);
+        invalidateQueries(['documents', user?.id]);
+        invalidateQueries(['all-documents', user?.id]);
       }
     }
   );

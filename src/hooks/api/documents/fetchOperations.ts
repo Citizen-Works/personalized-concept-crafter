@@ -1,4 +1,3 @@
-
 import { Document } from '@/types';
 import { useAuth } from '@/context/auth';
 import { useTanstackApiQuery } from '../useTanstackApiQuery';
@@ -22,21 +21,34 @@ export const useFetchDocuments = () => {
       async () => {
         if (!user?.id) throw new Error("User not authenticated");
         
+        console.log('Fetching all documents for user:', user.id);
+        
         const { data, error } = await supabase
           .from("documents")
           .select("*")
           .eq("user_id", user.id)
           .order("created_at", { ascending: false });
           
-        if (error) throw error;
+        if (error) {
+          console.error('Error fetching documents:', error);
+          throw error;
+        }
         
-        return data.map(item => transformToDocument(item));
+        console.log('Received documents:', data);
+        const transformed = data.map(item => transformToDocument(item));
+        console.log('Transformed documents:', transformed);
+        
+        return transformed;
       },
       'fetching documents',
       {
         ...options,
-        queryKey: ['documents', user?.id],
-        enabled: !!user
+        queryKey: ['all-documents', user?.id],
+        enabled: !!user,
+        staleTime: 1000 * 30, // Consider data stale after 30 seconds
+        gcTime: 1000 * 60 * 5, // Cache for 5 minutes
+        refetchOnMount: true,
+        refetchOnWindowFocus: true
       }
     );
   };
@@ -94,7 +106,7 @@ export const useFetchDocuments = () => {
       `fetching documents by type ${type}`,
       {
         ...options,
-        queryKey: ['documents', 'type', type, user?.id],
+        queryKey: ['all-documents', 'type', type, user?.id],
         enabled: !!user && !!type
       }
     );

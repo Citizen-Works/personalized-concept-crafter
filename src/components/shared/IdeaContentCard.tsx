@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { ContentCard } from './ContentCard';
 import { ContentIdea, ContentStatus } from '@/types';
@@ -52,12 +51,10 @@ export const IdeaContentCard: React.FC<IdeaContentCardProps> = ({
           variant="default" 
           size={isMobile ? "sm" : "default"} 
           className={isMobile ? "px-2 py-1 text-xs" : ""}
-          asChild
+          onClick={() => onGenerate(idea.id)}
         >
-          <Link to={`/ideas/${idea.id}`}>
-            <Lightbulb className={`${isMobile ? 'h-3 w-3 mr-1' : 'h-4 w-4 mr-1'}`} />
-            Generate
-          </Link>
+          <Lightbulb className={`${isMobile ? 'h-3 w-3 mr-1' : 'h-4 w-4 mr-1'}`} />
+          Generate
         </Button>
       )}
       

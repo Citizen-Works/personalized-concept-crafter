@@ -1,4 +1,3 @@
-
 import { Document, DocumentType, DocumentPurpose } from '@/types';
 import { useAuth } from '@/context/auth';
 import { useTanstackApiQuery } from '../useTanstackApiQuery';
@@ -28,6 +27,22 @@ const transformToDocument = (doc: any): Document => {
 };
 
 /**
+ * Invalidate all relevant queries after a mutation
+ */
+const invalidateAllQueries = (invalidateQueries: (queryKey: string[]) => void, userId?: string) => {
+  console.log('Invalidating all relevant queries');
+  // Invalidate both with and without user ID to catch all cases
+  invalidateQueries(['transcripts']);
+  if (userId) invalidateQueries(['transcripts', userId]);
+  invalidateQueries(['documents']);
+  if (userId) invalidateQueries(['documents', userId]);
+  // Also invalidate the general documents query used by source materials
+  invalidateQueries(['all-documents']);
+  if (userId) invalidateQueries(['all-documents', userId]);
+  console.log('Queries invalidated');
+};
+
+/**
  * Hook for transcript mutation operations
  */
 export const useTranscriptMutations = () => {
@@ -41,6 +56,8 @@ export const useTranscriptMutations = () => {
     async (input) => {
       if (!user?.id) throw new Error("User not authenticated");
       
+      console.log('Creating transcript with data:', input);
+      
       const docData = {
         user_id: user.id,
         title: input.title,
@@ -48,8 +65,12 @@ export const useTranscriptMutations = () => {
         type: 'transcript' as DocumentType,
         purpose: input.purpose || 'business_context',
         is_encrypted: input.isEncrypted || false,
-        processing_status: 'idle'
+        processing_status: 'idle',
+        status: 'active',
+        content_type: 'text'
       };
+      
+      console.log('Sending to Supabase:', docData);
       
       const { data, error } = await supabase
         .from('documents')
@@ -57,16 +78,23 @@ export const useTranscriptMutations = () => {
         .select('*')
         .single();
       
-      if (error) throw error;
+      if (error) {
+        console.error('Supabase error:', error);
+        throw error;
+      }
       
-      return transformToDocument(data);
+      console.log('Received from Supabase:', data);
+      const transformed = transformToDocument(data);
+      console.log('Transformed document:', transformed);
+      
+      return transformed;
     },
     'creating transcript',
     {
       successMessage: 'Transcript created successfully',
       errorMessage: 'Failed to create transcript',
       onSuccess: () => {
-        invalidateQueries(['transcripts', user?.id]);
+        invalidateAllQueries(invalidateQueries, user?.id);
       }
     }
   );
@@ -96,7 +124,7 @@ export const useTranscriptMutations = () => {
       successMessage: 'Transcript updated successfully',
       errorMessage: 'Failed to update transcript',
       onSuccess: () => {
-        invalidateQueries(['transcripts', user?.id]);
+        invalidateAllQueries(invalidateQueries, user?.id);
       }
     }
   );
@@ -124,7 +152,7 @@ export const useTranscriptMutations = () => {
       successMessage: 'Transcript deleted successfully',
       errorMessage: 'Failed to delete transcript',
       onSuccess: () => {
-        invalidateQueries(['transcripts', user?.id]);
+        invalidateAllQueries(invalidateQueries, user?.id);
       }
     }
   );
@@ -144,7 +172,7 @@ export const useTranscriptMutations = () => {
       successMessage: 'Transcript processed successfully',
       errorMessage: 'Failed to process transcript',
       onSuccess: () => {
-        invalidateQueries(['transcripts', user?.id]);
+        invalidateAllQueries(invalidateQueries, user?.id);
         invalidateQueries(['ideas', user?.id]);
       }
     }

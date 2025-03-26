@@ -1,10 +1,9 @@
-
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ContentStatus } from "@/types";
-import { Edit, Trash, CheckCircle } from "lucide-react";
+import { Trash, CheckCircle } from "lucide-react";
 import { getStatusBadgeClasses } from './BadgeUtils';
 
 interface IdeaActionsProps {
@@ -12,15 +11,13 @@ interface IdeaActionsProps {
   status: ContentStatus;
   hasBeenUsed: boolean;
   onDeleteIdea: () => void;
-  onEdit: () => void;
 }
 
 const IdeaActions: React.FC<IdeaActionsProps> = ({ 
   id, 
   status, 
   hasBeenUsed,
-  onDeleteIdea, 
-  onEdit 
+  onDeleteIdea
 }) => {
   return (
     <Card>
@@ -48,14 +45,6 @@ const IdeaActions: React.FC<IdeaActionsProps> = ({
           </div>
           
           <div className="flex flex-col gap-2">
-            <Button
-              variant="outline"
-              className="w-full"
-              onClick={onEdit}
-            >
-              <Edit className="h-4 w-4 mr-2" />
-              Edit Idea
-            </Button>
             <Button
               variant="destructive"
               className="w-full"

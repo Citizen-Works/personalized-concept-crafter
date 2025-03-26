@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { ContentType } from '@/types';
 import { 
@@ -103,6 +102,7 @@ export const IdeasTab: React.FC<IdeasTabProps> = ({
             onDelete={handleDeleteButtonClick}
             showCheckbox={true}
             showActions={true}
+            onGenerate={(id) => window.location.href = `/ideas/${id}`}
           />
         ))}
       </div>

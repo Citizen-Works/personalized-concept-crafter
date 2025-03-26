@@ -1,9 +1,7 @@
-
 import React from 'react';
 import { Document } from '@/types';
 import { Button } from "@/components/ui/button";
 import { DocumentContentCard } from '@/components/shared';
-import { ResponsiveDocumentGrid } from '@/components/ui/responsive-document-grid';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 interface SourceMaterialsListProps {
@@ -14,13 +12,13 @@ interface SourceMaterialsListProps {
   isDocumentProcessing?: (id: string) => boolean;
 }
 
+/**
+ * Displays an empty state when no source materials match the filter criteria
+ */
 interface EmptyStateProps {
   onClearFilters: () => void;
 }
 
-/**
- * Displays an empty state when no source materials match the filter criteria
- */
 const EmptyState: React.FC<EmptyStateProps> = ({ onClearFilters }) => {
   const isMobile = useIsMobile();
   
@@ -41,7 +39,7 @@ const EmptyState: React.FC<EmptyStateProps> = ({ onClearFilters }) => {
 };
 
 /**
- * Displays a list of source materials with responsive grid layout
+ * Displays a list of source materials in a vertical stack layout
  * that adapts to mobile and desktop screen sizes.
  */
 const SourceMaterialsList: React.FC<SourceMaterialsListProps> = ({
@@ -60,17 +58,18 @@ const SourceMaterialsList: React.FC<SourceMaterialsListProps> = ({
   };
 
   return (
-    <ResponsiveDocumentGrid className="gap-3 md:gap-4">
+    <div className="space-y-4">
       {filteredDocuments.map((doc) => (
         <DocumentContentCard
           key={doc.id}
           document={doc}
-          onView={handleViewDocument}
+          onView={() => handleViewDocument(doc)}
           onProcess={onProcessTranscript}
           isProcessing={isDocumentProcessing(doc.id)}
+          className="w-full"
         />
       ))}
-    </ResponsiveDocumentGrid>
+    </div>
   );
 };
 

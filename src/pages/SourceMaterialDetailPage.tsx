@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useDocuments } from "@/hooks/useDocuments";
@@ -18,7 +17,6 @@ import {
   FileText,
   Calendar,
   Lightbulb,
-  Download,
   ClipboardCopy,
   ExternalLink,
   FileType,
@@ -29,6 +27,7 @@ import { formatDate } from "@/utils/dateUtils";
 import { useToast } from "@/hooks/use-toast";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { supabase } from "@/integrations/supabase/client";
+import { Document, DocumentProcessingStatus } from "@/types";
 
 const SourceMaterialDetailPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -46,7 +45,7 @@ const SourceMaterialDetailPage = () => {
     processTranscript
   } = useDocuments();
   
-  const [document, setDocument] = useState<any>(null);
+  const [document, setDocument] = useState<Document | null>(null);
   
   // Function to poll document status
   const pollDocumentStatus = async (docId: string) => {
@@ -61,12 +60,12 @@ const SourceMaterialDetailPage = () => {
       
       if (data) {
         // Update local document state with latest status
-        setDocument(prev => ({
+        setDocument(prev => prev ? {
           ...prev,
-          processing_status: data.processing_status,
+          processing_status: data.processing_status as DocumentProcessingStatus,
           has_ideas: data.has_ideas,
           ideas_count: data.ideas_count
-        }));
+        } : null);
         
         // If still processing, continue polling
         if (data.processing_status === 'processing') {
@@ -114,17 +113,30 @@ const SourceMaterialDetailPage = () => {
           if (error) {
             console.log("Direct fetch failed, trying service layer:", error);
             // Fall back to service layer
-            return fetchDocument(id)
-              .then(doc => {
-                console.log("Document fetched successfully via service:", doc.title);
-                setDocument(doc);
-              })
-              .catch(err => handleFetchError(err));
-          }
-          
-          if (data) {
-            console.log("Document fetched successfully via direct query:", data.title);
-            setDocument(data);
+            const doc = await fetchDocument(id);
+            if (doc) {
+              console.log("Document fetched successfully via service:", doc.title);
+              setDocument(doc);
+            }
+          } else if (data) {
+            // Transform Supabase data to match Document type
+            const transformedDoc: Document = {
+              id: data.id,
+              userId: data.user_id,
+              title: data.title,
+              content: data.content,
+              type: data.type,
+              purpose: data.purpose,
+              status: data.status,
+              content_type: data.content_type,
+              createdAt: new Date(data.created_at),
+              isEncrypted: data.is_encrypted,
+              processing_status: data.processing_status as DocumentProcessingStatus,
+              has_ideas: data.has_ideas,
+              ideas_count: data.ideas_count
+            };
+            console.log("Document fetched successfully via direct query:", transformedDoc.title);
+            setDocument(transformedDoc);
           } else {
             toast({
               variant: "destructive",
@@ -223,21 +235,6 @@ const SourceMaterialDetailPage = () => {
       });
   };
   
-  const handleDownload = () => {
-    if (!document) return;
-    
-    const filename = `${document.title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.txt`;
-    const blob = new Blob([document.content], { type: 'text/plain' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = filename;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-  };
-  
   if (isLoading || !document) {
     return (
       <div className="container mx-auto p-6 space-y-6">
@@ -327,14 +324,6 @@ const SourceMaterialDetailPage = () => {
           >
             <ClipboardCopy className="mr-2 h-4 w-4" />
             {isContentCopied ? "Copied!" : "Copy"}
-          </Button>
-          
-          <Button 
-            variant="outline" 
-            onClick={handleDownload}
-          >
-            <Download className="mr-2 h-4 w-4" />
-            Download
           </Button>
           
           <Button 

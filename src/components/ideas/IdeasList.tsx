@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { ContentIdea, ContentStatus, ContentType } from '@/types';
 import { IdeaContentCard } from '@/components/shared/IdeaContentCard';
@@ -42,6 +41,7 @@ const IdeasList: React.FC<IdeasListProps> = ({
           idea={idea}
           onDelete={onDeleteIdea}
           showCheckbox={false}
+          showActions={true}
           onGenerate={(id) => window.location.href = `/ideas/${id}`}
         />
       ))}

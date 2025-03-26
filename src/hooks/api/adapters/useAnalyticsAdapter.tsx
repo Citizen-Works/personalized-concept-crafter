@@ -1,4 +1,3 @@
-
 import { useQuery } from '@tanstack/react-query';
 import { useAnalyticsApi } from '../useAnalyticsApi';
 import { ContentStatusCounts, WeeklyStats, ActivityFeedItem } from '@/types';
@@ -26,7 +25,13 @@ export const useAnalyticsAdapter = () => {
   
   return {
     // Data
-    contentStatusCounts: statusCountsQuery.data || { ideas: 0, drafts: 0, published: 0, reviewQueue: 0 },
+    contentStatusCounts: statusCountsQuery.data || {
+      needsReview: 0,
+      approvedIdeas: 0,
+      inProgress: 0,
+      readyToPublish: 0,
+      published: 0
+    },
     weeklyStats: weeklyStatsQuery.data || [],
     activityFeed: activityFeedQuery.data || [],
     

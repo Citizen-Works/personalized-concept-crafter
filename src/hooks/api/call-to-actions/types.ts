@@ -1,18 +1,17 @@
-
 import { CallToAction } from '@/types';
 
 export interface CallToActionCreateInput {
   text: string;
+  description?: string | null;
   type: string;
-  description?: string;
-  url?: string;
+  url?: string | null;
 }
 
 export interface CallToActionUpdateInput {
   text?: string;
+  description?: string | null;
   type?: string;
-  description?: string;
-  url?: string;
+  url?: string | null;
   isArchived?: boolean;
   usageCount?: number;
 }

@@ -1,14 +1,16 @@
-
 /**
  * Analytics-related type definitions
  */
 
 // Content status count statistics
 export interface ContentStatusCounts {
-  ideas: number;
-  drafts: number;
+  needsReview: number;
+  approvedIdeas: number;
+  inProgress: number;
+  readyToPublish: number;
   published: number;
-  reviewQueue: number;
+  archived: number;
+  rejectedIdeas: number;
 }
 
 // Weekly stats for charting

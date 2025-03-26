@@ -1,4 +1,3 @@
-
 import { Document } from '@/types';
 import { processApiResponse } from '@/utils/apiResponseUtils';
 
@@ -16,7 +15,7 @@ export const transformToNewsletterExample = (data: any): Document => {
     content: transformedData.content || '',
     type: transformedData.type || 'other',
     purpose: 'writing_sample',
-    content_type: 'newsletter',
+    content_type: null,
     status: transformedData.status || 'active',
     createdAt: new Date(transformedData.createdAt),
     // Add other required Document fields with defaults

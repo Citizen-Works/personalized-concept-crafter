@@ -1,4 +1,3 @@
-
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { createDraft, updateDraft, deleteDraft } from "@/services/draftService";
 import { ContentDraft, DraftStatus, ContentType } from "@/types";
@@ -9,10 +8,12 @@ export const useDraftMutations = (userId: string | undefined) => {
   const createDraftMutation = useMutation({
     mutationFn: (draft: Omit<ContentDraft, "id" | "createdAt">) => 
       createDraft(draft, userId || ""),
-    onSuccess: () => {
+    onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ["drafts", userId] });
       // When a draft is created, we also need to update the hasBeenUsed field on the idea
       queryClient.invalidateQueries({ queryKey: ["ideas", userId] });
+      // Invalidate the drafts for the specific idea
+      queryClient.invalidateQueries({ queryKey: ["drafts-by-idea", variables.contentIdeaId] });
     },
   });
 

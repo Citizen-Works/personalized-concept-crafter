@@ -1,4 +1,3 @@
-
 import React, { memo, useMemo } from "react";
 import { NavigationItemWithSub } from "./NavigationItemWithSub";
 import { NavigationItem } from "./NavigationItem";
@@ -38,7 +37,7 @@ export const NavigationItems: React.FC<NavigationItemsProps> = memo(({ isActive 
   return (
     <>
       {groupedItems.map(({ section, items }, groupIndex) => (
-        <React.Fragment key={`section-${section}`}>
+        <div key={`section-${section}`}>
           {groupIndex > 0 && <SidebarSeparator className="my-2" />}
           
           {items.map((item, index) => {
@@ -63,7 +62,7 @@ export const NavigationItems: React.FC<NavigationItemsProps> = memo(({ isActive 
               />
             );
           })}
-        </React.Fragment>
+        </div>
       ))}
     </>
   );

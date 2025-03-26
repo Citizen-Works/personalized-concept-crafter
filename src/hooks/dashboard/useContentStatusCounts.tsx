@@ -1,4 +1,3 @@
-
 import { useMemo } from 'react';
 import { useIdeas } from '@/hooks/ideas';
 import { useDrafts } from '@/hooks/useDrafts';
@@ -24,11 +23,11 @@ export function useContentStatusCounts() {
     
     return {
       needsReview: needsReviewCount,
+      approvedIdeas: approvedIdeasCount,
       inProgress: inProgressCount,
       readyToPublish: readyToPublishCount,
       published: publishedCount,
       archived: archivedCount,
-      approvedIdeas: approvedIdeasCount,
       rejectedIdeas: rejectedIdeasCount
     };
   }, [ideas, drafts]);

@@ -1,4 +1,3 @@
-
 import { Document, DocumentType, DocumentPurpose, DocumentStatus, DocumentContentType } from '@/types';
 import { useAuth } from '@/context/auth';
 import { useTanstackApiQuery } from '../useTanstackApiQuery';
@@ -40,23 +39,40 @@ export const useFetchTranscripts = () => {
     async () => {
       if (!user?.id) throw new Error("User not authenticated");
       
+      console.log('Fetching transcripts for user:', user.id);
+      
       const { data, error } = await supabase
         .from('documents')
         .select('*')
         .eq('user_id', user.id)
         .eq('type', 'transcript')
+        .eq('status', 'active')
         .order('created_at', { ascending: false });
       
-      if (error) throw error;
+      if (error) {
+        console.error('Supabase fetch error:', error);
+        throw error;
+      }
+      
+      console.log('Received transcripts from Supabase:', data);
       
       if (!data) return [];
       
-      return data.map(doc => transformToDocument(doc));
+      const transformed = data.map(doc => transformToDocument(doc));
+      console.log('Transformed transcripts:', transformed);
+      
+      return transformed;
     },
     'fetching transcripts',
     {
       queryKey: ['transcripts', user?.id],
-      enabled: !!user?.id
+      enabled: !!user?.id,
+      staleTime: 1000 * 30, // Consider data stale after 30 seconds
+      gcTime: 1000 * 60 * 5, // Cache for 5 minutes
+      refetchOnMount: true,
+      refetchOnWindowFocus: true,
+      retry: 3,
+      retryDelay: 1000
     }
   );
   

@@ -1,7 +1,7 @@
-
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useDraftsApi, DraftCreateInput, DraftUpdateInput } from '../useDraftsApi';
 import { DraftWithIdea } from '../drafts/types';
+import { useAuth } from '@/context/auth';
 
 /**
  * Adapter hook that provides the same interface as the original useDrafts hook
@@ -10,20 +10,16 @@ import { DraftWithIdea } from '../drafts/types';
 export const useDraftsAdapter = () => {
   const draftsApi = useDraftsApi();
   const queryClient = useQueryClient();
-  
-  // Get all drafts query
-  const draftsQuery = useQuery({
-    queryKey: ['drafts'],
-    queryFn: () => draftsApi.fetchDrafts()
-  });
+  const { user } = useAuth();
   
   // Create draft mutation
   const createDraftMutation = useMutation({
     mutationFn: (draft: DraftCreateInput) => {
       return draftsApi.createDraft(draft);
     },
-    onSuccess: () => {
+    onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['drafts'] });
+      queryClient.invalidateQueries({ queryKey: ['drafts-by-idea', variables.contentIdeaId] });
       // Also invalidate ideas query since hasBeenUsed might have changed
       queryClient.invalidateQueries({ queryKey: ['ideas'] });
     }
@@ -37,6 +33,9 @@ export const useDraftsAdapter = () => {
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['drafts'] });
       queryClient.invalidateQueries({ queryKey: ['draft', variables.id] });
+      if (variables.contentIdeaId) {
+        queryClient.invalidateQueries({ queryKey: ['drafts-by-idea', variables.contentIdeaId] });
+      }
     }
   });
   
@@ -47,36 +46,36 @@ export const useDraftsAdapter = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['drafts'] });
+      queryClient.invalidateQueries({ queryKey: ['drafts-by-idea'] });
     }
   });
   
-  // Custom hook for getting drafts by idea ID
-  const getDraftsByIdeaId = (ideaId: string) => {
-    return useQuery({
-      queryKey: ['drafts', 'byIdeaId', ideaId],
-      queryFn: () => draftsApi.fetchDraftsByIdeaId(ideaId),
-      enabled: !!ideaId
-    });
-  };
-  
-  // Custom hook for getting a single draft
-  const getDraft = (id: string) => {
-    return useQuery({
-      queryKey: ['draft', id],
-      queryFn: () => draftsApi.fetchDraftById(id),
-      enabled: !!id
-    });
-  };
+  // Get the query results from the API
+  const { draftsQuery, draftByIdQuery, draftsByIdeaIdQuery } = draftsApi;
   
   return {
     drafts: draftsQuery.data || [],
     isLoading: draftsQuery.isLoading,
     isError: draftsQuery.isError,
-    getDraftsByIdeaId,
-    getDraft,
-    createDraft: (draft: DraftCreateInput) => createDraftMutation.mutate(draft),
-    updateDraft: (params: { id: string } & DraftUpdateInput) => updateDraftMutation.mutate(params),
-    deleteDraft: (id: string) => deleteDraftMutation.mutate(id),
+    getDraftsByIdeaId: (ideaId: string) => {
+      const query = draftsByIdeaIdQuery(ideaId);
+      return {
+        data: query.data || [],
+        isLoading: query.isLoading,
+        isError: query.isError
+      };
+    },
+    getDraft: (id: string) => {
+      const query = draftByIdQuery(id);
+      return {
+        data: query.data,
+        isLoading: query.isLoading,
+        isError: query.isError
+      };
+    },
+    createDraft: (draft: DraftCreateInput) => createDraftMutation.mutateAsync(draft),
+    updateDraft: (params: { id: string } & DraftUpdateInput) => updateDraftMutation.mutateAsync(params),
+    deleteDraft: (id: string) => deleteDraftMutation.mutateAsync(id),
     refetch: draftsQuery.refetch
   };
 };

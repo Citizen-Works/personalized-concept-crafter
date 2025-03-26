@@ -1,4 +1,3 @@
-
 import { ContentStatusCounts } from '@/types';
 import { UseQueryOptions } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -10,54 +9,50 @@ import { useAuth } from '@/context/auth';
 export const fetchContentStatusCounts = async (userId?: string): Promise<ContentStatusCounts> => {
   if (!userId) {
     return {
-      ideas: 0,
-      drafts: 0,
+      needsReview: 0,
+      approvedIdeas: 0,
+      inProgress: 0,
+      readyToPublish: 0,
       published: 0,
-      reviewQueue: 0
+      archived: 0,
+      rejectedIdeas: 0
     };
   }
 
-  // Get ideas count
-  const { count: ideasCount, error: ideasError } = await supabase
+  // Get ideas counts
+  const { data: ideas, error: ideasError } = await supabase
     .from('content_ideas')
-    .select('*', { count: 'exact', head: true })
-    .eq('user_id', userId)
-    .eq('status', 'approved');
+    .select('*')
+    .eq('user_id', userId);
     
-  if (ideasError) console.error('Error fetching ideas count:', ideasError);
+  if (ideasError) console.error('Error fetching ideas:', ideasError);
 
-  // Get drafts count
-  const { count: draftsCount, error: draftsError } = await supabase
+  // Get drafts with different statuses
+  const { data: drafts, error: draftsError } = await supabase
     .from('content_drafts')
-    .select('*', { count: 'exact', head: true })
-    .eq('user_id', userId)
-    .eq('status', 'draft');
+    .select('*')
+    .eq('user_id', userId);
     
-  if (draftsError) console.error('Error fetching drafts count:', draftsError);
+  if (draftsError) console.error('Error fetching drafts:', draftsError);
 
-  // Get published count
-  const { count: publishedCount, error: publishedError } = await supabase
-    .from('content_drafts')
-    .select('*', { count: 'exact', head: true })
-    .eq('user_id', userId)
-    .eq('status', 'published');
-    
-  if (publishedError) console.error('Error fetching published count:', publishedError);
-
-  // Get review queue count
-  const { count: reviewCount, error: reviewError } = await supabase
-    .from('content_drafts')
-    .select('*', { count: 'exact', head: true })
-    .eq('user_id', userId)
-    .eq('status', 'review');
-    
-  if (reviewError) console.error('Error fetching review count:', reviewError);
+  // Calculate counts
+  const needsReview = ideas?.filter(idea => idea.status === 'unreviewed').length || 0;
+  const approvedIdeas = ideas?.filter(idea => idea.status === 'approved' && !idea.has_been_used).length || 0;
+  const rejectedIdeas = ideas?.filter(idea => idea.status === 'rejected').length || 0;
+  
+  const inProgress = drafts?.filter(draft => draft.status === 'draft').length || 0;
+  const readyToPublish = drafts?.filter(draft => draft.status === 'ready').length || 0;
+  const published = drafts?.filter(draft => draft.status === 'published').length || 0;
+  const archived = drafts?.filter(draft => draft.status === 'archived').length || 0;
 
   return {
-    ideas: ideasCount || 0,
-    drafts: draftsCount || 0,
-    published: publishedCount || 0,
-    reviewQueue: reviewCount || 0
+    needsReview,
+    approvedIdeas,
+    inProgress,
+    readyToPublish,
+    published,
+    archived,
+    rejectedIdeas
   };
 };
 

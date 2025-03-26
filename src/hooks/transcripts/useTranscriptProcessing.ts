@@ -1,4 +1,3 @@
-
 import { useMemo, useCallback } from 'react';
 import { useDocuments } from '@/hooks/useDocuments';
 import { Document } from '@/types';
@@ -20,16 +19,6 @@ export interface IdeasResponse {
 
 export const useTranscriptProcessing = (documents: Document[] = []) => {
   const navigate = useNavigate();
-  const { processTranscript } = useDocuments();
-  
-  // Wrap processTranscript to match expected function signature (Promise<void> instead of Promise<boolean>)
-  const processTranscriptWrapper = useCallback(
-    async (id: string) => {
-      await processTranscript(id);
-      // Return void explicitly to match expected type
-    },
-    [processTranscript]
-  );
   
   // Use the processing hook for core functionality
   const {
@@ -40,7 +29,7 @@ export const useTranscriptProcessing = (documents: Document[] = []) => {
     isDocumentProcessing,
     updateProcessingDocuments,
     cancelProcessing
-  } = useDocumentProcessing(documents, processTranscriptWrapper);
+  } = useDocumentProcessing(documents);
   
   // Convert the array to Set<string> for the status monitor
   const processingDocumentsSet = useMemo(() => 

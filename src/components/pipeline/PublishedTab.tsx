@@ -1,4 +1,3 @@
-
 import React, { useState, useMemo } from 'react';
 import { useDrafts } from '@/hooks/useDrafts';
 import { toast } from 'sonner';
@@ -6,9 +5,10 @@ import { ContentType } from '@/types';
 import {
   EmptyPublishedState,
   PublishedContentSkeleton,
-  PublishedContentCard,
   DeleteConfirmDialog
 } from './published';
+import { DraftContentCard } from '@/components/shared/DraftContentCard';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface PublishedTabProps {
   searchQuery: string;
@@ -24,6 +24,7 @@ export const PublishedTab: React.FC<PublishedTabProps> = ({
   const { drafts, isLoading, updateDraft, deleteDraft } = useDrafts();
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [itemToDelete, setItemToDelete] = useState<string | null>(null);
+  const [sortOrder, setSortOrder] = useState<'newest' | 'oldest'>('newest');
   
   // Filter drafts based on search, date range, and content type
   const filteredDrafts = useMemo(() => {
@@ -54,6 +55,27 @@ export const PublishedTab: React.FC<PublishedTabProps> = ({
       return true;
     });
   }, [drafts, searchQuery, dateRange, contentTypeFilter]);
+
+  // Sort drafts based on selected sort order
+  const sortedDrafts = useMemo(() => {
+    const sorted = [...filteredDrafts];
+    return sorted.sort((a, b) => {
+      const dateA = new Date(a.createdAt).getTime();
+      const dateB = new Date(b.createdAt).getTime();
+      return sortOrder === 'newest' ? dateB - dateA : dateA - dateB;
+    });
+  }, [filteredDrafts, sortOrder]);
+  
+  // Handle status change
+  const handleStatusChange = async (id: string, status: 'draft' | 'ready') => {
+    try {
+      await updateDraft({ id, status });
+      toast.success(`Content moved to ${status === 'draft' ? 'drafts' : 'ready to publish'}`);
+    } catch (error) {
+      console.error("Error updating draft status:", error);
+      toast.error("Failed to update status");
+    }
+  };
   
   // Handle archive
   const handleArchive = async (id: string) => {
@@ -95,17 +117,36 @@ export const PublishedTab: React.FC<PublishedTabProps> = ({
   
   return (
     <>
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {filteredDrafts.map((draft) => (
-          <PublishedContentCard
+      {/* Sorting dropdown */}
+      <div className="flex justify-end mb-6">
+        <Select
+          value={sortOrder}
+          onValueChange={(value) => setSortOrder(value as 'newest' | 'oldest')}
+        >
+          <SelectTrigger className="w-[180px]">
+            <SelectValue placeholder="Sort by..." />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="newest">Newest First</SelectItem>
+            <SelectItem value="oldest">Oldest First</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
+      {/* Content list */}
+      <div className="space-y-4">
+        {sortedDrafts.map((draft) => (
+          <DraftContentCard
             key={draft.id}
             id={draft.id}
             title={draft.ideaTitle}
             content={draft.content}
             contentType={draft.contentType}
+            status={draft.status}
             createdAt={draft.createdAt}
+            onStatusChange={handleStatusChange}
             onArchive={handleArchive}
-            onDeleteRequest={handleDeleteRequest}
+            onDelete={handleDeleteRequest}
           />
         ))}
       </div>

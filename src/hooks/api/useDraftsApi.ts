@@ -1,4 +1,3 @@
-
 import { ContentDraft } from '@/types';
 import { useFetchDrafts } from './drafts/fetchOperations';
 import { useDraftMutations } from './drafts/mutationOperations';
@@ -8,7 +7,13 @@ import { DraftCreateInput, DraftUpdateInput, DraftWithIdea } from './drafts/type
  * Hook for standardized Draft API operations
  */
 export function useDraftsApi() {
-  const { fetchDrafts, fetchDraftById, fetchDraftsByIdeaId, isLoading: isFetchLoading } = useFetchDrafts();
+  const { 
+    draftsQuery,
+    draftByIdQuery,
+    draftsByIdeaIdQuery,
+    isLoading: isFetchLoading 
+  } = useFetchDrafts();
+  
   const { 
     createDraft, 
     updateDraft, 
@@ -18,9 +23,9 @@ export function useDraftsApi() {
   
   return {
     // Query operations
-    fetchDrafts,
-    fetchDraftById,
-    fetchDraftsByIdeaId,
+    draftsQuery,
+    draftByIdQuery,
+    draftsByIdeaIdQuery,
     
     // Mutation operations
     createDraft,

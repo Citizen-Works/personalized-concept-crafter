@@ -1,19 +1,17 @@
-
 import React from 'react';
 import { Document } from '@/types';
 import { 
   Card, 
   CardContent, 
-  CardFooter, 
   CardHeader,
   CardTitle,
-  CardDescription 
 } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { formatDistanceToNow } from 'date-fns';
-import { Loader2, FileText, BookText, FileSpreadsheet, File, Lightbulb } from 'lucide-react';
+import { Loader2, FileText, BookText, FileSpreadsheet, File, Lightbulb, ExternalLink } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { cn } from '@/lib/utils';
 
 interface DocumentContentCardProps {
   document: Document;
@@ -24,6 +22,7 @@ interface DocumentContentCardProps {
   onDelete?: (id: string) => void;
   isProcessing?: boolean;
   showIdeasCount?: boolean;
+  className?: string;
 }
 
 const DocumentContentCard: React.FC<DocumentContentCardProps> = ({
@@ -34,7 +33,8 @@ const DocumentContentCard: React.FC<DocumentContentCardProps> = ({
   onArchive,
   onDelete,
   isProcessing = false,
-  showIdeasCount = true
+  showIdeasCount = true,
+  className = ''
 }) => {
   const isMobile = useIsMobile();
   
@@ -42,15 +42,15 @@ const DocumentContentCard: React.FC<DocumentContentCardProps> = ({
   const getDocumentIcon = () => {
     switch (document.type) {
       case 'blog':
-        return <FileText className={isMobile ? 'h-4 w-4' : 'h-5 w-5'} />;
+        return <FileText className="h-4 w-4" />;
       case 'whitepaper':
-        return <BookText className={isMobile ? 'h-4 w-4' : 'h-5 w-5'} />;
+        return <BookText className="h-4 w-4" />;
       case 'case-study':
-        return <FileSpreadsheet className={isMobile ? 'h-4 w-4' : 'h-5 w-5'} />;
+        return <FileSpreadsheet className="h-4 w-4" />;
       case 'transcript':
-        return <File className={isMobile ? 'h-4 w-4' : 'h-5 w-5'} />;
+        return <File className="h-4 w-4" />;
       default:
-        return <File className={isMobile ? 'h-4 w-4' : 'h-5 w-5'} />;
+        return <File className="h-4 w-4" />;
     }
   };
 
@@ -71,79 +71,74 @@ const DocumentContentCard: React.FC<DocumentContentCardProps> = ({
   };
 
   // Truncate content to a suitable preview length
-  const contentPreview = document.content?.length > (isMobile ? 80 : 120) 
-    ? document.content.substring(0, isMobile ? 80 : 120) + '...' 
+  const contentPreview = document.content?.length > 120
+    ? document.content.substring(0, 120) + '...' 
     : document.content;
 
   return (
-    <Card className="overflow-hidden h-full flex flex-col">
-      <CardHeader className={`pb-2 ${isMobile ? 'px-3 pt-3' : ''}`}>
-        <div className="flex items-start gap-2">
-          <div className={`p-2 rounded-md bg-primary/10 text-primary ${isMobile ? 'mt-0.5' : ''}`}>
-            {getDocumentIcon()}
-          </div>
+    <Card className={`${className} hover:bg-muted/50 transition-colors`}>
+      <CardHeader className="p-4">
+        <div className="flex items-start justify-between">
           <div className="flex-1 min-w-0">
-            <CardTitle className={isMobile ? 'text-base line-clamp-1' : 'text-lg'}>
-              {document.title}
-            </CardTitle>
-            <CardDescription className="flex items-center gap-1.5 flex-wrap">
-              <Badge variant="outline" className={isMobile ? "text-xs" : "text-sm"}>
+            <div className="flex items-center gap-2 mb-1">
+              <div className="p-1.5 rounded-md bg-primary/10 text-primary">
+                {getDocumentIcon()}
+              </div>
+              <CardTitle className="text-base font-medium">
+                {document.title}
+              </CardTitle>
+            </div>
+            <div className={cn("flex items-center gap-2 flex-wrap text-sm text-muted-foreground")}>
+              <Badge variant="outline" className="text-xs">
                 {getDocumentTypeName()}
               </Badge>
-              <span className={`text-muted-foreground ${isMobile ? 'text-xs' : 'text-sm'}`}>
+              <span className="text-xs text-muted-foreground">
                 {formatDistanceToNow(new Date(document.createdAt), { addSuffix: true })}
               </span>
-            </CardDescription>
+              {showIdeasCount && document.has_ideas && (
+                <Badge variant="secondary" className="text-xs gap-1">
+                  <Lightbulb className="h-3 w-3" />
+                  <span>{document.ideas_count} {document.ideas_count === 1 ? 'idea' : 'ideas'}</span>
+                </Badge>
+              )}
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-8 w-8 p-0"
+              onClick={() => onView(document)}
+            >
+              <ExternalLink className="h-4 w-4" />
+              <span className="sr-only">View document</span>
+            </Button>
+            {onProcess && (
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={() => onProcess(document.id)}
+                disabled={isProcessing}
+                className="h-8"
+              >
+                {isProcessing ? (
+                  <>
+                    <Loader2 className="mr-1 h-3 w-3 animate-spin" />
+                    Processing
+                  </>
+                ) : (
+                  'Process'
+                )}
+              </Button>
+            )}
           </div>
         </div>
       </CardHeader>
-
-      <CardContent className={`flex-1 ${isMobile ? 'px-3 py-2' : ''}`}>
-        <p className={`text-muted-foreground ${isMobile ? 'text-xs' : 'text-sm'} line-clamp-3`}>
+      <CardContent className="px-4 pb-4 pt-0">
+        <p className="text-sm text-muted-foreground line-clamp-2">
           {contentPreview || "No content available"}
         </p>
-        
-        {showIdeasCount && document.has_ideas && (
-          <div className="mt-2 flex items-center">
-            <Badge variant="secondary" className="gap-1">
-              <Lightbulb className="h-3 w-3" />
-              <span>{document.ideas_count} {document.ideas_count === 1 ? 'idea' : 'ideas'}</span>
-            </Badge>
-          </div>
-        )}
       </CardContent>
-
-      <CardFooter className={`border-t bg-muted/20 ${isMobile ? 'px-3 py-2' : ''}`}>
-        <div className="w-full flex justify-between gap-2">
-          <Button 
-            variant="outline" 
-            size={isMobile ? "sm" : "default"}
-            onClick={() => onView(document)}
-            className={isMobile ? "text-xs px-2 py-1 h-7" : ""}
-          >
-            View
-          </Button>
-          
-          {onProcess && (
-            <Button
-              variant="default"
-              size={isMobile ? "sm" : "default"}
-              onClick={() => onProcess(document.id)}
-              disabled={isProcessing}
-              className={isMobile ? "text-xs px-2 py-1 h-7" : ""}
-            >
-              {isProcessing ? (
-                <>
-                  <Loader2 className={`mr-1 animate-spin ${isMobile ? 'h-3 w-3' : 'h-4 w-4'}`} />
-                  Processing
-                </>
-              ) : (
-                'Process'
-              )}
-            </Button>
-          )}
-        </div>
-      </CardFooter>
     </Card>
   );
 };

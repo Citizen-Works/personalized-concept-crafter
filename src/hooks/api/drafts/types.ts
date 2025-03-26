@@ -1,4 +1,3 @@
-
 import { ContentType, DraftStatus } from '@/types';
 
 export interface DraftCreateInput {
@@ -12,6 +11,7 @@ export interface DraftCreateInput {
 }
 
 export interface DraftUpdateInput {
+  contentIdeaId?: string;
   content?: string;
   contentType?: ContentType;
   contentGoal?: string;

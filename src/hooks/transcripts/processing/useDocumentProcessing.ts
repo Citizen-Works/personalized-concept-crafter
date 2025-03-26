@@ -1,12 +1,8 @@
-
 import { useState, useCallback, useMemo } from 'react';
 import { Document } from '@/types';
-
-export interface IdeaItem {
-  id: string;
-  title: string;
-  description: string;
-}
+import { IdeaItem } from '../useTranscriptProcessing';
+import { useTranscriptDialogs } from '../useTranscriptDialogs';
+import { useTranscriptsApi } from '@/hooks/api/useTranscriptsApi';
 
 export interface IdeasResponse {
   message: string;
@@ -14,11 +10,12 @@ export interface IdeasResponse {
 }
 
 export const useDocumentProcessing = (
-  documents: Document[] = [],
-  processTranscript: (id: string) => Promise<void>
+  documents: Document[] = []
 ) => {
   const [processingDocuments, setProcessingDocuments] = useState<string[]>([]);
   const [ideas, setIdeas] = useState<IdeaItem[]>([]);
+  const { setIsIdeasDialogOpen } = useTranscriptDialogs();
+  const { processTranscript } = useTranscriptsApi();
 
   // Check if processing is happening
   const isProcessing = processingDocuments.length > 0;
@@ -42,8 +39,16 @@ export const useDocumentProcessing = (
       try {
         setProcessingDocuments((prev) => [...prev, id]);
         
-        // Now processTranscript will handle the 'extract_ideas' type
-        await processTranscript(id);
+        // Process the transcript and get the results
+        const result = await processTranscript(id);
+        
+        // Update the ideas state with the results
+        if (result && result.ideas) {
+          setIdeas(result.ideas);
+          
+          // Show the ideas dialog after successful processing
+          setIsIdeasDialogOpen(true);
+        }
         
       } catch (error) {
         console.error('Error processing document:', error);
@@ -51,7 +56,7 @@ export const useDocumentProcessing = (
         setProcessingDocuments((prev) => prev.filter((docId) => docId !== id));
       }
     },
-    [isDocumentProcessing, processTranscript]
+    [isDocumentProcessing, processTranscript, setIsIdeasDialogOpen]
   );
 
   // Cancel processing for all documents

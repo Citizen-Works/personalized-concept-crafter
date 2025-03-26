@@ -250,6 +250,8 @@ const StrategyCard: React.FC<StrategyCardProps> = ({
   isLoading,
   href 
 }) => {
+  const isCallToActions = title === "Call To Actions";
+
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between pb-2">
@@ -286,12 +288,21 @@ const StrategyCard: React.FC<StrategyCardProps> = ({
           <Button asChild variant="outline">
             <Link to={href}>View {title}</Link>
           </Button>
-          <Button asChild>
-            <Link to={`${href}/new`} className="flex items-center">
-              <Plus className="mr-1 h-4 w-4" />
-              Add New
-            </Link>
-          </Button>
+          {isCallToActions ? (
+            <Button asChild>
+              <Link to={href} className="flex items-center">
+                <Plus className="mr-1 h-4 w-4" />
+                Add New
+              </Link>
+            </Button>
+          ) : (
+            <Button asChild>
+              <Link to={`${href}/new`} className="flex items-center">
+                <Plus className="mr-1 h-4 w-4" />
+                Add New
+              </Link>
+            </Button>
+          )}
         </div>
       </CardFooter>
     </Card>

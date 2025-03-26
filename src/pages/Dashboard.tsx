@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useDashboardData } from '@/hooks/useDashboardData';
 import { DashboardHeader } from '@/components/dashboard';
@@ -23,10 +22,10 @@ const Dashboard = () => {
       />
       
       <ContentStatusCards 
-        needsReviewCount={contentStatusCounts.reviewQueue}
-        approvedIdeasCount={contentStatusCounts.ideas - contentStatusCounts.reviewQueue}
-        inProgressCount={contentStatusCounts.drafts - contentStatusCounts.published}
-        readyToPublishCount={contentStatusCounts.drafts}
+        needsReviewCount={contentStatusCounts.needsReview}
+        approvedIdeasCount={contentStatusCounts.approvedIdeas}
+        inProgressCount={contentStatusCounts.inProgress}
+        readyToPublishCount={contentStatusCounts.readyToPublish}
         publishedCount={contentStatusCounts.published}
         isLoading={isLoading.statusCounts}
       />

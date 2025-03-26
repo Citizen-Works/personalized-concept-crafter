@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -11,7 +10,6 @@ import {
 } from "@/components/ui/select";
 import { Search, SortDesc, SlidersHorizontal, Upload, Plus } from "lucide-react";
 import SourceMaterialsList from "./SourceMaterialsList";
-import { DocumentContentCard } from '@/components/shared';
 import { Document } from "@/types";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -52,9 +50,9 @@ const SourceMaterialsContent: React.FC<SourceMaterialsContentProps> = ({
 }) => {
   if (isLoading) {
     return (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {[1, 2, 3, 4, 5, 6].map((i) => (
-          <Skeleton key={i} className="h-[200px] w-full" />
+      <div className="space-y-4">
+        {[1, 2, 3].map((i) => (
+          <Skeleton key={i} className="h-[120px] w-full" />
         ))}
       </div>
     );
@@ -89,8 +87,8 @@ const SourceMaterialsContent: React.FC<SourceMaterialsContentProps> = ({
 
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-1 lg:grid-cols-[1fr,auto,auto] gap-4">
-        <div className="relative">
+      <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-end justify-between">
+        <div className="flex-1 max-w-md relative">
           <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
           <Input
             placeholder="Search materials..."
@@ -100,33 +98,35 @@ const SourceMaterialsContent: React.FC<SourceMaterialsContentProps> = ({
           />
         </div>
         
-        <Select value={materialType} onValueChange={setMaterialType}>
-          <SelectTrigger className="w-full md:w-40">
-            <SlidersHorizontal className="mr-2 h-4 w-4" />
-            <SelectValue placeholder="Type" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Types</SelectItem>
-            <SelectItem value="blog">Blog</SelectItem>
-            <SelectItem value="newsletter">Newsletter</SelectItem>
-            <SelectItem value="whitepaper">Whitepaper</SelectItem>
-            <SelectItem value="case-study">Case Study</SelectItem>
-            <SelectItem value="transcript">Transcript</SelectItem>
-            <SelectItem value="other">Other</SelectItem>
-          </SelectContent>
-        </Select>
-        
-        <Select value={sortOrder} onValueChange={setSortOrder}>
-          <SelectTrigger className="w-full md:w-40">
-            <SortDesc className="mr-2 h-4 w-4" />
-            <SelectValue placeholder="Sort" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="newest">Newest</SelectItem>
-            <SelectItem value="oldest">Oldest</SelectItem>
-            <SelectItem value="alphabetical">A-Z</SelectItem>
-          </SelectContent>
-        </Select>
+        <div className="flex flex-col w-full sm:w-auto sm:flex-row gap-3">
+          <Select value={materialType} onValueChange={setMaterialType}>
+            <SelectTrigger className="w-full sm:w-[180px]">
+              <SlidersHorizontal className="mr-2 h-4 w-4" />
+              <SelectValue placeholder="Type" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Types</SelectItem>
+              <SelectItem value="blog">Blog</SelectItem>
+              <SelectItem value="newsletter">Newsletter</SelectItem>
+              <SelectItem value="whitepaper">Whitepaper</SelectItem>
+              <SelectItem value="case-study">Case Study</SelectItem>
+              <SelectItem value="transcript">Transcript</SelectItem>
+              <SelectItem value="other">Other</SelectItem>
+            </SelectContent>
+          </Select>
+          
+          <Select value={sortOrder} onValueChange={setSortOrder}>
+            <SelectTrigger className="w-full sm:w-[180px]">
+              <SortDesc className="mr-2 h-4 w-4" />
+              <SelectValue placeholder="Sort" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="newest">Newest First</SelectItem>
+              <SelectItem value="oldest">Oldest First</SelectItem>
+              <SelectItem value="alphabetical">A-Z</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
       </div>
       
       <SourceMaterialsList

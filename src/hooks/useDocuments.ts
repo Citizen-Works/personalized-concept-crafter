@@ -1,5 +1,4 @@
-
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { useAuth } from '@/context/auth';
 import { useTranscriptsApi } from './api/useTranscriptsApi';
 import { useDocumentsApi } from './api/useDocumentsApi'; 
@@ -30,6 +29,18 @@ export function useDocuments() {
 
   const [processingIds, setProcessingIds] = useState<string[]>([]);
   const [uploadProgress, setUploadProgress] = useState(0);
+
+  // Initialize the documents query
+  const documentsQuery = fetchDocuments();
+  
+  // Log when documents change
+  useEffect(() => {
+    console.log('Documents query state:', {
+      data: documentsQuery.data,
+      isLoading: documentsQuery.isPending,
+      error: documentsQuery.error
+    });
+  }, [documentsQuery.data, documentsQuery.isPending, documentsQuery.error]);
 
   /**
    * Upload a new document (transcript)
@@ -68,6 +79,12 @@ export function useDocuments() {
 
       clearInterval(progressInterval);
       setUploadProgress(100);
+      
+      // Force a refetch after creating a document
+      if (documentsQuery.refetch) {
+        console.log('Refetching documents after upload');
+        await documentsQuery.refetch();
+      }
       
       toast.success("Document uploaded successfully");
       return result;
@@ -110,6 +127,12 @@ export function useDocuments() {
       
       await processTranscriptApi(documentId);
       
+      // Force a refetch after processing
+      if (documentsQuery.refetch) {
+        console.log('Refetching documents after processing');
+        await documentsQuery.refetch();
+      }
+      
       return true;
     } catch (error) {
       console.error("Error processing document:", error);
@@ -117,7 +140,7 @@ export function useDocuments() {
     } finally {
       setProcessingIds(prev => prev.filter(id => id !== documentId));
     }
-  }, [user, processingIds, processTranscriptApi]);
+  }, [user, processingIds, processTranscriptApi, documentsQuery]);
 
   /**
    * Update document status
@@ -125,6 +148,13 @@ export function useDocuments() {
   const updateDocumentStatus = async (document: {id: string, status: DocumentStatus}) => {
     try {
       await updateDocumentApi(document.id, { status: document.status });
+      
+      // Force a refetch after updating status
+      if (documentsQuery.refetch) {
+        console.log('Refetching documents after status update');
+        await documentsQuery.refetch();
+      }
+      
       toast.success(`Document ${document.status === 'archived' ? 'archived' : 'restored'} successfully`);
       return true;
     } catch (error) {
@@ -134,55 +164,45 @@ export function useDocuments() {
     }
   };
 
-  // For backward compatibility, implement methods that other components expect
-  const refetch = () => {
-    // Check if fetchDocuments is a function that returns an object with refetch method
-    if (typeof fetchDocuments === 'object' && fetchDocuments && 'refetch' in fetchDocuments) {
-      return (fetchDocuments as any).refetch();
+  // Refetch documents
+  const refetch = async () => {
+    if (documentsQuery.refetch) {
+      console.log('Manual refetch of documents requested');
+      return documentsQuery.refetch();
     }
     return Promise.resolve(null);
   };
 
   const createDocumentAsync = async (data: any) => {
-    return createDocument(data);
+    const result = await createDocument(data);
+    // Force a refetch after creating a document
+    if (documentsQuery.refetch) {
+      console.log('Refetching documents after creation');
+      await documentsQuery.refetch();
+    }
+    return result;
   };
 
   // Get document by ID
   const fetchDocument = (id: string) => {
-    if (!fetchDocuments) {
+    if (!documentsQuery.data) {
       return null;
     }
     
-    // Check if fetchDocuments has a data property and use it
-    const docsData = typeof fetchDocuments === 'object' && fetchDocuments && 'data' in fetchDocuments 
-      ? (fetchDocuments as any).data 
-      : [];
-    
-    const docs = docsData || [];
-    const doc = docs.find((d: Document) => d.id === id);
-    return doc || null;
+    return documentsQuery.data.find(d => d.id === id) || null;
   };
 
-  // For backward compatibility with existing components
-  const error = typeof fetchDocuments === 'object' && fetchDocuments && 'error' in fetchDocuments 
-    ? (fetchDocuments as any).error 
-    : null;
-    
-  const documents = typeof fetchDocuments === 'object' && fetchDocuments && 'data' in fetchDocuments 
-    ? (fetchDocuments as any).data 
-    : [];
-    
-  const isLoading = isTranscriptsLoading || isDocumentsLoading;
+  const isLoading = isTranscriptsLoading || isDocumentsLoading || documentsQuery.isPending;
   const isProcessing = processingIds.length > 0;
   const isDocumentProcessing = useCallback((documentId: string) => {
     return processingIds.includes(documentId);
   }, [processingIds]);
 
   return {
-    documents,
+    documents: documentsQuery.data || [],
     isLoading,
     isProcessing,
-    error,
+    error: documentsQuery.error,
     uploadDocument,
     uploadProgress,
     processTranscript,

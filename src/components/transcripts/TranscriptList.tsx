@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Document } from "@/types";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -34,6 +33,14 @@ const TranscriptList: React.FC<TranscriptListProps> = ({
 }) => {
   const isMobile = useIsMobile();
   
+  console.log('TranscriptList render:', {
+    documentsCount: documents.length,
+    isLoading,
+    isProcessing,
+    selectedTranscript,
+    processingDocumentsCount: processingDocuments.size
+  });
+  
   if (isLoading) {
     return (
       <ResponsiveDocumentGrid>
@@ -45,9 +52,12 @@ const TranscriptList: React.FC<TranscriptListProps> = ({
   }
 
   if (documents.length === 0) {
+    console.log('No documents found, showing empty state');
     return <TranscriptEmptyState />;
   }
 
+  console.log('Rendering documents:', documents);
+  
   return (
     <ResponsiveDocumentGrid>
       {documents.map((doc) => (
