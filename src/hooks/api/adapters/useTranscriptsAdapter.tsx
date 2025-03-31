@@ -1,4 +1,3 @@
-
 import { useTranscriptsApi } from '../useTranscriptsApi';
 import { Document } from '@/types';
 import { TranscriptProcessingResult } from '../transcripts/types';
@@ -44,14 +43,17 @@ export const useTranscriptsAdapter = () => {
     return createTranscript({
       title: data.title,
       content: data.content,
-      type: data.type || 'transcript',
+      type: 'transcript',
       purpose: data.purpose || 'business_context',
       isEncrypted: data.isEncrypted || false
     });
   };
 
   const updateTranscriptLegacy = async (id: string, data: any): Promise<Document> => {
-    return updateTranscript(id, data);
+    return updateTranscript(id, {
+      ...data,
+      type: 'transcript'
+    });
   };
 
   const deleteTranscriptLegacy = async (id: string): Promise<boolean> => {

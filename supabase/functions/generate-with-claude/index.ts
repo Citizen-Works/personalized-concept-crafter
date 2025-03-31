@@ -1,4 +1,3 @@
-
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { processContentRequest, handleError } from "./handler.ts";
 import { corsHeaders } from "./config.ts";
@@ -26,7 +25,11 @@ serve(async (req) => {
     let requestData;
     try {
       requestData = await req.json();
-      console.log(`[${requestId}] Successfully parsed request JSON`);
+      console.log(`[${requestId}] Successfully parsed request JSON:`, {
+        taskType: requestData.taskType,
+        hasPrompt: !!requestData.prompt,
+        hasApiKey: !!requestData.apiKey
+      });
     } catch (error) {
       console.error(`[${requestId}] Error parsing request JSON:`, error);
       return new Response(

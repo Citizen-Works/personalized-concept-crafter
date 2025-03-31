@@ -1,5 +1,6 @@
-
 project_id = "ivbjofjsmhnatmzixqco"
 
 [global]
 [global.env]
+# Environment variables are now managed through the Supabase dashboard
+# Go to Project Settings > Edge Functions > Environment Variables

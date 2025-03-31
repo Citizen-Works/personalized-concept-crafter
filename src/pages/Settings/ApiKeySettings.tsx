@@ -1,5 +1,4 @@
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -14,6 +13,26 @@ const ApiKeySettings = () => {
   const [verificationResult, setVerificationResult] = useState<'success' | 'error' | null>(null);
   const [isSaving, setIsSaving] = useState(false);
 
+  // Load existing API key on component mount
+  useEffect(() => {
+    const loadApiKey = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data: userSettings } = await supabase
+        .from('user_settings')
+        .select('api_key')
+        .eq('user_id', user.id)
+        .single();
+
+      if (userSettings?.api_key) {
+        setClaudeApiKey(userSettings.api_key);
+      }
+    };
+
+    loadApiKey();
+  }, []);
+
   const verifyClaudeApiKey = async () => {
     if (!claudeApiKey) {
       toast.error('Please enter an API key');
@@ -26,6 +45,7 @@ const ApiKeySettings = () => {
     try {
       const { data, error } = await supabase.functions.invoke('generate-with-claude', {
         body: { 
+          taskType: 'generate-content',
           prompt: 'This is a test to verify the API key. Please respond with "success" if you can read this message.',
           contentType: 'test',
           apiKey: claudeApiKey 
@@ -48,14 +68,49 @@ const ApiKeySettings = () => {
   };
 
   const saveApiKeys = async () => {
+    if (!claudeApiKey) {
+      toast.error('Please enter an API key');
+      return;
+    }
+
     setIsSaving(true);
     try {
-      // In a real implementation, this would save the API key to the server
-      // For now, we'll just show a success message
-      toast.success('API keys saved successfully');
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        throw new Error('User not authenticated');
+      }
+
+      // Check if user settings exist
+      const { data: existingSettings } = await supabase
+        .from('user_settings')
+        .select('id')
+        .eq('user_id', user.id)
+        .single();
+
+      if (existingSettings) {
+        // Update existing settings
+        const { error } = await supabase
+          .from('user_settings')
+          .update({ api_key: claudeApiKey })
+          .eq('user_id', user.id);
+
+        if (error) throw error;
+      } else {
+        // Create new settings
+        const { error } = await supabase
+          .from('user_settings')
+          .insert({
+            user_id: user.id,
+            api_key: claudeApiKey
+          });
+
+        if (error) throw error;
+      }
+
+      toast.success('API key saved successfully');
     } catch (error) {
-      console.error('Error saving API keys:', error);
-      toast.error('Failed to save API keys');
+      console.error('Error saving API key:', error);
+      toast.error('Failed to save API key');
     } finally {
       setIsSaving(false);
     }
@@ -95,7 +150,7 @@ const ApiKeySettings = () => {
                 Verify
               </Button>
             </div>
-            <p className="text-xs text-muted-foreground">
+            <p className="text-sm text-muted-foreground">
               Get your Claude API key from{' '}
               <a 
                 href="https://console.anthropic.com/settings/keys" 
@@ -119,7 +174,7 @@ const ApiKeySettings = () => {
               ) : (
                 <Save className="h-4 w-4" />
               )}
-              Save API Keys
+              Save API Key
             </Button>
           </div>
         </CardContent>

@@ -36,25 +36,35 @@ export const useDocumentProcessing = (
   // Handle processing a transcript
   const handleProcessTranscript = useCallback(
     async (id: string) => {
-      if (isDocumentProcessing(id)) return;
+      console.log('Starting document processing:', { id, isProcessing });
+      if (isDocumentProcessing(id)) {
+        console.log('Document already processing, returning');
+        return;
+      }
 
+      console.log('Setting initial states');
+      setProcessingDocuments((prev) => [...prev, id]);
+      setProcessingError(undefined);
+      console.log('Initial states set');
+      
       try {
-        setProcessingDocuments((prev) => [...prev, id]);
-        setProcessingError(undefined);
-        setIsProgressDialogOpen(true);
-        
+        console.log('Calling processTranscript');
         // Process the transcript and get the results
         const result = await processTranscript(id);
+        console.log('Process result:', result);
         
         // Update the ideas state with the results
         if (result && result.ideas) {
+          console.log('Setting ideas:', result.ideas);
           setIdeas(result.ideas);
         }
         
       } catch (error) {
         console.error('Error processing document:', error);
         setProcessingError(error instanceof Error ? error.message : 'Failed to process document');
+        throw error; // Propagate error to parent
       } finally {
+        console.log('Cleaning up processing state');
         setProcessingDocuments((prev) => prev.filter((docId) => docId !== id));
       }
     },
@@ -64,7 +74,6 @@ export const useDocumentProcessing = (
   // Cancel processing for all documents
   const cancelProcessing = useCallback(() => {
     setProcessingDocuments([]);
-    setIsProgressDialogOpen(false);
   }, []);
 
   // Handle viewing all ideas
@@ -85,7 +94,8 @@ export const useDocumentProcessing = (
       updateProcessingDocuments,
       cancelProcessing,
       handleViewIdeas,
-      setIsProgressDialogOpen
+      setIsProgressDialogOpen,
+      setProcessingError
     }),
     [
       isProcessing,
@@ -98,7 +108,8 @@ export const useDocumentProcessing = (
       updateProcessingDocuments,
       cancelProcessing,
       handleViewIdeas,
-      setIsProgressDialogOpen
+      setIsProgressDialogOpen,
+      setProcessingError
     ]
   );
 };

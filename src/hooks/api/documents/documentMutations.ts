@@ -1,9 +1,30 @@
-import { Document, DocumentType, DocumentPurpose } from '@/types';
+import { 
+  Document, 
+  DocumentType, 
+  DocumentPurpose,
+  IdeaResponse,
+  ContentIdea 
+} from '@/types';
 import { useAuth } from '@/context/auth';
 import { useTanstackApiQuery } from '../useTanstackApiQuery';
 import { supabase } from '@/integrations/supabase/client';
-import { processTranscriptForIdeas } from '@/services/documents/transcript/processTranscript';
-import { TranscriptCreateInput, TranscriptUpdateInput, TranscriptProcessingResult } from './types';
+import { processDocumentForIdeas } from '@/services/documents/processDocument';
+
+interface DocumentCreateInput {
+  title: string;
+  content: string;
+  purpose?: DocumentPurpose;
+  isEncrypted?: boolean;
+  type?: DocumentType;
+}
+
+interface DocumentUpdateInput {
+  title?: string;
+  content?: string;
+  purpose?: DocumentPurpose;
+  isEncrypted?: boolean;
+  type?: DocumentType;
+}
 
 /**
  * Transform database record to Document type
@@ -32,8 +53,6 @@ const transformToDocument = (doc: any): Document => {
 const invalidateAllQueries = (invalidateQueries: (queryKey: string[]) => void, userId?: string) => {
   console.log('Invalidating all relevant queries');
   // Invalidate both with and without user ID to catch all cases
-  invalidateQueries(['transcripts']);
-  if (userId) invalidateQueries(['transcripts', userId]);
   invalidateQueries(['documents']);
   if (userId) invalidateQueries(['documents', userId]);
   // Also invalidate the general documents query used by source materials
@@ -43,26 +62,26 @@ const invalidateAllQueries = (invalidateQueries: (queryKey: string[]) => void, u
 };
 
 /**
- * Hook for transcript mutation operations
+ * Hook for document mutation operations
  */
-export const useTranscriptMutations = () => {
+export const useDocumentMutations = () => {
   const { user } = useAuth();
-  const { createMutation, invalidateQueries } = useTanstackApiQuery('TranscriptsAPI');
+  const { createMutation, invalidateQueries } = useTanstackApiQuery('DocumentsAPI');
 
   /**
-   * Create a new transcript
+   * Create a new document
    */
-  const createTranscriptMutation = createMutation<Document, TranscriptCreateInput>(
+  const createDocumentMutation = createMutation<Document, DocumentCreateInput>(
     async (input) => {
       if (!user?.id) throw new Error("User not authenticated");
       
-      console.log('Creating transcript with data:', input);
+      console.log('Creating document with data:', input);
       
       const docData = {
         user_id: user.id,
         title: input.title,
         content: input.content,
-        type: 'transcript' as DocumentType,
+        type: input.type || 'document' as DocumentType,
         purpose: input.purpose || 'business_context',
         is_encrypted: input.isEncrypted || false,
         processing_status: 'idle',
@@ -89,10 +108,10 @@ export const useTranscriptMutations = () => {
       
       return transformed;
     },
-    'creating transcript',
+    'creating document',
     {
-      successMessage: 'Transcript created successfully',
-      errorMessage: 'Failed to create transcript',
+      successMessage: 'Document created successfully',
+      errorMessage: 'Failed to create document',
       onSuccess: () => {
         invalidateAllQueries(invalidateQueries, user?.id);
       }
@@ -100,9 +119,9 @@ export const useTranscriptMutations = () => {
   );
 
   /**
-   * Update an existing transcript
+   * Update an existing document
    */
-  const updateTranscriptMutation = createMutation<Document, { id: string; data: TranscriptUpdateInput }>(
+  const updateDocumentMutation = createMutation<Document, { id: string; data: DocumentUpdateInput }>(
     async ({ id, data }) => {
       if (!user?.id) throw new Error("User not authenticated");
       
@@ -111,7 +130,6 @@ export const useTranscriptMutations = () => {
         .update(data)
         .eq('id', id)
         .eq('user_id', user.id) // Security check
-        .eq('type', 'transcript')
         .select('*')
         .single();
       
@@ -119,10 +137,10 @@ export const useTranscriptMutations = () => {
       
       return transformToDocument(updatedData);
     },
-    'updating transcript',
+    'updating document',
     {
-      successMessage: 'Transcript updated successfully',
-      errorMessage: 'Failed to update transcript',
+      successMessage: 'Document updated successfully',
+      errorMessage: 'Failed to update document',
       onSuccess: () => {
         invalidateAllQueries(invalidateQueries, user?.id);
       }
@@ -130,9 +148,9 @@ export const useTranscriptMutations = () => {
   );
 
   /**
-   * Delete a transcript
+   * Delete a document
    */
-  const deleteTranscriptMutation = createMutation<boolean, string>(
+  const deleteDocumentMutation = createMutation<boolean, string>(
     async (id) => {
       if (!user?.id) throw new Error("User not authenticated");
       
@@ -140,17 +158,16 @@ export const useTranscriptMutations = () => {
         .from('documents')
         .delete()
         .eq('id', id)
-        .eq('user_id', user.id) // Security check
-        .eq('type', 'transcript');
+        .eq('user_id', user.id); // Security check
       
       if (error) throw error;
       
       return true;
     },
-    'deleting transcript',
+    'deleting document',
     {
-      successMessage: 'Transcript deleted successfully',
-      errorMessage: 'Failed to delete transcript',
+      successMessage: 'Document deleted successfully',
+      errorMessage: 'Failed to delete document',
       onSuccess: () => {
         invalidateAllQueries(invalidateQueries, user?.id);
       }
@@ -158,19 +175,24 @@ export const useTranscriptMutations = () => {
   );
 
   /**
-   * Process a transcript to extract ideas
+   * Process a document to extract ideas
    */
-  const processTranscriptMutation = createMutation<TranscriptProcessingResult, string>(
+  const processDocumentMutation = createMutation<IdeaResponse, string>(
     async (id) => {
       if (!user?.id) throw new Error("User not authenticated");
       
-      // This uses the existing transcript processing service
-      return await processTranscriptForIdeas(user.id, id);
+      try {
+        const result = await processDocumentForIdeas(user.id, id);
+        return result;
+      } catch (error) {
+        console.error('Error in processDocumentMutation:', error);
+        throw new Error(error instanceof Error ? error.message : 'Failed to process document');
+      }
     },
-    'processing transcript',
+    'processing document',
     {
-      successMessage: 'Transcript processed successfully',
-      errorMessage: 'Failed to process transcript',
+      successMessage: 'Document processed successfully',
+      errorMessage: 'Failed to process document',
       onSuccess: () => {
         invalidateAllQueries(invalidateQueries, user?.id);
         invalidateQueries(['ideas', user?.id]);
@@ -178,31 +200,31 @@ export const useTranscriptMutations = () => {
     }
   );
 
-  const createTranscript = async (input: TranscriptCreateInput): Promise<Document> => {
-    return createTranscriptMutation.mutateAsync(input);
+  const createDocument = async (input: DocumentCreateInput): Promise<Document> => {
+    return createDocumentMutation.mutateAsync(input);
   };
 
-  const updateTranscript = async (id: string, data: TranscriptUpdateInput): Promise<Document> => {
-    return updateTranscriptMutation.mutateAsync({ id, data });
+  const updateDocument = async (id: string, data: DocumentUpdateInput): Promise<Document> => {
+    return updateDocumentMutation.mutateAsync({ id, data });
   };
 
-  const deleteTranscript = async (id: string): Promise<boolean> => {
-    return deleteTranscriptMutation.mutateAsync(id);
+  const deleteDocument = async (id: string): Promise<boolean> => {
+    return deleteDocumentMutation.mutateAsync(id);
   };
 
-  const processTranscript = async (id: string): Promise<TranscriptProcessingResult> => {
-    return processTranscriptMutation.mutateAsync(id);
+  const processDocument = async (id: string): Promise<IdeaResponse> => {
+    return processDocumentMutation.mutateAsync(id);
   };
 
   return {
-    createTranscript,
-    updateTranscript,
-    deleteTranscript,
-    processTranscript,
+    createDocument,
+    updateDocument,
+    deleteDocument,
+    processDocument,
     isLoading: 
-      createTranscriptMutation.isPending || 
-      updateTranscriptMutation.isPending || 
-      deleteTranscriptMutation.isPending ||
-      processTranscriptMutation.isPending
+      createDocumentMutation.isPending || 
+      updateDocumentMutation.isPending || 
+      deleteDocumentMutation.isPending ||
+      processDocumentMutation.isPending
   };
-};
+}; 

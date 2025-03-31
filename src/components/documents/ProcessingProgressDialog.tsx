@@ -22,9 +22,32 @@ export const ProcessingProgressDialog: React.FC<ProcessingProgressDialogProps> =
   error,
   onViewIdeas
 }) => {
+  // Add effect to log state changes
+  React.useEffect(() => {
+    console.log('ProcessingProgressDialog: State changed:', {
+      isOpen,
+      isProcessing,
+      hasIdeas: ideas?.length > 0,
+      error
+    });
+  }, [isOpen, isProcessing, ideas, error]);
+
+  // Prevent closing during processing
+  const handleOpenChange = React.useCallback((open: boolean) => {
+    console.log('ProcessingProgressDialog: Open change requested:', { open, isProcessing });
+    if (!open && isProcessing) {
+      console.log('ProcessingProgressDialog: Preventing close during processing');
+      return;
+    }
+    onOpenChange(open);
+  }, [isProcessing, onOpenChange]);
+
   return (
-    <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
+    <Dialog 
+      open={isOpen} 
+      onOpenChange={handleOpenChange}
+    >
+      <DialogContent className="sm:max-w-lg z-50">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             {isProcessing ? (
@@ -87,14 +110,34 @@ export const ProcessingProgressDialog: React.FC<ProcessingProgressDialogProps> =
                 </div>
               )}
 
-              {onViewIdeas && ideas.length > 0 && (
+              <div className="flex gap-2 justify-end mt-4">
+                {onViewIdeas && ideas.length > 0 && (
+                  <Button 
+                    onClick={onViewIdeas}
+                    className="flex-1"
+                  >
+                    View All Ideas
+                  </Button>
+                )}
                 <Button 
-                  className="w-full" 
-                  onClick={onViewIdeas}
+                  variant="outline"
+                  onClick={() => handleOpenChange(false)}
+                  className="flex-1"
                 >
-                  View All Ideas
+                  Close
                 </Button>
-              )}
+              </div>
+            </div>
+          )}
+
+          {error && (
+            <div className="flex justify-end mt-4">
+              <Button 
+                variant="outline"
+                onClick={() => handleOpenChange(false)}
+              >
+                Close
+              </Button>
             </div>
           )}
         </div>

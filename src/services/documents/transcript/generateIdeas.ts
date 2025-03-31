@@ -1,6 +1,7 @@
 import { supabase } from "@/integrations/supabase/client";
 import { ContentIdea } from "./types";
 import { isMobileDevice } from "./processingUtils";
+import { withErrorHandling, ApiError, ValidationError } from '@/utils/errorHandling';
 
 /**
  * Splits a long transcript into smaller chunks that won't exceed token limits
@@ -50,44 +51,63 @@ function chunkTranscript(text: string, maxChunkLength: number = 6000): string[] 
 /**
  * Attempts to generate ideas via the Supabase edge function
  */
-async function generateIdeasViaEdgeFunction(
-  sanitizedContent: string,
-  businessContext: string,
-  documentTitle: string,
+export async function generateIdeasViaEdgeFunction(
   documentId: string,
   userId: string,
-  documentType?: string
-): Promise<ContentIdea[]> {
-  console.log(`Calling edge function to generate ideas for: ${documentTitle} (ID: ${documentId})`);
-  
-  // Enhanced edge function call with better error handling
-  const response = await supabase.functions.invoke(
-    "process-document", 
-    {
-      body: {
-        documentId: documentId, 
-        userId,
-        content: sanitizedContent,
-        title: documentTitle,
-        type: documentType || 'generic'
+  contentLength: number,
+  title: string,
+  type: string
+) {
+  return withErrorHandling(
+    async () => {
+      console.log('Processing transcript with length:', contentLength, 'characters');
+      
+      // Validate input
+      if (!documentId || !userId) {
+        throw new ValidationError('Missing required parameters: documentId and userId');
       }
-    }
+
+      if (contentLength < 100) {
+        throw new ValidationError('Content is too short to generate ideas');
+      }
+
+      console.log('Calling edge function to generate ideas for:', title, '(ID:', documentId, ')');
+      
+      const payload = {
+        documentId,
+        userId,
+        contentLength,
+        title,
+        type
+      };
+      
+      console.log('Edge function payload:', payload);
+      
+      console.log('Making edge function call...');
+      const { data, error } = await supabase.functions.invoke(
+        'process-document',
+        { body: payload }
+      );
+      
+      console.log('Edge function response:', {
+        error,
+        hasData: !!data,
+        dataKeys: data ? Object.keys(data) : []
+      });
+      
+      if (error) {
+        throw error;
+      }
+      
+      if (!data || !Array.isArray(data.ideas)) {
+        throw new ApiError('Invalid response format from edge function');
+      }
+      
+      console.log('Generated', data.ideas.length, 'ideas via edge function');
+      return data.ideas;
+    },
+    'generateIdeasViaEdgeFunction'
   );
-  
-  if (response.error) {
-    console.error("Edge function error:", response.error);
-    throw new Error(`Edge function failed: ${response.error.message || 'Unknown error'}`);
-  }
-  
-  if (!response.data) {
-    console.error("Edge function returned no data");
-    throw new Error("No data returned from edge function");
-  }
-  
-  const contentIdeas = response.data?.ideas || [];
-  console.log(`Generated ${contentIdeas.length} ideas via edge function`);
-  
-  return contentIdeas;
 }
 
 /**
@@ -103,170 +123,17 @@ export const generateIdeas = async (
 ): Promise<ContentIdea[]> => {
   console.log(`Processing transcript with length: ${sanitizedContent.length} characters`);
 
-  // Split long transcripts into manageable chunks
-  const chunks = chunkTranscript(sanitizedContent);
-  console.log(`Processing transcript in ${chunks.length} chunks`);
-
-  let allIdeas: ContentIdea[] = [];
-
-  // Try to use the edge function if document ID and user ID are provided
-  if (documentId && userId) {
-    try {
-      return await generateIdeasViaEdgeFunction(
-        sanitizedContent, 
-        businessContext, 
-        documentTitle,
-        documentId,
-        userId,
-        documentType
-      );
-    } catch (edgeFunctionError) {
-      console.error("Edge function failed, falling back to local generation:", edgeFunctionError);
-      // Continue with local generation below
-    }
+  // Only proceed if we have both documentId and userId
+  if (!documentId || !userId) {
+    throw new Error("Document ID and User ID are required for idea generation");
   }
 
-  // Process each chunk separately
-  for (let i = 0; i < chunks.length; i++) {
-    console.log(`Processing chunk ${i+1} of ${chunks.length}, length: ${chunks[i].length} characters`);
-    
-    try {
-      // Create a modified prompt that includes chunk context if using multiple chunks
-      const chunkContext = chunks.length > 1 
-        ? `NOTE: This is part ${i+1} of ${chunks.length} from the full transcript.` 
-        : '';
-
-      // Call Claude function via Supabase invocation
-      const { data, error } = await supabase.functions.invoke("generate-with-claude", {
-        body: {
-          prompt: `You are an elite content strategist who transforms meeting insights into standout content.
-
-YOUR OBJECTIVE: Analyze the provided meeting transcript and extract the MOST VALUABLE content ideas. Format your response as a JSON array of content ideas.
-
-${businessContext}
-
-${chunkContext}
-
-OUTPUT INSTRUCTIONS:
-Generate ${chunks.length > 1 ? '1-2' : '3'} EXCEPTIONAL content ideas from the transcript, formatted as JSON objects with these detailed keys:
-
-[
-  {
-    "topic": "Compelling headline that captures the essence of the idea",
-    "topicDetails": {
-      "targetIcp": "Primary audience for this content (Operations, Marketing, Sales Leaders, etc)",
-      "contentPillar": "Which content category this fits into (Strategic Automation, Employee Empowerment, Case Studies, etc)",
-      "coreInsight": "The valuable perspective that addresses a specific pain point",
-      "businessImpact": "The measurable outcomes this content addresses (time/cost/efficiency)",
-      "employeeImpact": "How this affects team members and their work experience",
-      "strategicImpact": "Longer-term competitive or operational advantages",
-      "keyPoints": ["3-5 substantive points with actual value (including specific metrics)"],
-      "specificExamples": "Real-world scenarios that demonstrate implementation",
-      "uniqueAngle": "What makes this perspective different from standard advice",
-      "practicalTakeaway": "The immediate, actionable step readers can implement",
-      "ctaSuggestion": "A natural next step aligned with the target audience's goals"
-    },
-    "transcriptExcerpt": "Brief excerpt from the transcript that inspired this idea"
-  }
-]
-
-CRITICAL FORMATTING REQUIREMENTS:
-1. Each idea MUST have both 'topic' and 'topicDetails' fields
-2. The 'topicDetails' object MUST contain ALL the fields shown in the example
-3. The 'keyPoints' field MUST be an array of strings
-4. Do not add any fields that are not shown in the example
-5. Do not include any explanatory text before or after the JSON array
-6. The response must be valid JSON that can be parsed directly
-
-If the transcript doesn't contain any valuable content ideas, respond with an empty array: []
-
-Meeting Transcript:
-${sanitizedContent}`,
-          contentType: "ideas",
-          task: "transcript_analysis",
-          idea: { title: documentTitle }
-        }
-      });
-
-      if (error) {
-        console.error(`Error from Claude function for chunk ${i+1}:`, error);
-        continue; // Skip to next chunk on error but don't fail completely
-      }
-
-      if (!data || !data.content) {
-        console.error(`Invalid response structure for chunk ${i+1}:`, data);
-        continue;
-      }
-
-      // Parse the ideas from the JSON response
-      let chunkIdeas: ContentIdea[];
-      try {
-        console.log(`Raw Claude response for chunk ${i+1}:`, data.content);
-        
-        // Try to parse the response
-        chunkIdeas = JSON.parse(data.content);
-        
-        // Validate the response structure
-        if (!Array.isArray(chunkIdeas)) {
-          console.error("Response is not a valid array:", chunkIdeas);
-          throw new Error("Response is not a valid array");
-        }
-        
-        // Validate each idea
-        chunkIdeas.forEach((idea, index) => {
-          if (!idea.topic || !idea.topicDetails) {
-            console.error(`Idea ${index} is missing required fields:`, idea);
-            throw new Error(`Idea ${index} is missing required fields`);
-          }
-          
-          // Check all required topicDetails fields
-          const requiredFields = [
-            'targetIcp',
-            'contentPillar',
-            'coreInsight',
-            'businessImpact',
-            'employeeImpact',
-            'strategicImpact',
-            'keyPoints',
-            'specificExamples',
-            'uniqueAngle',
-            'practicalTakeaway',
-            'ctaSuggestion'
-          ];
-          
-          requiredFields.forEach(field => {
-            if (!(field in idea.topicDetails)) {
-              console.error(`Idea ${index} is missing required field ${field}:`, idea);
-              throw new Error(`Idea ${index} is missing required field ${field}`);
-            }
-          });
-          
-          // Ensure keyPoints is an array
-          if (!Array.isArray(idea.topicDetails.keyPoints)) {
-            console.error(`Idea ${index} keyPoints is not an array:`, idea);
-            throw new Error(`Idea ${index} keyPoints must be an array`);
-          }
-        });
-        
-        console.log(`Extracted ${chunkIdeas.length} valid ideas from chunk ${i+1}`);
-        allIdeas = [...allIdeas, ...chunkIdeas];
-      } catch (parseError) {
-        console.error(`Failed to parse content ideas from chunk ${i+1}:`, parseError);
-        console.error("Raw content:", data.content);
-        // Continue with next chunk
-      }
-    } catch (chunkError) {
-      console.error(`Error processing chunk ${i+1}:`, chunkError);
-      // Continue with other chunks even if one fails
-    }
-  }
-
-  // Ensure we don't return too many ideas (limit to the 5 most valuable)
-  if (allIdeas.length > 5) {
-    console.log(`Found ${allIdeas.length} ideas total, filtering to top 5`);
-    allIdeas = allIdeas.slice(0, 5);
-  }
-
-  console.log(`Returning ${allIdeas.length} ideas from full transcript analysis`);
-  return allIdeas;
+  // Use the edge function to generate ideas
+  return await generateIdeasViaEdgeFunction(
+    documentId,
+    userId,
+    sanitizedContent.length,
+    documentTitle,
+    documentType || 'generic'
+  );
 };

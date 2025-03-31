@@ -1,4 +1,3 @@
-
 # Content Engine
 
 A comprehensive content management and generation platform that helps businesses streamline their content creation process from ideation to publication.
@@ -101,3 +100,55 @@ This project is set up for easy deployment with Netlify or Vercel. Connect your 
 ## 📝 License
 
 [MIT](LICENSE)
+
+## Environment Variables
+
+This project requires several environment variables to be set up. Copy `.env.example` to `.env` and fill in your values:
+
+```bash
+cp .env.example .env
+```
+
+### Required Environment Variables
+
+#### Client-side (Vite)
+- `VITE_SUPABASE_URL`: Your Supabase project URL
+- `VITE_SUPABASE_ANON_KEY`: Your Supabase project's anon/public key
+- `VITE_CLAUDE_API_KEY`: Your Claude API key
+
+#### Server-side (Edge Functions)
+- `SUPABASE_URL`: Your Supabase project URL
+- `SUPABASE_ANON_KEY`: Your Supabase project's anon/public key
+- `SUPABASE_SERVICE_ROLE_KEY`: Your Supabase project's service role key
+- `CLAUDE_API_KEY`: Your Claude API key
+
+### Getting the Keys
+
+1. **Supabase Keys**:
+   - Go to your Supabase project dashboard
+   - Navigate to Project Settings > API
+   - Copy the "Project URL" for `VITE_SUPABASE_URL`
+   - Copy the "anon/public" key for `VITE_SUPABASE_ANON_KEY`
+   - Copy the "service_role" key for `SUPABASE_SERVICE_ROLE_KEY`
+
+2. **Claude API Key**:
+   - Go to your Anthropic dashboard
+   - Navigate to API Keys
+   - Create a new API key or copy an existing one
+   - Use the same key for both `VITE_CLAUDE_API_KEY` and `CLAUDE_API_KEY`
+
+### Edge Functions
+
+For Edge Functions, you need to set the environment variables in your Supabase project:
+
+1. Go to your Supabase project dashboard
+2. Navigate to Project Settings > Edge Functions
+3. Click on "Environment Variables"
+4. Add each of the server-side variables listed above
+
+### Security Notes
+
+- Never commit your `.env` file to version control
+- Keep your service role key secret and only use it in server-side code
+- The anon key is safe to use in client-side code
+- Rotate your API keys if they are ever compromised

@@ -1,4 +1,3 @@
-
 import { useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { NavigateFunction } from 'react-router-dom';
@@ -14,6 +13,11 @@ export function useAuthOperations({ setLoading, navigate }: AuthOperationsProps)
   const signIn = useCallback(async (email: string, password: string) => {
     try {
       setLoading(true);
+      
+      if (!supabase.auth) {
+        throw new Error('Auth is not initialized');
+      }
+
       const { error } = await supabase.auth.signInWithPassword({ email, password });
       
       if (error) {
@@ -25,6 +29,7 @@ export function useAuthOperations({ setLoading, navigate }: AuthOperationsProps)
       toast.success('Signed in successfully');
     } catch (error) {
       console.error('Error signing in:', error);
+      toast.error(error instanceof Error ? error.message : 'Failed to sign in');
       throw error;
     } finally {
       setLoading(false);
@@ -34,6 +39,11 @@ export function useAuthOperations({ setLoading, navigate }: AuthOperationsProps)
   const signInWithGoogle = useCallback(async () => {
     try {
       setLoading(true);
+
+      if (!supabase.auth) {
+        throw new Error('Auth is not initialized');
+      }
+
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
@@ -49,6 +59,7 @@ export function useAuthOperations({ setLoading, navigate }: AuthOperationsProps)
       // No need to navigate here as the OAuth flow will handle the redirect
     } catch (error) {
       console.error('Error signing in with Google:', error);
+      toast.error(error instanceof Error ? error.message : 'Failed to sign in with Google');
       setLoading(false);
       throw error;
     }
@@ -57,6 +68,11 @@ export function useAuthOperations({ setLoading, navigate }: AuthOperationsProps)
   const signUp = useCallback(async (email: string, password: string, name: string) => {
     try {
       setLoading(true);
+
+      if (!supabase.auth) {
+        throw new Error('Auth is not initialized');
+      }
+
       const { error } = await supabase.auth.signUp({ 
         email, 
         password,
@@ -76,6 +92,7 @@ export function useAuthOperations({ setLoading, navigate }: AuthOperationsProps)
       navigate('/login');
     } catch (error) {
       console.error('Error signing up:', error);
+      toast.error(error instanceof Error ? error.message : 'Failed to sign up');
       throw error;
     } finally {
       setLoading(false);
@@ -85,6 +102,11 @@ export function useAuthOperations({ setLoading, navigate }: AuthOperationsProps)
   const signOut = useCallback(async () => {
     try {
       setLoading(true);
+
+      if (!supabase.auth) {
+        throw new Error('Auth is not initialized');
+      }
+
       const { error } = await supabase.auth.signOut();
       
       if (error) {
@@ -96,6 +118,7 @@ export function useAuthOperations({ setLoading, navigate }: AuthOperationsProps)
       toast.success('Signed out successfully');
     } catch (error) {
       console.error('Error signing out:', error);
+      toast.error(error instanceof Error ? error.message : 'Failed to sign out');
       throw error;
     } finally {
       setLoading(false);

@@ -1,0 +1,13 @@
+{
+  "name": "process-document",
+  "version": "1.0.0",
+  "description": "Process document Edge Function",
+  "main": "index.ts",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "devDependencies": {
+    "@supabase/supabase-js": "^2.39.0"
+  }
+} 

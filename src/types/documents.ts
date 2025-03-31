@@ -1,3 +1,4 @@
+// import { Document } from './database';
 
 /**
  * Document-related type definitions
@@ -38,4 +39,26 @@ export interface Document {
   processing_status?: DocumentProcessingStatus;
   has_ideas?: boolean;
   ideas_count?: number;
+}
+
+export interface ContentIdea {
+  id?: string;
+  title: string;
+  description: string;
+  user_id?: string;
+  document_id?: string;
+  status?: 'pending' | 'approved' | 'rejected';
+  created_at?: Date;
+}
+
+export interface IdeaResponse {
+  message: string;
+  ideas: ContentIdea[];
+}
+
+export interface ProcessingResult {
+  success: boolean;
+  message: string;
+  data?: any;
+  error?: Error;
 }

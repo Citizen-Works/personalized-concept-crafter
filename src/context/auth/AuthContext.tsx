@@ -1,4 +1,3 @@
-
 import { createContext, useContext, useEffect, useState } from 'react';
 import { Session, User } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
@@ -38,44 +37,79 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   });
 
   useEffect(() => {
-    // Get initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      
-      if (session?.user) {
-        checkUserRole(session.user.id);
-      }
-      
-      setLoading(false);
-      
-      // Only redirect to dashboard if on login page and already logged in
-      if (session && location.pathname === '/login') {
-        navigate('/dashboard');
-      }
-    });
+    let mounted = true;
 
-    // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        setSession(session);
-        setUser(session?.user ?? null);
+    // Initialize auth
+    const initAuth = async () => {
+      try {
+        if (!supabase.auth) {
+          console.error('Supabase auth is not initialized');
+          return;
+        }
+
+        const { data: { session }, error } = await supabase.auth.getSession();
         
-        if (session?.user) {
-          checkUserRole(session.user.id);
-        } else {
-          // Reset admin status when user logs out
+        if (error) {
+          console.error('Error getting session:', error);
+          return;
+        }
+
+        if (mounted) {
+          setSession(session);
+          setUser(session?.user ?? null);
+          
+          if (session?.user) {
+            checkUserRole(session.user.id);
+          }
+          
+          setLoading(false);
+          
+          // Only redirect to dashboard if on login page and already logged in
+          if (session && location.pathname === '/login') {
+            navigate('/dashboard');
+          }
+        }
+      } catch (error) {
+        console.error('Error initializing auth:', error);
+        if (mounted) {
           setLoading(false);
         }
-        
-        // Only redirect to dashboard when signed in from auth pages
-        if (event === 'SIGNED_IN' && (location.pathname === '/login' || location.pathname === '/register')) {
-          navigate('/dashboard');
-        }
       }
-    );
+    };
 
-    return () => subscription.unsubscribe();
+    initAuth();
+
+    // Listen for auth changes
+    let subscription: { unsubscribe: () => void } | undefined;
+
+    if (supabase.auth) {
+      const { data: { subscription: sub } } = supabase.auth.onAuthStateChange(
+        (event, session) => {
+          if (mounted) {
+            setSession(session);
+            setUser(session?.user ?? null);
+            
+            if (session?.user) {
+              checkUserRole(session.user.id);
+            } else {
+              // Reset admin status when user logs out
+              setLoading(false);
+            }
+            
+            // Only redirect to dashboard when signed in from auth pages
+            if (event === 'SIGNED_IN' && (location.pathname === '/login' || location.pathname === '/register')) {
+              navigate('/dashboard');
+            }
+          }
+        }
+      );
+      subscription = sub;
+    }
+
+    return () => {
+      mounted = false;
+      subscription?.unsubscribe();
+    };
   }, [navigate, location.pathname, checkUserRole]);
 
   return (

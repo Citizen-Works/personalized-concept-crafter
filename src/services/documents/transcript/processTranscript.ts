@@ -1,4 +1,3 @@
-
 import { toast } from "sonner";
 import { fetchDocument } from "./fetchDocument";
 import { fetchBusinessContext } from "./fetchBusinessContext";
@@ -37,20 +36,34 @@ export const processTranscriptForIdeas = async (
     const document = await fetchDocument(userId, documentId);
     
     // Step 2: Validate document content
+    console.log('Validating document content:', {
+      hasContent: !!document.content,
+      contentLength: document.content?.length || 0,
+      preview: document.content?.substring(0, 100) + '...'
+    });
     validateDocument(document);
     
     // Step 3: Get business context for better idea generation
     let businessContext = '';
     try {
       businessContext = await fetchBusinessContext(userId);
-      console.log("Retrieved business context for idea generation");
+      console.log("Retrieved business context for idea generation", {
+        hasContext: !!businessContext,
+        contextLength: businessContext?.length || 0
+      });
     } catch (contextError) {
       console.error("Error fetching business context:", contextError);
       // Continue without business context if it fails
     }
     
     // Step 4: Sanitize content to prevent HTML/XML confusion
+    console.log('Sanitizing content...');
     const sanitizedContent = sanitizeDocumentContent(document.content);
+    console.log('Content sanitized:', {
+      originalLength: document.content?.length || 0,
+      sanitizedLength: sanitizedContent?.length || 0,
+      preview: sanitizedContent?.substring(0, 100) + '...'
+    });
     
     // Step 5: Generate content ideas (via edge function or local fallback)
     const contentIdeas = await generateIdeas(
@@ -95,7 +108,11 @@ export const processTranscriptForIdeas = async (
       ideas: savedIdeas
     };
   } catch (error) {
-    return handleProcessingError(error, documentId, userId, backgroundMode);
+    console.error('Error in processTranscriptForIdeas:', error);
+    if (backgroundMode) {
+      await updateDocumentProcessingStatus(documentId, userId, 'failed');
+    }
+    throw error;
   }
 };
 

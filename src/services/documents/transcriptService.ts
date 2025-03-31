@@ -1,9 +1,7 @@
-
-import { processTranscriptForIdeas, checkProcessingStatus } from './transcript/processTranscript';
+import { processDocumentForIdeas } from '@/utils/documentProcessing';
 
 export { 
-  processTranscriptForIdeas,
-  checkProcessingStatus 
+  processDocumentForIdeas as processTranscriptForIdeas,
 };
 
 // Re-export types

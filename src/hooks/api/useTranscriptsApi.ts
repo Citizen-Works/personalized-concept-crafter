@@ -1,7 +1,6 @@
-
 import { Document } from '@/types';
 import { useFetchTranscripts } from './transcripts/fetchOperations';
-import { useTranscriptMutations } from './transcripts/mutationOperations';
+import { useDocumentMutations } from './documents/documentMutations';
 import { 
   TranscriptCreateInput, 
   TranscriptUpdateInput, 
@@ -21,12 +20,32 @@ export function useTranscriptsApi() {
   } = useFetchTranscripts();
   
   const { 
-    createTranscript, 
-    updateTranscript, 
-    deleteTranscript,
-    processTranscript,
+    createDocument, 
+    updateDocument, 
+    deleteDocument,
+    processDocument,
     isLoading: isMutationLoading 
-  } = useTranscriptMutations();
+  } = useDocumentMutations();
+  
+  // Adapt document operations to transcript operations
+  const createTranscript = async (input: TranscriptCreateInput) => {
+    return createDocument({
+      ...input,
+      type: 'transcript'
+    });
+  };
+
+  const updateTranscript = async (id: string, data: TranscriptUpdateInput) => {
+    return updateDocument(id, data);
+  };
+
+  const deleteTranscript = async (id: string) => {
+    return deleteDocument(id);
+  };
+
+  const processTranscript = async (id: string): Promise<TranscriptProcessingResult> => {
+    return processDocument(id) as Promise<TranscriptProcessingResult>;
+  };
   
   return {
     // Query operations

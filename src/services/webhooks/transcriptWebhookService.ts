@@ -1,32 +1,48 @@
-
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import { processTranscriptForIdeas } from '../documents/transcript/processTranscript';
-import { DocumentCreateInput, DocumentType, DocumentStatus, DocumentPurpose, DocumentContentType } from '@/types';
+import { processDocumentForIdeas } from '@/utils/documentProcessing';
+import { handleApiError } from '@/utils/errorHandling';
+import { Database } from '@/types/database';
+
+type DocumentCreateInput = Database['public']['Tables']['documents']['Insert'];
+type DocumentType = Database['public']['Tables']['documents']['Row']['type'];
+type DocumentStatus = Database['public']['Tables']['documents']['Row']['status'];
+type DocumentPurpose = Database['public']['Tables']['documents']['Row']['purpose'];
+type DocumentContentType = Database['public']['Tables']['documents']['Row']['content_type'];
+type WebhookConfig = Database['public']['Tables']['webhook_configurations']['Row'];
 
 /**
  * This service handles incoming webhooks for transcripts
  * from services like Otter.ai, Fathom, Read.AI, etc.
  */
 
-export interface WebhookPayload {
-  service: string;
-  title?: string;
-  content: string;
+interface WebhookPayload {
+  transcript: string;
+  title: string;
   userId?: string;
-  metadata?: Record<string, any>;
+  webhookId?: string;
 }
 
-/**
- * Validates webhook payloads to ensure they have the required fields
- */
-const validateWebhookPayload = (payload: any): payload is WebhookPayload => {
+const validateWebhookPayload = (payload: unknown): payload is WebhookPayload => {
+  if (!payload || typeof payload !== 'object') return false;
+  const p = payload as Record<string, unknown>;
   return (
-    payload &&
-    typeof payload === 'object' &&
-    typeof payload.service === 'string' &&
-    typeof payload.content === 'string' &&
-    payload.content.trim() !== ''
+    typeof p.transcript === 'string' &&
+    typeof p.title === 'string' &&
+    (!p.userId || typeof p.userId === 'string') &&
+    (!p.webhookId || typeof p.webhookId === 'string')
+  );
+};
+
+const isWebhookConfig = (config: unknown): config is WebhookConfig => {
+  if (!config || typeof config !== 'object') return false;
+  const c = config as Record<string, unknown>;
+  return (
+    typeof c.id === 'string' &&
+    typeof c.user_id === 'string' &&
+    typeof c.service_name === 'string' &&
+    typeof c.is_active === 'boolean' &&
+    typeof c.created_at === 'string'
   );
 };
 
@@ -35,108 +51,68 @@ const validateWebhookPayload = (payload: any): payload is WebhookPayload => {
  * 1. Saving the transcript to the database
  * 2. Triggering content idea generation
  */
-export const processTranscriptWebhook = async (payload: WebhookPayload): Promise<{
-  success: boolean;
-  message: string;
-  documentId?: string;
-}> => {
-  console.log('Processing transcript webhook:', payload.service);
-  
-  if (!validateWebhookPayload(payload)) {
-    return { 
-      success: false, 
-      message: 'Invalid webhook payload' 
-    };
-  }
-  
+export const processTranscriptWebhook = async (payload: unknown): Promise<void> => {
   try {
-    // 1. Determine the user ID
-    let userId = payload.userId;
-    
-    // If no userId is provided, try to find a webhook configuration for this service
-    if (!userId) {
-      const { data: webhookConfig, error: configError } = await supabase
-        .from('webhook_configurations')
-        .select('user_id')
-        .eq('service_name', payload.service)
-        .eq('is_active', true)
-        .order('created_at', { ascending: false })
-        .limit(1)
-        .single();
+    if (!validateWebhookPayload(payload)) {
+      throw new Error('Invalid webhook payload');
+    }
+
+    const { transcript, title, userId, webhookId } = payload;
+
+    // If no userId is provided, try to get it from the webhook configuration
+    let resolvedUserId = userId;
+    if (!resolvedUserId && webhookId) {
+      const { data: webhookConfigs } = await supabase.from('webhook_configurations').select('*');
+      if (!webhookConfigs) throw new Error('Failed to fetch webhook configurations');
       
-      if (configError || !webhookConfig) {
-        console.error('Failed to find webhook configuration:', configError);
-        return { 
-          success: false, 
-          message: 'No user ID found for this webhook service' 
-        };
-      }
-      
-      userId = webhookConfig.user_id;
-    }
-    
-    if (!userId) {
-      return { 
-        success: false, 
-        message: 'Could not determine user ID for webhook' 
-      };
-    }
-    
-    // 2. Save the transcript as a document
-    const documentData: DocumentCreateInput = {
-      title: payload.title || `Transcript from ${payload.service} - ${new Date().toLocaleString()}`,
-      content: payload.content,
-      type: 'transcript' as DocumentType,
-      purpose: 'writing_sample' as DocumentPurpose,
-      status: 'active' as DocumentStatus,
-      content_type: null as DocumentContentType
-    };
-    
-    const { data: document, error: documentError } = await supabase
-      .from('documents')
-      .insert({
-        user_id: userId,
-        title: documentData.title,
-        content: documentData.content,
-        type: documentData.type,
-        purpose: documentData.purpose,
-        status: documentData.status,
-        content_type: documentData.content_type,
-        created_at: new Date().toISOString(),
-        processing_status: 'idle'
-      })
-      .select()
-      .single();
-    
-    if (documentError || !document) {
-      console.error('Failed to save transcript document:', documentError);
-      return { 
-        success: false, 
-        message: 'Failed to save transcript' 
-      };
-    }
-    
-    // 3. Process the transcript for ideas (in background mode)
-    console.log('Starting background processing for document:', document.id);
-    processTranscriptForIdeas(userId, document.id, true)
-      .then(result => {
-        console.log('Background processing complete:', result);
-      })
-      .catch(error => {
-        console.error('Background processing failed:', error);
+      const matchingConfig = webhookConfigs.find(config => {
+        if (isWebhookConfig(config)) {
+          const { id } = config as { id?: unknown };
+          return id === webhookId;
+        }
+        return false;
       });
-    
-    return { 
-      success: true, 
-      message: 'Transcript received and processing started', 
-      documentId: document.id 
+
+      if (!matchingConfig) throw new Error('Webhook configuration not found');
+      const { user_id } = matchingConfig as { user_id?: unknown };
+      if (typeof user_id !== 'string') throw new Error('Invalid webhook configuration');
+      resolvedUserId = user_id;
+    }
+
+    if (!resolvedUserId) {
+      throw new Error('No user ID provided and could not resolve from webhook configuration');
+    }
+
+    // Save the transcript to the database
+    const document: DocumentCreateInput = {
+      user_id: resolvedUserId,
+      title,
+      content: transcript,
+      type: 'transcript' as DocumentType,
+      purpose: 'content_idea' as DocumentPurpose,
+      status: 'active' as DocumentStatus,
+      content_type: 'general' as DocumentContentType,
+      processing_status: 'idle',
+      has_ideas: false,
+      ideas_count: 0,
     };
+
+    const { data: savedDocument, error } = await supabase.from('documents').insert(document).select().single();
+    if (error || !savedDocument) throw new Error('Failed to save document');
+
+    // Process the transcript for ideas in the background
+    processDocumentForIdeas(savedDocument.id, resolvedUserId).catch((error) => {
+      console.error('Error processing document for ideas:', error);
+      // Update document status to failed
+      supabase.from('documents')
+        .update({ processing_status: 'failed' })
+        .eq('id', savedDocument.id)
+        .then(({ error: updateError }) => {
+          if (updateError) console.error('Error updating document status:', updateError);
+        });
+    });
   } catch (error) {
-    console.error('Error processing transcript webhook:', error);
-    return { 
-      success: false, 
-      message: 'Internal server error processing webhook' 
-    };
+    throw handleApiError(error);
   }
 };
 
@@ -150,9 +126,7 @@ export const testWebhookFlow = async (userId: string): Promise<{
 }> => {
   try {
     const samplePayload: WebhookPayload = {
-      service: 'test_service',
-      title: 'Test Transcript - ' + new Date().toLocaleString(),
-      content: `This is a test transcript.
+      transcript: `This is a test transcript.
       
       We're testing the automatic processing of transcripts via webhooks.
       
@@ -166,18 +140,18 @@ export const testWebhookFlow = async (userId: string): Promise<{
       The key metrics from last quarter showed a 27% increase in engagement when we used customer testimonials.
       
       Let's develop a content strategy around these insights and implement it next month.`,
+      title: 'Test Transcript - ' + new Date().toLocaleString(),
       userId: userId
     };
     
-    const result = await processTranscriptWebhook(samplePayload);
+    await processTranscriptWebhook(samplePayload);
     
-    if (result.success) {
-      toast.success('Test webhook processed successfully');
-    } else {
-      toast.error('Test webhook processing failed');
-    }
+    toast.success('Test webhook processed successfully');
     
-    return result;
+    return {
+      success: true,
+      message: 'Test webhook processed successfully'
+    };
   } catch (error) {
     console.error('Error testing webhook flow:', error);
     toast.error('Error testing webhook flow');

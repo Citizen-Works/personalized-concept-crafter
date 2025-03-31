@@ -32,7 +32,8 @@ export const useTranscriptProcessing = (documents: Document[] = []) => {
     updateProcessingDocuments,
     cancelProcessing,
     handleViewIdeas,
-    setIsProgressDialogOpen
+    setIsProgressDialogOpen,
+    setProcessingError
   } = useDocumentProcessing(documents);
   
   // Convert the array to Set<string> for the status monitor
@@ -65,9 +66,18 @@ export const useTranscriptProcessing = (documents: Document[] = []) => {
 
   // Wrap the base handleProcessTranscript to ensure the dialog is shown
   const handleProcessTranscript = useCallback(async (id: string) => {
-    setIsProgressDialogOpen(true);
-    await baseHandleProcessTranscript(id);
-  }, [baseHandleProcessTranscript, setIsProgressDialogOpen]);
+    console.log('useTranscriptProcessing: Starting process for document:', id);
+    setIsProgressDialogOpen(true); // Set dialog open immediately
+    try {
+      console.log('useTranscriptProcessing: Calling base handler');
+      await baseHandleProcessTranscript(id);
+      console.log('useTranscriptProcessing: Base handler completed');
+    } catch (error) {
+      console.error('useTranscriptProcessing: Error in handleProcessTranscript:', error);
+      setProcessingError(error instanceof Error ? error.message : 'Failed to process document');
+      throw error;
+    }
+  }, [baseHandleProcessTranscript, setIsProgressDialogOpen, setProcessingError]);
   
   return useMemo(() => ({
     isProcessing,

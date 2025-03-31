@@ -11,124 +11,86 @@ interface RequestMetadata {
 /**
  * Processes content generation requests and handles errors with improved tenant tracking
  */
-export async function processContentRequest(requestData: any) {
-  // Generate a unique request ID for tracking
-  const requestId = crypto.randomUUID();
+export async function processContentRequest(requestData: any): Promise<Response> {
+  const requestId = requestData.requestId || crypto.randomUUID();
+  console.log(`[${requestId}] Processing content request`);
   
-  // Extract tenant information if available
-  const metadata: RequestMetadata = {
-    userId: requestData?.userId,
-    tenantId: requestData?.tenantId,
-    requestId,
-  };
-  
-  console.log(`[${requestId}] Processing content request:`, JSON.stringify(requestData, null, 2));
-
   try {
-    // Validate required fields with detailed error messages
-    if (!requestData?.task) {
-      throw new Error("Missing required field: task");
+    const { task, prompt } = requestData;
+    // API key should be passed in headers or environment variables
+    const apiKey = Deno.env.get("CLAUDE_API_KEY");
+    
+    if (!task || !prompt) {
+      console.error(`[${requestId}] Missing required fields:`, { 
+        task, 
+        hasPrompt: !!prompt
+      });
+      return new Response(JSON.stringify({ error: 'Missing required fields' }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json', ...corsHeaders }
+      });
     }
 
-    // Handle different task types
-    if (requestData.task === "content_generation") {
-      if (!requestData?.prompt) {
-        throw new Error("Content generation requires a prompt field");
-      }
-      
-      if (!requestData?.contentType) {
-        throw new Error("Content generation requires a contentType field");
-      }
+    if (!apiKey) {
+      console.error(`[${requestId}] Missing API key in environment`);
+      return new Response(JSON.stringify({ error: 'Claude API key not configured' }), {
+        status: 500,
+        headers: { 'Content-Type': 'application/json', ...corsHeaders }
+      });
+    }
 
-      // Use appropriate temperature based on content type
-      const temperature = requestData?.contentType === "ideas" ? IDEAS_TEMPERATURE : DEFAULT_TEMPERATURE;
-      
-      console.log(`[${requestId}] Generating content with temperature: ${temperature}`);
-      const claudeResponse = await callClaudeApi(requestData.prompt, temperature);
-      
-      // Improved error handling for Claude API response
-      if (!claudeResponse) {
-        throw new Error("Empty response from Claude API");
-      }
-      
-      // Extract content from Claude's response with better validation
-      const content = claudeResponse?.content?.[0]?.text;
-      if (!content) {
-        throw new Error("Claude API response missing expected content structure");
-      }
-      
-      console.log(`[${requestId}] Content generated successfully (${content.length} chars)`);
-      return { 
-        content, 
-        task: requestData.task,
-        contentType: requestData.contentType,
-        requestId // Return request ID for client-side logging
-      };
+    console.log(`[${requestId}] Processing ${task} request`);
+    
+    let result;
+    switch (task) {
+      case 'generate-ideas':
+        result = await generateIdeas(prompt, apiKey);
+        break;
+      case 'content_generation':
+        result = await generateContent(prompt, apiKey);
+        break;
+      case 'writing_style_preview':
+        result = await generateContent(prompt, apiKey);
+        break;
+      default:
+        throw new Error(`Unknown task type: ${task}`);
     }
     
-    else if (requestData.task === "writing_style_preview") {
-      if (!requestData?.prompt) {
-        throw new Error("Writing style preview requires prompt field");
-      }
-      
-      const claudeResponse = await callClaudeApi(requestData.prompt);
-      
-      // Improved validation of Claude response
-      if (!claudeResponse) {
-        throw new Error("Empty response from Claude API");
-      }
-      
-      const content = claudeResponse?.content?.[0]?.text;
-      if (!content) {
-        throw new Error("Claude API response missing expected content structure");
-      }
-      
-      console.log(`[${requestId}] Writing style preview generated successfully (${content.length} chars)`);
-      return { 
-        content, 
-        task: requestData.task,
-        requestId // Return request ID for client-side logging
-      };
-    }
-    
-    else if (requestData.task === "content_analysis") {
-      if (!requestData?.prompt) {
-        throw new Error("Content analysis requires a prompt field");
-      }
-      
-      // Use higher temperature for idea generation
-      const temperature = IDEAS_TEMPERATURE;
-      
-      console.log(`[${requestId}] Analyzing content with temperature: ${temperature}`);
-      const claudeResponse = await callClaudeApi(requestData.prompt, temperature);
-      
-      // Improved error handling for Claude API response
-      if (!claudeResponse) {
-        throw new Error("Empty response from Claude API");
-      }
-      
-      // Extract content from Claude's response with better validation
-      const content = claudeResponse?.content?.[0]?.text;
-      if (!content) {
-        throw new Error("Claude API response missing expected content structure");
-      }
-      
-      console.log(`[${requestId}] Content analysis completed successfully (${content.length} chars)`);
-      return { 
-        content, 
-        task: requestData.task,
-        contentType: requestData.contentType,
-        requestId // Return request ID for client-side logging
-      };
-    }
-    
-    else {
-      throw new Error(`Unknown task type: ${requestData.task}`);
-    }
+    return new Response(JSON.stringify(result), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json', ...corsHeaders }
+    });
   } catch (error) {
-    // Enhanced error logging with tenant metadata
-    logError(error, metadata);
-    throw error; // Let the main handler format the error response
+    console.error(`[${requestId}] Error processing request:`, error);
+    return handleError(error, corsHeaders);
+  }
+}
+
+async function generateIdeas(prompt: string, apiKey: string) {
+  const requestId = crypto.randomUUID();
+  console.log(`[${requestId}] Generating ideas with API key:`, apiKey.substring(0, 4) + '...');
+  
+  try {
+    const result = await callClaudeApi(prompt, IDEAS_TEMPERATURE, apiKey);
+    console.log(`[${requestId}] Generated ideas:`, result);
+    return result;
+  } catch (error) {
+    console.error(`[${requestId}] Error generating ideas:`, error);
+    throw error;
+  }
+}
+
+async function generateContent(prompt: string, apiKey: string) {
+  const requestId = crypto.randomUUID();
+  console.log(`[${requestId}] Generating content with API key:`, apiKey.substring(0, 4) + '...');
+  
+  try {
+    const result = await callClaudeApi(prompt, DEFAULT_TEMPERATURE, apiKey);
+    console.log(`[${requestId}] Generated content:`, result);
+    return result;
+  } catch (error) {
+    console.error(`[${requestId}] Error generating content:`, error);
+    throw error;
   }
 }
 

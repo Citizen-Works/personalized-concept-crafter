@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { Document, DocumentType, DocumentPurpose, DocumentStatus, DocumentContentType, DocumentProcessingStatus } from "@/types/documents";
 import { decryptContent } from "@/utils/encryptionUtils";
@@ -56,7 +55,7 @@ export const fetchDocument = async (userId: string, documentId: string): Promise
     }
 
     // Ensure all required fields are present
-    return {
+    const document = {
       id: data.id,
       userId: data.user_id,
       title: data.title || "Untitled Document",
@@ -71,6 +70,16 @@ export const fetchDocument = async (userId: string, documentId: string): Promise
       has_ideas: data.has_ideas || false,
       ideas_count: data.ideas_count || 0
     };
+
+    console.log('Document content preview:', {
+      contentLength: document.content?.length || 0,
+      preview: document.content?.substring(0, 100) + '...',
+      type: document.type,
+      status: document.status,
+      processingStatus: document.processing_status
+    });
+
+    return document;
   } catch (error) {
     console.error(`Error fetching document ${documentId}:`, error);
     // Add more context to the error

@@ -47,19 +47,19 @@ export function useTranscriptList() {
   /**
    * Handle exporting transcripts
    */
-  const handleExportTranscripts = useCallback(() => {
-    // Generate a CSV string from the documents
-    const header = "Title,Created At,Content\n";
-    const csvContent = documents.reduce((acc, doc) => {
-      const title = doc.title.replace(/,/g, ' ');
-      const content = doc.content.replace(/,/g, ' ').replace(/\n/g, ' ');
-      const createdAt = doc.createdAt.toLocaleDateString();
-      return acc + `"${title}","${createdAt}","${content}"\n`;
-    }, header);
-
-    // Create a blob and save it
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8' });
-    saveAs(blob, `transcripts-export-${new Date().toISOString().slice(0, 10)}.csv`);
+  const handleExportTranscripts = useCallback(async () => {
+    try {
+      // Create a text file with all transcript content
+      const content = documents
+        .map(doc => `${doc.title}\n\n${doc.content}\n\n---\n\n`)
+        .join('');
+      
+      // Create and save the file
+      const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+      saveAs(blob, 'transcripts.txt');
+    } catch (error) {
+      console.error('Error exporting transcripts:', error);
+    }
   }, [documents]);
 
   return {
@@ -68,7 +68,6 @@ export function useTranscriptList() {
     selectedTranscript,
     transcriptContent,
     handleViewTranscript,
-    handleExportTranscripts,
-    refetch: fetchTranscripts.refetch
+    handleExportTranscripts
   };
 }

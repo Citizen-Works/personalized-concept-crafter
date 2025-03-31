@@ -48,12 +48,32 @@ const TranscriptsPage = () => {
     ideas,
     processingError,
     isProgressDialogOpen,
-    handleProcessTranscript,
+    handleProcessTranscript: baseHandleProcessTranscript,
     isDocumentProcessing,
     cancelProcessing,
     handleViewIdeas,
     setIsProgressDialogOpen
   } = useTranscriptProcessing(documents);
+
+  // Add effect to log dialog state changes
+  React.useEffect(() => {
+    console.log('TranscriptsPage: Dialog state changed:', {
+      isProgressDialogOpen,
+      isProcessing,
+      hasIdeas: ideas?.length > 0,
+      error: processingError
+    });
+  }, [isProgressDialogOpen, isProcessing, ideas, processingError]);
+
+  // Wrap the process handler to manage dialog state
+  const handleProcessTranscript = useCallback(async (id: string) => {
+    console.log('TranscriptsPage: Starting process with dialog:', id);
+    try {
+      await baseHandleProcessTranscript(id);
+    } catch (error) {
+      console.error('TranscriptsPage: Process error:', error);
+    }
+  }, [baseHandleProcessTranscript]);
 
   const handleViewTranscript = useCallback((content: string) => {
     baseHandleViewTranscript(content);
@@ -214,7 +234,7 @@ const TranscriptsPage = () => {
         isOpen={isProgressDialogOpen}
         onOpenChange={setIsProgressDialogOpen}
         isProcessing={isProcessing}
-        ideas={ideas}
+        ideas={ideas || []}
         error={processingError}
         onViewIdeas={handleViewIdeas}
       />

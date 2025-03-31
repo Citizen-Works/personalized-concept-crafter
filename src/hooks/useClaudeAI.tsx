@@ -33,12 +33,34 @@ export const useClaudeAI = () => {
         return null;
       }
       
+      // Get the API key from user settings
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        throw new Error('User not authenticated');
+      }
+
+      const { data: userSettings, error: settingsError } = await supabase
+        .from('user_settings')
+        .select('api_key')
+        .eq('user_id', user.id)
+        .single();
+
+      if (settingsError) {
+        console.error('Error fetching user settings:', settingsError);
+        throw new Error('Failed to fetch user settings');
+      }
+
+      if (!userSettings?.api_key) {
+        throw new Error('Claude API key not found in user settings');
+      }
+      
       // Call Claude API through Supabase Edge Function
       const { data, error } = await supabase.functions.invoke('generate-with-claude', {
         body: {
+          taskType: 'generate-content',
           prompt,
+          apiKey: userSettings.api_key,
           contentType,
-          task: 'content_generation',
           idea: {
             id: idea.id,
             title: idea.title,
